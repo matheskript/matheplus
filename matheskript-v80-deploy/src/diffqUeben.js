@@ -2,15 +2,16 @@
    Differenzenquotient – Modus „Üben“ (ohne Oberfläche)
    Zwischen Auto (die App rechnet vor) und Lernen (der Schüler tippt jede Zeile
    selbst) liegt Üben: Der Schüler geht jeden Schritt selbst, wählt aber aus
-   ZWEI fertigen Zeilen – eine richtige (aus dem Musterweg) und eine falsche,
-   die einen typischen Fehler genau dieses Schritts enthält. Wer falsch tippt,
-   bekommt den Grund und wählt die andere; erst die richtige wird eingesetzt.
+   fertigen Zeilen – eine richtige (aus dem Musterweg) und bis zu drei falsche,
+   jede mit einem typischen Fehler genau dieses Schritts. Wer falsch tippt,
+   bekommt den Grund; erst die richtige wird eingesetzt.
 
-   uebenWeg(auf, x0, zufall) → Schritte
+   uebenWeg(auf, x0, zufall) → Schritte (Form aus uebenKern.uebenSchritt)
      { art: fxh | einsetzen | bruch | frei | limes, label, frage,
        richtig: { text } | { a, b },
-       optionen: [{ text } | { a, b }, …]   (zwei, Reihenfolge zufällig)
-       richtigIndex, falschHinweis, falschArt }
+       optionen: [{ key, wert, richtig, hinweis, art, rang }, …] }
+     optionen[0] ist die richtige, dahinter bis zu drei falsche; wie viele
+     erscheinen (2, 3 oder 4), entscheidet die Oberfläche nach Platz.
 
    Jede falsche Option ist numerisch geprüft falsch (dieselbe Prüfung wie in
    Lernen: pruefeFxh / pruefeEinsetzen / pruefeZeile) – ein „Fehler“, der
@@ -20,6 +21,7 @@
 import {
   ableitungVon, bruchText, entwickelt, fxhWeg, gliederText, lies, musterweg, polyText, pruefeEinsetzen, pruefeFxh, pruefeZeile, zahlText, zusammengefasst,
 } from "./diffqKern.js";
+import { falscheOptionen, uebenSchritt } from "./uebenKern.js";
 
 /* Zahlen und Terme in Hinweisen: echtes Minuszeichen, negative Zahlen in Klammern, wo sie als Faktor stehen */
 const zh = (v) => zahlText(v).replace("-", "−");
@@ -261,71 +263,55 @@ function fehlerGrenzwert(auf, x0, mw0) {
   return k;
 }
 
-/* ---------- Auswahl ---------- */
+/* ---------- Auswahl (gemeinsamer Kern: uebenKern.js) ---------- */
 const istText = (o) => typeof o.text === "string";
-function gueltigeWahl(kandidaten, richtig, pruefe, zufall) {
-  const gesehen = new Set([istText(richtig) ? richtig.text : `${richtig.a}|${richtig.b}`]);
-  const gut = [];
-  for (const k of kandidaten) {
-    const key = istText(k) ? k.text : `${k.a}|${k.b}`;
-    if (gesehen.has(key)) continue;
-    gesehen.add(key);
-    const lesbar = istText(k) ? !!lies(k.text) : !!lies(k.a) && !!lies(k.b);
-    if (!lesbar) continue;
-    const r = pruefe(k);
-    if (r.ok) continue;
-    gut.push({ ...k, hinweis: k.hinweis || r.hinweis });
-  }
-  if (!gut.length) return null;
-  return gut[Math.min(gut.length - 1, Math.floor(zufall() * gut.length))];
-}
+const schluessel = (w) => (istText(w) ? `t:${w.text}` : `e:${w.a}|${w.b}`);
+const lesbar = (w) => (istText(w) ? !!lies(w.text) : !!lies(w.a) && !!lies(w.b));
+/* Kandidaten der Fehlerkataloge { art, text | a, b, hinweis } → { wert, art, hinweis } */
+const alsKandidat = ({ art, hinweis, ...wert }) => ({ art, hinweis, wert });
 
-/* Notnagel, falls kein typischer Fehler greift (z. B. eigene Funktionen): Vorzeichen gedreht, sonst +1 */
+/* Notnagel, falls kein typischer Fehler greift (nur eigene Funktionen): Vorzeichen gedreht, sonst +1 */
 function notnagel(richtig, pruefe) {
-  if (!istText(richtig)) {
-    const k = { art: "plus-eins", a: richtig.a, b: `${richtig.b}+1`, hinweis: "" };
-    return { ...k, hinweis: pruefe(k).hinweis || "Das zweite Feld stimmt nicht." };
+  const liste = [];
+  if (!istText(richtig)) liste.push({ a: richtig.a, b: `${richtig.b}+1` });
+  else {
+    const v = Number(String(richtig.text).replace(",", "."));
+    if (Number.isFinite(v) && /^-?[0-9.,]+$/.test(richtig.text)) liste.push({ text: zahlText(-v || 1) });
+    else liste.push({ text: `-(${richtig.text})` }, { text: `${richtig.text}+1` });
   }
-  const v = Number(String(richtig.text).replace(",", "."));
-  const kandidaten = Number.isFinite(v) && /^-?[0-9.,]+$/.test(richtig.text) ? [zahlText(-v || 1)] : [`-(${richtig.text})`, `${richtig.text}+1`];
-  for (const t of kandidaten) {
-    const k = { art: "notnagel", text: t };
-    const r = pruefe(k);
-    if (!r.ok) return { ...k, hinweis: r.hinweis || "Diese Zeile ist nicht gleichwertig zur Zeile darüber." };
+  for (const wert of liste) {
+    const r = pruefe(wert);
+    if (!r.ok && lesbar(wert)) return [{ wert, art: "notnagel", hinweis: r.hinweis || "Diese Zeile ist nicht gleichwertig zur Zeile darüber." }];
   }
-  return { art: "notnagel", text: `${richtig.text}+1`, hinweis: "Diese Zeile ist nicht gleichwertig zur Zeile darüber." };
+  return [];
 }
 
 /* ---------- Der Weg ---------- */
+/* Schritte { art, label, frage, richtig, optionen } – optionen[0] richtig, dahinter bis zu drei falsche
+   (typische Fehler, numerisch als falsch bestätigt); wie viele davon erscheinen, entscheidet die Oberfläche. */
 export function uebenWeg(auf, x0 = null, zufall = Math.random) {
   const mw = musterweg(auf, x0);
   const vor = fxhWeg(auf, x0);
   const schritte = [];
   const dazu = (art, label, richtig, kandidaten, pruefe) => {
-    const falsch = gueltigeWahl(kandidaten, richtig, pruefe, zufall) || notnagel(richtig, pruefe);
-    const richtigZuerst = zufall() < 0.5;
-    const { hinweis, art: falschArt, ...falschOpt } = falsch;
-    schritte.push({
-      art, label, frage: frageZu(label, art, x0), richtig,
-      optionen: richtigZuerst ? [richtig, falschOpt] : [falschOpt, richtig],
-      richtigIndex: richtigZuerst ? 0 : 1,
-      falschHinweis: hinweis, falschArt,
-    });
+    let falsche = falscheOptionen(richtig, kandidaten.map(alsKandidat), { pruefe, schluessel, lesbar, max: 3, zufall });
+    if (!falsche.length) falsche = notnagel(richtig, pruefe);
+    schritte.push(uebenSchritt({ art, label, frage: frageZu(label, art, x0), richtig, falsche, schluessel, zufall }));
   };
-  const pFxh = (k) => pruefeFxh(auf, x0, k.text);
+  const pFxh = (w) => pruefeFxh(auf, x0, w.text);
   // Vorbereitung: einsetzen, bei Polynomen ausmultiplizieren
   dazu("fxh", "Einsetzen", { text: vor[0] }, fehlerEinsetzenVor(auf, x0, mw[0]), pFxh);
   if (vor.length > 1) dazu("fxh", "Ausmultiplizieren", { text: vor[1] }, fehlerAusmultiplizieren(auf, x0), pFxh);
   // Bruch: erstes Feld = fertig ausgerechnetes f(x+h)
   const A = vor[vor.length - 1], B = mw[0].b;
-  dazu("einsetzen", "Einsetzen", { a: A, b: B }, fehlerEinsetzenBruch(auf, x0, A, B), (k) => {
-    const r = pruefeEinsetzen(auf, x0, k.a, k.b);
+  dazu("einsetzen", "Einsetzen", { a: A, b: B }, fehlerEinsetzenBruch(auf, x0, A, B), (w) => {
+    const r = pruefeEinsetzen(auf, x0, w.a, w.b);
     return { ok: r.a.ok && r.b.ok, hinweis: r.a.ok ? r.b.hinweis : r.a.hinweis };
   });
   const limesText = mw[mw.length - 1].text;
   for (const m of mw.slice(1)) {
     if (m.label === "Ausmultiplizieren") continue;   // steht schon in der Vorbereitung
-    const pZ = (k) => pruefeZeile(auf, x0, m.art, k.text);
+    const pZ = (w) => pruefeZeile(auf, x0, m.art, w.text);
     const kand = m.art === "bruch" ? fehlerBruchZeile(auf, x0, m.label) : m.art === "frei" ? fehlerKuerzen(auf, x0, limesText) : fehlerGrenzwert(auf, x0, mw[0]);
     dazu(m.art, m.label, { text: m.text }, kand, pZ);
   }

@@ -38,6 +38,8 @@ import {
   ARTEN, aufgabeAus, fxhWeg, musterweg, naechsterText, neueAufgabe, pruefeEinsetzen, pruefeFxh, pruefeZeile, stelleOk, stelleZu, texVon, zahlText,
 } from "./diffqKern.js";
 import { uebenWeg } from "./diffqUeben.js";
+import { UEBEN_MODI as MODI, aufAnhieb } from "./uebenKern.js";
+import { UEBEN_CSS, UebenFertig, UebenWahl } from "./funcUebenWahl.jsx";
 
 /* ---------- Zeilen-Zustand ---------- */
 const leerEinsetzen = (a = "") => ({ art: "einsetzen", a, b: "", sa: null, sb: null, ha: "", hb: "", versuche: 0 });
@@ -142,21 +144,15 @@ const CSS = `
 }
 /* Modus-Beschreibung unter dem Schalter */
 .dq-modus-text{font-size:12.5px;color:${C.grau};line-height:1.45;margin:-2px 6px 2px}
-/* Üben: zwei Zeilen zur Wahl unter der offenen Zeile */
-.dq-ueben{display:flex;flex-direction:column;gap:8px;margin:4px 0 12px}
-.dq-frage{font-size:14.5px;font-weight:600;color:${C.tinte};line-height:1.5;margin:2px 4px 0}
-.dq-frage span{display:block;font-size:10.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:${C.grau};margin-bottom:1px}
-.dq-option{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;padding:8px 14px;border-radius:16px;border:1.5px solid ${C.linie};background:#fff;font-family:inherit;font-size:20px;line-height:1.5;color:${C.tinte};cursor:pointer;text-align:left;overflow-x:auto;overflow-y:hidden;white-space:nowrap;box-shadow:0 1px 6px rgba(15,26,51,0.05);transition:border-color .15s,box-shadow .15s}
-@media (hover:hover){.dq-option:not([data-status="falsch"]):hover{border-color:${C.see};box-shadow:0 4px 14px rgba(0,77,152,0.12)}}
-.dq-option:focus-visible{outline:2px solid ${C.see};outline-offset:2px}
-.dq-option[data-status="falsch"]{border-color:${C.signal};background:#FFF6F1;cursor:default}
-.dq-option[data-status="falsch"] .dq-opt-inhalt{opacity:.75}
-.dq-opt-b{flex-shrink:0;width:30px;height:30px;border-radius:999px;background:#EEF2F8;color:${C.see};font-size:13px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
-.dq-option[data-status="falsch"] .dq-opt-b{background:${C.signal};color:#fff}
-.dq-opt-inhalt{flex:1 0 auto;display:inline-flex;align-items:center}
-.dq-mini{display:inline-flex;align-items:center;min-height:36px;padding:0 9px;border-radius:10px;border:1.5px solid ${C.linie};background:#fff}
-.dq-ueben .dq-hinweis{margin:-2px 6px 2px}
-.dq-ergebnis-zeile{font-size:17px;color:${C.tinte};margin-bottom:12px}
+/* Klammern um f(x+h) und f(x) im Bruch (Wunsch 22.10.: sonst stünde da streng genommen „− x² − 3“) */
+.dq-klammer{display:inline-flex;align-items:center;font-size:34px;font-weight:300;line-height:1;color:${C.tinte};margin:0 -3px;transform:translateY(-1px)}
+.uw-inhalt .dq-klammer,.uw-mass .dq-klammer{font-size:28px;margin:0 -1px}
+@media (max-width:600px){
+  .dq-zeile[data-art="einsetzen"]{font-size:17.5px;gap:6px;padding-left:10px;padding-right:10px}
+  .dq-zeile[data-art="einsetzen"] .dq-klammer{font-size:28px;margin:0 -4px}
+  .dq-zeile[data-art="einsetzen"] .dq-feld{padding:0 7px;min-width:44px}
+  .dq-zeile[data-art="einsetzen"] .dq-z{gap:6px;padding-left:2px;padding-right:2px}
+}
 /* Im Pop-up eines Kursmoduls (kein Band): Breite der Vorlage statt der Kopfleiste */
 .dk-fenster .dq-innen{width:calc(100% - 32px);max-width:none}
 `;
@@ -174,10 +170,10 @@ function Bruch({ children, nenner = "h" }) {
 }
 
 /* Ein Feld im Bruch: Anzeige mit Schreibmarke (aktiv), gesetzte Formel oder Platzhalter */
-function Feld({ text, aktiv, status, platz, onClick, pos, setPos }) {
+function Feld({ text, aktiv, status, platz, onClick, pos, setPos, ziel = false }) {
   const leer = !text;
   return (
-    <span className="dq-feld" data-aktiv={!!aktiv} data-status={status || undefined} data-leer={leer && !aktiv} onClick={onClick} role="button" tabIndex={0}
+    <span className={ziel ? "dq-feld uw-ziel" : "dq-feld"} data-ueben-ziel={ziel || undefined} data-aktiv={!!aktiv} data-status={status || undefined} data-leer={leer && !aktiv} onClick={onClick} role="button" tabIndex={0}
       onKeyDown={(e) => { if ((e.key === "Enter" || e.key === " ") && onClick) { e.preventDefault(); onClick(e); } }}>
       {aktiv && setPos ? <EingabeFormel text={text || ""} pos={pos} setPos={setPos} hinweis={<span className="dq-platz">{platz}</span>} />
         : text ? <LiveFormel text={text} /> : <span className="dq-platz">{platz}</span>}
@@ -192,26 +188,22 @@ function Status({ s }) {
   return <span className="dq-status" />;
 }
 
+const Kl = ({ children }) => <span className="dq-klammer" aria-hidden="true">{children}</span>;
+
 /* Üben: Inhalt einer Antwortkarte – genau das, was in die offene Zeile eingesetzt wird */
 function OptionInhalt({ art, o }) {
   if (art === "einsetzen") {
     return (
       <Bruch>
-        <span className="dq-mini"><LiveFormel text={o.a} /></span>
+        <Kl>(</Kl><LiveFormel text={o.a} /><Kl>)</Kl>
         <span>−</span>
-        <span className="dq-mini"><LiveFormel text={o.b} /></span>
+        <Kl>(</Kl><LiveFormel text={o.b} /><Kl>)</Kl>
       </Bruch>
     );
   }
   if (art === "bruch") return <Bruch><LiveFormel text={o.text} /></Bruch>;
   return <LiveFormel text={o.text} />;
 }
-
-const MODI = [
-  { id: "auto", name: "Auto", text: "Die App rechnet dir den Weg vor." },
-  { id: "ueben", name: "Üben", text: "Du gehst jeden Schritt – und wählst die richtige von zwei Zeilen." },
-  { id: "lernen", name: "Lernen", text: "Du rechnest jede Zeile selbst." },
-];
 
 const labelF = (x0) => (x0 === null ? "f′(x) =" : `f′(${zahlText(x0)}) =`);
 const labelFxh = (x0) => (x0 === null ? "f(x+h) =" : `f(${zahlText(x0)}+h) =`);
@@ -238,27 +230,41 @@ function VorWeg({ zeilen, x0 }) {
 }
 
 /* Eine Rechenzeile. aktiv = letzte, noch offene Zeile; feld = welches Feld die Marke hat */
-function Zeile({ z, x0, aktiv, offen = false, feld, setFeld, pos, setPos, onKlick, label, schritt, platzhalter }) {
+function Zeile({ z, x0, aktiv, offen = false, feld, setFeld, pos, setPos, onKlick, label, schritt, platzhalter, ziel = false }) {
   const fertig = zeileFertig(z);
   const gezeigt = z.art === "einsetzen" ? z.sa === "gezeigt" || z.sb === "gezeigt" : z.status === "gezeigt";
   const xs = x0 === null ? "x" : zahlText(x0);
   const feldKlick = (name) => (e) => { e.stopPropagation(); if (!aktiv) return; setFeld(name); onKlick(name); };
   const status = z.art === "einsetzen" ? (fertig ? (gezeigt ? "gezeigt" : "richtig") : z.sa === "falsch" || z.sb === "falsch" ? "falsch" : null) : z.status;
+  // Üben: ist die Zeile breiter als der Bildschirm, wird sie in sich so verschoben, dass das goldene Zielfeld sichtbar ist
+  const zeileRef = React.useRef(null);
+  React.useLayoutEffect(() => {
+    const row = zeileRef.current;
+    if (!ziel || !aktiv || !row) return;
+    const t = row.querySelector("[data-ueben-ziel]");
+    if (!t) return;
+    const r = row.getBoundingClientRect(), tr = t.getBoundingClientRect();
+    if (tr.right > r.right - 10) row.scrollLeft += tr.right - r.right + 18;
+  }, [ziel, aktiv, z.art]);
   const inhalt = z.art === "einsetzen" ? (
     <Bruch>
-      <Feld text={z.a} aktiv={aktiv && feld === "a"} status={z.sa} platz={platzhalter || `f(${xs}+h)`} onClick={feldKlick("a")} pos={pos} setPos={aktiv && offen && feld === "a" ? setPos : undefined} />
+      <Kl>(</Kl>
+      <Feld text={z.a} aktiv={aktiv && feld === "a"} status={z.sa} platz={platzhalter || `f(${xs}+h)`} onClick={feldKlick("a")} pos={pos} setPos={aktiv && offen && feld === "a" ? setPos : undefined} ziel={ziel && aktiv && feld === "a"} />
+      <Kl>)</Kl>
       <span>−</span>
-      <Feld text={z.b} aktiv={aktiv && feld === "b"} status={z.sb} platz={platzhalter || `f(${xs})`} onClick={feldKlick("b")} pos={pos} setPos={aktiv && offen && feld === "b" ? setPos : undefined} />
+      <Kl>(</Kl>
+      <Feld text={z.b} aktiv={aktiv && feld === "b"} status={z.sb} platz={platzhalter || `f(${xs})`} onClick={feldKlick("b")} pos={pos} setPos={aktiv && offen && feld === "b" ? setPos : undefined} ziel={ziel && aktiv && feld === "b"} />
+      <Kl>)</Kl>
     </Bruch>
   ) : z.art === "bruch" ? (
-    <Bruch><Feld text={z.text} aktiv={aktiv} status={z.status} platz={platzhalter || "Zähler"} onClick={feldKlick("text")} pos={pos} setPos={aktiv && offen ? setPos : undefined} /></Bruch>
+    <Bruch><Feld text={z.text} aktiv={aktiv} status={z.status} platz={platzhalter || "Zähler"} onClick={feldKlick("text")} pos={pos} setPos={aktiv && offen ? setPos : undefined} ziel={ziel && aktiv} /></Bruch>
   ) : z.art === "fxh" ? (
-    <Feld text={z.text} aktiv={aktiv} status={z.status} platz={platzhalter || (x0 === null ? "jedes x durch (x+h) ersetzen" : `(${xs}+h) für x einsetzen`)} onClick={feldKlick("text")} pos={pos} setPos={aktiv && offen ? setPos : undefined} />
+    <Feld text={z.text} aktiv={aktiv} status={z.status} platz={platzhalter || (x0 === null ? "jedes x durch (x+h) ersetzen" : `(${xs}+h) für x einsetzen`)} onClick={feldKlick("text")} pos={pos} setPos={aktiv && offen ? setPos : undefined} ziel={ziel && aktiv} />
   ) : (
-    <Feld text={z.text} aktiv={aktiv} status={z.status} platz={platzhalter || (z.art === "limes" ? (x0 === null ? "f′(x)" : "Zahl") : "Term mit h")} onClick={feldKlick("text")} pos={pos} setPos={aktiv && offen ? setPos : undefined} />
+    <Feld text={z.text} aktiv={aktiv} status={z.status} platz={platzhalter || (z.art === "limes" ? (x0 === null ? "f′(x)" : "Zahl") : "Term mit h")} onClick={feldKlick("text")} pos={pos} setPos={aktiv && offen ? setPos : undefined} ziel={ziel && aktiv} />
   );
   return (
-    <div className="dq-zeile" data-aktiv={aktiv} data-fertig={fertig} data-gezeigt={gezeigt} data-art={z.art} onClick={aktiv ? () => onKlick() : undefined}>
+    <div ref={zeileRef} className="dq-zeile" data-aktiv={aktiv} data-fertig={fertig} data-gezeigt={gezeigt} data-art={z.art} onClick={aktiv ? () => onKlick() : undefined}>
       {schritt && <span className="dq-schritt oben"><MitWurzeln text={schritt} /></span>}
       <span className="dq-label">{label}</span>
       <span className="dq-rechts">
@@ -272,7 +278,7 @@ function Zeile({ z, x0, aktiv, offen = false, feld, setFeld, pos, setPos, onKlic
 
 /* ---------- Das Werkzeug ---------- */
 export function DifferenzenquotientTrainer({ ohneKopf = false }) {
-  const [modus, setModus] = useState("lernen");            // auto (Musterweg) | ueben (zwei Zeilen zur Wahl) | lernen (selbst tippen)
+  const [modus, setModus] = useState("lernen");            // auto (Musterweg) | ueben (richtige Zeile wählen, 2–4 Optionen) | lernen (selbst tippen)
   const [form, setForm] = useState("funktion");            // funktion | stelle
   const [quelle, setQuelle] = useState("typ");             // typ | zufall | eigen
   const [typ, setTyp] = useState(ARTEN[1]);
@@ -423,19 +429,20 @@ export function DifferenzenquotientTrainer({ ohneKopf = false }) {
     setOffen(false);
   };
 
-  /* ---------- Üben: je Schritt zwei Zeilen zur Wahl ---------- */
+  /* ---------- Üben: je Schritt die richtige Zeile aus 2–4 wählen (funcUebenWahl.jsx) ---------- */
   const nUeben = uebenSchritte.length;
   const nVor = uebenSchritte.filter((u) => u.art === "fxh").length;
   const uebenFertig = uebenStand >= nUeben;
-  const uebenAnhieb = uebenSchritte.slice(0, uebenStand).filter((_, i) => uebenFalsch[i] === undefined).length;
-  const uebenWaehle = (k) => {
+  const uebenAnhieb = aufAnhieb(uebenFalsch, Math.min(uebenStand, nUeben));
+  const uebenWaehle = (o) => {
     const sch = uebenSchritte[uebenStand];
-    if (!sch || uebenFalsch[uebenStand] === k) return;
-    if (k !== sch.richtigIndex) { setUebenFalsch({ ...uebenFalsch, [uebenStand]: k }); return; }
+    if (!sch) return;
+    const schon = uebenFalsch[uebenStand] || [];
+    if (!o.richtig) { if (!schon.includes(o.key)) setUebenFalsch({ ...uebenFalsch, [uebenStand]: [...schon, o.key] }); return; }
     const neu = uebenStand + 1;
     setUebenStand(neu);
     if (neu === nUeben) {
-      const anhieb = uebenAnhieb + (uebenFalsch[uebenStand] === undefined ? 1 : 0);
+      const anhieb = aufAnhieb(uebenFalsch, nUeben);
       buchen({ richtig: anhieb === nUeben, gruppe: "diffq-ueben", stufe, art: auf.art });
     }
   };
@@ -456,6 +463,7 @@ export function DifferenzenquotientTrainer({ ohneKopf = false }) {
     <div className="dq-seite">
       <style>{POP_CSS}</style>
       <style>{CSS}</style>
+      <style>{UEBEN_CSS}</style>
       <div className="dq-innen">
        <div className="dq-raster">
         <div className="dq-spalte-l">
@@ -560,24 +568,10 @@ export function DifferenzenquotientTrainer({ ohneKopf = false }) {
                     return (
                       <div key={`${uebenRunde}-${i}`}>
                         <Zeile z={z} x0={stelle} aktiv={!fertigZ} feld={u.art === "einsetzen" ? "b" : "text"} setFeld={() => {}} pos={0} setPos={() => {}} onKlick={() => {}}
-                          label={u.art === "fxh" && i === 0 ? labelFxh(stelle) : "="} schritt={u.label} platzhalter="?" />
+                          label={u.art === "fxh" && i === 0 ? labelFxh(stelle) : "="} schritt={u.label} platzhalter="?" ziel={!fertigZ} />
                         {!fertigZ && (
-                          <div className="dq-ueben" data-diffq-ueben>
-                            <p className="dq-frage"><span>Schritt {i + 1} von {nUeben}</span>{u.frage}</p>
-                            {u.optionen.map((o, k) => {
-                              const falsch = uebenFalsch[i] === k;
-                              return (
-                                <React.Fragment key={k}>
-                                  <button type="button" className="dq-option" data-status={falsch ? "falsch" : undefined} data-diffq-option={k === u.richtigIndex ? "richtig" : "falsch"}
-                                    aria-disabled={falsch || undefined} aria-label={`Zeile ${k === 0 ? "A" : "B"} einsetzen`} onClick={() => uebenWaehle(k)}>
-                                    <span className="dq-opt-b" aria-hidden="true">{falsch ? "✗" : k === 0 ? "A" : "B"}</span>
-                                    <span className="dq-opt-inhalt"><OptionInhalt art={u.art} o={o} /></span>
-                                  </button>
-                                  {falsch && <p className="dq-hinweis" data-diffq-ueben-hinweis><MitWurzeln text={u.falschHinweis} /></p>}
-                                </React.Fragment>
-                              );
-                            })}
-                          </div>
+                          <UebenWahl schritt={u} nr={i + 1} gesamt={nUeben} frage={u.frage} falsch={uebenFalsch[i] || []} onWahl={uebenWaehle}
+                            inhalt={(w) => <OptionInhalt art={u.art} o={w} />} />
                         )}
                         {/* Die Vorlage steht unter der Vorbereitung – sichtbar ab dem ersten Schritt */}
                         {i === Math.min(uebenStand, nVor - 1) && <Vorlage x0={stelle} />}
@@ -585,23 +579,10 @@ export function DifferenzenquotientTrainer({ ohneKopf = false }) {
                     );
                   })}
                   {uebenFertig && (
-                    <div style={{ textAlign: "center", padding: "12px 0 4px" }} data-diffq-ueben-fertig>
-                      <p style={{ fontSize: 20, fontWeight: 700, color: C.smaragd, marginBottom: 4 }}>
-                        {uebenAnhieb === nUeben ? `Alle ${nUeben} Schritte auf Anhieb – stark! 🎉` : `Geschafft – ${uebenAnhieb} von ${nUeben} Schritten auf Anhieb.`}
-                      </p>
-                      <p className="dq-ergebnis-zeile">{labelF(stelle)} <M t={texVon(uebenSchritte[nUeben - 1].richtig.text)} /></p>
-                      <p style={{ fontSize: 13.5, color: C.grau, margin: "0 auto 14px", maxWidth: 420, lineHeight: 1.6 }}>Nächste Stufe: Rechne dieselbe Funktion in „Lernen“ – jede Zeile selbst, ohne Auswahl.</p>
-                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
-                        <button type="button" onClick={zuLernen}
-                          style={{ flex: "1 1 200px", height: 54, borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 16.5, fontWeight: 700, color: C.weiss, background: `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` }}>
-                          Jetzt selbst rechnen
-                        </button>
-                        <button type="button" onClick={() => (quelle === "eigen" ? neustart(auf) : neueFunktion())}
-                          style={{ flex: "1 1 160px", height: 54, borderRadius: 14, border: `1.5px solid ${C.see}`, cursor: "pointer", fontFamily: "inherit", fontSize: 16, fontWeight: 700, color: C.see, background: C.weiss }}>
-                          {quelle === "eigen" ? "Nochmal üben" : "Neue Funktion"}
-                        </button>
-                      </div>
-                    </div>
+                    <UebenFertig anhieb={uebenAnhieb} gesamt={nUeben} onLernen={zuLernen} onNeu={() => (quelle === "eigen" ? neustart(auf) : neueFunktion())}
+                      neuText={quelle === "eigen" ? "Nochmal üben" : "Neue Funktion"} leise="Nächste Stufe: Rechne dieselbe Funktion in „Lernen“ – jede Zeile selbst, ohne Auswahl.">
+                      {labelF(stelle)} <M t={texVon(uebenSchritte[nUeben - 1].richtig.text)} />
+                    </UebenFertig>
                   )}
                 </div>
               ) : (

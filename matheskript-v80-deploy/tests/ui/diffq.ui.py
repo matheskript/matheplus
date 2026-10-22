@@ -1,8 +1,10 @@
 """Browser-Test Differenzenquotient (/differenzenquotient, src/funcDiffqTrainer.jsx):
 - Band statt Seitenkopf, Vorbereitung „f(x+h) = …“, Vorlage-Zeile, interaktiver Bruch mit zwei Feldern (f(x+h), f(x)) über h.
 - Modus-Schalter Auto | Üben | Lernen (Lernen = früher Trainieren, Auto = früher Rechnen).
-- Üben (x²): je Schritt zwei Zeilen zur Wahl; falsche Karte → Hinweis, Karte rot; richtige → Zeile wird eingesetzt,
-  nächster Schritt; am Ende „x von 7 Schritten auf Anhieb“ und „Jetzt selbst rechnen“ → Lernen mit derselben Funktion.
+- Üben (x²): je Schritt 2–4 goldene Karten (kurz: 2 × 2, lang: drei untereinander), goldenes Zielfeld;
+  falsche Karte → Hinweis, Karte rot; richtige → Zeile wird eingesetzt, nächster Schritt; am Ende
+  „x von 7 Schritten auf Anhieb“ und „Jetzt selbst rechnen“ → Lernen mit derselben Funktion.
+- Klammern um f(x+h) und f(x) im Bruch (alle Modi).
 - Lernen: Vorbereitung (f(x+h) ausrechnen, falsch → Hinweis, richtig → Bruch öffnet sich mit vorbelegtem erstem Feld),
   Einsetzen (beide Felder, OK prüft), dann „Zähler umformen“,
   „h kürzen“, „Grenzwert h → 0“ – jede neue Zeile übernimmt die Zeile darüber; am Ende „Neue Funktion“.
@@ -72,20 +74,30 @@ with sync_playwright() as p:
 
         # Üben: sieben Schritte, je zwei Zeilen; im ersten Schritt erst die falsche, dann die richtige
         page.locator(".dq-seg").first.get_by_role("button", name="Üben", exact=True).click(); page.wait_for_timeout(300)
-        pruefe("zwei Zeilen" in page.locator("[data-diffq-modus-text]").inner_text(), f"{breite}: Modus-Text Üben fehlt")
-        pruefe(page.locator("[data-diffq-ueben] .dq-option").count() == 2, f"{breite}: Üben ohne zwei Optionen")
-        pruefe("schritt 1 von 7" in page.locator(".dq-frage").inner_text().lower(), f"{breite}: Schrittzähler fehlt ({page.locator('.dq-frage').inner_text()!r})")
-        page.locator('[data-diffq-option="falsch"]').click(); page.wait_for_timeout(250)
-        pruefe(page.locator("[data-diffq-ueben-hinweis]").count() == 1, f"{breite}: kein Hinweis nach falscher Wahl")
-        pruefe(page.locator('.dq-option[data-status="falsch"]').count() == 1, f"{breite}: falsche Karte nicht markiert")
+        pruefe("richtige Zeile" in page.locator("[data-diffq-modus-text]").inner_text(), f"{breite}: Modus-Text Üben fehlt")
+        n_opt = page.locator("[data-ueben-wahl] .uw-option").count()
+        pruefe(2 <= n_opt <= 4, f"{breite}: Üben mit {n_opt} Optionen")
+        pruefe(page.locator("[data-ueben-wahl] [data-ueben-option='richtig']").count() == 1, f"{breite}: nicht genau eine richtige Option")
+        pruefe(page.locator("[data-ueben-ziel]").count() == 1, f"{breite}: goldenes Zielfeld fehlt")
+        rand = page.locator("[data-ueben-wahl] .uw-option").first.evaluate("e => getComputedStyle(e).borderTopColor")
+        pruefe(rand.replace(" ", "") == "rgb(237,187,0)", f"{breite}: Option ohne goldenen Rand ({rand})")
+        pruefe("schritt 1 von 7" in page.locator(".uw-frage").inner_text().lower(), f"{breite}: Schrittzähler fehlt ({page.locator('.uw-frage').inner_text()!r})")
+        # Layout: kurze Antworten nebeneinander (Schritt 1: (x+h)² …)
+        sp = page.locator("[data-ueben-wahl]").get_attribute("data-ueben-spalten")
+        pruefe(sp in ("2", "3"), f"{breite}: kurze Antworten nicht nebeneinander (Spalten {sp})")
+        page.locator('[data-ueben-option="falsch"]').first.click(); page.wait_for_timeout(250)
+        pruefe(page.locator("[data-ueben-hinweis]").count() == 1, f"{breite}: kein Hinweis nach falscher Wahl")
+        pruefe(page.locator('.uw-option[data-status="falsch"]').count() == 1, f"{breite}: falsche Karte nicht markiert")
         pruefe(page.locator('.dq-zeile[data-art="fxh"][data-fertig="true"]').count() == 0, f"{breite}: falsche Wahl wurde eingesetzt")
         page.screenshot(path=f"{AUS}/{breite}-0-ueben-falsch.png", full_page=True)
         for schritt in range(7):
             if schritt == 3:
                 page.screenshot(path=f"{AUS}/{breite}-0-ueben-mitte.png", full_page=True)
-            page.locator('[data-diffq-option="richtig"]').click(); page.wait_for_timeout(200)
-        pruefe(page.locator("[data-diffq-ueben-fertig]").count() == 1, f"{breite}: Üben ohne Abschluss")
-        fertig_text = page.locator("[data-diffq-ueben-fertig]").inner_text()
+            if schritt == 2:
+                pruefe(page.locator('[data-diffq-ueben-weg] .dq-zeile[data-art="einsetzen"] .dq-klammer').count() == 4, f"{breite}: Klammern im Bruch fehlen")
+            page.locator('[data-ueben-option="richtig"]').click(); page.wait_for_timeout(200)
+        pruefe(page.locator("[data-ueben-fertig]").count() == 1, f"{breite}: Üben ohne Abschluss")
+        fertig_text = page.locator("[data-ueben-fertig]").inner_text()
         pruefe("6 von 7" in fertig_text, f"{breite}: Bilanz falsch ({fertig_text[:80]!r})")
         pruefe(page.locator('[data-diffq-ueben-weg] .dq-zeile[data-fertig="true"]').count() == 7, f"{breite}: nicht alle Üben-Zeilen eingesetzt")
         weg = page.locator("[data-diffq-ueben-weg]").inner_text().replace(" ", "").replace("\n", "")
@@ -110,6 +122,7 @@ with sync_playwright() as p:
         # Einsetzen: zweites Feld (Pop-up ist schon offen)
         tippen(page, "x^2")
         pruefe(page.locator("[data-diffq-weiter]").count() == 1, f"{breite}: nach richtigem Einsetzen keine Weiter-Knöpfe")
+        pruefe(page.locator('.dq-zeile[data-art="einsetzen"] .dq-klammer').count() == 4, f"{breite}: Lernen: Klammern im Bruch fehlen")
         page.screenshot(path=f"{AUS}/{breite}-2-eingesetzt.png", full_page=True)
 
         # Zähler umformen: neue Zeile übernimmt A − (B)

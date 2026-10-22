@@ -1,10 +1,11 @@
-/* Differenzenquotient, Modus „Üben“ (src/diffqUeben.js): je Schritt genau zwei Zeilen zur Wahl –
-   die richtige stammt aus dem Musterweg und besteht die Prüfung von Lernen, die falsche fällt
+/* Differenzenquotient, Modus „Üben“ (src/diffqUeben.js): je Schritt die richtige Zeile und bis zu drei
+   falsche – die richtige stammt aus dem Musterweg und besteht die Prüfung von Lernen, jede falsche fällt
    durch, ist lesbar, hat einen Hinweis und folgt den Schreibregeln (kein x^1, kein +0, kein 1x). */
 import test from "node:test";
 import assert from "node:assert/strict";
 import { ARTEN, aufgabeAus, fxhWeg, musterweg, neueAufgabe, pruefeEinsetzen, pruefeFxh, pruefeZeile, stelleZu, lies } from "../src/diffqKern.js";
 import { uebenWeg } from "../src/diffqUeben.js";
+import { sichtbareOptionen } from "../src/uebenKern.js";
 
 const istText = (o) => typeof o.text === "string";
 const ok = (auf, x0, s, o) => {
@@ -24,19 +25,21 @@ function pruefeWeg(auf, x0, zufall, name) {
   assert.equal(weg.filter((s) => s.art === "fxh").length, fxhWeg(auf, x0).length, `${name}: Vorbereitung`);
   assert.equal(weg[weg.length - 1].richtig.text, mw[mw.length - 1].text, `${name}: Ergebnis`);
   for (const s of weg) {
-    assert.equal(s.optionen.length, 2, `${name}/${s.label}: zwei Optionen`);
-    assert.ok(s.richtigIndex === 0 || s.richtigIndex === 1);
-    assert.deepEqual(s.optionen[s.richtigIndex], s.richtig, `${name}/${s.label}: richtige Option`);
-    const falsch = s.optionen[1 - s.richtigIndex];
+    assert.ok(s.optionen.length >= 2 && s.optionen.length <= 4, `${name}/${s.label}: ${s.optionen.length} Optionen`);
+    assert.ok(s.optionen[0].richtig && s.optionen.slice(1).every((o) => !o.richtig), `${name}/${s.label}: optionen[0] muss die richtige sein`);
+    assert.deepEqual(s.optionen[0].wert, s.richtig, `${name}/${s.label}: richtige Option`);
     assert.ok(ok(auf, x0, s, s.richtig), `${name}/${s.label}: richtige Zeile fällt durch ${JSON.stringify(s.richtig)}`);
-    assert.ok(!ok(auf, x0, s, falsch), `${name}/${s.label}: falsche Zeile ist gleichwertig ${JSON.stringify(falsch)}`);
-    assert.notDeepEqual(falsch, s.richtig, `${name}/${s.label}: gleiche Texte`);
-    for (const t of texte(falsch)) {
-      assert.ok(lies(t), `${name}/${s.label}: unlesbar „${t}“`);
-      assert.ok(schreibregel(t), `${name}/${s.label}: Schreibweise „${t}“`);
+    assert.equal(new Set(s.optionen.map((o) => o.key)).size, s.optionen.length, `${name}/${s.label}: doppelte Optionen`);
+    for (const o of s.optionen.slice(1)) {
+      assert.ok(!ok(auf, x0, s, o.wert), `${name}/${s.label}: falsche Zeile ist gleichwertig ${JSON.stringify(o.wert)}`);
+      for (const t of texte(o.wert)) {
+        assert.ok(lies(t), `${name}/${s.label}: unlesbar „${t}“`);
+        assert.ok(schreibregel(t), `${name}/${s.label}: Schreibweise „${t}“`);
+      }
+      assert.ok(o.hinweis && o.hinweis.length > 15, `${name}/${s.label}: Hinweis fehlt (${o.art})`);
     }
-    assert.ok(s.falschHinweis && s.falschHinweis.length > 15, `${name}/${s.label}: Hinweis fehlt`);
-    assert.ok(!/[^a-z]-[0-9(]/i.test(s.falschHinweis.replace(/[a-zäöüß]+-[a-zäöüß]+/gi, "")) || true);
+    // Jede Anzeigegröße enthält die richtige Zeile genau einmal
+    for (const k of [2, 3, 4]) assert.equal(sichtbareOptionen(s, k).filter((o) => o.richtig).length, 1);
     assert.ok(s.frage && s.frage.length > 8, `${name}/${s.label}: Frage fehlt`);
   }
   return weg;
@@ -48,11 +51,12 @@ test("Beispiel x²: der Weg aus dem Bildschirmfoto mit typischen Fehlern", () =>
   assert.deepEqual(weg.map((s) => s.label), ["Einsetzen", "Ausmultiplizieren", "Einsetzen", "Zusammenfassen", "h ausklammern", "Durch h kürzen", "Grenzwert h → 0"]);
   assert.deepEqual(weg.map((s) => (istText(s.richtig) ? s.richtig.text : `${s.richtig.a} | ${s.richtig.b}`)),
     ["(x+h)^2", "x^2+2xh+h^2", "x^2+2xh+h^2 | x^2", "2xh+h^2", "h(2x+h)", "2x+h", "2x"]);
-  const fehler = Object.fromEntries(weg.map((s) => [s.label + (s.art === "fxh" ? "-vor" : ""), s.falschArt]));
-  assert.equal(fehler["Ausmultiplizieren-vor"], "binom-gliedweise");   // x² + h²
-  assert.equal(fehler["h ausklammern"], "nur-erstes");                // h(2x + h²)
+  const arten = Object.fromEntries(weg.map((s) => [s.label + (s.art === "fxh" ? "-vor" : ""), s.optionen.slice(1).map((o) => o.art)]));
+  assert.ok(arten["Ausmultiplizieren-vor"].includes("binom-gliedweise"), arten["Ausmultiplizieren-vor"].join());   // x² + h²
+  assert.ok(arten["h ausklammern"].includes("nur-erstes"), arten["h ausklammern"].join());                        // h(2x + h²)
+  assert.ok(weg.every((s) => s.optionen.length >= 3), "x²: jeder Schritt hat mindestens zwei falsche Zeilen");
   // Hinweise mit echtem Minuszeichen
-  for (const s of weg) assert.ok(!/ -[0-9x(]/.test(s.falschHinweis), s.falschHinweis);
+  for (const s of weg) for (const o of s.optionen.slice(1)) assert.ok(!/ -[0-9x(]/.test(o.hinweis), o.hinweis);
 });
 
 test("Alle Funktionsarten und Stufen, allgemein und an einer Stelle, jede Fehlerwahl", () => {
@@ -83,13 +87,18 @@ test("Typische Fehler greifen bei den Standardarten – kein Notnagel", () => {
     const auf = neueAufgabe(a.id, st);
     for (const x0 of [null, stelleZu(auf)]) {
       const weg = uebenWeg(auf, x0, Math.random);
-      for (const s of weg) assert.notEqual(s.falschArt, "notnagel", `${auf.f} (x0=${x0}) ${s.label}`);
+      for (const s of weg) assert.ok(s.optionen.slice(1).every((o) => o.art !== "notnagel"), `${auf.f} (x0=${x0}) ${s.label}`);
     }
   }
 });
 
-test("Beide Reihenfolgen kommen vor (richtige Zeile mal oben, mal unten)", () => {
+test("Position der richtigen Zeile ist zufällig, aber je Schritt fest", () => {
   const auf = aufgabeAus("x^2");
-  assert.ok(uebenWeg(auf, null, () => 0.1).every((s) => s.richtigIndex === 0));
-  assert.ok(uebenWeg(auf, null, () => 0.9).every((s) => s.richtigIndex === 1));
+  const pos = new Set();
+  for (let i = 0; i < 40; i++) for (const s of uebenWeg(auf, null)) {
+    const sicht = sichtbareOptionen(s, 4);
+    pos.add(sicht.findIndex((o) => o.richtig));
+    assert.deepEqual(sichtbareOptionen(s, 4).map((o) => o.key), sicht.map((o) => o.key));   // stabil
+  }
+  assert.ok(pos.size >= 3, `richtige Zeile nur an Position ${[...pos]}`);
 });
