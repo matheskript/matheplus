@@ -1,5 +1,5 @@
 /* ============================================================
-   Szenen der Vektoren-Seiten (Oberstufe): Normalenform und Hesse-Normalenform.
+   Szenen der Vektoren-Seiten (Oberstufe): Normalenform und Hesse-Normalenform; v_zweipunkte (Gerade durch zwei Punkte).
    Präfix v_. Vertrag siehe kern.jsx. Abspieler: <Motion thema="vektoren" …> in funcUnterstufeMotion.jsx.
 
    Beide Szenen zeigen DIESELBE Ebene wie das Beispiel a) der Seite Hesse-Normalenform (funcHesse.jsx):
@@ -513,4 +513,132 @@ const v_hnf = {
   },
 };
 
-export const SZENEN_VEKTOREN = { v_normalenform, v_hnf };
+/* ============================================================
+   v_zweipunkte – Gerade durch zwei Punkte im Raum (Werkzeug „Zwei Punkte – eine Gerade“).
+   A(1 | 1 | 2), B(2 | 5 | 4): Stützvektor OA⃗ (Blau), Richtungsvektor AB⃗ = B − A = (1 | 4 | 2) (Gold, Kern-Moment),
+   dann läuft t: t = 0 → A, t = 1 → B, darüber hinaus und zurück – die Spur ist die Gerade g (Grün).
+   Gleiche Kamera wie die Hesse-Szenen. Texte (frage, kern) in medienGeraden.js.
+   ============================================================ */
+const ZA = [1, 1, 2], ZB = [2, 5, 4], ZU = sub(ZB, ZA);                      // u⃗ = AB⃗ = (1 | 4 | 2)
+const NULL3 = [0, 0, 0];
+const zPunkt = (t) => add(ZA, mul(ZU, t));
+const tup = (v) => `(${v.map(zahl).join(" | ")})`;
+/* t im Abschnitt „laufen“: Ruhe bei A, A → B, kurz Ruhe bei B, weiter bis 1,4, zurück bis −0,3, Ruhe */
+const T_LAUF = (u) => {
+  if (u < 0.08) return 0;
+  if (u < 0.4) return sanft(teil(u, 0.08, 0.4));
+  if (u < 0.5) return 1;
+  if (u < 0.65) return mix(1, 1.4, sanft(teil(u, 0.5, 0.65)));
+  if (u < 0.92) return mix(1.4, -0.3, sanft(teil(u, 0.65, 0.92)));
+  return -0.3;
+};
+const v_zweipunkte = {
+  h: 252,
+  label: () => "Gerade durch A(1 | 1 | 2) und B(2 | 5 | 4): Der Ortsvektor von A ist der Stützvektor, AB = B − A = (1 | 4 | 2) der Richtungsvektor. Läuft t, entsteht die Gerade: t = 0 ergibt A, t = 1 ergibt B. Gleichung x = (1 | 1 | 2) + t · (1 | 4 | 2).",
+  ablauf: () => [
+    { k: "punkte", ms: 1800, text: "Zwei Punkte A und B im Raum – durch sie geht genau eine Gerade g." },
+    { k: "stuetz", ms: 2200, text: "Der Ortsvektor von A führt vom Ursprung auf g: der Stützvektor." },
+    { k: "richtung", ms: 2400, text: "AB⃗ = B − A zeigt von A nach B: die Richtung der Geraden." },
+    { k: "laufen", ms: 5600, text: "t = 0 ergibt A, t = 1 ergibt B – jedes andere t einen Punkt von g." },
+    { k: "gleichung", ms: 2000, text: "Stützvektor plus t mal Richtungsvektor: x⃗ = p⃗ + t · u⃗." },
+  ],
+  bild: ({ Z, z }) => {
+    const uP = Z("punkte"), uS = Z("stuetz"), uR = Z("richtung"), uL = z("laufen"), uG = Z("gleichung");
+    const t = uG > 0 ? -0.3 : T_LAUF(uL);
+    /* Spur: alle bisher erreichten t (A → B → 1,4 → −0,3) */
+    const tMax = uL < 0.65 ? Math.max(0, t) : 1.4;
+    const tMin = uL < 0.65 ? 0 : Math.min(0, t);
+    const vonT = mix(tMin, -0.45, uG), bisT = mix(tMax, 1.55, uG);
+    const [xA, yA] = pr(ZA), [xB, yB] = pr(ZB), [xO, yO] = pr(NULL3);
+    const X = zPunkt(t), [xX, yX] = pr(X);
+    const [g1x, g1y] = pr(zPunkt(vonT)), [g2x, g2y] = pr(zPunkt(bisT));
+    const xAn = uL > 0 && uG < 1 ? Math.min(teil(uL, 0, 0.06), 1 - uG) : 0;
+    const yK = 212;
+    let kasten = null;
+    if (uG > 0) {
+      kasten = (
+        <Kasten3 y={yK} h={32} o={uG} f={F.gruenHell} rand={F.gruen}>
+          <Zeile x={B / 2} y={yK + 21} g={13.5} teile={[
+            { t: "g:\u00A0", f: F.gruen, w: 900 }, { t: "x", vec: true }, { t: "=" }, { t: tup(ZA), f: F.blau, w: 800 }, { t: "+" }, { t: "t", w: 800 }, { t: "·" }, { t: tup(ZU), f: F.goldDunkel, w: 800 },
+          ]} />
+        </Kasten3>
+      );
+    } else if (uL > 0) {
+      kasten = (
+        <Kasten3 y={yK} h={32} o={klemm(uL * 5)}>
+          <Zeile x={B / 2} y={yK + 21} g={13.5} teile={[
+            { t: "x", vec: true }, { t: "=" }, { t: tup(ZA), f: F.blau, w: 800 }, { t: "+" }, { t: "t", w: 800, f: F.gruen }, { t: "·" }, { t: tup(ZU), f: F.goldDunkel, w: 800 },
+          ]} />
+        </Kasten3>
+      );
+    } else if (uR > 0) {
+      kasten = (
+        <Kasten3 y={yK} h={32} o={teil(uR, 0.3, 0.8)} f={F.goldHell} rand={F.gold}>
+          <Zeile x={B / 2} y={yK + 21} g={12.5} teile={[
+            { t: "u", vec: true, f: F.goldDunkel }, { t: "=" }, { t: "AB", vec: true, f: F.goldDunkel }, { t: "=" },
+            { t: "(2 − 1 | 5 − 1 | 4 − 2)", w: 700 }, { t: "=" }, { t: tup(ZU), f: F.goldDunkel, w: 900 },
+          ]} />
+        </Kasten3>
+      );
+    } else if (uS > 0) {
+      kasten = (
+        <Kasten3 y={yK} h={32} o={teil(uS, 0.3, 0.8)} f={F.blauHell} rand={F.blau}>
+          <Zeile x={B / 2} y={yK + 21} g={13.5} teile={[
+            { t: "p", vec: true, f: F.blau }, { t: "=" }, { t: "OA", vec: true, f: F.blau }, { t: "=" }, { t: tup(ZA), f: F.blau, w: 900 },
+          ]} />
+        </Kasten3>
+      );
+    } else {
+      kasten = (
+        <Kasten3 y={yK} h={32} o={teil(uP, 0.4, 1)}>
+          <Zeile x={B / 2} y={yK + 21} g={13.5} teile={[
+            { t: "A" + tup(ZA), f: F.blau, w: 800 }, { t: "und", f: F.grau, w: 600, g: 12 }, { t: "B" + tup(ZB), f: F.goldDunkel, w: 800 },
+          ]} />
+        </Kasten3>
+      );
+    }
+    return (
+      <>
+        {/* Achsen als leise Orientierung */}
+        <g opacity={0.55 * teil(uP, 0, 0.5)}>
+          <Pfeil3 von={NULL3} bis={[2.4, 0, 0]} f={F.hell} b={1.3} hof={false} />
+          <Pfeil3 von={NULL3} bis={[0, 7, 0]} f={F.hell} b={1.3} hof={false} />
+          <Pfeil3 von={NULL3} bis={[0, 0, 4.2]} f={F.hell} b={1.3} hof={false} />
+          <Tx x={pr([2.4, 0, 0])[0] - 4} y={pr([2.4, 0, 0])[1] + 14} g={10.5} f={F.grau} w={700}>x₁</Tx>
+          <Tx x={pr([0, 7, 0])[0] + 2} y={pr([0, 7, 0])[1] + 15} g={10.5} f={F.grau} w={700}>x₂</Tx>
+          <Tx x={pr([0, 0, 4.2])[0] + 12} y={pr([0, 0, 4.2])[1] + 6} g={10.5} f={F.grau} w={700}>x₃</Tx>
+          <Tx x={xO - 10} y={yO + 14} g={11.5} f={F.grau} w={800} fontStyle="italic">O</Tx>
+        </g>
+
+        {/* Gerade g als Spur von X (Ergebnis, Grün) */}
+        {(uL > 0 || uG > 0) && Math.abs(bisT - vonT) > 0.01 && <line x1={g1x} y1={g1y} x2={g2x} y2={g2y} stroke={F.gruen} strokeWidth="3" strokeLinecap="round" opacity="0.9" />}
+        {uG > 0.5 && <Tx x={g2x - 4} y={g2y - 8} g={14} f={F.gruen} w={800} fontStyle="italic" o={teil(uG, 0.5, 1)}>g</Tx>}
+
+        {/* Stützvektor OA⃗ (Blau) */}
+        <Pfeil3 von={NULL3} bis={ZA} u={uS > 0 ? raus(klemm(uS * 1.3)) : 0} f={F.blau} b={2.8} />
+        {uS > 0.5 && <VecTx x={(xO + xA) / 2 + 9} y={(yO + yA) / 2 + 14} text="p" g={14} f={F.blau} a="start" o={teil(uS, 0.5, 1)} />}
+
+        {/* Richtungsvektor AB⃗ = B − A (Gold, Kern-Moment) */}
+        <Pfeil3 von={ZA} bis={ZB} u={uR > 0 ? raus(klemm(uR * 1.3)) : 0} f={F.gold} b={3} />
+        {uR > 0.5 && <VecTx x={(xA + xB) / 2 - 6} y={(yA + yB) / 2 - 12} text="u" g={14} f={F.goldDunkel} o={teil(uR, 0.5, 1)} />}
+        <Puls x={(xA + xB) / 2} y={(yA + yB) / 2} u={teil(uR, 0.35, 0.95)} r={20} f={F.gold} />
+
+        {/* Punkte */}
+        <Punkt3 p={ZA} f={F.blau} label="A" o={teil(uP, 0.1, 0.6)} dx={-17} dy={-7} />
+        <Punkt3 p={ZB} f={F.gold} label="B" o={teil(uP, 0.4, 0.9)} dx={9} dy={-7} lf={F.goldDunkel} />
+
+        {/* X läuft mit t */}
+        {xAn > 0 && (
+          <g opacity={xAn}>
+            <circle cx={xX} cy={yX} r="5.5" fill={F.gruen} stroke={F.weiss} strokeWidth="2" />
+            {/* Pille: ab t = 0,5 rechts unterhalb, davor über X (im Bild gehalten) – nie über p⃗ oder dem Buchstaben B */}
+            <Pille x={t >= 0.5 ? xX + 10 : Math.max(4, xX - (breite(`t = ${dez(t)}`, 11) + 16) / 2)} y={t >= 0.5 ? yX + 22 : yX - 14} text={`t = ${dez(t)}`} g={11} f={F.gruenHell} tf={F.gruen} a="start" />
+          </g>
+        )}
+        {kasten}
+      </>
+    );
+  },
+};
+
+export const SZENEN_VEKTOREN = { v_normalenform, v_hnf, v_zweipunkte };

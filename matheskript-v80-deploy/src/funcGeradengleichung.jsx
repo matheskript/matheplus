@@ -26,6 +26,8 @@ import { buchen } from "./buchung.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { hilfeKontext, zw } from "./ui2.jsx";
 import { springe } from "./sprung.js";
+/* Animation „Gerade durch zwei Punkte“ (Motion-Norm) – lazy, der Abspieler bringt alle Szenen mit */
+const GeradenMotion = React.lazy(() => import("./funcGeradenMotion.jsx").then((m) => ({ default: m.GeradenMotion })));
 import {
   GRENZE, PHI, achsenWeg, achsenabschnitt, bWert, bewerte, bruch, bruchTex, dreieck, dreieckPm,
   einrasten, fehlerFaelleC, fehlerFaelleM, fenster, geradePQ, gleichungTex, gleichungText,
@@ -686,6 +688,7 @@ function PundQ({ modus, setModus }) {
           <Kicker>{zw("Rechenweg", "Working")}</Kicker>
           {schritteListe}
         </FeinKarte>
+        {zw(true, false) && <React.Suspense fallback={null}><GeradenMotion szene="g_zweipunkte" stil={{ marginTop: 20, maxWidth: 560 }} /></React.Suspense>}
         {zahlPad}
       </div>
     );
@@ -696,6 +699,7 @@ function PundQ({ modus, setModus }) {
       {aufgabeKopf}
       {bild}
       {schritteListe}
+      {zw(true, false) && <React.Suspense fallback={null}><GeradenMotion szene="g_zweipunkte" stil={{ marginTop: 16 }} /></React.Suspense>}
       {zahlPad}
     </div>
   );

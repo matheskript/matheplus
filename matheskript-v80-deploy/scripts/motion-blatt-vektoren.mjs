@@ -1,6 +1,6 @@
 /* Kontaktbogen der Vektoren-Animationen (Hesse-Normalenform; Werkzeug für die Entwicklung, nicht Teil der App).
    node scripts/motion-blatt-vektoren.mjs [filter] [ausgabeordner]
-     filter: Szenenname (v_normalenform, v_hnf; leer = beide)
+     filter: Szenenname (v_normalenform, v_hnf, v_zweipunkte, g_zweipunkte; leer = alle)
    · rendert jede Szene mit den Parametern der Seite (P_LEER aus funcHesse.jsx) zu 8 Zeitpunkten (0 … 100 %)
      und zusätzlich einmal je Abschnitt (Mitte und Ende des Abschnitts) – so sieht man jeden Untertitel mit seinem Bild
    · meldet Fehler (Ausnahmen, NaN/Infinity/undefined im SVG, Untertitel > 75 Zeichen, frage/kern aus MOTION_TEXTE
@@ -32,11 +32,14 @@ const eintrag = `
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { SZENEN_VEKTOREN } from "./src/motion/szenenVektoren.jsx";
+import { SZENEN_GERADEN } from "./src/motion/szenenGeraden.jsx";
+import { GERADEN_MOTION } from "./src/motion/medienGeraden.js";
 import { zeitplan, fortschritt, untertitel, B } from "./src/motion/kern.jsx";
 export function lauf(filter, TEXTE) {
   const fehler = [], karten = [];
   const P_LEER = ${P_LEER_QUELLE};
-  for (const [name, S] of Object.entries(SZENEN_VEKTOREN)) {
+  TEXTE = { ...TEXTE, ...GERADEN_MOTION };   // Geraden aus zwei Punkten: Texte in medienGeraden.js
+  for (const [name, S] of Object.entries({ ...SZENEN_VEKTOREN, ...SZENEN_GERADEN })) {
     if (filter && name !== filter) continue;
     let plan;
     try { plan = zeitplan(S.ablauf(P_LEER)); } catch (x) { fehler.push(name + ": ablauf: " + x.message); continue; }

@@ -20,6 +20,8 @@ import { MatheFeld } from "./matheTastatur.jsx";
 import { SprachGruppe, SprachKnopf } from "./funcSprache.jsx";
 import { FallWahl, HauptKnopf, ObjektBox, ObjektReihe, Tafel, VF, VekArbeit, VekSeite, WuerfelKnopf } from "./vekUi.jsx";
 import { ErgebnisReihe, FeinKarte, useDesktop } from "./arbeitsflaeche.jsx";
+/* Animation „Gerade durch zwei Punkte“ (Motion-Norm) – lazy, der Abspieler bringt alle Szenen mit */
+const GeradenMotion = React.lazy(() => import("./funcGeradenMotion.jsx").then((m) => ({ default: m.GeradenMotion })));
 
 const pt = (P) => P.map(n).join(" | ");
 function geradeHilfe(A, B) {
@@ -337,6 +339,7 @@ export function ZweiPunkteGerade() {
             </Tafel>
           </div>
         )}
+        <div><React.Suspense fallback={null}><GeradenMotion szene="v_zweipunkte" stil={{ marginTop: 20, maxWidth: 560 }} /></React.Suspense></div>
         {A && B && !gleich(A, B) && <div><GeradePruefen A={A} B={B} key={[...A, ...B].join()} /></div>}
       </VekSeite>
     );
@@ -367,6 +370,7 @@ export function ZweiPunkteGerade() {
         </>
       )}
 
+      <React.Suspense fallback={null}><GeradenMotion szene="v_zweipunkte" stil={{ marginTop: 16 }} /></React.Suspense>
       {A && B && !gleich(A, B) && <GeradePruefen A={A} B={B} key={[...A, ...B].join()} />}
     </VekSeite>
   );

@@ -19,9 +19,10 @@ import { SZENEN_ZWEIT_BRUECHE } from "./motion/szenenZweitBrueche.jsx";
 import { SZENEN_ZWEIT_DATEN } from "./motion/szenenZweitDaten.jsx";
 import { SZENEN_ZWEIT_RECHNEN } from "./motion/szenenZweitRechnen.jsx";
 import { SZENEN_VEKTOREN } from "./motion/szenenVektoren.jsx";
+import { SZENEN_GERADEN } from "./motion/szenenGeraden.jsx";
 
 export const SZENEN = { ...SZENEN_ZAHLEN, ...SZENEN_GEOMETRIE, ...SZENEN_BRUECHE, ...SZENEN_DATEN, ...SZENEN_EXTRA,
-  ...SZENEN_ZWEIT_ZAHLEN, ...SZENEN_ZWEIT_GEOMETRIE, ...SZENEN_ZWEIT_BRUECHE, ...SZENEN_ZWEIT_DATEN, ...SZENEN_ZWEIT_RECHNEN, ...SZENEN_VEKTOREN };
+  ...SZENEN_ZWEIT_ZAHLEN, ...SZENEN_ZWEIT_GEOMETRIE, ...SZENEN_ZWEIT_BRUECHE, ...SZENEN_ZWEIT_DATEN, ...SZENEN_ZWEIT_RECHNEN, ...SZENEN_VEKTOREN, ...SZENEN_GERADEN };
 
 const STIL_ID = "us-motion-stil";
 const STIL = `
