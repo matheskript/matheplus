@@ -75,13 +75,15 @@ export function EtikettKnoepfe({ wert, setze }) {
   return (
     <div role="group" aria-label="Werkzeuge nach Art filtern" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 6 }}>
       {Object.keys(ETIKETTEN).map((k) => {
-        const an = wert === k, f = ETIKETT_FARBE[k];
+        /* aktiv = gefüllt in der Etikett-Farbe; inaktiv = nur dünner Rand, ohne Fläche; ist ein anderes aktiv, treten die übrigen zurück */
+        const an = wert === k, f = ETIKETT_FARBE[k], leise = !!wert && !an;
         return (
           <button key={k} type="button" aria-pressed={an} onClick={() => setze(an ? null : k)} title={ETIKETTEN[k].text}
             style={{ minHeight: 34, padding: "0 4px", borderRadius: 999, cursor: "pointer", fontFamily: "inherit", fontSize: 11, fontWeight: 800,
               letterSpacing: "0.04em", textTransform: "uppercase", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-              border: `1.5px solid ${an ? f.text : f.rand}`, background: an ? f.text : f.hg, color: an ? "#fff" : f.text,
-              transition: "background .15s ease, color .15s ease" }}>
+              border: `1.5px solid ${an ? f.text : f.rand}`, background: an ? f.text : "transparent", color: an ? "#fff" : f.text,
+              boxShadow: an ? "0 4px 12px -4px rgba(15,26,51,0.35)" : "none", opacity: leise ? 0.55 : 1,
+              transition: "background .15s ease, color .15s ease, opacity .15s ease" }}>
             {ETIKETTEN[k].name}
           </button>
         );

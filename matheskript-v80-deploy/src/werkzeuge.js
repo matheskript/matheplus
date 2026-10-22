@@ -268,7 +268,7 @@ export const BEREICHE = [
    eigenen Feldern, wenn sie hier anders heißt oder anders zusammengesetzt ist.
    nur: Stufen-Schalter-Werte (unter | mittel | ober | alle), bei denen Block bzw. Station erscheint.
    titelStufe: andere Überschrift in einer Stufe (Mittelstufe: „Geraden und Parabeln“).
-   vorTitel: Kurzwort vor dem Titel, in derselben Schrift wie alle Kachel-Titel – am Computer „Analysis – Funktionen und Kurven“, am Handy nur „Analysis“.
+   vorTitel: Kurzwort über dem Titel – eigene kleine Goldzeile in Versalien (Startseite, `.vor` in funcStartseite.jsx), nie in derselben Zeile wie der Titel.
    Entfällt, wenn titelStufe für die Stufe greift (Mittelstufe: „Geraden und Parabeln“ steht ohne Vorsatz).
    Abi-Vorbereitung und die Formelsammlung im Werkzeugkasten sind keine Werkzeuge und stehen in func2.jsx. */
 export const START_BLOECKE = [

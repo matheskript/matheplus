@@ -9,10 +9,7 @@ import { onboardingLesen, stufeAusKlasse } from "./onboarding.js";
 import { quickfinderLesen } from "./quickfinder.js";
 import { kontoZustand, useKonto } from "./konto.js";
 import { klasseErmitteln, werkzeugMerken } from "./hauptmenue.js";
-import { lazyLaden } from "./chunkSchutz.jsx";
 /* Bereichslogos der Vektoren/Stochastik laden mit ihren Stationen (func16/func17 sind groß) */
-const VektorenLogoKlein = lazyLaden(() => import("./func16.jsx").then((m) => ({ default: m.VektorenLogoKlein })));
-const StochastikLogoKlein = lazyLaden(() => import("./func17.jsx").then((m) => ({ default: m.StochastikLogoKlein })));
 import { klassenBoxen, stufeAusKlassenBox } from "./schulbuch.js";
 import { BruchrechnenLogoKlein, DatenLogoKlein, GeometrieLogoKlein, ProzentLogoKlein, ZahlenLogoKlein } from "./funcEntdeckenLogo.jsx";
 import { istFrei, entsperren, EVENT_FREI } from "./seitenKonstanten.js";
@@ -47,6 +44,75 @@ function PlotterLogoKlein() {
       <g fontSize="12" fontWeight="700" fontStyle="italic">
         <text x="12" y="22" fill={C.weiss}>f</text>
         <text x="24" y="22" fill={C.flaggold}>f′</text>
+      </g>
+    </svg>
+  );
+}
+
+/* Pfeil für die Kachel-Grafiken: Linie bis kurz vor die Spitze, gefüllte Spitze */
+function KachelPfeil({ x1, y1, x2, y2, farbe, breite = 3 }) {
+  const lx = x2 - x1, ly = y2 - y1, l = Math.hypot(lx, ly), ux = lx / l, uy = ly / l, k = 13, b = 6.5;
+  const bx = x2 - ux * k, by = y2 - uy * k;
+  return (
+    <g>
+      <line x1={x1} y1={y1} x2={bx + ux * 2} y2={by + uy * 2} stroke={farbe} strokeWidth={breite} strokeLinecap="round" />
+      <path d={`M${x2},${y2} L${(bx - uy * b).toFixed(1)},${(by + ux * b).toFixed(1)} L${(bx + uy * b).toFixed(1)},${(by - ux * b).toFixed(1)} Z`} fill={farbe} />
+    </g>
+  );
+}
+
+/* Geometrie-Kachel (Vektoren, Geraden und Ebenen) im Stil der Analysis-Grafik: Achsen im Raum, Ebene E mit
+   Aufpunkt und zwei Spannvektoren (weiß), Normalenvektor in Gold. Statisch, damit die Kachel nie leer erscheint. */
+function RaumLogoKlein() {
+  const W = 230, H = 190, O = [92, 118];
+  // Ebene als Parallelogramm: Ecke + zwei Kantenrichtungen
+  const E0 = [30, 100], k1 = [120, -38], k2 = [60, 56];
+  const ecke = (s, t) => [E0[0] + s * k1[0] + t * k2[0], E0[1] + s * k1[1] + t * k2[1]];
+  const rand = [ecke(0, 0), ecke(1, 0), ecke(1, 1), ecke(0, 1)].map((q) => q.join(",")).join(" ");
+  const A = ecke(0.35, 0.3), U = ecke(0.8, 0.3), V = ecke(0.35, 0.82);
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+      <line x1={O[0]} y1={O[1]} x2={O[0]} y2="6" stroke="rgba(255,255,255,0.28)" />
+      <line x1={O[0]} y1={O[1]} x2={W} y2={O[1]} stroke="rgba(255,255,255,0.28)" />
+      <line x1={O[0]} y1={O[1]} x2="18" y2={H - 6} stroke="rgba(255,255,255,0.28)" />
+      <polygon points={rand} fill="rgba(255,255,255,0.10)" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinejoin="round" />
+      <KachelPfeil x1={A[0]} y1={A[1]} x2={U[0]} y2={U[1]} farbe={C.weiss} />
+      <KachelPfeil x1={A[0]} y1={A[1]} x2={V[0]} y2={V[1]} farbe={C.weiss} />
+      <KachelPfeil x1={A[0]} y1={A[1]} x2={A[0] - 6} y2={A[1] - 72} farbe={C.flaggold} />
+      <circle cx={A[0]} cy={A[1]} r="4.5" fill={C.seeTief} stroke={C.weiss} strokeWidth="2.2" />
+      <g fontSize="12" fontWeight="700" fontStyle="italic">
+        <text x="12" y="22" fill={C.weiss}>E</text>
+        <text x="26" y="22" fill={C.flaggold}>n</text>
+      </g>
+      <path d="M25.5,9 H34.5 M31.5,6.5 L34.5,9 L31.5,11.5" stroke={C.flaggold} strokeWidth="1.3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/* Stochastik-Kachel (Wahrscheinlichkeitsrechnung) im Stil der Analysis-Grafik: zweistufiges Baumdiagramm,
+   ein Pfad (Pfadregel) in Gold. Statisch, damit die Kachel nie leer erscheint. */
+function BaumLogoKlein() {
+  const W = 230, H = 190, R = [26, 95], M = [[112, 50], [112, 140]];
+  const blatt = [[204, 24], [204, 76], [204, 114], [204, 166]];
+  const ast = (a, b, gold) => <line x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke={gold ? C.flaggold : C.weiss} strokeWidth="3" strokeLinecap="round" />;
+  const knoten = (q, gold, key) => <circle key={key} cx={q[0]} cy={q[1]} r="4.5" fill={C.seeTief} stroke={gold ? C.flaggold : C.weiss} strokeWidth="2.2" />;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%", display: "block" }} aria-hidden="true">
+      {ast(R, M[1], false)}
+      {ast(M[0], blatt[1], false)}
+      {ast(M[1], blatt[2], false)}
+      {ast(M[1], blatt[3], false)}
+      {ast(R, M[0], true)}
+      {ast(M[0], blatt[0], true)}
+      {knoten(R, true, "r")}
+      {knoten(M[0], true, "m0")}
+      {knoten(M[1], false, "m1")}
+      {blatt.map((q, i) => (i === 0
+        ? <circle key={i} cx={q[0]} cy={q[1]} r="5.5" fill={C.flaggold} />
+        : knoten(q, false, `b${i}`)))}
+      <g fontSize="13" fontWeight="700" fontStyle="italic">
+        <text x="50" y="60" fill={C.flaggold}>p</text>
+        <text x="42" y="146" fill={C.weiss}>1−p</text>
       </g>
     </svg>
   );
@@ -316,7 +382,7 @@ export const ZEIGE_GESPERRTE = false;
 
 /* Schulmathematik → Bereiche → Stationen → Werkzeuge. Die Daten stehen in werkzeuge.js (eine Liste für
    Startseite, Werkzeug-Menü, Kopfleiste und Übersichtsseiten); hier kommen nur die Logos dazu. */
-const BEREICH_LOGO = { fundament: <ZeichenLogo zeichen="a+0" platz />, analysis: <PlotterLogoKlein />, vektoren: <React.Suspense fallback={null}><VektorenLogoKlein /></React.Suspense>, stochastik: <React.Suspense fallback={null}><StochastikLogoKlein /></React.Suspense>, geometrie: <GeometrieLogoKlein />, bruchrechnen: <BruchrechnenLogoKlein />, zahlen: <ZahlenLogoKlein />, prozent: <ProzentLogoKlein />, daten: <DatenLogoKlein />, werkzeuge: <FormelLogoKlein />, abitur: <ZeichenLogo zeichen="Abi" platz /> };
+const BEREICH_LOGO = { fundament: <ZeichenLogo zeichen="a+0" />, analysis: <PlotterLogoKlein />, vektoren: <RaumLogoKlein />, stochastik: <BaumLogoKlein />, geometrie: <GeometrieLogoKlein />, bruchrechnen: <BruchrechnenLogoKlein />, zahlen: <ZahlenLogoKlein />, prozent: <ProzentLogoKlein />, daten: <DatenLogoKlein />, werkzeuge: <FormelLogoKlein />, abitur: <ZeichenLogo zeichen="Abi" /> };
 /* Liniennetz: jeder Bereich ist eine „Linie“ mit eigenem Strich, die Stationen sind ihre Halte */
 const LINIEN_MUSTER = { fundament: "4px solid", analysis: "4px solid", vektoren: "7px double", stochastik: "4px dashed", geometrie: "4px solid", bruchrechnen: "4px dashed", zahlen: "4px solid", prozent: "7px double", daten: "4px dashed", werkzeuge: "4px dotted" };
 
