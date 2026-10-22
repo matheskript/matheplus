@@ -253,7 +253,7 @@ const hilfeKontext = (modus) => ({
     verstehen: [
       "Ein Normalenvektor steht senkrecht auf der Ebene – also auf jedem Vektor, der in der Ebene liegt.",
       "Senkrecht heißt: Das Skalarprodukt ist 0.",
-      "Die Hesse-Normalenform ist die Normalenform mit einem Normalenvektor der Länge 1.",
+      "Die Hesse-Normalenform ist die Normalenform mit einem Normalenvektor der Länge 1 – für die Gleichung ist die Länge egal, für den Abstand nicht.",
     ],
     ansatz: [
       "Welche Länge hat der Normalenvektor?",
@@ -286,8 +286,8 @@ const KAPITEL_IDEE = [
   { k: "wandern", name: "X wandert" }, { k: "heben", name: "X verlässt E" }, { k: "gleichung", name: "Normalenform" },
 ];
 const KAPITEL_HNF = [
-  { k: "normieren", name: "n⃗₀" }, { k: "hnf", name: "HNF" }, { k: "punktQ", name: "Punkt Q" }, { k: "schatten", name: "Schatten" }, { k: "lot", name: "Lot" },
-  { k: "durch", name: "Vorzeichen" }, { k: "fazit", name: "Abstand" },
+  { k: "laenge", name: "Länge egal" }, { k: "punktQ", name: "Punkt Q" }, { k: "wert", name: "9 oder 18?" }, { k: "normieren", name: "n⃗₀" }, { k: "hnf", name: "HNF" },
+  { k: "schatten", name: "Schatten" }, { k: "lot", name: "Lot" }, { k: "durch", name: "Vorzeichen" }, { k: "fazit", name: "Abstand" },
 ];
 
 /* Animation in einer Karte mit Kicker; am Desktop rechts in der Arbeitsfläche */
@@ -317,7 +317,7 @@ function DreiFormen({ e, hervor = "hnf" }) {
   const zeilen = [
     ["normal", "Normalenform", normalenformTex(e.n, e.P), "Jeder Punkt X der Ebene: (x⃗ − p⃗) steht senkrecht auf n⃗."],
     ["koord", "Koordinatenform", koordTex(e.n, e.d), "Ausmultipliziert; d = n⃗ · p⃗."],
-    ["hnf", "Hesse-Normalenform", hnfTex(e.n, e.d), "Durch |n⃗| geteilt: Einsetzen liefert den Abstand."],
+    ["hnf", "Hesse-Normalenform", hnfTex(e.n, e.d), "Durch |n⃗| geteilt – nötig erst für den Abstand: Einsetzen eines Punktes liefert ihn."],
   ];
   return (
     <div data-hesse-dreiformen="" style={{ backgroundColor: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 18, overflow: "hidden" }}>
@@ -457,7 +457,7 @@ function ReiterIdee({ e, desktop, grund, werkzeuge, handyWerkzeuge, weiter }) {
           <Formel t={`(\\vec{x} − \\vec{p}) \\cdot \\vec{n} = 0`} gr={17} />
           <Abstand />
           <Formel t={`E: ${normalenformTex(e.n, e.P)}`} gr={15} farbe={BLAU} />
-          <Satz stil={{ margin: "6px 0 0", textAlign: "center" }}>Sie gilt für genau die Punkte X, die in E liegen – ein Punkt außerhalb erfüllt sie nicht (Schritt 2 oben: h ≠ 0).</Satz>
+          <Satz stil={{ margin: "6px 0 0", textAlign: "center" }}>Sie gilt für genau die Punkte X, die in E liegen – ein Punkt außerhalb erfüllt sie nicht (Schritt 2 oben: h ≠ 0). Die Länge von n⃗ spielt keine Rolle: Jedes Vielfache k · n⃗ (k ≠ 0) ist auch ein Normalenvektor, denn k · 0 = 0.</Satz>
         </RSchritt>
         <RSchritt nr={5} titel="Ausmultiplizieren: die Koordinatenform">
           <Formel t={`\\vec{x} \\cdot \\vec{n} − \\vec{p} \\cdot \\vec{n} = 0 \\quad\\Leftrightarrow\\quad \\vec{x} \\cdot \\vec{n} = \\vec{p} \\cdot \\vec{n}`} gr={15} />
@@ -535,15 +535,17 @@ function ReiterHesse({ e, desktop, grund, werkzeuge, handyWerkzeuge, weiter }) {
     <div>
       <DreiFormen e={e} hervor="hnf" />
       <Satz stil={{ margin: "12px 2px 0", fontSize: 13.5 }}>
-        Die Hesse-Normalenform ist die Normalenform mit einem Normalenvektor der Länge 1. Der Clou: Setzt man einen Punkt ein, der nicht in E liegt,
-        kommt nicht 0 heraus, sondern sein Abstand zur Ebene – mit Vorzeichen für die Seite.
+        Für die Normalenform ist die Länge von n⃗ egal – jedes Vielfache ist ein Normalenvektor, das Skalarprodukt mit einem Vektor in E bleibt 0.
+        Erst wenn man einen Punkt einsetzt, der nicht in E liegt, kommt es auf die Länge an: Mit n⃗ ergibt sich ein anderer Wert als mit 2n⃗.
+        Deshalb bringt die Hesse-Normalenform n⃗ auf Länge 1 – dann ist der Wert eindeutig: der Abstand zur Ebene, mit Vorzeichen für die Seite.
       </Satz>
     </div>
   );
-  const motion = <MotionKarte szene="v_hnf" titel="Warum die HNF den Abstand liefert" kapitel={KAPITEL_HNF} kicker="Animation · 46 Sekunden" />;
+  const motion = <MotionKarte szene="v_hnf" titel="Warum die HNF den Abstand liefert" kapitel={KAPITEL_HNF} kicker="Animation · 57 Sekunden" />;
   const kernsatz = (
     <Kernsatz kicker="Der Kern">
-      Mit n⃗₀ (Länge 1) ist das Skalarprodukt (q⃗ − p⃗) · n⃗₀ die Länge des Schattens von PQ⃗ auf der Normalenrichtung – und der ist genauso lang wie das Lot von Q auf E.
+      Die Gleichung (x⃗ − p⃗) · n⃗ = 0 gilt für jede Länge von n⃗. Setzt man aber einen Punkt Q außerhalb ein, hängt der Wert von |n⃗| ab – erst mit n⃗₀ (Länge 1)
+      ist er eindeutig: die Länge des Schattens von PQ⃗ auf der Normalenrichtung, genauso lang wie das Lot von Q auf E.
       Deshalb liefert die Hesse-Normalenform beim Einsetzen den Abstand: δ = (q⃗ − p⃗) · n⃗₀, d(Q; E) = |δ|.
     </Kernsatz>
   );
@@ -581,7 +583,11 @@ function ReiterHesse({ e, desktop, grund, werkzeuge, handyWerkzeuge, weiter }) {
   const warum = (
     <Tafel nr={2} titel="Warum kommt der Abstand heraus?" stil={{ marginTop: 18 }}>
       <Rechenweg>
-        <RSchritt nr={1} titel="Normalenvektor auf Länge 1 bringen">
+        <RSchritt nr={1} titel="Normalenvektor auf Länge 1 bringen – und warum erst jetzt">
+          <Satz stil={{ margin: "0 0 8px" }}>
+            Für die Gleichung der Ebene war die Länge von n⃗ egal. Für den Abstand nicht: Setzt man Q mit n⃗ ein, kommt ein anderer Wert heraus als mit 2n⃗ (doppelt so groß).
+            Ein Wert, der von der Wahl des Normalenvektors abhängt, ist kein Abstand. Also legt man die Länge fest – auf 1.
+          </Satz>
           <Formel t={betragKette(e.n)} gr={15} />
           <Abstand />
           <Formel t={`\\vec{n}_0 = ${n0Tex(e.n)}`} gr={15} farbe={BLAU} />

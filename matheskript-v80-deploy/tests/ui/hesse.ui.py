@@ -34,7 +34,7 @@ with sync_playwright() as p:
         motion = pg.locator('[data-us-motion="v_normalenform"]')
         pruefe(motion.count() == 1, n + ": Animation v_normalenform fehlt")
         pruefe("usm-vektoren" in (motion.get_attribute("class") or ""), n + ": Abspieler nicht im Vektoren-Thema")
-        pruefe(pg.locator("[data-usm-kap]").count() == 7, n + ": sieben Kapitelmarken")
+        pruefe(pg.locator("[data-usm-kap]").count() == 7, n + ": sieben Kapitelmarken (Idee)")
         pruefe(pg.locator("[data-hesse-kernsatz]").count() == 1, n + ": Kernsatz fehlt")
         pg.locator("[data-vek-tipp=null]").click(); pg.wait_for_timeout(200)
         pruefe(pg.locator("[data-vek-tipp=null][aria-pressed=true]").count() == 1, n + ": Vermutung nicht markiert")
@@ -54,6 +54,9 @@ with sync_playwright() as p:
         # Hesse-Normalenform
         pg.locator("[data-vek-reiter=hesse]").click(); pg.wait_for_timeout(500)
         pruefe(pg.locator('[data-us-motion="v_hnf"]').count() == 1, n + ": Animation v_hnf fehlt")
+        pruefe(pg.locator('[data-usm-kap="wert"]').count() == 1 and pg.locator('[data-usm-kap="laenge"]').count() == 1, n + ": Kapitel „Länge egal“ / „9 oder 18?“ fehlen")
+        kap = [e.get_attribute("data-usm-kap") for e in pg.locator('[data-us-motion="v_hnf"] [data-usm-kap]').all()]
+        pruefe(kap.index("wert") < kap.index("normieren"), n + f": n₀ kommt vor dem Wert mit n⃗: {kap}")
         pruefe(pg.locator("[data-hesse-dreiformen] [data-hesse-form]").count() == 3, n + ": drei Schreibweisen fehlen")
         seiten = [pg.locator("[data-hesse-live=hesse]").get_attribute("data-hesse-seite")]
         for _ in range(8):

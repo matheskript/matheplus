@@ -305,40 +305,52 @@ const v_normalenform = {
 };
 
 /* ============================================================
-   v_hnf – Hesse-Normalenform: n⃗₀ hat die Länge 1, Q einsetzen liefert den Abstand mit Vorzeichen
+   v_hnf – Hesse-Normalenform. Reihenfolge ist Absicht: Für die Gleichung (x⃗ − p⃗) · n⃗ = 0 ist die Länge von n⃗
+   egal (jedes Vielfache ist ein Normalenvektor). Erst wenn man einen Punkt Q AUSSERHALB einsetzt, hängt der Wert
+   von |n⃗| ab (9 mit n⃗, 18 mit 2n⃗) – DESHALB wird n⃗ auf Länge 1 gebracht: n⃗₀ macht den Wert zum Abstand.
    Dieselbe Ebene; Q(−1 | 5 | 3) liegt 3 LE über E (Fußpunkt F(−2 | 3 | 1)); PQ⃗ = (1 | 1 | 3), n⃗ · PQ⃗ = 9, δ = 9/3 = 3.
    ============================================================ */
 const FUSS = inE(-1, 0);                                  // F(−2 | 3 | 1)
 const Q_VON = (h) => add(FUSS, mul(N0, h));
+const X_L = inE(1, 0);                                    // Punkt in E für „die Länge von n⃗ ist egal“
 const v_hnf = {
   h: 276,
-  label: () => "Der Normalenvektor wird auf Länge 1 gebracht. Setzt man einen Punkt außerhalb der Ebene ein, ist das Skalarprodukt der Schatten des Verbindungsvektors auf dem Einheitsnormalenvektor – genau der Abstand, mit Vorzeichen für die Seite.",
+  label: () => "Für die Normalenform ist die Länge des Normalenvektors egal. Setzt man aber einen Punkt außerhalb der Ebene ein, hängt der Wert von der Länge ab – deshalb wird der Normalenvektor auf Länge 1 gebracht: Dann ist das Skalarprodukt der Schatten des Verbindungsvektors, genau der Abstand, mit Vorzeichen für die Seite.",
   ablauf: () => [
-    { k: "ebene", ms: 1000, text: "Dieselbe Ebene E mit Aufpunkt P. Der Normalenvektor n⃗ = (1 | 2 | 2) hat die Länge 3." },
-    { k: "normieren", ms: 1900, text: "Wir teilen n⃗ durch seine Länge: n⃗₀ = n⃗ / 3 zeigt in dieselbe Richtung, hat aber die Länge 1." },
-    { k: "hnf", ms: 1900, text: "Die Normalenform mit n⃗₀ heißt Hesse-Normalenform: (x⃗ − p⃗) · n⃗₀ = 0." },
+    { k: "ebene", ms: 1300, text: "Dieselbe Ebene E mit Aufpunkt P und Normalenvektor n⃗ = (1 | 2 | 2). Normalenform: (x⃗ − p⃗) · n⃗ = 0." },
+    { k: "laenge", ms: 2800, text: "Wie lang n⃗ ist, spielt dafür keine Rolle: Auch 2n⃗ oder ½n⃗ stehen senkrecht auf E – das Skalarprodukt mit jedem Vektor in E bleibt 0." },
     { k: "punktQ", ms: 1500, text: "Jetzt ein Punkt Q, der NICHT in E liegt." },
-    { k: "pq", ms: 1600, text: "PQ⃗ = q⃗ − p⃗ liegt nicht in der Ebene – es schließt mit n⃗₀ einen Winkel φ ein." },
+    { k: "pq", ms: 1700, text: "PQ⃗ = q⃗ − p⃗ liegt nicht in der Ebene – das Skalarprodukt mit n⃗ ist nicht 0. Aber welcher Wert kommt heraus?" },
+    { k: "wert", ms: 3200, text: "Mit n⃗ kommt 9 heraus, mit 2n⃗ schon 18: Der Wert hängt von der Länge des Normalenvektors ab – so ist er noch kein Abstand." },
+    { k: "normieren", ms: 2100, text: "Deshalb erst jetzt: n⃗ durch seine Länge teilen. n⃗₀ = n⃗ / 3 hat die Länge 1 – damit ist der Wert eindeutig." },
+    { k: "hnf", ms: 1700, text: "Die Normalenform mit n⃗₀ heißt Hesse-Normalenform: (x⃗ − p⃗) · n⃗₀ = 0." },
     { k: "schatten", ms: 2300, text: "PQ⃗ · n⃗₀ = |PQ⃗| · 1 · cos φ: die Länge des Schattens, den PQ⃗ auf die Richtung von n⃗₀ wirft." },
     { k: "lot", ms: 2300, text: "Dieser Schatten ist genauso lang wie das Lot von Q auf E – also der Abstand von Q zur Ebene." },
-    { k: "zahlen", ms: 2400, text: "Mit Zahlen: PQ⃗ = (1 | 1 | 3), also PQ⃗ · n⃗₀ = (1·1 + 2·1 + 2·3) / 3 = 9 / 3 = 3. Q ist 3 LE von E entfernt." },
+    { k: "zahlen", ms: 2400, text: "Mit Zahlen: PQ⃗ · n⃗₀ = 9 / 3 = 3. Q ist 3 LE von E entfernt." },
     { k: "durch", ms: 4200, text: "Schiebt man Q durch die Ebene, wechselt das Vorzeichen: positiv auf der n⃗₀-Seite, 0 in E, negativ dahinter." },
     { k: "fazit", ms: 2600, text: "Q in die Hesse-Normalenform einsetzen liefert δ: den Abstand mit Vorzeichen. Der Abstand selbst ist |δ|." },
   ],
   bild: ({ Z, z }) => {
-    const uE = Z("ebene"), uNo = Z("normieren"), uH = Z("hnf"), uQ = Z("punktQ"), uPQ = Z("pq"), uSch = Z("schatten"), uL = Z("lot"), uZ = Z("zahlen");
-    const uD = z("durch"), uF = Z("fazit");
-    const nLang = mix(LN, 1, uNo);                                           // n⃗ schrumpft auf n⃗₀
+    const uE = Z("ebene"), uLa = z("laenge"), uQ = Z("punktQ"), uPQ = Z("pq"), uW = Z("wert"), uNo = Z("normieren"), uH = Z("hnf");
+    const uSch = Z("schatten"), uL = Z("lot"), uZ = Z("zahlen"), uD = z("durch"), uF = Z("fazit");
+    /* Länge von n⃗: in „laenge“ atmet sie 3 → 6 → 1,5 → 3; in „wert“ wächst sie auf 6 (2n⃗); in „normieren“ schrumpft sie auf 1 (n⃗₀) */
+    let k = 1;
+    if (uLa > 0 && uLa < 1) k = uLa < 0.5 ? 1 + Math.sin(Math.PI * uLa * 2) : 1 - 0.5 * Math.sin(Math.PI * (uLa - 0.5) * 2);
+    if (uW > 0) k = 1 + teil(uW, 0.45, 0.75);
+    const nLang = uNo > 0 ? mix(2 * LN, 1, uNo) : LN * k;
     const nTip = add(P0, mul(N0, nLang));
+    const [xT, yT] = pr(nTip);
+    const nName = uNo > 0.5 ? "n" : nLang > 4.5 ? "2n" : "n";
     /* Q: erst 3 LE über E; in „durch“ hinunter bis −1,5 LE und zurück auf +2 */
     let h = 3;
     if (uD > 0) { const w = sanft(uD < 0.6 ? uD / 0.6 : 1); h = mix(3, -1.5, w); if (uD > 0.72) h = mix(-1.5, 2, sanft(teil(uD, 0.72, 1))); }
     const Q = Q_VON(h);
     const delta = h;                                                          // (Q − P) · n⃗₀ = h
     const S = add(P0, mul(N0, delta));                                        // Ende des Schattens auf der n⃗₀-Geraden
-    const [xP, yP] = pr(P0), [xQ, yQ] = pr(Q), [xS, yS] = pr(S), [xFu, yFu] = pr(FUSS);
+    const [xP, yP] = pr(P0), [xQ, yQ] = pr(Q), [xS, yS] = pr(S), [xFu, yFu] = pr(FUSS), [xX, yX] = pr(X_L);
     const oben = h > 1e-6, drin = Math.abs(h) < 0.04;
-    const gerade = (k) => pr(add(P0, mul(N0, k)));
+    const gerade = (kk) => pr(add(P0, mul(N0, kk)));
+    const oX = Math.min(klemm(uLa * 4), 1 - uQ);                              // X in E nur im Abschnitt „laenge“
     const yK = 238;
     const vzFarbe = drin ? F.gruen : oben ? F.gruen : F.granat;
     let kasten = null;
@@ -397,9 +409,53 @@ const v_hnf = {
           ]} />
         </Kasten3>
       );
+    } else if (uW > 0) {
+      const doppelt = k > 1.5;
+      kasten = doppelt ? (
+        <Kasten3 y={yK} h={32} f={F.goldHell} rand={F.gold}>
+          <Zeile x={B / 2} y={yK + 21} g={13} teile={[
+            { t: "PQ", vec: true, f: F.goldDunkel }, { t: "·" }, { t: "2n", vec: true, f: F.blau }, { t: "=" }, { t: "2 · 9", w: 700 }, { t: "=" },
+            { t: "18", f: F.goldDunkel, w: 900, g: 14.5 }, { t: "– hängt von |n| ab", f: F.goldDunkel, w: 700, g: 11.5 },
+          ]} />
+        </Kasten3>
+      ) : (
+        <Kasten3 y={yK} h={32} o={klemm(uW * 4)}>
+          <Zeile x={B / 2} y={yK + 21} g={13} teile={[
+            { t: "PQ", vec: true, f: F.goldDunkel }, { t: "·" }, { t: "n", vec: true, f: F.blau }, { t: "=" }, { t: "1·1 + 2·1 + 2·3", w: 700 }, { t: "=" }, { t: "9", f: F.tinte, w: 900, g: 14.5 },
+          ]} />
+        </Kasten3>
+      );
+    } else if (uPQ > 0) {
+      kasten = (
+        <Kasten3 y={yK} h={32} o={teil(uPQ, 0.4, 0.9)} f="#FBEAF0" rand={F.granat}>
+          <Zeile x={B / 2} y={yK + 21} g={13} teile={[
+            { t: "PQ", vec: true, f: F.goldDunkel }, { t: "·" }, { t: "n", vec: true, f: F.blau }, { t: "≠ 0", f: F.granat, w: 900, g: 14 }, { t: "– Q liegt nicht in E", f: F.granat, w: 700, g: 11.5 },
+          ]} />
+        </Kasten3>
+      );
+    } else if (uLa > 0) {
+      kasten = (
+        <Kasten3 y={yK} h={32} o={klemm(uLa * 4)} f={F.gruenHell} rand={F.gruen}>
+          <Zeile x={B / 2} y={yK + 21} g={13} teile={[
+            { t: "PX", vec: true, f: F.goldDunkel }, { t: "·" }, { t: "(k·" }, { t: "n", vec: true, f: F.blau }, { t: ")" }, { t: "=" }, { t: "k · 0", w: 700 }, { t: "=" }, { t: "0", f: F.gruen, w: 900, g: 14.5 },
+            { t: "– für jede Länge", f: F.gruen, w: 700, g: 11.5 },
+          ]} />
+        </Kasten3>
+      );
+    } else if (uE > 0) {
+      kasten = (
+        <Kasten3 y={yK} h={32} o={teil(uE, 0.4, 1)} f={F.blauHell} rand={F.blau}>
+          <Zeile x={B / 2 - 50} y={yK + 21} g={14} teile={[
+            { t: "(" }, { t: "x", vec: true }, { t: "−" }, { t: "p", vec: true }, { t: ")" }, { t: "·" }, { t: "n", vec: true, f: F.blau }, { t: "=" }, { t: "0", f: F.gruen, w: 900, g: 15 },
+          ]} />
+          <Tx x={B - 20} y={yK + 21} g={10.5} f={F.blau} w={800} a="end">NORMALENFORM</Tx>
+        </Kasten3>
+      );
     }
 
     const schattenO = Math.min(uSch, 1);
+    const laengePille = uNo > 0.5 ? "Länge 1" : `Länge ${dez(nLang)}`;
+    const pilleW = breite(laengePille, 10.5) + 16;                            // Pille rechts oberhalb der Spitze; passt sie nicht mehr, rechts unterhalb der Pfeilmitte
     return (
       <>
         <Ebene o={uE} />
@@ -422,18 +478,27 @@ const v_hnf = {
             {(uSch > 0.6) && <Pille x={xS + 8} y={yS + 5} text={uZ > 0.3 || uD > 0 ? `δ = ${dez(delta)}` : "Schatten"} g={10.5} f={F.gruenHell} tf={F.gruen} a="start" o={teil(uSch, 0.6, 1)} />}
           </g>
         )}
-        {/* n⃗ → n⃗₀ */}
+        {/* X in E mit PX⃗ und rechtem Winkel – die Länge von n⃗ ist egal */}
+        {oX > 0 && (
+          <g opacity={oX}>
+            <Pfeil3 von={P0} bis={X_L} u={1} f={F.gold} b={2.8} />
+            <RechterWinkel3 p={P0} e1={N0} e2={mul(U, 1 / len(U))} g={0.5} f={F.gruen} />
+            <VecTx x={(xP + xX) / 2 - 16} y={(yP + yX) / 2 + 16} text="PX" g={13} f={F.goldDunkel} />
+            <Punkt3 p={X_L} f={F.gold} label="X" dx={9} dy={-6} lf={F.goldDunkel} />
+          </g>
+        )}
+        {/* n⃗ (atmet, wächst auf 2n⃗, schrumpft auf n⃗₀) */}
         <Pfeil3 von={P0} bis={nTip} u={1} f={F.blau} b={3.2} o={uE} />
-        {uE > 0.5 && <VecTx x={pr(nTip)[0] + 8} y={pr(nTip)[1] + 3} text="n" tief={uNo > 0.5 ? "0" : undefined} g={14} f={F.blau} a="start" o={teil(uE, 0.5, 1)} />}
-        <Pille x={pr(nTip)[0] + 12} y={pr(nTip)[1] - 20} text={uNo > 0.5 ? "Länge 1" : "Länge 3"} g={10.5} f={F.blauHell} tf={F.blau} o={Math.min(teil(uE, 0.6, 1), 1 - uH)} />
+        {uE > 0.5 && <VecTx x={xT > 318 ? xT - 26 : xT + 8} y={xT > 318 ? yT + 18 : yT + 3} text={nName} tief={uNo > 0.5 ? "0" : undefined} g={14} f={F.blau} a="start" o={teil(uE, 0.5, 1)} />}
+        <Pille x={xT + 12 + pilleW <= 356 ? xT + 12 + pilleW / 2 : (xP + xT) / 2 + 22 + pilleW / 2} y={xT + 12 + pilleW <= 356 ? yT - 20 : (yP + yT) / 2 + 14} text={laengePille} g={10.5} f={F.blauHell} tf={F.blau} o={Math.min(teil(uE, 0.6, 1), 1 - uH)} />
         {/* PQ⃗ */}
         <Pfeil3 von={P0} bis={Q} u={uPQ > 0 ? raus(klemm(uPQ * 1.5)) : 0} f={F.gold} b={2.8} />
         {uPQ > 0.5 && uSch <= 0.3 && <VecTx x={(xP + xQ) / 2 - 24} y={(yP + yQ) / 2 + 4} text="PQ" g={13} f={F.goldDunkel} o={teil(uPQ, 0.5, 1)} />}
-        {/* Winkel φ zwischen n⃗₀ und PQ⃗ an P */}
-        {uPQ > 0.6 && uZ <= 0 && (() => {
+        {/* Winkel φ zwischen n⃗ und PQ⃗ an P (ab dem Schatten) */}
+        {uSch > 0 && uZ <= 0 && (() => {
           const ePQ = mul(sub(Q, P0), 1 / (len(sub(Q, P0)) || 1));
           const a = pr(add(P0, mul(N0, 0.7))), c = pr(add(P0, mul(ePQ, 0.7)));
-          return <g opacity={teil(uPQ, 0.6, 1)}><path d={`M${pstr(a)} Q${pstr(pr(add(P0, mul(add(N0, ePQ), 0.42))))} ${pstr(c)}`} fill="none" stroke={F.goldDunkel} strokeWidth="1.5" />
+          return <g opacity={uSch}><path d={`M${pstr(a)} Q${pstr(pr(add(P0, mul(add(N0, ePQ), 0.42))))} ${pstr(c)}`} fill="none" stroke={F.goldDunkel} strokeWidth="1.5" />
             <Tx x={pr(add(P0, mul(add(N0, ePQ), 0.72)))[0] + 1} y={pr(add(P0, mul(add(N0, ePQ), 0.72)))[1] - 4} g={12} f={F.goldDunkel} w={800} fontStyle="italic">φ</Tx></g>;
         })()}
         {/* Punkte */}
