@@ -18,9 +18,10 @@ import { SZENEN_ZWEIT_GEOMETRIE } from "./motion/szenenZweitGeometrie.jsx";
 import { SZENEN_ZWEIT_BRUECHE } from "./motion/szenenZweitBrueche.jsx";
 import { SZENEN_ZWEIT_DATEN } from "./motion/szenenZweitDaten.jsx";
 import { SZENEN_ZWEIT_RECHNEN } from "./motion/szenenZweitRechnen.jsx";
+import { SZENEN_VEKTOREN } from "./motion/szenenVektoren.jsx";
 
 export const SZENEN = { ...SZENEN_ZAHLEN, ...SZENEN_GEOMETRIE, ...SZENEN_BRUECHE, ...SZENEN_DATEN, ...SZENEN_EXTRA,
-  ...SZENEN_ZWEIT_ZAHLEN, ...SZENEN_ZWEIT_GEOMETRIE, ...SZENEN_ZWEIT_BRUECHE, ...SZENEN_ZWEIT_DATEN, ...SZENEN_ZWEIT_RECHNEN };
+  ...SZENEN_ZWEIT_ZAHLEN, ...SZENEN_ZWEIT_GEOMETRIE, ...SZENEN_ZWEIT_BRUECHE, ...SZENEN_ZWEIT_DATEN, ...SZENEN_ZWEIT_RECHNEN, ...SZENEN_VEKTOREN };
 
 const STIL_ID = "us-motion-stil";
 const STIL = `
@@ -47,10 +48,33 @@ const STIL = `
   .usm-chip[aria-pressed="true"]{background:linear-gradient(150deg,#3A0019 0%,#7A0032 100%);border-color:transparent;color:#FFD66B}
   .usm-chip:focus-visible{outline:3px solid #EDBB00;outline-offset:2px}
   .usm-auswahl .usm{margin:0}
+  .usm-vec{position:relative;display:inline-block;font-style:italic;padding:0 2px 0 1px;margin-right:1px}
+  .usm-vec::before{content:"";position:absolute;left:0;right:1px;top:-0.08em;height:1.2px;background:currentColor}
+  .usm-vec::after{content:"";position:absolute;right:1px;top:-0.08em;width:3.5px;height:3.5px;border-top:1.2px solid currentColor;border-right:1.2px solid currentColor;transform:translate(0,-50%) rotate(45deg)}
+  .usm-kapitel{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 0}
+  .usm-kap{padding:4px 10px;border-radius:999px;border:1px solid #EADCE3;background:#fff;color:#7A0032;font-family:inherit;font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap;line-height:1.3}
+  .usm-kap[aria-current="true"]{background:#7A0032;border-color:#7A0032;color:#FFD66B}
+  .usm-kap:focus-visible{outline:3px solid #EDBB00;outline-offset:2px}
+  /* Thema Vektoren (Oberstufe): Blau statt Granat */
+  .usm-vektoren{background:linear-gradient(180deg,#FFFFFF 0%,#F6F8FC 100%);border-color:#E3E8F2}
+  .usm-vektoren .usm-fuss{border-top-color:#E3E8F2}
+  .usm-vektoren .usm-knopf{background:linear-gradient(150deg,#0B2A5C 0%,#004D98 100%);color:#FFD66B;box-shadow:0 6px 14px -8px rgba(0,77,152,0.7)}
+  .usm-vektoren .usm-titel{color:#004D98}
+  .usm-vektoren .usm-leiste{background:linear-gradient(90deg,#E2B53C 0%,#E2B53C var(--usm-u,0%),#E3E8F2 var(--usm-u,0%),#E3E8F2 100%)}
+  .usm-vektoren .usm-leiste::-webkit-slider-thumb{background:#004D98}
+  .usm-vektoren .usm-leiste::-moz-range-thumb{background:#004D98}
+  .usm-vektoren .usm-kap{border-color:#E3E8F2;color:#004D98}
+  .usm-vektoren .usm-kap[aria-current="true"]{background:#004D98;border-color:#004D98;color:#FFD66B}
 `;
 function stilSetzen() {
   if (typeof document === "undefined" || document.getElementById(STIL_ID)) return;
   const el = document.createElement("style"); el.id = STIL_ID; el.textContent = STIL; document.head.appendChild(el);
+}
+/* „n⃗“, „PX⃗“, „n⃗₀“ im Untertitel: der kombinierende Pfeil (U+20D7) fehlt in Montserrat → Buchstaben kursiv mit gezeichnetem Pfeil (CSS) */
+export function mitPfeilen(text) {
+  const teile = String(text).split(/([A-Za-z]{1,2}\u20D7)/);
+  if (teile.length === 1) return text;
+  return teile.map((t, i) => (i % 2 ? <span key={i} className="usm-vec">{t.slice(0, -1)}</span> : t));
 }
 const reduziert = () => typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -63,7 +87,8 @@ const Icon = ({ art }) => (
   </svg>
 );
 
-export function Motion({ szene, p = {}, titel }) {
+/* thema: "vektoren" färbt den Abspieler blau (Oberstufe); kapitel: [{ k, name }] – Sprungmarken auf Abschnitte des Ablaufs */
+export function Motion({ szene, p = {}, titel, thema, kapitel }) {
   React.useInsertionEffect(stilSetzen, []);
   const S = SZENEN[szene];
   const plan = useMemo(() => (S ? zeitplan(S.ablauf(p)) : null), [S, p]);
@@ -116,8 +141,10 @@ export function Motion({ szene, p = {}, titel }) {
   const { Z, z } = fortschritt(plan, t);
   const text = untertitel(plan, t);
   const proz = `${((t / dauer) * 100).toFixed(1)}%`;
+  const springe = (k) => { const a = plan.abschnitte.find((x) => x.k === k); if (!a) return; gestartet.current = true; setT(a.start); setLaeuft(true); };
+  const aktuellesKapitel = kapitel && [...kapitel].reverse().find((kp) => { const a = plan.abschnitte.find((x) => x.k === kp.k); return a && a.start <= t + 1; });
   return (
-    <figure className="usm" ref={huelle} data-us-motion={szene} style={{ margin: "4px 0 14px" }}>
+    <figure className={`usm${thema ? ` usm-${thema}` : ""}`} ref={huelle} data-us-motion={szene} style={{ margin: "4px 0 14px" }}>
       <svg viewBox={`0 0 ${B} ${S.h}`} role="img" aria-label={S.label ? S.label(p) : titel}>
         {S.bild({ Z, z, p, t })}
       </svg>
@@ -127,9 +154,14 @@ export function Motion({ szene, p = {}, titel }) {
         </button>
         <div className="usm-mitte">
           {titel && <p className="usm-titel">{titel}</p>}
-          <p className="usm-text" aria-live="polite">{text}</p>
+          <p className="usm-text" aria-live="polite">{mitPfeilen(text)}</p>
           <input type="range" className="usm-leiste" min="0" max={Math.round(dauer)} step="10" value={Math.round(t)} aria-label="Animation spulen"
             style={{ "--usm-u": proz }} onChange={(e) => { gestartet.current = true; setLaeuft(false); setT(Number(e.target.value)); }} />
+          {kapitel && kapitel.length > 0 && (
+            <div className="usm-kapitel" role="group" aria-label="Zu einem Abschnitt springen">
+              {kapitel.map((kp) => <button key={kp.k} type="button" className="usm-kap" aria-current={aktuellesKapitel && aktuellesKapitel.k === kp.k ? "true" : undefined} onClick={() => springe(kp.k)} data-usm-kap={kp.k}>{mitPfeilen(kp.name)}</button>)}
+            </div>
+          )}
         </div>
       </figcaption>
     </figure>

@@ -171,18 +171,18 @@ export const TEXTE_VEKTOREN_STOCHASTIK = {
   },
 
   hesse: {
-    titel: "Hesse-Normalenform verstehen: Herleitung, 3D-Bild, Übung",
-    beschreibung: "Vom Normalenvektor über die Normalenform zur Hesse-Normalenform: Herleitung mit Skalarprodukt, Punkte live im 3D-Bild verschieben, Abstand mit Vorzeichen üben.",
-    kurz: "Du siehst, warum das Skalarprodukt mit dem Normalenvektor null wird, baust daraus die Hesse-Normalenform und berechnest Abstände.",
+    titel: "Hesse-Normalenform verstehen: Animation, Herleitung, Übung",
+    beschreibung: "Vom Normalenvektor über die Normalenform zur Hesse-Normalenform: zwei Animationen zur Idee, Punkte live im 3D-Bild verschieben, Abstand mit Vorzeichen üben.",
+    kurz: "Du siehst in der Animation, warum das Skalarprodukt mit dem Normalenvektor null wird, baust daraus die Hesse-Normalenform und berechnest Abstände.",
     text: [
       "Die Hesse-Normalenform wird oft als Formel auswendig gelernt, ohne dass klar ist, woher sie kommt. Dabei steckt eine einzige Idee dahinter: Nimmt man einen festen Punkt P der Ebene und einen beliebigen weiteren Punkt X der Ebene, liegt der Verbindungsvektor von P nach X in der Ebene. Er steht deshalb senkrecht auf dem Normalenvektor, und das Skalarprodukt beider Vektoren ist null. Genau das ist die Normalenform.",
-      "Das Werkzeug geht diesen Weg in vier Schritten. Zuerst lernst du den Normalenvektor kennen und verschiebst einen Punkt in der Ebene, während das Skalarprodukt live mitläuft. Dann leitest du die Normalenform her und siehst, dass das Produkt sofort von null abweicht, sobald der Punkt die Ebene verlässt; ausmultipliziert entsteht die Koordinatenform. Im dritten Schritt wird der Normalenvektor auf Länge 1 gebracht. Setzt man nun einen Punkt außerhalb der Ebene ein, kommt sein Abstand heraus, das Vorzeichen verrät die Seite der Ebene. Im 3D-Bild siehst du dazu das Lot und den Schatten des Verbindungsvektors auf dem Einheitsnormalenvektor.",
+      "Das Werkzeug erzählt diese Idee in drei Schritten. Im ersten Schritt vermutest du, was das Skalarprodukt ergibt, und eine halbminütige Animation zeigt es dir: der feste Punkt, der beliebige Punkt, der Verbindungsvektor in der Ebene, der rechte Winkel zum Normalenvektor, das Produkt, das null bleibt, während der Punkt durch die Ebene wandert, und das nicht mehr null ist, sobald der Punkt die Ebene verlässt. Danach verschiebst du den Punkt selbst im drehbaren 3D-Bild und siehst das Skalarprodukt live, bevor die Herleitung bis zur Koordinatenform folgt. Im zweiten Schritt wird der Normalenvektor auf Länge 1 gebracht. Eine zweite Animation zeigt, warum beim Einsetzen eines Punktes außerhalb der Ebene sein Abstand herauskommt: Das Skalarprodukt ist der Schatten des Verbindungsvektors auf dem Einheitsnormalenvektor, und der ist genauso lang wie das Lot. Das Vorzeichen verrät die Seite der Ebene.",
       "Im Übungsteil stellst du selbst die Hesse-Normalenform auf und berechnest Abstände, mit Vermutung vorab, Prüfung der Eingabe und vollständigem Rechenweg. Die Zahlen sind so gewählt, dass die Länge des Normalenvektors ganzzahlig ist.",
     ],
     faq: [
       { f: "Was ist die Hesse-Normalenform einer Ebene?", a: "Eine Normalenform mit einem Normalenvektor der Länge 1. Für E: ax₁ + bx₂ + cx₃ = d lautet sie (ax₁ + bx₂ + cx₃ − d) / √(a² + b² + c²) = 0. Setzt man einen Punkt ein, erhält man seinen Abstand zur Ebene mit Vorzeichen." },
       { f: "Warum ist das Skalarprodukt in der Normalenform null?", a: "Der Verbindungsvektor zwischen zwei Punkten der Ebene liegt in der Ebene und steht daher senkrecht auf dem Normalenvektor. Senkrechte Vektoren haben das Skalarprodukt null." },
-      { f: "Hilft das meinem Kind beim Abitur?", a: "Ja. Abstandsaufgaben zur Ebene gehören zum Standard der analytischen Geometrie. Ihr Kind versteht hier die Herleitung, statt nur die Formel anzuwenden, und übt anschließend mit Rückmeldung und Rechenweg." },
+      { f: "Hilft das meinem Kind beim Abitur?", a: "Ja. Abstandsaufgaben zur Ebene gehören zum Standard der analytischen Geometrie. Ihr Kind versteht hier die Herleitung anhand einer Animation, statt nur die Formel anzuwenden, und übt anschließend mit Rückmeldung und Rechenweg." },
     ],
   },
 

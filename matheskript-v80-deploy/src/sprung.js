@@ -65,6 +65,7 @@ export const SPRUENGE = {
   "textmathilda-ergebnis":   { an: false, art: "auswahl", wo: "Textaufgaben → Mathilda: Übersetzung fertig → nach oben" },
   "penpaper-lektion":        { an: false, art: "auswahl", wo: "Pen & Paper: Lektion öffnen („Weiter mit Lektion n“, „Nächste Lektion“) → zur Lektionskarte" },
   "abisaetze-reiter":        { an: false, art: "auswahl", wo: "Abi-Sätze: Reiter Teil A / Teil B" },
+  "hesse-teil":              { an: false, art: "auswahl", wo: "Hesse-Normalenform: Schritt wechseln (Reiter oder „Weiter“ unten) → zu den Reitern hochholen" },
   "quickfinder-menue":       { an: false, art: "auswahl", wo: "Startseite → „Dein Training startet hier.“: Plan öffnen/zurück holt das Menü nach oben" },
   "suche-ergebnis":          { an: false, art: "auswahl", wo: "Suche „Was möchtest du lernen?“: Antwort ins Bild" },
   "mathilda-foto":           { an: false, art: "auswahl", wo: "Mathilda AI: „Scan dein Blatt“ bzw. Foto aufgenommen → zum Foto-Bereich" },

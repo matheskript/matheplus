@@ -1,22 +1,23 @@
 /* ============================================================
    Vektoren-Bereich: Hesse-Normalenform
-   Vier Reiter, die man nacheinander durchgeht:
-     Normalenvektor   – senkrecht ⇔ Skalarprodukt 0, X in der Ebene verschieben
-     Normalenform     – Herleitung (x⃗ − p⃗)·n⃗ = 0 als Zeitleiste, X verlässt die Ebene,
-                        Ausmultiplizieren zur Koordinatenform
-     Hesse-Normalenform – n⃗₀ = n⃗/|n⃗|, Q einsetzen = Abstand mit Vorzeichen,
-                        Schatten von PQ⃗ auf n⃗₀ im Bild
-     Trainieren       – Ebene gegeben → HNF → Abstand eines Punktes, mit Vermutung,
-                        Eingabe, Prüfen und vollständigem Rechenweg
+   Drei Schritte, die man nacheinander durchgeht (seit 22.10. mit Motion-Animationen, src/motion/szenenVektoren.jsx):
+     Die Idee           – Vermutung → Animation v_normalenform (fester Punkt P, beliebiger Punkt X, x⃗ − p⃗ liegt in E,
+                          senkrecht auf n⃗, Skalarprodukt 0, X wandert, X verlässt E, Normalenform) → Kernsatz →
+                          selbst ausprobieren (X mit s, t, h im 3D-Bild, Skalarprodukt live) → Herleitung bis zur Koordinatenform
+     Hesse-Normalenform – drei Schreibweisen → Animation v_hnf (n⃗₀, Schatten = Lot = Abstand, Vorzeichen) → Kernsatz →
+                          Q bewegen (Schatten von PQ⃗ auf n⃗₀ im Bild) → warum der Abstand herauskommt
+     Trainieren         – Ebene gegeben → HNF → Abstand eines Punktes, mit Vermutung, Eingabe, Prüfen und Rechenweg
    Farben: Ebene und Normalenvektor Blau, Punkt (X, Q) Gold, Lot/Ergebnis Smaragd.
-   Logik rein in hesseKern.js. Eigenes 3D-Bild (orthografisch wie func16).
-   Desktop ab 840 px: VekArbeit links, Bild rechts, Zeitleiste darunter.
+   Logik rein in hesseKern.js. Eigenes 3D-Bild (orthografisch wie func16, Blickwinkel wie die Animation).
+   Desktop ab 840 px: VekArbeit links, Bild bzw. Animation rechts, Zeitleiste darunter.
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 
 import React, { useRef, useState } from "react";
 import { C, HESSE_VIDEO_ID } from "./base1.jsx";
 import { ErklaerVideo } from "./func1.jsx";
+import { Motion } from "./funcUnterstufeMotion.jsx";
+import { springe } from "./sprung.js";
 import { M } from "./func3.jsx";
 import { DrehKnoepfe, FARBE_ACHSE, GRUND_AUS, GrundebenenGitter, GrundebenenSchalter, kamera } from "./func16.jsx";
 import { useStateGebucht } from "./buchung.jsx";
@@ -41,6 +42,7 @@ const BLAU = VF.eins;                 /* Ebene, Normalenvektor */
 const BLAU_HELL = C.seeHell;          /* Richtungsvektoren in der Ebene */
 const GOLD = VF.zwei, GOLD_TEXT = VF.zweiText;   /* Punkt X bzw. Q */
 const SM = VF.drei, SM_TEXT = "#1F6E44";          /* Lot, Schatten, Ergebnis */
+const BLICK = [0.2, 0.35];                         /* Blickwinkel (phi, theta) – derselbe wie in den Animationen */
 
 /* ---------- kleine Bausteine ---------- */
 
@@ -73,7 +75,7 @@ function Regler({ werte }) {
 }
 
 /* Wie weit ein Parameter laufen darf, damit X im Bild bleibt */
-const bereich = (v) => Math.max(1, Math.min(3, Math.floor(5 / laenge(v))));
+const bereich = (v) => Math.max(1, Math.min(2, Math.floor(5 / laenge(v))));
 
 /* Halbe Kantenlänge eines quadratischen Ebenenstücks um mitte, das alle punkte (in der Ebene) enthält */
 function stueckGroesse(n, mitte, punkte, min = 3.5) {
@@ -92,8 +94,8 @@ function stueckGroesse(n, mitte, punkte, min = 3.5) {
              | { art: "winkel", an, d1, d2, farbe, gr }
    Was auf der Betrachterseite der Ebene liegt, wird über der Ebene gezeichnet, der Rest darunter. */
 function HesseRaum({ n, d, stueck, elemente, legende, grund, W = 360, H = 320 }) {
-  const [phi, setPhi] = useState(0.62);
-  const [theta, setTheta] = useState(0.36);
+  const [phi, setPhi] = useState(BLICK[0]);
+  const [theta, setTheta] = useState(BLICK[1]);
   const gross = W > 400;
   const pts = elemente.flatMap((el) => [el.p, el.von, el.bis, el.an].filter(Boolean));
   const maxK = Math.max(3, ...pts.flatMap((p) => p.map(Math.abs)));
@@ -194,7 +196,7 @@ function HesseRaum({ n, d, stueck, elemente, legende, grund, W = 360, H = 320 })
         {vorne.map((el, i) => zeichne(el, `v${i}`))}
       </svg>
       {legende && <Legende eintraege={legende} stil={{ position: "absolute", left: 10, top: 10, maxWidth: "calc(60% - 30px)", pointerEvents: "none" }} />}
-      <DrehKnoepfe setPhi={setPhi} setTheta={setTheta} zuruecksetzen={() => { setPhi(0.62); setTheta(0.36); }} />
+      <DrehKnoepfe setPhi={setPhi} setTheta={setTheta} zuruecksetzen={() => { setPhi(BLICK[0]); setTheta(BLICK[1]); }} />
     </div>
   );
 }
@@ -275,36 +277,123 @@ const hilfeKontext = (modus) => ({
 });
 
 /* ======================================================================
-   a) Normalenvektor
+   Motion-Bausteine: Animation + Kapitelmarken, Kernsatz, drei Formen
    ====================================================================== */
 
-function ReiterNormale({ e, desktop, grund, werkzeuge, handyWerkzeuge, weiter }) {
+const P_LEER = {};
+const KAPITEL_IDEE = [
+  { k: "ebene", name: "Ebene und n⃗" }, { k: "punktP", name: "P und X" }, { k: "orts", name: "x⃗ − p⃗" }, { k: "senkrecht", name: "Senkrecht" },
+  { k: "wandern", name: "X wandert" }, { k: "heben", name: "X verlässt E" }, { k: "gleichung", name: "Normalenform" },
+];
+const KAPITEL_HNF = [
+  { k: "normieren", name: "n⃗₀" }, { k: "hnf", name: "HNF" }, { k: "punktQ", name: "Punkt Q" }, { k: "schatten", name: "Schatten" }, { k: "lot", name: "Lot" },
+  { k: "durch", name: "Vorzeichen" }, { k: "fazit", name: "Abstand" },
+];
+
+/* Animation in einer Karte mit Kicker; am Desktop rechts in der Arbeitsfläche */
+function MotionKarte({ szene, titel, kapitel, kicker = "Animation" }) {
+  return (
+    <div data-hesse-motion={szene} style={{ backgroundColor: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 18, padding: "10px 10px 2px" }}>
+      <p style={{ margin: "0 4px 6px", fontSize: 10.5, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#8A6A00" }}>{kicker}</p>
+      <Motion szene={szene} p={P_LEER} titel={titel} thema="vektoren" kapitel={kapitel} />
+    </div>
+  );
+}
+
+/* Kernsatz: der eine Gedanke, auf den alles zurückgeht */
+function Kernsatz({ kicker = "Der eine Gedanke", children }) {
+  return (
+    <div data-hesse-kernsatz="" style={{ marginTop: 16, borderRadius: 18, padding: "16px 18px", color: C.weiss,
+      background: `linear-gradient(135deg, ${C.seeTief} 0%, ${C.see} 100%)`, boxShadow: "0 14px 34px -22px rgba(0,47,110,0.8)" }}>
+      <p style={{ margin: "0 0 6px", fontSize: 10.5, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: C.flaggold }}>{kicker}</p>
+      <div style={{ fontSize: "clamp(15px, 4.2vw, 17px)", fontWeight: 700, lineHeight: 1.5, letterSpacing: "-0.005em" }}>{mitV(children)}</div>
+    </div>
+  );
+}
+
+/* Drei Schreibweisen derselben Ebene; `hervor` = die hervorgehobene Zeile */
+function DreiFormen({ e, hervor = "hnf" }) {
+  const zeilen = [
+    ["normal", "Normalenform", normalenformTex(e.n, e.P), "Jeder Punkt X der Ebene: (x⃗ − p⃗) steht senkrecht auf n⃗."],
+    ["koord", "Koordinatenform", koordTex(e.n, e.d), "Ausmultipliziert; d = n⃗ · p⃗."],
+    ["hnf", "Hesse-Normalenform", hnfTex(e.n, e.d), "Durch |n⃗| geteilt: Einsetzen liefert den Abstand."],
+  ];
+  return (
+    <div data-hesse-dreiformen="" style={{ backgroundColor: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 18, overflow: "hidden" }}>
+      <div style={{ padding: "10px 14px 8px", borderBottom: `1px solid ${C.linie}`, display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
+        <span style={{ fontSize: 13.5, fontWeight: 800, color: C.tinte }}>Eine Ebene, drei Schreibweisen</span>
+        <span style={{ fontSize: 11.5, fontWeight: 600, color: C.grau, whiteSpace: "nowrap" }}>dieselbe Ebene E</span>
+      </div>
+      {zeilen.map(([id, name, tex, text]) => {
+        const an = id === hervor;
+        return (
+          <div key={id} data-hesse-form={id} style={{ padding: "10px 14px", borderBottom: id === "hnf" ? "none" : `1px solid ${C.linie}`, background: an ? VF.einsHell : C.weiss }}>
+            <p style={{ margin: "0 0 2px", fontSize: 11.5, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: an ? C.see : C.grau }}>{name}</p>
+            <Formel t={`E: ${tex}`} gr={15} farbe={an ? C.see : C.tinte} links stil={{ padding: "2px 0" }} />
+            <Satz stil={{ margin: 0, fontSize: 12.5 }}>{text}</Satz>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ======================================================================
+   1) Die Idee – Vermutung → Animation → Kernsatz → selbst ausprobieren (s, t, h) → Herleitung
+   ====================================================================== */
+
+function ReiterIdee({ e, desktop, grund, werkzeuge, handyWerkzeuge, weiter }) {
   const sMax = bereich(e.u), tMax = bereich(e.v);
   const [s, setS] = useState(1);
-  const [t, setT] = useState(Math.min(1, tMax));
+  const [t, setT] = useState(0);
+  const [h, setH] = useState(0);
   const [tipp, setTipp] = useState(null);
-  const X = plus(plus(e.P, mal(e.u, s)), mal(e.v, t));
-  const PX = minusV(X, e.P);
-  const prod = skalar(e.n, PX);
+  const X = punktX(e, s, t, h);
+  const Xz = X.map(qNum);
+  const PX = X.map((x, i) => q(x.z - e.P[i] * x.n, x.n));
+  const PXz = PX.map(qNum);
+  const prod = qSkalar(e.n, PX);
+  const inE = prod.z === 0;
   const n0 = mal(e.n, 1 / e.b);
-  const nLang = Math.min(3, e.b);
-  const lPX = laenge(PX);
+  const fuss = minusV(Xz, mal(n0, h));
+  const lPX = laenge(PXz);
 
   const stueck = { mitte: e.P, r: stueckGroesse(e.n, e.P, [-1, 1].flatMap((a) => [-1, 1].map((b) => plus(plus(e.P, mal(e.u, a * sMax)), mal(e.v, b * tMax))))) };
   const elemente = [
-    { art: "pfeil", von: e.P, bis: plus(e.P, e.u), farbe: BLAU_HELL, breite: 2.2, label: "u" },
-    { art: "pfeil", von: e.P, bis: plus(e.P, e.v), farbe: BLAU_HELL, breite: 2.2, label: "v" },
-    ...(lPX > 0 ? [{ art: "pfeil", von: e.P, bis: X, farbe: GOLD, breite: 2.8 },
-      { art: "winkel", an: e.P, d1: n0, d2: mal(PX, 1 / lPX), farbe: SM, gr: 0.6 }] : []),
-    { art: "pfeil", von: e.P, bis: plus(e.P, mal(n0, nLang)), farbe: BLAU, breite: 3.2, label: "n" },
+    { art: "pfeil", von: e.P, bis: plus(e.P, e.u), farbe: BLAU_HELL, breite: 2, label: "u" },
+    { art: "pfeil", von: e.P, bis: plus(e.P, e.v), farbe: BLAU_HELL, breite: 2, label: "v" },
+    ...(h !== 0 ? [{ art: "strecke", von: fuss, bis: Xz, farbe: C.signal, breite: 1.6, strich: "5 4", deckung: false }, { art: "punkt", p: fuss, farbe: C.signal, r: 3.2 }] : []),
+    ...(lPX > 0 ? [{ art: "pfeil", von: e.P, bis: Xz, farbe: GOLD, breite: 2.8 }] : []),
+    ...(lPX > 0 && h === 0 ? [{ art: "winkel", an: e.P, d1: n0, d2: mal(PXz, 1 / lPX), farbe: SM, gr: 0.6 }] : []),
+    { art: "pfeil", von: e.P, bis: plus(e.P, mal(n0, Math.min(3, e.b))), farbe: BLAU, breite: 3.2, label: "n" },
     { art: "punkt", p: e.P, farbe: C.tinte, label: "P" },
-    { art: "punkt", p: X, farbe: GOLD, label: lPX > 0 ? "X" : "X = P" },
+    { art: "punkt", p: Xz, farbe: GOLD, label: lPX > 0 ? "X" : "X = P" },
   ];
   const bild = (W, H) => (
     <HesseRaum n={e.n} d={e.d} stueck={stueck} elemente={elemente} grund={grund} W={W} H={H}
-      legende={[{ text: "E", farbe: BLAU, art: "flaeche" }, { text: "n", farbe: BLAU }, { text: "u, v in E", farbe: BLAU_HELL }, { text: "X", farbe: GOLD, art: "punkt" }]} />
+      legende={[{ text: "E", farbe: BLAU, art: "flaeche" }, { text: "n", farbe: BLAU }, { text: "u, v in E", farbe: BLAU_HELL }, { text: "X", farbe: GOLD, art: "punkt" }, h !== 0 && { text: "Lot auf E", farbe: C.signal }]} />
   );
 
+  /* --- Vermutung + Animation --- */
+  const vermutung = (
+    <Tafel nr={1} titel="Erst vermuten" text={<V s="P ist ein fester Punkt der Ebene, X irgendein anderer. Was ergibt das Skalarprodukt n⃗ · PX⃗ – egal, wo X in der Ebene liegt?" />}
+      stil={desktop ? { marginTop: 0, boxShadow: "none" } : undefined}>
+      <TippKacheln label="Vermutung zum Skalarprodukt" wert={tipp} setWert={setTipp} loesung={tipp ? "null" : undefined} spalten={1}
+        optionen={[["null", "Immer 0 – egal, wo X liegt", "recht"], ["vz", "Mal positiv, mal negativ", "vektorwinkel"], ["waechst", <V key="w" s="Es wächst mit der Länge von PX⃗" />, "skalar"]]} />
+      {tipp && (tipp === "null"
+        ? <HinweisV art="gut">Genau. PX⃗ liegt in der Ebene – und n⃗ steht auf allem senkrecht, was in der Ebene liegt. Die Animation zeigt, warum.</HinweisV>
+        : <HinweisV art="schlecht">Schau es dir in der Animation an: Das Produkt bleibt 0, egal wie weit du X schiebst. PX⃗ liegt immer in der Ebene.</HinweisV>)}
+    </Tafel>
+  );
+  const motion = <MotionKarte szene="v_normalenform" titel="Die Idee hinter der Normalenform" kapitel={KAPITEL_IDEE} kicker="Animation · 30 Sekunden" />;
+  const kernsatz = (
+    <Kernsatz>
+      Nimm einen festen Punkt P der Ebene und irgendeinen Punkt X der Ebene. Der Vektor x⃗ − p⃗ von P nach X liegt in der Ebene – also steht er senkrecht auf n⃗,
+      und das Skalarprodukt ist 0. Genau das sagt die Normalenform: (x⃗ − p⃗) · n⃗ = 0.
+    </Kernsatz>
+  );
+
+  /* --- selbst ausprobieren --- */
   const boxE = (
     <ObjektBox farbe={BLAU} name="E" art="Ebene durch P" innen="10px 12px 12px">
       <Formel t={`\\farbe{u}{\\vec{n} = ${spalteTex(e.n)}}\\quad ${punktTex("P", e.P)}`} />
@@ -314,137 +403,60 @@ function ReiterNormale({ e, desktop, grund, werkzeuge, handyWerkzeuge, weiter })
     </ObjektBox>
   );
   const boxX = (
-    <ObjektBox farbe={GOLD} name="X" art="Punkt in der Ebene" innen="10px 12px 12px">
-      <Formel t={`X = P + s \\cdot \\vec{u} + t \\cdot \\vec{v}`} gr={15} />
-      <Abstand h={8} />
-      <Regler werte={[{ name: "s", wert: s, setze: setS, min: -sMax, max: sMax, farbe: GOLD_TEXT }, { name: "t", wert: t, setze: setT, min: -tMax, max: tMax, farbe: GOLD_TEXT }]} />
-      <Abstand h={8} />
-      <Formel t={`\\farbe{v}{${punktTex("X", X)}}\\quad \\vec{PX} = ${spalteTex(PX)}`} gr={15} />
-    </ObjektBox>
-  );
-  const vermutung = (
-    <Tafel nr={1} titel="Vermutung" text={<V s="Schieb X in der Ebene herum. Was ergibt das Skalarprodukt n⃗ · PX⃗?" />} stil={desktop ? { marginTop: 0, boxShadow: "none" } : undefined}>
-      <TippKacheln label="Vermutung zum Skalarprodukt" wert={tipp} setWert={setTipp} loesung={tipp ? "null" : undefined} spalten={1}
-        optionen={[["null", "Immer 0 – egal, wo X liegt", "recht"], ["vz", "Mal positiv, mal negativ", "vektorwinkel"], ["waechst", <V key="w" s="Es wächst mit der Länge von PX⃗" />, "skalar"]]} />
-      {tipp && (tipp === "null"
-        ? <HinweisV art="gut">Genau. PX⃗ liegt in der Ebene – und n⃗ steht auf allem senkrecht, was in der Ebene liegt.</HinweisV>
-        : <HinweisV art="schlecht">Probier es aus: Das Produkt bleibt 0, egal wie weit du X schiebst. PX⃗ liegt immer in der Ebene.</HinweisV>)}
-    </Tafel>
-  );
-  const live = tipp && (
-    <div data-hesse-live="normale">
-      <Ergebnis titel="Live: Skalarprodukt" bild={<Bild art="recht" breite={44} />}
-        zusatz={<V s={lPX > 0 ? "n⃗ und PX⃗ stehen senkrecht aufeinander – das Skalarprodukt ist 0." : "X = P: PX⃗ ist der Nullvektor, das Produkt ist erst recht 0."} />}>
-        <Formel t={`\\vec{n} \\cdot \\vec{PX} = ${skalarTex(e.n, PX)} = \\farbe{g}{${zahl(prod)}}`} gr={15} links />
-      </Ergebnis>
-    </div>
-  );
-  const kern = (
-    <Tafel nr={2} titel="Kernidee: senkrecht ⇔ Skalarprodukt 0" stil={desktop ? { marginTop: 20 } : undefined}>
-      <Rechenweg>
-        <RSchritt nr={1} titel="Senkrecht heißt Skalarprodukt 0">
-          <Formel t={`\\vec{a} \\perp \\vec{b} \\Leftrightarrow \\vec{a} \\cdot \\vec{b} = 0`} />
-          <Satz stil={{ margin: "6px 0 0", textAlign: "center" }}>Denn a⃗ · b⃗ = |a⃗| · |b⃗| · cos φ, und cos 90° = 0.</Satz>
-        </RSchritt>
-        <RSchritt nr={2} titel={<V s="n⃗ steht auf den beiden Richtungsvektoren senkrecht" />}>
-          <Formel t={`\\vec{n} \\cdot \\vec{u} = ${skalarTex(e.n, e.u)} = 0`} gr={15} />
-          <Formel t={`\\vec{n} \\cdot \\vec{v} = ${skalarTex(e.n, e.v)} = 0`} gr={15} />
-        </RSchritt>
-        <RSchritt nr={3} titel="Damit auf jedem Vektor der Ebene">
-          <Formel t={`\\vec{n} \\cdot (s \\cdot \\vec{u} + t \\cdot \\vec{v}) = s \\cdot \\vec{n} \\cdot \\vec{u} + t \\cdot \\vec{n} \\cdot \\vec{v} = 0`} gr={15} />
-          <Satz stil={{ margin: "6px 0 0", textAlign: "center" }}>Jeder Verbindungsvektor PX⃗ zweier Punkte der Ebene ist so ein s · u⃗ + t · v⃗.</Satz>
-        </RSchritt>
-        <RSchritt nr={4} titel={<V s="Jedes Vielfache k · n⃗ (k ≠ 0) ist auch ein Normalenvektor" />}>
-          <Satz stil={{ margin: 0 }}>Es zeigt in dieselbe (oder die Gegen-)Richtung – nur die Länge ändert sich. Genau das nutzt gleich die Hesse-Normalenform.</Satz>
-        </RSchritt>
-      </Rechenweg>
-      {weiter}
-    </Tafel>
-  );
-  return (
-    <Anordnung desktop={desktop} bild={bild} werkzeuge={werkzeuge} handyWerkzeuge={handyWerkzeuge}
-      links={<>{boxE}{boxX}{desktop && vermutung}{desktop && live}</>}
-      unten={<>{!desktop && vermutung}{!desktop && live && <div style={{ marginTop: 14 }}>{live}</div>}{kern}</>} />
-  );
-}
-
-/* ======================================================================
-   b) Normalenform
-   ====================================================================== */
-
-function ReiterNormalenform({ e, desktop, grund, werkzeuge, handyWerkzeuge, weiter }) {
-  const sMax = bereich(e.u), tMax = bereich(e.v);
-  const [s, setS] = useState(1);
-  const [t, setT] = useState(0);
-  const [h, setH] = useState(0);
-  const X = punktX(e, s, t, h);
-  const Xz = X.map(qNum);
-  const PX = X.map((x, i) => q(x.z - e.P[i] * x.n, x.n));
-  const prod = qSkalar(e.n, PX);
-  const n0 = mal(e.n, 1 / e.b);
-  const fuss = minusV(Xz, mal(n0, h));
-  const lPX = laenge(PX.map(qNum));
-
-  const stueck = { mitte: e.P, r: stueckGroesse(e.n, e.P, [-1, 1].flatMap((a) => [-1, 1].map((b) => plus(plus(e.P, mal(e.u, a * sMax)), mal(e.v, b * tMax))))) };
-  const elemente = [
-    ...(h !== 0 ? [{ art: "strecke", von: fuss, bis: Xz, farbe: SM, breite: 2, strich: "5 4", deckung: false }, { art: "punkt", p: fuss, farbe: SM, r: 3.4 }] : []),
-    ...(lPX > 0 ? [{ art: "pfeil", von: e.P, bis: Xz, farbe: GOLD, breite: 2.8 }] : []),
-    ...(lPX > 0 && h === 0 ? [{ art: "winkel", an: e.P, d1: n0, d2: mal(PX.map(qNum), 1 / lPX), farbe: SM, gr: 0.6 }] : []),
-    { art: "pfeil", von: e.P, bis: plus(e.P, mal(n0, Math.min(3, e.b))), farbe: BLAU, breite: 3.2, label: "n" },
-    { art: "punkt", p: e.P, farbe: C.tinte, label: "P" },
-    { art: "punkt", p: Xz, farbe: GOLD, label: "X" },
-  ];
-  const bild = (W, H) => (
-    <HesseRaum n={e.n} d={e.d} stueck={stueck} elemente={elemente} grund={grund} W={W} H={H}
-      legende={[{ text: "E", farbe: BLAU, art: "flaeche" }, { text: "n", farbe: BLAU }, { text: "X", farbe: GOLD, art: "punkt" }, h !== 0 && { text: "Lot auf E", farbe: SM }]} />
-  );
-  const inE = prod.z === 0;
-  const liveZeile = <Formel t={`(\\vec{x} − \\vec{p}) \\cdot \\vec{n} = ${skalarTex(PX, e.n)} = ${inE ? "\\farbe{g}{0}" : zahl(prod)}`} gr={15} />;
-  const liveMeldung = inE
-    ? <HinweisV art="gut">X liegt in E – das Produkt ist 0.</HinweisV>
-    : <HinweisV art="warn">X liegt {Math.abs(h)} LE {h > 0 ? "über" : "unter"} E. PX⃗ steht nicht mehr senkrecht auf n⃗ – das Produkt ist {zahl(prod)} ≠ 0.</HinweisV>;
-
-  const boxE = (
-    <ObjektBox farbe={BLAU} name="E" art="Normalenform" innen="10px 12px 12px">
-      <Formel t={`\\farbe{u}{\\vec{n} = ${spalteTex(e.n)}}\\quad ${punktTex("P", e.P)}`} />
-      <Abstand h={6} />
-      <Formel t={`E: ${normalenformTex(e.n, e.P)}`} gr={15} />
-    </ObjektBox>
-  );
-  const boxX = (
     <ObjektBox farbe={GOLD} name="X" art="Punkt verschieben" innen="10px 12px 12px">
-      <Satz stil={{ fontSize: 12.5, margin: "0 0 8px", textAlign: "center" }}>s und t schieben X in der Ebene, h hebt X um h LE aus der Ebene.</Satz>
+      <Formel t={`X = P + s \\cdot \\vec{u} + t \\cdot \\vec{v}`} gr={15} />
+      <Satz stil={{ fontSize: 12.5, margin: "6px 0 8px", textAlign: "center" }}>s und t schieben X in der Ebene, h hebt X um h LE aus der Ebene heraus.</Satz>
       <Regler werte={[
         { name: "s", wert: s, setze: setS, min: -sMax, max: sMax, farbe: GOLD_TEXT },
         { name: "t", wert: t, setze: setT, min: -tMax, max: tMax, farbe: GOLD_TEXT },
         { name: "h", wert: h, setze: setH, min: -3, max: 3, farbe: SM_TEXT, label: "Höhe h" },
       ]} />
       <Abstand h={8} />
-      <Formel t={`\\farbe{v}{${punktTex("X", X)}}`} gr={15} />
-      {liveZeile}
-      {liveMeldung}
+      <Formel t={`\\farbe{v}{${punktTex("X", X)}}\\quad \\vec{PX} = ${spalteTex(PX)}`} gr={15} />
     </ObjektBox>
   );
+  const live = (
+    <div data-hesse-live="idee" data-hesse-in-e={inE ? "ja" : "nein"}>
+      <Ergebnis titel="Live: Skalarprodukt" art={inE ? "gut" : "warn"} bild={<Bild art={inE ? "recht" : "nicht-auf"} breite={44} />}
+        zusatz={<V s={inE
+          ? (lPX > 0 ? "X liegt in E: PX⃗ liegt in der Ebene, n⃗ steht senkrecht darauf – das Produkt ist 0." : "X = P: PX⃗ ist der Nullvektor, das Produkt ist erst recht 0.")
+          : `X liegt ${Math.abs(h)} LE ${h > 0 ? "über" : "unter"} E. PX⃗ liegt nicht mehr in der Ebene, steht nicht mehr senkrecht auf n⃗ – das Produkt ist ${zahl(prod)} ≠ 0.`} />}>
+        <Formel t={`\\vec{n} \\cdot \\vec{PX} = ${skalarTex(e.n, PX)} = ${inE ? "\\farbe{g}{0}" : `\\farbe{r}{${zahl(prod)}}`}`} gr={15} links />
+      </Ergebnis>
+    </div>
+  );
+  const probieren = (
+    <Tafel nr={2} titel="Selbst ausprobieren" text={desktop ? "Schieb X mit s und t durch die Ebene – und heb es mit h heraus. Das Bild rechts lässt sich drehen." : "Schieb X mit s und t durch die Ebene – und heb es mit h heraus. Das Bild lässt sich drehen."}
+      stil={{ marginTop: 18 }}>
+      <Anordnung desktop={desktop} bild={bild} werkzeuge={werkzeuge} handyWerkzeuge={handyWerkzeuge}
+        links={<>{boxE}{boxX}{desktop && live}</>} unten={!desktop && <div style={{ marginTop: 14 }}>{live}</div>} />
+    </Tafel>
+  );
+
+  /* --- Herleitung --- */
   const dTex = `${termTex(e.n)} = ${skalarTex(e.n, e.P)} = ${zahl(e.d)}`;
   const herleitung = (
-    <Tafel nr={1} titel="Herleitung Schritt für Schritt" stil={desktop ? { marginTop: 20 } : undefined}>
+    <Tafel nr={3} titel="Von der Idee zur Gleichung" stil={{ marginTop: 18 }}>
       <Rechenweg>
         <RSchritt nr={1} titel={<V s="Gegeben: ein fester Aufpunkt P und ein Normalenvektor n⃗" />}>
           <Formel t={`${punktTex("P", e.P)}\\quad \\farbe{u}{\\vec{n} = ${spalteTex(e.n)}}`} />
+          <Satz stil={{ margin: "6px 0 0", textAlign: "center" }}>n⃗ steht senkrecht auf den Richtungsvektoren: n⃗ · u⃗ = {skalarTex(e.n, e.u).replace(/\\cdot/g, "·")} = 0 und n⃗ · v⃗ = {skalarTex(e.n, e.v).replace(/\\cdot/g, "·")} = 0.</Satz>
         </RSchritt>
         <RSchritt nr={2} titel="Ein beliebiger Punkt X(x₁ | x₂ | x₃) der Ebene">
           <Formel t={`\\vec{PX} = \\vec{x} − \\vec{p} = \\spalte{${termTex([1], [X_TEX[0]], -e.P[0])}}{${termTex([1], [X_TEX[1]], -e.P[1])}}{${termTex([1], [X_TEX[2]], -e.P[2])}}`} />
-          <Satz stil={{ margin: "6px 0 0", textAlign: "center" }}>x⃗ und p⃗ sind die Ortsvektoren von X und P.</Satz>
+          <Satz stil={{ margin: "6px 0 0", textAlign: "center" }}>x⃗ und p⃗ sind die Ortsvektoren von X und P. Ihre Differenz ist der Verbindungsvektor von P nach X.</Satz>
         </RSchritt>
-        <RSchritt nr={3} titel={<V s="PX⃗ liegt in der Ebene ⇒ PX⃗ steht senkrecht auf n⃗ ⇒ Skalarprodukt 0" />}>
+        <RSchritt nr={3} titel={<V s="PX⃗ liegt in E – also ist es eine Kombination der Richtungsvektoren" />}>
+          <Formel t={`\\vec{PX} = s \\cdot \\vec{u} + t \\cdot \\vec{v}`} gr={15} />
+          <Abstand />
+          <Formel t={`\\vec{n} \\cdot \\vec{PX} = s \\cdot (\\vec{n} \\cdot \\vec{u}) + t \\cdot (\\vec{n} \\cdot \\vec{v}) = s \\cdot 0 + t \\cdot 0 = \\farbe{g}{0}`} gr={15} />
+          <Satz stil={{ margin: "6px 0 0", textAlign: "center" }}>Egal, welche Zahlen s und t sind: Das Produkt ist 0. Deshalb steht n⃗ auf jedem Vektor in E senkrecht.</Satz>
+        </RSchritt>
+        <RSchritt nr={4} titel="Die Normalenform">
           <Formel t={`(\\vec{x} − \\vec{p}) \\cdot \\vec{n} = 0`} gr={17} />
           <Abstand />
           <Formel t={`E: ${normalenformTex(e.n, e.P)}`} gr={15} farbe={BLAU} />
-          <Satz stil={{ margin: "6px 0 0", textAlign: "center" }}>Das ist die Normalenform. Sie gilt für genau die Punkte X, die in E liegen.</Satz>
-        </RSchritt>
-        <RSchritt nr={4} titel="Probe: X verlässt die Ebene">
-          <Satz>{desktop ? "Schieb X links mit s, t und h." : "Schieb X oben mit s, t und h."} Solange h = 0 ist, bleibt das Produkt 0 – sonst nicht.</Satz>
-          <div data-hesse-live="normalenform">{liveZeile}</div>
+          <Satz stil={{ margin: "6px 0 0", textAlign: "center" }}>Sie gilt für genau die Punkte X, die in E liegen – ein Punkt außerhalb erfüllt sie nicht (Schritt 2 oben: h ≠ 0).</Satz>
         </RSchritt>
         <RSchritt nr={5} titel="Ausmultiplizieren: die Koordinatenform">
           <Formel t={`\\vec{x} \\cdot \\vec{n} − \\vec{p} \\cdot \\vec{n} = 0 \\quad\\Leftrightarrow\\quad \\vec{x} \\cdot \\vec{n} = \\vec{p} \\cdot \\vec{n}`} gr={15} />
@@ -453,20 +465,35 @@ function ReiterNormalenform({ e, desktop, grund, werkzeuge, handyWerkzeuge, weit
         </RSchritt>
       </Rechenweg>
       <Ergebnis titel="Koordinatenform" bild={<Bild art="ebene" breite={44} />}
-        zusatz={<V s="Die Zahlen vor x₁, x₂, x₃ sind genau die Koordinaten von n⃗. Rechts steht d = n⃗ · p⃗." />}>
+        zusatz={<V s="Die Zahlen vor x₁, x₂, x₃ sind genau die Koordinaten von n⃗. Rechts steht d = n⃗ · p⃗. In der Animation ist der Aufpunkt ein anderer Punkt derselben Ebene – die Gleichung ist dieselbe." />}>
         <span data-hesse-koordform=""><M t={`E: ${koordTex(e.n, e.d)}`} /></span>
       </Ergebnis>
       {weiter}
     </Tafel>
   );
+
+  const video = (
+    <details data-hesse-video="" style={{ marginTop: 18, backgroundColor: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 18, padding: "4px 14px" }}>
+      <summary style={{ cursor: "pointer", fontSize: 14, fontWeight: 700, color: C.see, padding: "10px 0" }}>Video: Ebenen in drei Formen (aus dem Videokurs Vektoren)</summary>
+      <div style={{ paddingBottom: 12 }}><ErklaerVideo id={HESSE_VIDEO_ID} titel="Ebenen, Normalenvektor und Normalenform" /></div>
+    </details>
+  );
+
   return (
-    <Anordnung desktop={desktop} bild={bild} werkzeuge={werkzeuge} handyWerkzeuge={handyWerkzeuge}
-      links={<>{boxE}{boxX}</>} unten={herleitung} />
+    <div>
+      {desktop
+        ? <div data-hesse-arbeit=""><VekArbeit ohneMenue linksBreite={360} links={vermutung} rechts={motion} /></div>
+        : <>{vermutung}<div style={{ marginTop: 14 }}>{motion}</div></>}
+      {kernsatz}
+      {probieren}
+      {herleitung}
+      {video}
+    </div>
   );
 }
 
 /* ======================================================================
-   c) Hesse-Normalenform
+   2) Hesse-Normalenform – drei Formen → Animation → Q bewegen → warum der Abstand herauskommt
    ====================================================================== */
 
 function ReiterHesse({ e, desktop, grund, werkzeuge, handyWerkzeuge, weiter }) {
@@ -503,6 +530,23 @@ function ReiterHesse({ e, desktop, grund, werkzeuge, handyWerkzeuge, weiter }) {
   const dTex = `\\delta = ${abstandTex(e.n, e.d, Q)}`;
   const lageText = { ueber: "Positiv: Q liegt auf der Seite, in die n⃗₀ zeigt.", unter: "Negativ: Q liegt auf der Gegenseite von n⃗₀.", in: "0: Q liegt in der Ebene." }[lage];
 
+  const einstieg = (
+    <div>
+      <DreiFormen e={e} hervor="hnf" />
+      <Satz stil={{ margin: "12px 2px 0", fontSize: 13.5 }}>
+        Die Hesse-Normalenform ist die Normalenform mit einem Normalenvektor der Länge 1. Der Clou: Setzt man einen Punkt ein, der nicht in E liegt,
+        kommt nicht 0 heraus, sondern sein Abstand zur Ebene – mit Vorzeichen für die Seite.
+      </Satz>
+    </div>
+  );
+  const motion = <MotionKarte szene="v_hnf" titel="Warum die HNF den Abstand liefert" kapitel={KAPITEL_HNF} kicker="Animation · 23 Sekunden" />;
+  const kernsatz = (
+    <Kernsatz kicker="Der Kern">
+      Mit n⃗₀ (Länge 1) ist das Skalarprodukt (q⃗ − p⃗) · n⃗₀ die Länge des Schattens von PQ⃗ auf der Normalenrichtung – und der ist genauso lang wie das Lot von Q auf E.
+      Deshalb liefert die Hesse-Normalenform beim Einsetzen den Abstand: δ = (q⃗ − p⃗) · n⃗₀, d(Q; E) = |δ|.
+    </Kernsatz>
+  );
+
   const boxE = (
     <ObjektBox farbe={BLAU} name="E" art="Hesse-Normalenform" innen="10px 12px 12px">
       <Formel t={`E: ${koordTex(e.n, e.d)}`} gr={15} />
@@ -513,9 +557,10 @@ function ReiterHesse({ e, desktop, grund, werkzeuge, handyWerkzeuge, weiter }) {
   );
   const boxQ = (
     <ObjektBox farbe={GOLD} name="Q" art="Punkt bewegen" innen="10px 12px 12px">
+      <Satz stil={{ fontSize: 12.5, margin: "0 0 8px", textAlign: "center" }}>Schieb Q durch die Ebene – beobachte das Vorzeichen.</Satz>
       <Regler werte={[0, 1, 2].map((i) => ({ name: `q${["₁", "₂", "₃"][i]}`, label: `Koordinate q${i + 1}`, wert: Q[i], setze: setzeQ(i), min: -8, max: 8, farbe: GOLD_TEXT }))} />
       <Abstand h={8} />
-      <Formel t={`\\farbe{v}{${punktTex("Q", Q)}}`} gr={15} />
+      <Formel t={`\\farbe{v}{${punktTex("Q", Q)}}\\quad \\vec{PQ} = ${spalteTex(PQ)}`} gr={15} />
     </ObjektBox>
   );
   const live = (
@@ -526,14 +571,20 @@ function ReiterHesse({ e, desktop, grund, werkzeuge, handyWerkzeuge, weiter }) {
       </Ergebnis>
     </div>
   );
+  const probieren = (
+    <Tafel nr={1} titel="Selbst ausprobieren" text="Im Bild: der Schatten von PQ⃗ auf der n⃗₀-Geraden (grün, breit) und das Lot von Q auf E – beide gleich lang." stil={{ marginTop: 18 }}>
+      <Anordnung desktop={desktop} bild={bild} werkzeuge={werkzeuge} handyWerkzeuge={handyWerkzeuge}
+        links={<>{boxE}{boxQ}{desktop && live}</>} unten={!desktop && <div style={{ marginTop: 14 }}>{live}</div>} />
+    </Tafel>
+  );
   const warum = (
-    <Tafel nr={1} titel="Warum kommt der Abstand heraus?" stil={desktop ? { marginTop: 20 } : undefined}>
+    <Tafel nr={2} titel="Warum kommt der Abstand heraus?" stil={{ marginTop: 18 }}>
       <Rechenweg>
         <RSchritt nr={1} titel="Normalenvektor auf Länge 1 bringen">
           <Formel t={betragKette(e.n)} gr={15} />
           <Abstand />
           <Formel t={`\\vec{n}_0 = ${n0Tex(e.n)}`} gr={15} farbe={BLAU} />
-          <Satz stil={{ margin: "6px 0 0", textAlign: "center" }}>n⃗₀ zeigt in dieselbe Richtung wie n⃗, hat aber die Länge 1 (Einheitsvektor).</Satz>
+          <Satz stil={{ margin: "6px 0 0", textAlign: "center" }}>n⃗₀ zeigt in dieselbe Richtung wie n⃗, hat aber die Länge 1 (Einheitsvektor). Es ist immer noch ein Normalenvektor.</Satz>
         </RSchritt>
         <RSchritt nr={2} titel={<V s="Hesse-Normalenform: die Normalenform mit n⃗₀" />}>
           <Formel t={`E: ${hnfVektorTex(e.n, e.P)}`} gr={15} />
@@ -550,7 +601,7 @@ function ReiterHesse({ e, desktop, grund, werkzeuge, handyWerkzeuge, weiter }) {
         </RSchritt>
         <RSchritt nr={4} titel="Das Vorzeichen verrät die Seite">
           <Satz stil={{ margin: 0 }}>
-            Positiv: Q liegt auf der Seite, in die n⃗₀ zeigt. Negativ: auf der Gegenseite. 0: Q liegt in E. Schieb Q durch die Ebene – das Vorzeichen wechselt
+            Positiv: Q liegt auf der Seite, in die n⃗₀ zeigt. Negativ: auf der Gegenseite. 0: Q liegt in E. Schieb Q oben durch die Ebene – das Vorzeichen wechselt
             genau beim Durchstoßen. Für den Abstand nimmt man den Betrag: d(Q; E) = |δ|.
           </Satz>
         </RSchritt>
@@ -562,9 +613,14 @@ function ReiterHesse({ e, desktop, grund, werkzeuge, handyWerkzeuge, weiter }) {
     </Tafel>
   );
   return (
-    <Anordnung desktop={desktop} bild={bild} werkzeuge={werkzeuge} handyWerkzeuge={handyWerkzeuge}
-      links={<>{boxE}{boxQ}{desktop && live}</>}
-      unten={<>{!desktop && <div style={{ marginTop: 14 }}>{live}</div>}{warum}</>} />
+    <div>
+      {desktop
+        ? <div data-hesse-arbeit=""><VekArbeit ohneMenue linksBreite={360} links={einstieg} rechts={motion} /></div>
+        : <>{einstieg}<div style={{ marginTop: 14 }}>{motion}</div></>}
+      {kernsatz}
+      {probieren}
+      {warum}
+    </div>
   );
 }
 
@@ -715,12 +771,11 @@ function ReiterTrainieren({ desktop, grund, werkzeuge }) {
    ====================================================================== */
 
 const MODI = [
-  { id: "normale", name: "Normalen\u00ADvektor", bild: "recht" },
-  { id: "normalenform", name: "Normalen\u00ADform", bild: "ebene" },
+  { id: "idee", name: "Die Idee", bild: "recht" },
   { id: "hesse", name: "Hesse-Normalen\u00ADform", bild: "abstand" },
   { id: "trainieren", name: "Trai\u00ADnieren", bild: "zufall" },
 ];
-const WEITER_TEXT = { normale: ["normalenform", "Weiter: Normalenform"], normalenform: ["hesse", "Weiter: Hesse-Normalenform"], hesse: ["trainieren", "Weiter: Trainieren"] };
+const WEITER_TEXT = { idee: ["hesse", "Weiter: Hesse-Normalenform"], hesse: ["trainieren", "Weiter: Trainieren"] };
 
 function zufallsEbene() {
   const n = zufallsNormale(Math.random, { faktor: false });
@@ -731,7 +786,7 @@ function zufallsEbene() {
 
 export function HesseNormalenform({ gehe }) {   // eslint-disable-line no-unused-vars
   const desktop = useDesktop();
-  const [modus, setModus] = useState("normale");
+  const [modus, setModus] = useState("idee");
   const [ebene, setEbene] = useState(BEISPIEL_EBENEN[0]);
   const [grund, setGrund] = useState(GRUND_AUS);
 
@@ -746,19 +801,17 @@ export function HesseNormalenform({ gehe }) {   // eslint-disable-line no-unused
   ];
   const werkzeugeOhne = [{ titel: "Grundebenen einblenden", inhalt: <GrundebenenSchalter an={grund} setAn={setGrund} ohneTitel /> }];
   const handyWerkzeuge = <div style={{ display: "flex", flexDirection: "column", gap: 10 }}><GrundebenenSchalter an={grund} setAn={setGrund} />{ebenenWahl("Ebene")}</div>;
-  const weiter = WEITER_TEXT[modus] && <WeiterReiter text={WEITER_TEXT[modus][1]} onClick={() => setModus(WEITER_TEXT[modus][0])} />;
+  const wechsle = (m) => { setModus(m); springe("hesse-teil", () => { const el = document.querySelector("[data-hesse-modus]"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }); };
+  const weiter = WEITER_TEXT[modus] && <WeiterReiter text={WEITER_TEXT[modus][1]} onClick={() => wechsle(WEITER_TEXT[modus][0])} />;
   const gemeinsam = { e: ebene, desktop, grund, werkzeuge: werkzeugeMitEbene, handyWerkzeuge, weiter };
   const schluessel = `${modus}-${ebene.id}-${desktop ? "d" : "h"}`;
 
   return (
-    <VekSeite titel="Hesse-Normalenform" text="Vom Normalenvektor über die Normalenform zur Hesse-Normalenform: Setzt man einen Punkt ein, kommt sein Abstand zur Ebene heraus – mit Vorzeichen für die Seite.">
-      <div data-hesse-modus={modus}>
-        <div style={{ hyphens: "manual" }}><ModusReiter label="Schritt wählen" wert={modus} setWert={setModus} modi={MODI} /></div>
+    <VekSeite titel="Hesse-Normalenform" text="Ein fester Punkt, ein beliebiger Punkt, ein Verbindungsvektor in der Ebene – und ein Skalarprodukt, das 0 ist. Aus diesem einen Gedanken entsteht die Normalenform; mit einem Normalenvektor der Länge 1 wird daraus die Hesse-Normalenform, die Abstände liefert.">
+      <div data-hesse-modus={modus} style={{ scrollMarginTop: 70 }}>
+        <div style={{ hyphens: "manual" }}><ModusReiter label="Schritt wählen" wert={modus} setWert={wechsle} modi={MODI} /></div>
       </div>
-      {/* Einführungsvideo nur beim ersten Schritt (Platzhalter: Lektion v5 des Videokurses Vektoren) */}
-      {modus === "normale" && <div data-hesse-video="" style={{ marginBottom: 18 }}><ErklaerVideo id={HESSE_VIDEO_ID} titel="Ebenen, Normalenvektor und Normalenform" /></div>}
-      {modus === "normale" && <ReiterNormale key={schluessel} {...gemeinsam} />}
-      {modus === "normalenform" && <ReiterNormalenform key={schluessel} {...gemeinsam} />}
+      {modus === "idee" && <ReiterIdee key={schluessel} {...gemeinsam} />}
       {modus === "hesse" && <ReiterHesse key={schluessel} {...gemeinsam} />}
       {modus === "trainieren" && <ReiterTrainieren key={`t-${desktop ? "d" : "h"}`} desktop={desktop} grund={grund} werkzeuge={werkzeugeOhne} />}
       {modus !== "trainieren" && (
