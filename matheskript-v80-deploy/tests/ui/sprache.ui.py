@@ -4,6 +4,7 @@
 - „drei zwei minus eins“ füllt die drei Felder eines Punktes/Vektors in Reihenfolge; Einzelfeld bekommt eine Zahl
 - Zwei Punkte (A), Abstände (Lotfußpunkt), Normalenform (n und Abstand), Kreuzprodukt (a), Winkel (Skalarprodukt)
 - Tastatur-Mikrofon (Handy): aktives Feld + folgende Felder der Gruppe
+- automatisch prüfen: Winkel (nach der Vermutung) und Hesse-Trainer (nach dem letzten Feld) zeigen das Ergebnis ohne „Prüfen“
 Aufruf: BASE_URL=http://localhost:4317/ python3 tests/ui/sprache.ui.py"""
 import os, sys
 from playwright.sync_api import sync_playwright
@@ -102,6 +103,13 @@ with sync_playwright() as p:
         sprich(pg, letzte.locator("[data-sprach-knopf] button").first, "minus zwei Drittel")
         d = letzte.locator("input").first.input_value()
         pruefe(d == "-2/3", f"{w} hesse: δ = {d}")
+        pg.wait_for_timeout(200)
+        pruefe("✓" not in pg.locator("[data-hesse-eingaben]").inner_text() and "✗" not in pg.locator("[data-hesse-eingaben]").inner_text(), f"{w} hesse: geprüft, obwohl Felder fehlen")
+        for i in range(zeilen.count() - 1):
+            sprich(pg, zeilen.nth(i).locator("[data-sprach-knopf] button").first, "7")
+        pg.wait_for_timeout(300)
+        t = pg.locator("[data-hesse-eingaben]").inner_text()
+        pruefe("✓" in t or "✗" in t, f"{w} hesse: nach dem letzten Feld nicht automatisch geprüft")
 
         # Abstände: Lotfußpunkt mit Bruch
         pg.goto(BASE + "abstaende"); pg.wait_for_timeout(1500)
@@ -118,12 +126,17 @@ with sync_playwright() as p:
         a = g.evaluate("(e) => [...e.querySelectorAll('input')].map((x) => x.value)")
         pruefe(a == ["1", "4", "8"], f"{w} kreuzprodukt: a = {a}")
 
-        # Winkel: Skalarprodukt (ZahlFeld)
+        # Winkel: Skalarprodukt (ZahlFeld) – nach der Vermutung prüft die Spracheingabe von selbst
         pg.goto(BASE + "vektorwinkel"); pg.wait_for_timeout(1500)
         g = pg.locator("[data-sprach-gruppe]").first
         sprich(pg, g.locator("[data-sprach-knopf] button").first, "minus 12")
         s = g.locator("input").first.input_value()
         pruefe(s == "-12", f"{w} winkel: Skalarprodukt = {s}")
+        pruefe(pg.locator("[data-vek-ergebnis]").count() == 0, f"{w} winkel: geprüft ohne Vermutung")
+        pg.locator("[data-vek-tipp]").first.click(); pg.wait_for_timeout(200)
+        sprich(pg, g.locator("[data-sprach-knopf] button").first, "0")
+        pg.wait_for_timeout(300)
+        pruefe(pg.locator("[data-vek-ergebnis]").count() == 1, f"{w} winkel: nach der Spracheingabe nicht automatisch geprüft")
 
         pruefe(not kons, f"{w}: Konsole {kons[:2]}")
         ctx.close()

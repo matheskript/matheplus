@@ -9,6 +9,7 @@
    Die Erkennung macht der Browser (Chrome/Android: Google, Safari/iPhone: Apple): vor dem ersten Mal die
    Zwei-Klick-Freigabe wie bei YouTube (DIENSTE.sprache in externeMedien.js, Widerruf auf der Datenschutzseite).
    Bedienung: tippen → hört zu (roter Puls), spricht man nicht mehr, endet die Aufnahme von selbst; erneut tippen stoppt.
+   Danach wird ohne OK/„Prüfen“ automatisch geprüft, sobald alle Felder der Karte gefüllt sind (autoPruefen).
    Browser-Test nur von Hand (Playwright hat kein Mikrofon); die Verteilung auf Felder ist in tests/sprache.test.mjs
    (Logik) und tests/eingabeFelder.test.mjs (Einbau) geprüft.
    ====================================================================== */
@@ -32,6 +33,35 @@ const FEHLER_TEXT = {
 export function felderDerGruppe(gruppe) {
   if (!gruppe) return [];
   return [...gruppe.querySelectorAll("input[data-mathe-modus]")].filter((el) => !el.disabled && el.offsetParent !== null);
+}
+
+/* Automatisch prüfen (22.10., Bastis Wunsch vom Handy): Nach der Spracheingabe soll kein OK und kein „Prüfen“
+   mehr nötig sein. Vom Feld aus nach oben die nächste Karte suchen, die einen Prüfen-Knopf hat (Tafel, Form, eigener
+   Rahmen data-sprach-scope – nicht über die Seite hinaus); sind dort ALLE Zahlenfelder gefüllt und ist der Knopf nicht
+   gesperrt, wird er gedrückt. Fehlt noch ein Feld (z. B. Abstände: erst F, dann d), passiert nichts – erst der letzte
+   gesprochene Wert löst die Prüfung aus. Werkzeuge ohne Prüfen-Knopf (Zwei Punkte, Kreuzprodukt) rechnen ohnehin live. */
+const PRUEF_TEXTE = ["Prüfen", "Check", "OK"];
+export function pruefKnopfFinden(von) {
+  let el = von;
+  for (let tiefe = 0; el && tiefe < 8; tiefe++) {
+    if (el.matches && el.matches("[data-vek-seite], main, body")) return null;
+    const knopf = [...el.querySelectorAll("button")].find((b) => PRUEF_TEXTE.includes((b.textContent || "").trim()) && !b.closest("[data-mathe-tastatur]"));
+    if (knopf) {
+      const felder = [...el.querySelectorAll("input[data-mathe-modus]")].filter((f) => !f.disabled && f.offsetParent !== null);
+      if (knopf.disabled || felder.some((f) => !String(f.value).trim())) return null;
+      return knopf;
+    }
+    if (el.matches && el.matches("[data-vek-tafel], [data-sprach-scope], form")) return null;
+    el = el.parentElement;
+  }
+  return null;
+}
+export function autoPruefen(von) {
+  const k = pruefKnopfFinden(von);
+  if (!k) return false;
+  /* nach dem nächsten Bild – die Werte sind dann im React-Zustand angekommen */
+  setTimeout(() => { try { k.click(); } catch (e) { /* Knopf schon weg */ } }, 60);
+  return true;
 }
 
 /* Werte auf die Felder verteilen: ab dem Startfeld (oder dem ersten) in Reihenfolge, überzählige Werte fallen weg.
@@ -157,6 +187,8 @@ export function SprachKnopf({ ziel, gruppe, groesse = 36, farbe = C.see, stil, t
     if (!werte.length) zeige({ art: "fehler", text: `Verstanden: „${text}“ – keine Zahl erkannt.` }, 4000);
     else zeige({ art: "text", text: `„${text}“ → ${werte.slice(0, n || werte.length).join(" | ")}` }, 3500);
     if (onWerte) onWerte(werte, n);
+    /* geprüft wird von selbst, sobald die Karte vollständig ist */
+    if (n > 0) { const letztes = felder[Math.min(felder.length, (start ? Math.max(0, felder.indexOf(start)) : 0) + n) - 1] || g || start; if (letztes) autoPruefen(letztes); }
   };
   const starten = () => {
     if (hoert) { try { erk.current && erk.current.stop(); } catch (e) { /* weg */ } return; }
