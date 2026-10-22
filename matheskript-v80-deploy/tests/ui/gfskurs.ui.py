@@ -22,7 +22,7 @@ with sync_playwright() as p:
     for breite in (360, 390, 1280):
         ctx = b.new_context(viewport={"width": breite, "height": 900}); page = ctx.new_page()
         seitenfehler = []; page.on("pageerror", lambda e: seitenfehler.append(str(e)))
-        page.goto(BASE); page.wait_for_timeout(1500)
+        page.goto(BASE + "kurse"); page.wait_for_timeout(1500)   # große Kurs-Kacheln stehen seit 21.10. auf /kurse
         kachel = page.locator("button[aria-label='GFS-Training öffnen']")
         pruefe(kachel.count() == 1, f"{breite}: Kachel auf der Startseite")
         kachel.scroll_into_view_if_needed(); kachel.screenshot(path=f"{AUS}/kachel-{breite}.png")
