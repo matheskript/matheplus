@@ -38,6 +38,10 @@ with sync_playwright() as p:
         pruefe(pg.locator("[data-start-gast]").count() == 1, f"{tag}: Story-Startseite fehlt")
         pruefe(pg.locator("[data-start-band]").count() == 0, f"{tag}: Band des Dashboards auf der Geschichte")
         pruefe(pg.locator("[data-start-gast-los]").count() == 1 and pg.locator("[data-start-gast-wie]").count() == 1, f"{tag}: Knöpfe der Bühne fehlen")
+        mitte = pg.evaluate("""() => { const k = document.querySelector('[data-start-gast-los]'); const cs = getComputedStyle(k);
+            const r = document.createRange(); r.selectNodeContents(k); const t = r.getBoundingClientRect(), o = k.getBoundingClientRect();
+            return { oben: t.top - o.top, unten: o.bottom - t.bottom, pt: cs.paddingTop, pb: cs.paddingBottom }; }""")
+        pruefe(mitte["pt"] == mitte["pb"] and abs(mitte["oben"] - mitte["unten"]) <= 3, f"{tag}: Text im Goldknopf nicht mittig {mitte}")
         pruefe(pg.locator(".sg-fakt").count() == 4, f"{tag}: nicht vier Fakten")
         pruefe(pg.locator("[data-start-gast-problem] .sg-karte").count() == 3 and pg.locator("[data-start-gast-problem] .sg-karte.gegner").count() == 1, f"{tag}: Problem nicht in drei Karten")
         pruefe(pg.locator("[data-start-gast-mythen]").count() == 1, f"{tag}: Link zu den 7 Mythen fehlt")

@@ -368,7 +368,7 @@ export function Kopfleiste({ ansicht, gehe, zurStartseite, hmOffen, setHmOffen, 
         @media (min-width:421px){:root{--kopf-h:clamp(74px, calc(11.1vw + 26px), 90px)}}
         @media (min-width:1000px){:root{--kopf-h:clamp(90px, calc(var(--seite, 940px) * .0935), 120px)}}
         .titel-kurz{display:none}
-        @media (max-width:520px){.held{padding-top:18px !important;padding-bottom:4px !important}.held h1{font-size:25px !important;line-height:1.1 !important}.held h1+div{margin-top:12px !important;margin-bottom:13px !important}.held-welle{height:12px !important}}
+        @media (max-width:520px){div.held{padding-top:18px !important;padding-bottom:4px !important}.held h1{font-size:25px !important;line-height:1.1 !important}.held h1+div{margin-top:12px !important;margin-bottom:13px !important}.held-welle{height:12px !important}}
         .kopfblock{margin-bottom:-16px}
         .kopfblock .held{padding-bottom:30px !important}
         @media (max-width:520px){.kopfblock .held{padding-bottom:22px !important}}
