@@ -70,6 +70,8 @@ export const THEMEN = [
   /* Kursstufe 1 – Lambacher Schweizer Kursstufe BW (Analysis, LGS, Geraden und Ebenen) */
   T("k1", "I", "Grundlagen der Differenzialrechnung", "Die optimale Dose – Extremwertprobleme mit Nebenbedingungen", "Welche Dose braucht bei festem Inhalt am wenigsten Blech?",
     { id: "dose", kurz: "Die optimale Dose", seite: 34, frage: "Wie muss eine Dose aussehen, damit sie bei festem Inhalt am wenigsten Blech braucht?", ansicht: "gfs-dose", videos: 0, animationen: 6 }),
+  T("k1", "I", "Grundlagen der Differenzialrechnung", "Tangentenprobleme", "Tangenten von außen, Normalen und gemeinsame Tangenten zweier Kurven.",
+    { id: "tangenten", kurz: "Tangentenprobleme", frage: "Wie viele Tangenten gehen von einem Punkt an eine Kurve – und wo berühren sie?", ansicht: "gfs-tangenten", videos: 0, animationen: 5 }),
   T("k1", "I", "Grundlagen der Differenzialrechnung", "Stetigkeit", "Ohne Absetzen zeichnen – und warum Sprünge Ableitungen verhindern.", { id: "stetigkeit" }),
   T("k1", "II", "Exponential- und Logarithmusfunktionen", "Beschränktes Wachstum", "Wachstum mit Obergrenze: Abkühlen, Sättigen, Annähern.", { id: "beschraenkt" }),
   T("k1", "II", "Exponential- und Logarithmusfunktionen", "Ausbreitung eines Virus modellieren", "Infektionszahlen mit Wachstumsmodellen beschreiben.", { id: "virus", kurz: "Virus-Ausbreitung" }),
