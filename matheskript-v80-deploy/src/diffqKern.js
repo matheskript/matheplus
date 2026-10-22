@@ -87,7 +87,7 @@ const pTrim = (p) => { const r = p.map(rund); while (r.length && r[r.length - 1]
 /* ---------- Polynome in x und h: Liste von Gliedern { c, i, j } = c · xⁱ · hʲ ---------- */
 const binom = (n, k) => { let r = 1; for (let i = 1; i <= k; i++) r = (r * (n - i + 1)) / i; return r; };
 /* f(x + h) ausmultipliziert: Σ aₖ (x+h)ᵏ = Σ aₖ Σ (k über j) x^(k−j) h^j */
-function entwickelt(koef) {
+export function entwickelt(koef) {
   const g = {};
   koef.forEach((a, k) => {
     if (!a) return;
@@ -102,7 +102,7 @@ function entwickelt(koef) {
 const geordnet = (glieder) => [...glieder].sort((a, b) => a.j - b.j || b.i - a.i);
 /* Reihenfolge beim Ausmultiplizieren: Potenz für Potenz (Gesamtgrad absteigend), darin die binomische Entwicklung (x², 2xh, h²) */
 const entwickeltGeordnet = (glieder) => [...glieder].sort((a, b) => (b.i + b.j) - (a.i + a.j) || a.j - b.j);
-const zusammengefasst = (glieder) => {
+export const zusammengefasst = (glieder) => {
   const g = {};
   glieder.forEach(({ c, i, j }) => { const key = `${i},${j}`; g[key] = (g[key] || 0) + c; });
   return Object.entries(g).map(([key, c]) => { const [i, j] = key.split(",").map(Number); return { c: rund(c), i, j }; }).filter((t) => t.c !== 0);

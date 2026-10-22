@@ -1,10 +1,13 @@
 """Browser-Test Differenzenquotient (/differenzenquotient, src/funcDiffqTrainer.jsx):
 - Band statt Seitenkopf, Vorbereitung „f(x+h) = …“, Vorlage-Zeile, interaktiver Bruch mit zwei Feldern (f(x+h), f(x)) über h.
-- Trainieren: Vorbereitung (f(x+h) ausrechnen, falsch → Hinweis, richtig → Bruch öffnet sich mit vorbelegtem erstem Feld),
+- Modus-Schalter Auto | Üben | Lernen (Lernen = früher Trainieren, Auto = früher Rechnen).
+- Üben (x²): je Schritt zwei Zeilen zur Wahl; falsche Karte → Hinweis, Karte rot; richtige → Zeile wird eingesetzt,
+  nächster Schritt; am Ende „x von 7 Schritten auf Anhieb“ und „Jetzt selbst rechnen“ → Lernen mit derselben Funktion.
+- Lernen: Vorbereitung (f(x+h) ausrechnen, falsch → Hinweis, richtig → Bruch öffnet sich mit vorbelegtem erstem Feld),
   Einsetzen (beide Felder, OK prüft), dann „Zähler umformen“,
   „h kürzen“, „Grenzwert h → 0“ – jede neue Zeile übernimmt die Zeile darüber; am Ende „Neue Funktion“.
 - „An einer Stelle“: x₀ sichtbar, Terme nur mit h, Ergebnis eine Zahl. „Lösung zeigen“ füllt die Zeile.
-- Rechnen: Musterweg vom Einsetzen bis zum Grenzwert mit Schrittnamen.
+- Auto: Musterweg vom Einsetzen bis zum Grenzwert mit Schrittnamen.
 - 360/390/1280 px: keine Überbreite, keine Fehler in der Konsole; Desktop: Einstellungen links, Rechnung rechts.
   npx vite build && npx vite preview --port 4371 &   →   python3 tests/ui/diffq.ui.py
 """
@@ -54,6 +57,11 @@ with sync_playwright() as p:
             l = page.locator(".dq-spalte-l").bounding_box(); r = page.locator(".dq-spalte-r").bounding_box()
             pruefe(l and r and l["x"] + l["width"] <= r["x"] + 1, "Desktop: Einstellungen nicht links neben der Rechnung")
 
+        # Modus-Schalter: drei Modi, Lernen ist vorgewählt
+        for name in ("Auto", "Üben", "Lernen"):
+            pruefe(page.locator(".dq-seg").first.get_by_role("button", name=name, exact=True).count() == 1, f"{breite}: Modus {name} fehlt")
+        pruefe(page.locator('.dq-seg').first.get_by_role("button", name="Lernen", exact=True).get_attribute("aria-pressed") == "true", f"{breite}: Lernen nicht vorgewählt")
+
         # Eigene Funktion x^2 – damit der Weg feststeht
         page.get_by_role("button", name="Eigene Funktion").click(); page.wait_for_timeout(300)
         # Tastenfeld der eigenen Funktion: Taste x²
@@ -61,6 +69,34 @@ with sync_playwright() as p:
         page.get_by_role("button", name="Übernehmen").click(); page.wait_for_timeout(400)
         pruefe(page.locator('[data-diffq-aufgabe="x^2"]').count() == 1, f"{breite}: eigene Funktion x^2 nicht übernommen")
         page.screenshot(path=f"{AUS}/{breite}-1-start.png", full_page=True)
+
+        # Üben: sieben Schritte, je zwei Zeilen; im ersten Schritt erst die falsche, dann die richtige
+        page.locator(".dq-seg").first.get_by_role("button", name="Üben", exact=True).click(); page.wait_for_timeout(300)
+        pruefe("zwei Zeilen" in page.locator("[data-diffq-modus-text]").inner_text(), f"{breite}: Modus-Text Üben fehlt")
+        pruefe(page.locator("[data-diffq-ueben] .dq-option").count() == 2, f"{breite}: Üben ohne zwei Optionen")
+        pruefe("schritt 1 von 7" in page.locator(".dq-frage").inner_text().lower(), f"{breite}: Schrittzähler fehlt ({page.locator('.dq-frage').inner_text()!r})")
+        page.locator('[data-diffq-option="falsch"]').click(); page.wait_for_timeout(250)
+        pruefe(page.locator("[data-diffq-ueben-hinweis]").count() == 1, f"{breite}: kein Hinweis nach falscher Wahl")
+        pruefe(page.locator('.dq-option[data-status="falsch"]').count() == 1, f"{breite}: falsche Karte nicht markiert")
+        pruefe(page.locator('.dq-zeile[data-art="fxh"][data-fertig="true"]').count() == 0, f"{breite}: falsche Wahl wurde eingesetzt")
+        page.screenshot(path=f"{AUS}/{breite}-0-ueben-falsch.png", full_page=True)
+        for schritt in range(7):
+            if schritt == 3:
+                page.screenshot(path=f"{AUS}/{breite}-0-ueben-mitte.png", full_page=True)
+            page.locator('[data-diffq-option="richtig"]').click(); page.wait_for_timeout(200)
+        pruefe(page.locator("[data-diffq-ueben-fertig]").count() == 1, f"{breite}: Üben ohne Abschluss")
+        fertig_text = page.locator("[data-diffq-ueben-fertig]").inner_text()
+        pruefe("6 von 7" in fertig_text, f"{breite}: Bilanz falsch ({fertig_text[:80]!r})")
+        pruefe(page.locator('[data-diffq-ueben-weg] .dq-zeile[data-fertig="true"]').count() == 7, f"{breite}: nicht alle Üben-Zeilen eingesetzt")
+        weg = page.locator("[data-diffq-ueben-weg]").inner_text().replace(" ", "").replace("\n", "")
+        pruefe("h(2x+h)" in weg and "2x+h" in weg, f"{breite}: Üben-Weg unvollständig")
+        vb = page.locator('[data-diffq-ueben-weg] .dq-zeile[data-art="fxh"]').last.bounding_box(); vl = page.locator('[data-diffq-ueben-weg] .dq-zeile[data-vorlage="true"]').bounding_box()
+        pruefe(vb and vl and vb["y"] < vl["y"], f"{breite}: Üben: Vorlage nicht unter der Vorbereitung")
+        page.screenshot(path=f"{AUS}/{breite}-0-ueben-fertig.png", full_page=True)
+        pruefe(breit() == breite, f"{breite}: Überbreite im Üben {breit()}")
+        page.get_by_role("button", name="Jetzt selbst rechnen").click(); page.wait_for_timeout(300)
+        pruefe(page.locator('.dq-seg').first.get_by_role("button", name="Lernen", exact=True).get_attribute("aria-pressed") == "true", f"{breite}: nach Üben nicht in Lernen")
+        pruefe(page.locator('[data-diffq-aufgabe="x^2"]').count() == 1, f"{breite}: Lernen nicht mit derselben Funktion")
 
         # Vorbereitung: erst falsch (x^2+h^2), dann richtig → Bruch öffnet sich, erstes Feld vorbelegt
         feld_oeffnen(page, 0); tippen(page, "x^2+h^2")
@@ -114,10 +150,10 @@ with sync_playwright() as p:
         pruefe(page.locator("[data-diffq-fertig]").count() == 1, f"{breite}: Stelle: Abschluss fehlt")
         page.screenshot(path=f"{AUS}/{breite}-4-stelle.png", full_page=True)
 
-        # Rechnen: Musterweg mit Schritten
-        page.get_by_role("button", name="Rechnen").click(); page.wait_for_timeout(300)
-        pruefe(page.locator('[data-diffq-muster] .dq-zeile[data-art="fxh"]').count() >= 1, f"{breite}: Rechnen ohne Vorbereitung")
-        pruefe(page.locator("[data-diffq-muster] .dq-schritt.rechts").count() >= 5, f"{breite}: Rechnen ohne Musterweg")
+        # Auto: Musterweg mit Schritten
+        page.get_by_role("button", name="Auto", exact=True).click(); page.wait_for_timeout(300)
+        pruefe(page.locator('[data-diffq-muster] .dq-zeile[data-art="fxh"]').count() >= 1, f"{breite}: Auto ohne Vorbereitung")
+        pruefe(page.locator("[data-diffq-muster] .dq-schritt.rechts").count() >= 5, f"{breite}: Auto ohne Musterweg")
         page.screenshot(path=f"{AUS}/{breite}-5-rechnen.png", full_page=True)
         pruefe(breit() == breite, f"{breite}: Überbreite {breit()}")
         pruefe(not konsole, f"{breite}: Konsole {konsole[:3]}")
