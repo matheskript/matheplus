@@ -47,7 +47,7 @@ function marken(text) {
   let t = String(text || "").toLowerCase().replace(/[−–]/g, "-").replace(/\s+/g, " ").trim();
   t = t.replace(/(\d)\.(\d)/g, "$1,$2");                        // 3.5 → 3,5
   t = t.replace(/(\d)\/(\d)/g, "$1 / $2");                      // 3/4 → 3 / 4
-  t = t.replace(/(\d)\s*-\s*(\d)/g, "$1 -$2");                  // „3 - 1“ heißt „3, −1“ (nie Subtraktion)
+  t = t.replace(/(\d)\s*-\s*(?=\d)/g, "$1 -");                 // „3 - 1“, „1-2-3“: Minus gehört zur nächsten Zahl (nie Subtraktion)
   t = t.replace(/,(?=\s|$)/g, " , ").replace(/\|/g, " | ").replace(/;/g, " ; ").replace(/\(|\)/g, " ");
   t = t.replace(/[.!?:]+(?=\s|$)/g, " ");                      // Satzzeichen am Wortende („eins.“)
   return t.split(" ").filter(Boolean).flatMap((m) => {
@@ -109,6 +109,79 @@ export function zahlenAusSprache(text) {
   }
   abschliessen();
   return liste;
+}
+
+/* ======================================================================
+   SITUATIVE ERKENNUNG (22.10.2026): Was war gemeint – bezogen auf die Felder, die gerade gefüllt werden?
+   Die Spracherkennung des Browsers schreibt gesprochene Ziffernfolgen gern zusammen („eins, eins, zwei“ → „112“)
+   oder macht aus „eins, fünf“ ein Dezimalkomma („1,5“). Darum:
+   · der Browser liefert mehrere Vorschläge (maxAlternatives), jeder wird gelesen;
+   · jede Lesart darf mehrstellige Zahlen in Ziffern und Dezimalzahlen am Komma auftrennen
+     („112“ → 1 | 1 | 2, „-112“ → −1 | 1 | 2, „1,5“ → 1 | 5);
+   · gewählt wird die Lesart, die am besten zur Lage passt (bewerteLesart):
+       genau so viele Werte wie freie Felder  ++   (ein Vektor hat drei Komponenten)
+       jedes Auftrennen kostet etwas, bei Zahlen ≤ 20 mehr (die sind als Zahl selbst plausibel)
+       Werte über 20 in Vektoren/Punkten (≥ 2 Felder) sind selten            –
+       Dezimal/Bruch in einem Ganzzahl-Feld (Modus ganz/ganzvz)              –
+       späterer Vorschlag des Browsers                                       – (wenig)
+   Ein Minus ist nie Subtraktion, sondern gehört zur nächsten Zahl: „1, minus 2, minus 3“ ist der Vektor (1 | −2 | −3).
+   kontext: { felder: Anzahl freier Felder ab dem Startfeld, modi: ["ganzvz", "zahl", …] je Feld (optional) }
+   ====================================================================== */
+const ZIFFERN_ZAHL = /^-?\d{2,}$/;           // mehrstellige ganze Zahl → in Ziffern trennbar
+const DEZIMAL = /^-?\d+,\d+$/;              // Dezimalzahl → am Komma trennbar
+
+function trennen(w) {
+  const minus = w.startsWith("-"), r = minus ? w.slice(1) : w;
+  const teile = DEZIMAL.test(w) ? r.split(",") : r.split("");
+  return teile.map((t, i) => (i === 0 && minus && t !== "0" ? `-${t}` : t));
+}
+
+/* alle Lesarten einer Werteliste: jede Teilmenge der trennbaren Werte aufgetrennt (höchstens 6 Werte → ≤ 64 Lesarten) */
+export function lesarten(werte, text = null) {
+  /* getrennt wird nur, was der Browser als Ziffern geschrieben hat – „hundertzwölf“ in Worten bleibt 112 */
+  const t = text == null ? null : ` ${String(text).toLowerCase().replace(/[−–]/g, "-").replace(/(\d)\.(\d)/g, "$1,$2")} `;
+  const alsZiffern = (w) => t == null || new RegExp(`(^|[^\\d,])${w.replace(/^-/, "").replace(",", ",")}(?![\\d]|,\\d)`).test(t);
+  const idx = werte.map((w, i) => ((ZIFFERN_ZAHL.test(w) || DEZIMAL.test(w)) && alsZiffern(w) ? i : -1)).filter((i) => i >= 0).slice(0, 6);
+  const aus = [];
+  for (let maske = 0; maske < 1 << idx.length; maske++) {
+    const geteilt = new Set(idx.filter((_, k) => maske & (1 << k)));
+    const liste = werte.flatMap((w, i) => (geteilt.has(i) ? trennen(w) : [w]));
+    aus.push({ werte: liste, getrennt: [...geteilt].map((i) => werte[i]) });
+  }
+  return aus;
+}
+
+export function bewerteLesart({ werte, getrennt = [] }, { felder = 1, modi = [] } = {}, rang = 0) {
+  const n = werte.length;
+  let p = n === felder ? 3 : n < felder ? -0.6 * (felder - n) : -2 * (n - felder);
+  for (const g of getrennt) {
+    const zahl = Math.abs(Number(g.replace(",", ".")));
+    p -= 1;
+    if (!g.includes(",") && zahl <= 20) p -= 1.5;          // „12“ ist als Zwölf plausibel
+  }
+  werte.slice(0, felder).forEach((w, i) => {
+    const z = Math.abs(Number(w.replace(",", ".").replace(/\/.*/, "")));
+    if (felder >= 2 && z > 20) p -= 2;                     // Vektor-/Punktkomponenten sind klein
+    const m = modi[i];
+    if ((m === "ganz" || m === "ganzvz") && /[,/]/.test(w)) p -= 2;
+    if (m === "ganz" && w.startsWith("-")) p -= 1;
+  });
+  return p - 0.4 * rang;
+}
+
+/* Hauptfunktion für die Felder: Vorschläge des Browsers (Texte, bester zuerst) + Lage → beste Werteliste */
+export function zahlenImKontext(vorschlaege, kontext = {}) {
+  const texte = (Array.isArray(vorschlaege) ? vorschlaege : [vorschlaege]).filter((t) => t && String(t).trim());
+  let best = null;
+  texte.forEach((text, rang) => {
+    const basis = zahlenAusSprache(text);
+    if (!basis.length) return;
+    for (const l of lesarten(basis, text)) {
+      const punkte = bewerteLesart(l, kontext, rang);
+      if (!best || punkte > best.punkte + 1e-9) best = { ...l, punkte, text };
+    }
+  });
+  return best || { werte: [], getrennt: [], punkte: -Infinity, text: texte[0] || "" };
 }
 
 /* Hat dieser Browser die Spracherkennung? (nur im Browser sinnvoll) */

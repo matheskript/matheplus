@@ -18,7 +18,7 @@ import { createPortal } from "react-dom";
 import { C } from "./base1.jsx";
 import { DIENSTE, dienstErlaubt, dienstSetzen, medienAbonnieren } from "./externeMedien.js";
 import { setzeFeldWert } from "./feldWert.js";
-import { sprachUnterstuetzt, zahlenAusSprache } from "./sprache.js";
+import { sprachUnterstuetzt, zahlenImKontext } from "./sprache.js";
 
 const FEHLER_TEXT = {
   "not-allowed": "Mikrofon nicht erlaubt – bitte in den Browser-Einstellungen freigeben.",
@@ -83,18 +83,20 @@ function erkennungStarten({ onZwischen, onErgebnis, onFehler, onEnde }) {
   r.lang = "de-DE";
   r.interimResults = true;
   r.continuous = false;
-  r.maxAlternatives = 1;
-  let text = "", geliefert = false;
+  r.maxAlternatives = 5;                 // mehrere Lesarten – zahlenImKontext wählt die, die zu den Feldern passt
+  let vorschlaege = [], geliefert = false;
   r.onresult = (e) => {
-    let s = "";
-    for (let i = 0; i < e.results.length; i++) s += `${e.results[i][0].transcript} `;
-    text = s.trim();
-    onZwischen(text);
-    if (e.results[e.results.length - 1].isFinal) { geliefert = true; onErgebnis(text); }
+    /* Vorschlag k = Ergebnisstücke, jeweils die k-te Alternative (sonst die beste) */
+    const anzahl = Math.max(1, ...Array.from(e.results, (x) => x.length));
+    vorschlaege = Array.from({ length: anzahl }, (_, k) =>
+      Array.from(e.results, (x) => (x[Math.min(k, x.length - 1)] || x[0]).transcript).join(" ").replace(/\s+/g, " ").trim()).filter(Boolean);
+    vorschlaege = [...new Set(vorschlaege)];
+    onZwischen(vorschlaege[0] || "");
+    if (e.results[e.results.length - 1].isFinal) { geliefert = true; onErgebnis(vorschlaege); }
   };
   r.onerror = (e) => { onFehler(e.error); };
   /* iPhone liefert das Ergebnis oft erst beim Ende – dann hier */
-  r.onend = () => { if (!geliefert && text) { geliefert = true; onErgebnis(text); } onEnde(); };
+  r.onend = () => { if (!geliefert && vorschlaege.length) { geliefert = true; onErgebnis(vorschlaege); } onEnde(); };
   try { r.start(); } catch (e) { onFehler("aborted"); }
   return r;
 }
@@ -178,11 +180,15 @@ export function SprachKnopf({ ziel, gruppe, groesse = 36, farbe = C.see, stil, t
     setMeldung(m);
     if (dauer) timer.current = setTimeout(() => setMeldung(null), dauer);
   };
-  const verteile = (text) => {
-    const werte = zahlenAusSprache(text);
+  const verteile = (vorschlaege) => {
     const start = ziel ? ziel() : null;
     const g = (gruppe && gruppe()) || (start && start.closest("[data-sprach-gruppe]")) || null;
     const felder = g ? felderDerGruppe(g) : start ? [start] : [];
+    /* Situativ: was passt zu den freien Feldern ab dem Startfeld (Anzahl, Zahlenart je Feld)? – src/sprache.js */
+    const ab = start ? Math.max(0, felder.indexOf(start)) : 0;
+    const frei = felder.slice(ab);
+    const wahl = zahlenImKontext(vorschlaege, { felder: Math.max(1, frei.length), modi: frei.map((f) => f.getAttribute("data-mathe-modus")) });
+    const werte = wahl.werte, text = wahl.text || (Array.isArray(vorschlaege) ? vorschlaege[0] : vorschlaege) || "";
     const n = werte.length ? werteVerteilen(felder, werte, start) : 0;
     if (!werte.length) zeige({ art: "fehler", text: `Verstanden: „${text}“ – keine Zahl erkannt.` }, 4000);
     else zeige({ art: "text", text: `„${text}“ → ${werte.slice(0, n || werte.length).join(" | ")}` }, 3500);

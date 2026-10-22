@@ -66,3 +66,51 @@ test("sprachUnterstuetzt prüft die Browser-API", () => {
   assert.equal(sprachUnterstuetzt({ webkitSpeechRecognition: function () {} }), true);
   assert.equal(sprachUnterstuetzt({ SpeechRecognition: function () {} }), true);
 });
+
+/* ---------- Situative Erkennung (zahlenImKontext): was ist in DIESER Lage gemeint? ---------- */
+import { zahlenImKontext, lesarten } from "../src/sprache.js";
+const k = (v, felder, modi) => zahlenImKontext(v, { felder, modi }).werte;
+
+test("Vektor mit drei Feldern: zusammengeschriebene Ziffern werden getrennt („eins, eins, zwei“ → „112“)", () => {
+  assert.deepEqual(k("112", 3), ["1", "1", "2"]);
+  assert.deepEqual(k("-112", 3), ["-1", "1", "2"]);
+  assert.deepEqual(k("Der Vektor ist 1 12", 3), ["1", "1", "2"]);
+  assert.deepEqual(k("1,5 2", 3), ["1", "5", "2"]);           // „eins, fünf, zwei“ → kein Dezimalkomma
+  assert.deepEqual(k("1.5 2", 3), ["1", "5", "2"]);
+});
+
+test("Minus ist nie Subtraktion, sondern das Vorzeichen der nächsten Komponente", () => {
+  assert.deepEqual(z("1-2-3"), ["1", "-2", "-3"]);
+  assert.deepEqual(k("1-2-3", 3), ["1", "-2", "-3"]);
+  assert.deepEqual(k("1 - 2 - 3", 3), ["1", "-2", "-3"]);
+  assert.deepEqual(k("eins minus zwei minus drei", 3), ["1", "-2", "-3"]);
+  assert.deepEqual(k("1, minus 2, minus 3", 3), ["1", "-2", "-3"]);
+});
+
+test("Was schon passt, bleibt: echte mehrstellige Zahlen, ein Feld, Zahlwörter, Dezimal im Dezimalfeld", () => {
+  assert.deepEqual(k("12 3 4", 3), ["12", "3", "4"]);
+  assert.deepEqual(k("112", 1), ["112"]);
+  assert.deepEqual(k("hundertzwölf", 3), ["112"]);           // in Worten gesagt → nicht trennen
+  assert.deepEqual(k("eins Komma fünf zwei", 3), ["1,5", "2"]);
+  assert.deepEqual(k("3,5", 1), ["3,5"]);
+  assert.deepEqual(k("4 0 7", 3), ["4", "0", "7"]);
+  assert.deepEqual(k("2 3", 3), ["2", "3"]);                  // nur zwei gesagt → zwei Felder
+});
+
+test("Mehrere Vorschläge des Browsers: der passende gewinnt", () => {
+  const r = zahlenImKontext(["112", "1 1 2"], { felder: 3 });
+  assert.deepEqual(r.werte, ["1", "1", "2"]);
+  assert.equal(r.text, "1 1 2");                               // passt ohne Trennen → besser als „112“ getrennt
+  assert.deepEqual(k(["1 12", "11 2", "1 1 2"], 3), ["1", "1", "2"]);
+  assert.deepEqual(k(["hundertzwölf", "112"], 1), ["112"]);
+});
+
+test("Ganzzahl-Felder: eine Lesart mit Komma verliert gegen die getrennte", () => {
+  assert.deepEqual(k("2,5", 2, ["ganzvz", "ganzvz"]), ["2", "5"]);
+  assert.deepEqual(k("2,5", 1, ["zahl"]), ["2,5"]);
+});
+
+test("Lesarten: jede Teilmenge trennbarer Zahlen", () => {
+  assert.equal(lesarten(["12", "34"]).length, 4);
+  assert.deepEqual(lesarten(["-12"])[1].werte, ["-1", "2"]);
+});

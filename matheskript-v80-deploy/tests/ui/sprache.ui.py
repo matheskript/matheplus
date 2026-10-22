@@ -5,6 +5,7 @@
 - Zwei Punkte (A), Abstände (Lotfußpunkt), Normalenform (n und Abstand), Kreuzprodukt (a), Winkel (Skalarprodukt)
 - Tastatur-Mikrofon (Handy): aktives Feld + folgende Felder der Gruppe
 - automatisch prüfen: Winkel (nach der Vermutung) und Hesse-Trainer (nach dem letzten Feld) zeigen das Ergebnis ohne „Prüfen“
+- situativ (zahlenImKontext): „112“ in einen Vektor → 1 | 1 | 2, „1-2-3“ → 1 | −2 | −3, mehrere Vorschläge → der passende
 Aufruf: BASE_URL=http://localhost:4317/ python3 tests/ui/sprache.ui.py"""
 import os, sys
 from playwright.sync_api import sync_playwright
@@ -20,7 +21,9 @@ window.SpeechRecognition = class {
   start() {
     const t = window.__sprachText;
     setTimeout(() => {
-      if (this.onresult) this.onresult({ results: [[{ transcript: t }]].map((r) => { r.isFinal = true; return r; }) });
+      /* __sprachText als Liste = mehrere Vorschläge des Browsers (maxAlternatives) */
+      const alts = (Array.isArray(t) ? t : [t]).map((x) => ({ transcript: x }));
+      if (this.onresult) this.onresult({ results: [alts].map((r) => { r.isFinal = true; return r; }) });
       if (this.onend) this.onend();
     }, 30);
   }
@@ -125,6 +128,16 @@ with sync_playwright() as p:
         sprich(pg, g.locator("[data-sprach-knopf] button").first, "1 4 8")
         a = g.evaluate("(e) => [...e.querySelectorAll('input')].map((x) => x.value)")
         pruefe(a == ["1", "4", "8"], f"{w} kreuzprodukt: a = {a}")
+        # situativ: der Browser schreibt „eins, eins, zwei“ als „112“ – drei Felder → 1 | 1 | 2
+        sprich(pg, g.locator("[data-sprach-knopf] button").first, "112")
+        a = g.evaluate("(e) => [...e.querySelectorAll('input')].map((x) => x.value)")
+        pruefe(a == ["1", "1", "2"], f"{w} kreuzprodukt situativ 112: a = {a}")
+        sprich(pg, g.locator("[data-sprach-knopf] button").first, "1-2-3")
+        a = g.evaluate("(e) => [...e.querySelectorAll('input')].map((x) => x.value)")
+        pruefe(a == ["1", "-2", "-3"], f"{w} kreuzprodukt situativ 1-2-3: a = {a}")
+        sprich(pg, g.locator("[data-sprach-knopf] button").first, ["11 2", "1 1 2"])
+        a = g.evaluate("(e) => [...e.querySelectorAll('input')].map((x) => x.value)")
+        pruefe(a == ["1", "1", "2"], f"{w} kreuzprodukt Vorschläge: a = {a}")
 
         # Winkel: Skalarprodukt (ZahlFeld) – nach der Vermutung prüft die Spracheingabe von selbst
         pg.goto(BASE + "vektorwinkel"); pg.wait_for_timeout(1500)
