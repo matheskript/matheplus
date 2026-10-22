@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { ROLLEN, ARTEN, SCHUELER_FRAGEN, ELTERN_PUNKTE, GENAU, DANACH, FEEDBACK_KAPITEL, KLASSEN, MAX_ZEICHEN, MAX_ORT,
   feedbackPruefen, feedbackZeile, gesiezt, SEITEN_NAME } from "../src/feedback.js";
-import { pfadAufloesen, pfadFuer } from "../src/pfade.js";
+import { pfadAufloesen, pfadFuer, SEITEN } from "../src/pfade.js";
 import { KEIN_TEILEN } from "../src/teilen.js";
 import { SPRUENGE } from "../src/sprung.js";
 import { SEITEN_TITEL } from "../src/seitenTitel.js";
@@ -95,6 +95,43 @@ test("Seite: Baustelle ehrlich benannt, Schüler du / Eltern Sie, Text und Voice
   assert.ok(!/\d+\s*(Schüler|Nutzer|Eltern|Prozent|%)/.test(jsx), "keine erfundenen Zahlen");
   assert.ok(seite.includes('id="fb-eltern"') && seite.includes("Ihr Kind"));
   assert.ok(seite.includes("html[data-feedback-seite] .fb-fuss { display: none; }"), "Feedback-Knopf unten auf dieser Seite doppelt – ausgeblendet");
+});
+
+/* ---------- Ohne Passwort: Middleware lässt Pfad und alle Aliase durch, die App lässt Gäste hinein ---------- */
+async function mw(pfad) {
+  delete process.env.SEITEN_SCHUTZ; delete process.env.SUPABASE_URL; delete process.env.VITE_SUPABASE_URL;
+  const { default: middleware } = await import("../middleware.js");
+  return middleware(new Request(`https://mythosmathe.de${pfad}`));
+}
+
+test("Middleware: /feedback und alle Aliase aus pfade.js ohne Passwort (als Gast markiert), andere Seiten weiter mit Passwort", async () => {
+  const eintrag = SEITEN.find((s) => s.ansicht === "feedback");
+  const pfade = [eintrag.pfad, ...eintrag.alias].map((p) => `/${p}`);
+  assert.ok(pfade.length >= 2);
+  for (const p of [...pfade, "/feedback/", "/Feedback"]) {
+    const r = await mw(p);
+    assert.equal(r.headers.get("x-middleware-next"), "1", `${p} sollte ohne Passwort durchgehen (Status ${r.status})`);
+    assert.ok(r.headers.getSetCookie().some((c) => c.startsWith("mm_gast=1")), `${p}: Gast-Cookie fehlt`);
+    assert.equal(pfadAufloesen(p).ansicht, "feedback", `${p} führt in der App nicht zur Feedback-Seite`);
+  }
+  for (const p of ["/vision", "/", "/feedback-alt", "/ableitungstrainer"]) assert.equal((await mw(p)).status, 401, `${p} muss hinter dem Passwort bleiben`);
+});
+
+test("App: Gäste ohne Passwort dürfen zur Feedback-Seite wechseln (gehe schickt sie nicht zur Passwortseite)", () => {
+  const f10 = quelle("func10.jsx");
+  const liste = /Gast ohne Passwort[^\n]*\n\s*if \(!\[([^\]]+)\]\.includes\(eintrag\.ansicht\)/.exec(f10);
+  assert.ok(liste, "Gast-Liste in gehe() nicht gefunden");
+  assert.ok(liste[1].includes('"feedback"'));
+});
+
+test("Unten auf jeder Seite: Link zur Feedback-Seite neben dem Feedback-Knopf (echter Link, nicht auf der Seite selbst)", () => {
+  const knopf = quelle("funcFeedback.jsx");
+  const fuss = knopf.slice(knopf.indexOf('<div className="fb-fuss">'), knopf.indexOf("{createPortal("));
+  assert.ok(fuss.indexOf('className="fb-knopf"') < fuss.indexOf('className="fb-seite"'), "Link steht direkt nach dem Knopf");
+  assert.ok(fuss.includes('href="/feedback"') && fuss.includes("data-feedback-seite-fuss"));
+  assert.ok(fuss.includes('aktuell.ansicht !== "feedback" && ('), "auf der Feedback-Seite selbst kein Link");
+  assert.ok(knopf.includes(".fuss-paar.zwei .fb-seite{order:4"), "Tool-Seiten: eigene Zeile unter Teilen | Feedback, Panel davor");
+  for (const f of ["funcVision.jsx", "funcStartseite.jsx"]) assert.ok(quelle(f).includes(".fuss-paar :is(button, .fb-seite)"), `${f}: dunkle Optik auch für den Link`);
 });
 
 test("Feedback-Knopf: Hook herausgelöst, dritter Punkt führt zur Feedback-Seite (nicht auf der Seite selbst)", () => {

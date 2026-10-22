@@ -87,6 +87,9 @@ export function TeilenKnopf({ ansicht, pfad }) {
         .fuss-paar.zwei .tl-knopf{order:1}
         .fuss-paar.zwei .fb-knopf{order:2}
         .fuss-paar.zwei .tl-panel{order:3;flex:0 0 100%;max-width:none;margin-top:2px}
+        /* Handy: etwas kleinere Schrift, damit „Feedback geben“ samt Symbol in die halbe Breite passt (darunter die Feedback-Seite, funcFeedback.jsx) */
+        @media (max-width:439px){.fuss-paar.zwei .tl-knopf,.fuss-paar.zwei .fb-knopf{font-size:13px;gap:7px;padding:0 10px}}
+        @media (max-width:349px){.fuss-paar.zwei .tl-knopf svg,.fuss-paar.zwei .fb-knopf svg{display:none}}
       `}</style>
       <button type="button" className="tl-knopf" onClick={() => setOffen((o) => !o)} aria-expanded={offen} aria-label={L("Dieses Tool teilen", "Share this tool")}>
         <TeilenIcon />

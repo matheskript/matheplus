@@ -12,15 +12,17 @@ const COOKIE_WILLKOMMEN = "mm_willkommen";   // kurzes Cookie: die App zeigt dan
 const PFAD_LOGIN = "/__zugang";
 const COOKIE_GAST = "mm_gast";   // für die App lesbar: Besucher ohne Passwort, der nur die Rechtsseiten sehen darf
 
-/* Rechtsseiten, die Eltern-Einwilligung und die Lehrkräfte-Seiten müssen immer erreichbar sein – auch während der Testphase.
+/* Rechtsseiten, die Eltern-Einwilligung, die Lehrkräfte-Seiten und die Feedback-Seite müssen immer erreichbar sein – auch während der Testphase.
    Die App (src/func10.jsx → gehe) schickt Gäste beim Weiterklicken über eine echte Seitenanfrage zurück zur Passwortseite. */
 const OEFFENTLICH = ["/impressum", "/datenschutz", "/agb", "/widerruf", "/einwilligung",
   /* Lehrkräfte: Arbeitsblatt-Generator und Infoseite – kostenlos und ohne Konto, also auch ohne Passwort (pfade.js) */
   "/lehrkraefte", "/lehrkraefte/arbeitsblatt", "/lehrer", "/fuer-lehrkraefte", "/fuer-lehrer", "/lehrerinnen",
-  "/arbeitsblatt-generator", "/lehrer-arbeitsblatt", "/lehrer/arbeitsblatt", "/arbeitsblaetter"];
+  "/arbeitsblatt-generator", "/lehrer-arbeitsblatt", "/lehrer/arbeitsblatt", "/arbeitsblaetter",
+  /* Feedback-Seite der Testphase (funcFeedbackSeite.jsx): Schüler und Eltern geben ohne Passwort Feedback – Pfad und Aliase aus pfade.js */
+  "/feedback", "/rueckmeldung", "/testphase", "/baustelle"];
 /* QR-Codes aus den gedruckten Schulbüchern (/b1/25-1, /b2/s17 – pfade.js): wer das Buch gekauft hat, braucht kein Passwort.
    Dazu nur die Daten, die das Aufgabenblatt braucht (Kurs-JSON, Kastenziele, KaTeX) – Reader und PDF der Bücher bleiben hinter dem Passwort. */
-const istOeffentlich = (p) => OEFFENTLICH.includes(p.replace(/\/$/, "")) || p.startsWith("/assets/")
+const istOeffentlich = (p) => OEFFENTLICH.includes(p.replace(/\/$/, "").toLowerCase()) || p.startsWith("/assets/")
   || /^\/b[123](\/|$)/i.test(p) || /^\/buecher\/[a-z]+\/(kurs\/|kaesten\.json$|katex\.css$|fonts\/)/.test(p);
 
 

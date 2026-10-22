@@ -362,8 +362,8 @@ export function Mathilda() {
     return () => window.removeEventListener("popstate", f);
   }, []);
   const gehe = (eintrag) => {
-    // Gast ohne Passwort (nur Rechtsseiten freigegeben, middleware.js): alles andere über eine echte Seitenanfrage
-    if (!["impressum", "datenschutz", "agb", "widerruf", "einwilligung", "lehrkraefte", "lehrerblatt", "blatt"].includes(eintrag.ansicht)
+    // Gast ohne Passwort (nur die Seiten aus OEFFENTLICH in middleware.js: Recht, Lehrkräfte, Buch-Blätter, Feedback): alles andere über eine echte Seitenanfrage
+    if (!["impressum", "datenschutz", "agb", "widerruf", "einwilligung", "lehrkraefte", "lehrerblatt", "blatt", "feedback"].includes(eintrag.ansicht)
         && typeof document !== "undefined" && /(?:^|;\s*)mm_gast=1/.test(document.cookie)) {
       window.location.assign("/");
       return;

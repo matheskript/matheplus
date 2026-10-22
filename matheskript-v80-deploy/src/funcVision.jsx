@@ -43,7 +43,7 @@ const NEBEL = "#AEBCDD";
 /* ---------------------------------------------------------------- Stil */
 const CSS = `
 html[data-vision-seite] .app-wurzel { background: ${NACHT} !important; }
-html[data-vision-seite] .fuss-paar button { color: ${TEXT} !important; background: rgba(255,255,255,0.06) !important; border-color: rgba(255,255,255,0.11) !important; }
+html[data-vision-seite] .fuss-paar :is(button, .fb-seite) { color: ${TEXT} !important; background: rgba(255,255,255,0.06) !important; border-color: rgba(255,255,255,0.11) !important; }
 .vi { position: relative; font-family: Montserrat, system-ui, sans-serif; color: ${TEXT}; background: ${NACHT}; overflow-x: clip; }
 .vi *, .vi *::before, .vi *::after { box-sizing: border-box; }
 .vi :where(h1, h2, h3, p, ul, ol, figure, blockquote) { margin: 0; }

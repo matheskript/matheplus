@@ -123,7 +123,7 @@ html[data-start-modus="hell"] .app-wurzel, html[data-start-modus="mix"] .app-wur
 .sbb[data-modus="mix"] .sbb-kachel:not(.sbb-insel) .weiter.pille.zu { border-style: dashed; border-color: rgba(0,77,152,0.42); background: transparent; color: var(--zu-titel); }
 @media (hover:hover) { .sbb[data-modus="mix"] .sbb-kachel:not(.sbb-insel):not(:disabled):hover { border-color: ${C.see}; box-shadow: 0 0 0 1px ${C.see}, 0 16px 36px rgba(0,47,110,0.18); }
   .sbb[data-modus="mix"] .sbb-kachel:not(.sbb-insel):not(:disabled):hover .weiter { background: ${C.see}; color: #FFFFFF; } }
-html[data-start-modus="dunkel"] .fuss-paar button { color: #EEF2FF !important; background: rgba(255,255,255,0.06) !important; border-color: rgba(255,255,255,0.11) !important; }
+html[data-start-modus="dunkel"] .fuss-paar :is(button, .fb-seite) { color: #EEF2FF !important; background: rgba(255,255,255,0.06) !important; border-color: rgba(255,255,255,0.11) !important; }
 /* ---------- Stadion (Rot-Weiß-Blau) ----------
    Baut auf dem Mix auf (data-modus="mix") und färbt über data-edition="stadion" um:
    Bühne und Hauptkacheln Rot, die zwei Streifen Blau, das Blatt Weiß. Gold wird zu Weiß (auf Farbe)

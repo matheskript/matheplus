@@ -12,6 +12,11 @@ Geprüft je Breite (360, 390, 768, 1280):
     Senden ohne Supabase meldet den Demo-Modus (nichts wird gesendet)
   - Handy: feste Knopfleiste nach der Bühne, weg beim Formular
   - Feedback-Knopf auf einer anderen Seite (/vision): Auswahl hat den dritten Punkt zur Feedback-Seite
+  - Unten auf jeder Seite (320/360/390/1280): Link „Feedback-Seite“ rechts neben „Feedback geben“, als Paar mittig
+    (unter 350 px darunter); Tool-Seiten: eigene Zeile unter Teilen | Feedback, offenes Teilen-Panel dazwischen;
+    Text einzeilig und im Knopf; Klick öffnet /feedback in der App; dunkle Vision-Seite: helle Schrift
+  - Gast ohne Passwort (Cookie mm_gast=1, leerer Speicher): /feedback ohne Fenster darüber, Formular geht;
+    Link vom Impressum bleibt in der App; „Weiter üben“ führt über eine echte Seitenanfrage zur Startadresse
 """
 import os
 from playwright.sync_api import sync_playwright
@@ -117,6 +122,70 @@ with sync_playwright() as p:
         foto(page, f"ganz-{breite}", voll=True)
         pruefe(not konsole, f"{tag}: Konsole {konsole}")
         ctx.close()
+
+    # Unten auf jeder Seite: Link zur Feedback-Seite neben dem Feedback-Knopf
+    for breite in (320, 360, 390, 1280):
+        for pfad in ("impressum", "ableitungstrainer"):
+            ctx, page, konsole = oeffnen(b, breite, pfad)
+            page.locator(".fb-knopf").scroll_into_view_if_needed(); page.wait_for_timeout(300)
+            f = page.locator(".fb-knopf").bounding_box(); s = page.locator("[data-feedback-seite-fuss]").bounding_box()
+            tag = f"{pfad}@{breite}"
+            pruefe(page.locator("[data-feedback-seite-fuss]").get_attribute("href") == "/feedback", f"{tag}: Link zeigt nicht auf /feedback")
+            pruefe(f["x"] >= 0 and s["x"] >= 0 and f["x"] + f["width"] <= breite and s["x"] + s["width"] <= breite, f"{tag}: ragt aus dem Bildschirm")
+            pruefe(abs(f["height"] - s["height"]) <= 1, f"{tag}: Knopf und Link verschieden hoch")
+            # Text bleibt einzeilig und im Knopf
+            for sel in (".fb-knopf", "[data-feedback-seite-fuss]"):
+                luft = page.evaluate("""(sel) => { const e = document.querySelector(sel), b = e.getBoundingClientRect(), r = document.createRange(); r.selectNodeContents(e);
+                  const c = r.getBoundingClientRect(); return [Math.min(c.left - b.left, b.right - c.right), c.height]; }""", sel)
+                pruefe(luft[0] >= 6 and luft[1] <= 24, f"{tag}: {sel} Text zu eng oder umgebrochen ({luft})")
+            if pfad == "ableitungstrainer":
+                t = page.locator(".tl-knopf").bounding_box()
+                pruefe(s["y"] >= f["y"] + f["height"] - 1, f"{tag}: Feedback-Seite gehört unter Teilen | Feedback")
+                pruefe(abs(s["x"] - t["x"]) <= 1 and abs((s["x"] + s["width"]) - (f["x"] + f["width"])) <= 1, f"{tag}: Feedback-Seite nicht so breit wie das Paar")
+                page.click(".tl-knopf"); page.wait_for_timeout(250)
+                pn = page.locator(".tl-panel").bounding_box(); s2 = page.locator("[data-feedback-seite-fuss]").bounding_box()
+                pruefe(pn["y"] >= f["y"] + f["height"] - 1 and s2["y"] >= pn["y"] + pn["height"] - 1, f"{tag}: Teilen-Panel nicht zwischen Paar und Feedback-Seite")
+            elif breite >= 350:
+                pruefe(abs(f["y"] - s["y"]) <= 1 and f["x"] + f["width"] <= s["x"] + 1, f"{tag}: Link steht nicht rechts neben dem Knopf")
+                pruefe(abs((f["x"] + s["x"] + s["width"]) / 2 - breite / 2) <= 2, f"{tag}: Paar nicht mittig")
+            else:
+                pruefe(s["y"] >= f["y"] + f["height"] - 1, f"{tag}: unter 350 px gehört der Link unter den Knopf")
+            foto(page, f"fuss-{pfad}-{breite}")
+            if breite == 390 and pfad == "impressum":
+                page.locator("[data-feedback-seite-fuss]").click(); page.wait_for_timeout(2000)
+                pruefe(page.url.endswith("/feedback") and page.locator("[data-feedback-seite-wurzel]").count() == 1, f"{tag}: Link öffnet die Feedback-Seite nicht ({page.url})")
+                pruefe(page.locator("[data-feedback-seite-fuss]").count() == 0, f"{tag}: auf der Feedback-Seite selbst kein Link")
+            pruefe(not konsole, f"{tag}: Konsole {konsole}")
+            ctx.close()
+
+    # Dunkle Seite (Vision): Link in derselben hellen Schrift wie der Knopf
+    ctx, page, konsole = oeffnen(b, 390, "vision")
+    farben = page.evaluate("[getComputedStyle(document.querySelector('.fb-knopf')).color, getComputedStyle(document.querySelector('.fb-seite')).color]")
+    pruefe(farben[0] == farben[1] == "rgb(238, 242, 255)", f"Vision: Link nicht in der dunklen Optik ({farben})")
+    ctx.close()
+
+    # Gast ohne Passwort (middleware.js setzt mm_gast=1 auf /feedback und den Rechtsseiten): neue Besucherin, leerer Speicher
+    ctx = b.new_context(viewport={"width": 390, "height": 860}, locale="de-DE")
+    ctx.add_cookies([{"name": "mm_gast", "value": "1", "url": BASE}])
+    page = ctx.new_page(); konsole = []
+    page.on("pageerror", lambda e: konsole.append(f"pageerror: {e}"))
+    page.goto(BASE + "feedback"); page.wait_for_timeout(3500)
+    pruefe(page.url.endswith("/feedback") and page.locator("[data-feedback-seite-wurzel]").count() == 1, f"Gast: Feedback-Seite nicht geöffnet ({page.url})")
+    pruefe(page.locator("[role=dialog]:visible, [aria-modal=true]:visible").count() == 0, "Gast: ein Fenster liegt über der Feedback-Seite")
+    page.locator("[data-fs-frage='wunsch']").click(); page.wait_for_timeout(1200)
+    page.locator("[data-fs-rolle='eltern']").click(); page.locator("[data-fs-text]").fill("Bitte mehr Übungen zu Textaufgaben, Klasse 9.")
+    page.locator("[data-fs-einw]").check(); page.locator("[data-fs-senden]").click(); page.wait_for_timeout(800)
+    pruefe(page.locator("[data-fs-danke]").count() == 1 or "Demo-Modus" in page.locator("[data-fs-meldung]").inner_text(), "Gast: Formular lässt sich nicht absenden")
+    foto(page, "gast-formular")
+    # Von einer Rechtsseite aus führt der Link in der App zur Feedback-Seite (nicht zur Passwortseite)
+    page.goto(BASE + "impressum"); page.wait_for_timeout(2000)
+    page.locator("[data-feedback-seite-fuss]").scroll_into_view_if_needed(); page.locator("[data-feedback-seite-fuss]").click(); page.wait_for_timeout(1500)
+    pruefe(page.url.endswith("/feedback") and page.locator("[data-feedback-seite-wurzel]").count() == 1, f"Gast: Link vom Impressum führt nicht zur Feedback-Seite ({page.url})")
+    # Alles andere schickt Gäste über eine echte Seitenanfrage zur Startadresse (dort fragt die Middleware das Passwort ab)
+    page.locator("#fb-danach").get_by_role("button", name="Weiter üben").click(); page.wait_for_timeout(1500)
+    pruefe(page.url.rstrip("/") == BASE.rstrip("/"), f"Gast: „Weiter üben“ sollte zur Startadresse führen ({page.url})")
+    pruefe(not konsole, f"Gast: Konsole {konsole}")
+    ctx.close()
 
     # Feedback-Knopf auf einer anderen Seite: dritter Punkt führt hierher
     ctx, page, konsole = oeffnen(b, 390, "vision")

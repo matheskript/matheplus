@@ -85,11 +85,13 @@ with sync_playwright() as pw:
                     pruefe(g["p"]["y"] >= t["y"] + t["height"] - 1, f"{p}@{breite}: Panel nicht unter den Knöpfen ({g['p']['y']:.0f} vs {t['y'] + t['height']:.0f})")
                     pruefe(page.evaluate("document.documentElement.scrollWidth - innerWidth") <= 1, f"{p}@{breite}: Seitenüberbreite")
         if breite == 360: page.screenshot(path="/tmp/claude-0/paar360.png")
-    # Ohne Teilen-Knopf bleibt der Feedback-Knopf wie vorher mittig
+    # Ohne Teilen-Knopf: Feedback-Knopf und Link zur Feedback-Seite (seit 22.10.) nebeneinander, als Paar mittig
     page.set_viewport_size({"width": 390, "height": 800})
     page.goto("about:blank"); page.goto(BASE + "/"); page.wait_for_timeout(500)
     f = page.locator(".fb-knopf").bounding_box()
-    pruefe(abs((f["x"] + f["width"] / 2) - 195) <= 2, "Feedback-Knopf auf der Startseite nicht mittig")
+    s = page.locator(".fb-seite").bounding_box()
+    pruefe(abs(f["y"] - s["y"]) <= 1 and f["x"] + f["width"] <= s["x"] + 1, "Feedback-Knopf und Feedback-Seite nicht nebeneinander")
+    pruefe(abs((f["x"] + s["x"] + s["width"]) / 2 - 195) <= 2, "Feedback-Knopf und Feedback-Seite auf der Startseite nicht mittig")
 
     pruefe(not konsole, f"Konsolenfehler: {konsole[:3]}")
     b.close()

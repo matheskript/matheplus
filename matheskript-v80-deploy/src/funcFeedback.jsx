@@ -214,6 +214,12 @@ export function FeedbackKnopf({ aktuell, gehe }) {
     if (typeof gehe === "function") gehe({ ansicht: "feedback" });
     else window.location.assign("/feedback");
   };
+  /* Link neben dem Knopf: echter Link (neuer Tab, Rechtsklick, ohne JS), sonst Seitenwechsel in der App */
+  const seiteLink = (e) => {
+    if (typeof gehe !== "function" || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    gehe({ ansicht: "feedback" });
+  };
 
   /* Die Willkommensseite öffnet die Auswahl über ein Ereignis */
   useEffect(() => {
@@ -301,15 +307,40 @@ export function FeedbackKnopf({ aktuell, gehe }) {
         <SprechblaseIcon groesse={18} farbe={C.flaggold} />
         <span>Feedback geben</span>
       </button>
+      {aktuell.ansicht !== "feedback" && (
+        <a className="fb-seite" href="/feedback" onClick={seiteLink} data-feedback-seite-fuss>
+          <span>Feedback-Seite</span><i aria-hidden="true">→</i>
+        </a>
+      )}
     </div>
     {createPortal(
     <>
       <style>{`
-        .fb-fuss{display:flex;justify-content:center;padding:28px 24px 4px}
-        .fb-knopf{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 22px;border-radius:999px;cursor:pointer;
+        .fb-fuss{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;padding:28px 16px 4px}
+        .fb-knopf{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 22px;border-radius:999px;cursor:pointer;white-space:nowrap;
           font-family:Montserrat,system-ui,sans-serif;font-size:14.5px;font-weight:700;color:${C.see};background:${C.weiss};
           border:1.5px solid ${C.see};box-shadow:0 4px 14px rgba(0,77,152,.12);transition:background .15s ease,color .15s ease}
         .fb-knopf:hover,.fb-knopf:focus-visible{background:${C.see};color:#fff}
+        /* Link zur Feedback-Seite neben dem Knopf (Goldrand = Testphase). Tool-Seiten (.fuss-paar.zwei, Teilen | Feedback):
+           eigene Zeile darunter, so breit wie das Paar; ein offenes Teilen-Panel (order 3) steht dazwischen. */
+        .fb-seite{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:999px;box-sizing:border-box;
+          font-family:Montserrat,system-ui,sans-serif;font-size:14.5px;font-weight:700;line-height:1.2;white-space:nowrap;text-decoration:none;
+          color:${C.seeTief};background:${C.weiss};border:1.5px solid ${C.flaggold};box-shadow:0 4px 14px rgba(185,138,0,.14);transition:background .15s ease}
+        .fb-seite i{font-style:normal;font-weight:800;color:${C.flaggold};transition:transform .18s ease}
+        .fb-seite:hover,.fb-seite:focus-visible{background:#FFF8DC}
+        @media (hover:hover){.fb-seite:hover i{transform:translateX(3px)}}
+        .fuss-paar.zwei .fb-seite{order:4;flex:1 1 100%}
+        .fb-knopf svg{flex:none}
+        /* Handy: Knopf und Link nebeneinander, gleich breit – wie Teilen | Feedback auf den Tool-Seiten; unter 350 px untereinander */
+        @media (max-width:439px){
+          .fuss-paar:not(.zwei) .fb-fuss{flex-wrap:nowrap;max-width:460px;margin:0 auto;box-sizing:border-box}
+          .fuss-paar:not(.zwei) .fb-fuss > *{flex:1 1 0;min-width:0}
+          .fb-knopf,.fb-seite{justify-content:center;box-sizing:border-box;font-size:13px;gap:7px;padding:0 10px}
+        }
+        @media (max-width:349px){
+          .fuss-paar:not(.zwei) .fb-fuss{flex-wrap:wrap}
+          .fuss-paar:not(.zwei) .fb-fuss > *{flex:0 0 auto;padding:0 18px}
+        }
         .fb-panel{position:fixed;z-index:60;right:12px;bottom:12px;width:min(360px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow-y:auto;
           background:${C.sand};border-radius:16px;box-shadow:0 18px 48px rgba(8,23,59,.4);padding:16px 16px 18px;font-family:Montserrat,system-ui,sans-serif;color:${C.tinte}}
         @keyframes fbPuls{0%,100%{box-shadow:0 0 0 0 rgba(185,138,0,.5)}50%{box-shadow:0 0 0 10px rgba(185,138,0,0)}}
