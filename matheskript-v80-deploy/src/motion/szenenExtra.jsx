@@ -268,12 +268,13 @@ const x_massstabGross = {
   label: (p) => `Maßstab ${p.n} : 1`,
   ablauf: (p) => [
     { k: "echt", ms: 1100, text: `Der ${p.ding} ist in Wirklichkeit ${p.mm} mm lang.` },
-    { k: "gross", ms: 1700, text: `Maßstab ${p.n} : 1 heißt: Im Bild ist alles ${p.n}-mal so groß.` },
-    { k: "rechnen", ms: 1300, text: `${p.mm} mm · ${p.n} = ${p.mm * p.n} mm = ${de((p.mm * p.n) / 10)} cm im Bild.` },
+    { k: "gross", ms: 1700, text: `Maßstab ${p.n} : 1 – im Bild ist alles ${p.n}-mal so groß.` },
+    { k: "legen", ms: 2000, text: `Die echte Länge passt genau ${p.n}-mal unter das Bild.` },
+    { k: "rechnen", ms: 1300, text: `Im Bild: ${p.mm} mm · ${p.n} = ${p.mm * p.n} mm = ${de((p.mm * p.n) / 10)} cm.` },
   ],
-  bild: ({ Z, p }) => {
-    const ue = Z("echt"), ug = Z("gross", federnd), us = Z("gross"), ur = Z("rechnen");
-    const l0 = 26, l1 = Math.min(150, l0 * p.n), lg = mix(l0, l1, klemm(ug, 0, 1.04));
+  bild: ({ Z, z, p }) => {
+    const ue = Z("echt"), ug = Z("gross", federnd), us = Z("gross"), ul = z("legen"), ur = Z("rechnen");
+    const l0 = 26, l1 = Math.min(150, l0 * p.n), lg = mix(l0, l1, klemm(ug, 0, 1.04)), cw = l1 / p.n;
     /* Marienkäfer von oben, Länge l (Kopf links) */
     const kaefer = (x, y, l) => {
       const r = l * 0.42, cx = x + l * 0.58;
@@ -286,21 +287,29 @@ const x_massstabGross = {
         </g>
       );
     };
-    const yb = 112, kb = (l) => yb + l * 0.42 + 10;
+    const yb = 98, kb = (l) => yb + l * 0.42 + 10;
     return (
       <>
         <g opacity={ue}>
-          <Tx x={30} y={60} g={11} f={F.grau} w={700} a="start">Wirklichkeit</Tx>
+          <Tx x={30} y={56} g={11} f={F.grau} w={700} a="start">Wirklichkeit</Tx>
           {kaefer(30, yb, l0)}
           <path d={`M30 ${kb(l0)} v5 h${l0} v-5`} fill="none" stroke={F.blau} strokeWidth="1.4" />
           <Tx x={30 + l0 / 2} y={kb(l0) + 20} g={10.5} f={F.blau} w={800}>{`${p.mm} mm`}</Tx>
         </g>
         <g opacity={teil(us, 0, 0.15)}>
-          <Tx x={176} y={28} g={11} f={F.grau} w={700} a="start">{`Bild (${p.n} : 1)`}</Tx>
+          <Tx x={176} y={22} g={11} f={F.grau} w={700} a="start">{`Bild (${p.n} : 1)`}</Tx>
           {kaefer(176, yb, lg)}
           <path d={`M176 ${kb(lg)} v5 h${lg} v-5`} fill="none" stroke={F.granat} strokeWidth="1.6" />
-          <Tx x={176 + lg / 2} y={kb(lg) + 21} g={11.5} f={F.granat} w={800} opacity={ur}>{`${p.mm * p.n} mm`}</Tx>
         </g>
+        {/* die echte Länge (blau) wird n-mal unter das Bild gelegt */}
+        {Array.from({ length: p.n }, (_, i) => {
+          const o = klemm(ul * p.n - i);
+          if (o <= 0) return null;
+          const x = mix(30, 176 + i * cw, raus(o)), y = mix(kb(l0), kb(l1) + 9, raus(o));
+          return <path key={i} d={`M${x} ${y} v5 h${cw} v-5`} fill={F.blauHell} stroke={F.blau} strokeWidth="1.4" opacity={klemm(o * 3)} />;
+        })}
+        <Tx x={176 + l1 / 2} y={kb(l1) + 30} g={11} f={F.blau} w={800} opacity={teil(ul, 0.8, 1) * (1 - ur)}>{`${p.n} · ${p.mm} mm`}</Tx>
+        <Tx x={176 + l1 / 2} y={kb(l1) + 30} g={11.5} f={F.granat} w={800} opacity={ur}>{`${p.n} · ${p.mm} mm = ${p.mm * p.n} mm`}</Tx>
         <g opacity={teil(us, 0, 0.3)}>
           <Pfeil x1={74} y1={yb} x2={160} y2={yb} f={F.granat} b={2} u={teil(ug, 0, 0.6)} />
           <Pille x={117} y={yb - 18} text={`· ${p.n}`} g={13} f={F.granatHell} tf={F.granat} />
@@ -318,9 +327,9 @@ const x_geradenPunkte = {
   label: () => "Geraden durch einen und durch zwei Punkte",
   ablauf: () => [
     { k: "punkt", ms: 800, text: "Ein Punkt P." },
-    { k: "drehen", ms: 2400, text: "Durch P passen unendlich viele Geraden – sie lässt sich drehen." },
+    { k: "drehen", ms: 2400, text: "Eine Gerade durch P lässt sich drehen – es gibt unendlich viele." },
     { k: "zweiter", ms: 1000, text: "Jetzt kommt ein zweiter Punkt Q dazu." },
-    { k: "fest", ms: 1400, text: "Durch P und Q geht genau eine Gerade. Zwischen P und Q liegt die Strecke PQ." },
+    { k: "fest", ms: 1400, text: "Durch P und Q passt nur noch eine Gerade – sie sitzt fest." },
   ],
   bild: ({ Z, p }) => {
     const P = [130, 120], Q = [250, 70], wQ = Math.atan2(-(Q[1] - P[1]), Q[0] - P[0]);
@@ -352,12 +361,17 @@ const koord = (x, y) => `(${x} | ${y})`;
 const x_ablesen = {
   h: 216,
   label: (p) => "Koordinaten ablesen: " + p.punkte.map(([n, x, y]) => n + koord(x, y)).join(", "),
-  ablauf: (p) => [
-    { k: "achsen", ms: 700, text: "Gegeben sind Punkte – wo liegen sie genau?" },
-    ...p.punkte.map(([n, x, y], i) => ({ k: `p${i}`, ms: 1700, text: y === 0 ? `${n} liegt auf der x-Achse: ${n}${koord(x, y)}.` : x === 0 ? `${n} liegt auf der y-Achse: ${n}${koord(x, y)}.` : `${n}: hinunter zur x-Achse → ${x}, hinüber zur y-Achse → ${y}. Also ${n}${koord(x, y)}.` })),
-  ],
+  ablauf: (p) => {
+    const [n0, x0, y0] = p.punkte[0], tausch = x0 !== y0 && x0 <= 6 && y0 <= 5;
+    return [
+      { k: "achsen", ms: 700, text: "Wo liegen die Punkte genau? Jeder bekommt zwei Zahlen." },
+      ...p.punkte.map(([n, x, y], i) => ({ k: `p${i}`, ms: 1700, text: y === 0 ? `${n} liegt schon auf der x-Achse: x = ${x}, y = 0.` : x === 0 ? `${n} liegt schon auf der y-Achse: x = 0, y = ${y}.` : `${n}: runter zur x-Achse → ${x}, rüber zur y-Achse → ${y}.` })),
+      ...(tausch ? [{ k: "tausch", ms: 1500, text: `Vertauscht wäre (${y0} | ${x0}) – ein ganz anderer Punkt als ${n0}.` }] : []),
+    ];
+  },
   bild: ({ Z, p }) => {
     const s = 30, ox = 40, oy = 184, X = (v) => ox + v * s, Y = (v) => oy - v * s, ua = Z("achsen");
+    const [n0, x0, y0] = p.punkte[0], ut = x0 !== y0 && x0 <= 6 && y0 <= 5 ? Z("tausch") : 0;
     return (
       <>
         <g opacity={ua}>
@@ -365,6 +379,8 @@ const x_ablesen = {
           {Array.from({ length: 6 }, (_, i) => <line key={`h${i}`} x1={X(0)} y1={Y(i)} x2={X(6)} y2={Y(i)} stroke={F.linie} strokeWidth="1" />)}
           <Pfeil x1={X(0)} y1={Y(0)} x2={X(6) + 14} y2={Y(0)} b={1.6} />
           <Pfeil x1={X(0)} y1={Y(0)} x2={X(0)} y2={Y(5) - 14} b={1.6} />
+          <Tx x={X(6) + 14} y={Y(0) + 16} g={11} f={F.goldDunkel} w={800}>x</Tx>
+          <Tx x={X(0) + 12} y={Y(5) - 10} g={11} f={F.blau} w={800}>y</Tx>
           {Array.from({ length: 7 }, (_, i) => <Tx key={`x${i}`} x={X(i)} y={Y(0) + 16} g={10} f={F.grau} w={700}>{i}</Tx>)}
           {Array.from({ length: 5 }, (_, i) => <Tx key={`y${i}`} x={X(0) - 10} y={Y(i + 1) + 4} g={10} f={F.grau} w={700}>{i + 1}</Tx>)}
           {p.punkte.map(([n, x, y]) => (
@@ -372,17 +388,28 @@ const x_ablesen = {
           ))}
         </g>
         {p.punkte.map(([n, x, y], i) => {
+          /* erst senkrecht zur x-Achse (x-Wert, Gold), dann waagrecht zur y-Achse (y-Wert, Blau) – wie beim Eintragen */
           const u = Z(`p${i}`), ux = teil(u, 0, 0.45), uy = teil(u, 0.45, 0.9);
           return u > 0 && (
             <g key={n}>
-              {y !== 0 && <line x1={X(x)} y1={Y(y)} x2={X(x)} y2={mix(Y(y), Y(0), ux)} stroke={F.blau} strokeWidth="2" strokeDasharray="4 3" />}
-              {x !== 0 && <line x1={X(x)} y1={Y(y)} x2={mix(X(x), X(0), uy)} y2={Y(y)} stroke={F.gold} strokeWidth="2" strokeDasharray="4 3" />}
-              {ux > 0.95 && <circle cx={X(x)} cy={Y(0)} r={4} fill={F.blau} />}
-              {uy > 0.95 && <circle cx={X(0)} cy={Y(y)} r={4} fill={F.gold} />}
-              <Tx x={258} y={44 + i * 28} g={14} f={F.granat} w={800} a="start" opacity={teil(u, 0.85, 1)}>{`${n}${koord(x, y)}`}</Tx>
+              {y !== 0 && <line x1={X(x)} y1={Y(y)} x2={X(x)} y2={mix(Y(y), Y(0), ux)} stroke={F.gold} strokeWidth="2" strokeDasharray="4 3" />}
+              {x !== 0 && y !== 0 && <line x1={X(x)} y1={Y(y)} x2={mix(X(x), X(0), uy)} y2={Y(y)} stroke={F.blau} strokeWidth="2" strokeDasharray="4 3" />}
+              {ux > 0.95 && y !== 0 && <circle cx={X(x)} cy={Y(0)} r={4} fill={F.gold} />}
+              {uy > 0.95 && x !== 0 && y !== 0 && <circle cx={X(0)} cy={Y(y)} r={4} fill={F.blau} />}
+              <Tx x={258} y={44 + i * 28} g={14} f={F.granat} w={800} a="start" opacity={teil(u, 0.85, 1)}>
+                {`${n}(`}<tspan fill={F.goldDunkel}>{x}</tspan>{" | "}<tspan fill={F.blau}>{y}</tspan>{")"}
+              </Tx>
             </g>
           );
         })}
+        {ut > 0 && (
+          <g opacity={ut}>
+            <circle cx={X(y0)} cy={Y(x0)} r={5.5} fill={F.weiss} stroke={F.grau} strokeWidth="1.8" strokeDasharray="2 2" />
+            <Tx x={X(y0) + 10} y={Y(x0) - 7} g={11} f={F.grau} w={800} a="start">{`(${y0} | ${x0})`}</Tx>
+            <Puls x={X(y0)} y={Y(x0)} u={teil(ut, 0.1, 0.9)} r={12} />
+            <Tx x={258} y={44 + p.punkte.length * 28 + 6} g={11} f={F.grau} w={800} a="start">{`(${y0} | ${x0}) ≠ ${n0}`}</Tx>
+          </g>
+        )}
       </>
     );
   },
@@ -395,30 +422,34 @@ const x_falten = {
   h: 200,
   label: () => "Achsensymmetrie durch Falten",
   ablauf: () => [
-    { k: "haelfte", ms: 1100, text: "Eine halbe Figur und eine Faltachse." },
-    { k: "falten", ms: 1900, text: "Am Faltknick umklappen …" },
-    { k: "fertig", ms: 1300, text: "… die beiden Hälften liegen genau aufeinander: die Figur ist achsensymmetrisch." },
-    { k: "abstand", ms: 1300, text: "Jeder Punkt und sein Spiegelpunkt sind gleich weit von der Achse entfernt." },
+    { k: "haelfte", ms: 1100, text: "Eine Figur und eine gestrichelte Linie mitten hindurch." },
+    { k: "falten", ms: 1900, text: "Die linke Hälfte klappt an der Linie um …" },
+    { k: "fertig", ms: 1300, text: "… und deckt die rechte genau: Die Figur ist achsensymmetrisch." },
+    { k: "abstand", ms: 1300, text: "P landet auf P′ – beide sind gleich weit von der Achse entfernt." },
   ],
   bild: ({ Z }) => {
     const ax = 180, half = [[ax, 30], [ax - 50, 54], [ax - 92, 44], [ax - 70, 104], [ax - 104, 160], [ax - 30, 136], [ax, 170]];
-    const uf = Z("falten"), uh = Z("haelfte"), ua = Z("abstand");
+    const uf = Z("falten"), uh = Z("haelfte"), ua = Z("abstand"), ue = Z("fertig");
     const sx = Math.cos(Math.PI * uf);   // 1 → −1
     const geklappt = half.map(([x, y]) => [ax + (x - ax) * sx, y]);
+    const rechts = half.map(([x, y]) => [2 * ax - x, y]);
     const pts = (l) => l.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
     const P = half[2], Pp = [2 * ax - P[0], P[1]];
     return (
       <>
+        {/* rechte Hälfte fest, linke Hälfte bleibt als gestrichelter Umriss an ihrem alten Platz */}
+        <polygon points={pts(rechts)} fill={F.granatHell} stroke={F.granat} strokeWidth="2" strokeLinejoin="round" opacity={uh} />
+        <polygon points={pts(half)} fill={uf > 0 ? F.flaeche : F.granatHell} stroke={F.granat} strokeWidth={uf > 0 ? 1.4 : 2} strokeDasharray={uf > 0 ? "4 3" : undefined} strokeLinejoin="round" opacity={uh} />
         <line x1={ax} y1={14} x2={ax} y2={186} stroke={F.blau} strokeWidth="2" strokeDasharray="6 4" opacity={uh} />
-        <polygon points={pts(half)} fill={F.granatHell} stroke={F.granat} strokeWidth="2" strokeLinejoin="round" opacity={uh} />
-        {uf > 0 && <polygon points={pts(geklappt)} fill={uf > 0.5 ? F.goldHell : F.rosa} stroke={F.gold} strokeWidth="2" strokeLinejoin="round" opacity={0.85} />}
+        {uf > 0 && <polygon points={pts(geklappt)} fill={sx < 0 ? F.goldHell : F.rosa} fillOpacity={0.8} stroke={sx < 0 ? F.gold : F.granat} strokeWidth="2.4" strokeLinejoin="round" />}
+        <Puls x={ax + 50} y={100} u={teil(ue, 0, 0.9)} r={40} />
         <g opacity={ua}>
           <circle cx={P[0]} cy={P[1]} r={4.5} fill={F.granat} /><circle cx={Pp[0]} cy={Pp[1]} r={4.5} fill={F.goldDunkel} />
           <Tx x={P[0] - 10} y={P[1] - 8} g={12} f={F.granat} w={800}>P</Tx><Tx x={Pp[0] + 12} y={Pp[1] - 8} g={12} f={F.goldDunkel} w={800}>P′</Tx>
           <line x1={P[0]} y1={P[1]} x2={Pp[0]} y2={Pp[1]} stroke={F.tinte} strokeWidth="1.2" strokeDasharray="3 3" />
           <Tx x={(P[0] + ax) / 2} y={P[1] + 16} g={11} f={F.tinte} w={800}>a</Tx><Tx x={(Pp[0] + ax) / 2} y={P[1] + 16} g={11} f={F.tinte} w={800}>a</Tx>
         </g>
-        <Pille x={300} y={100} text="Faltachse" g={11} f={F.blauHell} tf={F.blau} o={uh} />
+        <Pille x={ax} y={189} text="Symmetrieachse" g={10.5} f={F.blauHell} tf={F.blau} o={teil(ue, 0.3, 1)} />
       </>
     );
   },

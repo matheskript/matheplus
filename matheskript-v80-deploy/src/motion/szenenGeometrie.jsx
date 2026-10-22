@@ -80,15 +80,14 @@ const g_lineal = {
   h: 200,
   label: (p) => `Ein Stift wird geschätzt und gemessen: ${p.laenge} cm`,
   ablauf: (p) => [
-    { k: "schaetzen", ms: 1700, text: `Erst schätzen: Eine Daumenbreite ist etwa 1 cm. Der Stift ist etwa ${p.schaetz} Daumen lang.` },
-    { k: "lineal", ms: 800, text: "Dann messen: Das Lineal kommt dazu." },
-    { k: "anlegen", ms: 1100, text: "Das Ende des Stifts liegt genau an der 0." },
-    { k: "ablesen", ms: 1300, text: `An der Spitze ablesen: Der Stift ist ${p.laenge} cm lang.` },
-    { k: "groesse", ms: 1700, text: `Größe = Maßzahl + Einheit. Die Schätzung lag nur ${p.laenge - p.schaetz} cm daneben.` },
+    { k: "schaetzen", ms: 1700, text: `Schätzen: Eine Daumenbreite ist etwa 1 cm – der Stift ist ${p.schaetz} Daumen lang.` },
+    { k: "anlegen", ms: 1900, text: "Messen: Die 0 des Lineals liegt genau am Ende des Stifts." },
+    { k: "ablesen", ms: 1300, text: `An der Spitze ablesen: ${p.laenge} cm.` },
+    { k: "groesse", ms: 1700, text: `Geschätzt ${p.schaetz} cm, gemessen ${p.laenge} cm – nur ${p.laenge - p.schaetz} cm daneben.` },
   ],
   bild: ({ Z, z, p }) => {
     const s = 20.8, X = (v) => 24 + v * s, L = p.laenge, G = p.schaetz, bis = 14;
-    const us = z("schaetzen"), ul = Z("lineal"), ua = Z("anlegen"), ur = Z("ablesen"), ug = Z("groesse");
+    const ua0 = z("anlegen"), us = z("schaetzen"), ul = sanft(teil(ua0, 0, 0.45)), ua = sanft(teil(ua0, 0.5, 1)), ur = Z("ablesen"), ug = Z("groesse");
     const dx = 22 * (1 - ua), ry = 84 + 14 * (1 - ul);
     return (
       <>
@@ -96,7 +95,7 @@ const g_lineal = {
           const o = staffel(teil(us, 0.12, 0.8), i, G, 0.5);
           return o > 0 && <rect key={i} x={X(i) + 1.5} y={26 - 6 * (1 - o)} width={s - 3} height={13} rx="4" fill={F.goldHell} stroke={F.gold} strokeWidth="1.2" opacity={o} />;
         })}
-        <Pille x={X(G) + 10} y={37} a="start" text={`etwa ${G} cm`} o={teil(us, 0.8, 1)} />
+        <Pille x={X(L) + 3} y={36} a="start" text={`etwa ${G} cm`} g={10.5} o={teil(us, 0.8, 1)} />
         {/* Stift */}
         <g opacity={klemm(us * 5)}>
           <rect x={X(0)} y={54} width={12} height={16} rx="3" fill={F.rosa} />
@@ -118,6 +117,11 @@ const g_lineal = {
         </g>
         {ur > 0 && <line x1={X(L)} y1={71} x2={X(L)} y2={71 + (ry + 13 - 71) * ur} stroke={F.granat} strokeWidth="1.6" strokeDasharray="3 3" />}
         <Puls x={X(L)} y={ry + 23} u={teil(ur, 0.3, 1)} r={14} />
+        {/* Unterschied Schätzung – Messung: Lücke zwischen dem Ende der Daumenreihe und der Stiftspitze */}
+        <g opacity={teil(ug, 0, 0.5)}>
+          <line x1={X(G)} y1={22} x2={X(G)} y2={50} stroke={F.goldDunkel} strokeWidth="1.4" strokeDasharray="3 3" />
+          <rect x={X(G)} y={43} width={(X(L) - X(G)) * teil(ug, 0, 0.6)} height={6} rx="3" fill={F.gold} />
+        </g>
         {/* Ergebnis */}
         <g opacity={ug} transform={`translate(0 ${(1 - ug) * 8})`}>
           <Kasten x={58} y={140} w={62} h={36} text={L} f={F.granat} rand={F.granat} tf={F.weiss} g={20} />
@@ -141,15 +145,17 @@ const g_schritte = {
   h: 182,
   label: (p) => `${p.schritte} Schritte zu je ${p.cm} cm`,
   ablauf: (p) => [
-    { k: "raum", ms: 800, text: "Wie lang ist das Klassenzimmer? Schätzen mit Schritten." },
+    { k: "raum", ms: 800, text: "Wie lang ist das Klassenzimmer? Mit Schritten schätzen." },
     { k: "gehen", ms: 2600, text: `Von Wand zu Wand: ${p.schritte} Schritte.` },
-    { k: "schritt", ms: 1200, text: `Ein Schritt ist etwa ${p.cm} cm lang.` },
-    { k: "rechnen", ms: 1700, text: `${p.schritte} · ${p.cm} cm = ${de(p.schritte * p.cm)} cm = ${de((p.schritte * p.cm) / 100)} m. Das Zimmer ist etwa ${de((p.schritte * p.cm) / 100)} m lang.` },
+    { k: "schritt", ms: 1200, text: `Ein Schritt ist etwa ${p.cm} cm lang – er ist das Maß.` },
+    { k: "legen", ms: 2600, text: `${p.schritte}-mal ${p.cm} cm hintereinander: ${de(p.schritte * p.cm)} cm.` },
+    { k: "rechnen", ms: 1500, text: `${de(p.schritte * p.cm)} cm = ${de((p.schritte * p.cm) / 100)} m – das Zimmer ist etwa ${de((p.schritte * p.cm) / 100)} m lang.` },
   ],
   bild: ({ Z, z, p }) => {
-    const n = p.schritte, x0 = 30, x1 = 330, sw = (x1 - x0) / n, ur = Z("raum"), ug = z("gehen"), us = Z("schritt"), uq = Z("rechnen");
+    const n = p.schritte, x0 = 30, x1 = 330, sw = (x1 - x0) / n, ur = Z("raum"), ug = z("gehen"), us = Z("schritt"), ul = z("legen"), uq = Z("rechnen");
     const k = Math.min(n, Math.floor(ug * n + 0.0001));
     const m = de((n * p.cm) / 100);
+    const gelegt = Math.min(n, Math.floor(ul * n + 0.0001));
     return (
       <>
         <g opacity={ur}>
@@ -172,15 +178,21 @@ const g_schritte = {
         <Pille x={x0 - 8} y={30} a="start" text={`Schritte: ${k}`} g={12} f={F.granatHell} tf={F.granat} o={klemm(ug * 6)} />
         <g opacity={us}>
           <Klammer x1={x0} x2={x0 + sw} y={120} f={F.gold} />
-          <Tx x={x0 + sw / 2 + 4} y={142} g={11} f={F.goldDunkel} w={800} a="start">{`≈ ${p.cm} cm`}</Tx>
+          <Tx x={x0 + sw / 2} y={142} g={10} f={F.goldDunkel} w={800}>{`${p.cm} cm`}</Tx>
         </g>
+        {/* derselbe Schritt, immer wieder angelegt */}
+        {Array.from({ length: n - 1 }, (_, i) => {
+          const o = klemm(ul * n - (i + 1));
+          return o > 0 && <g key={i} opacity={o}><Klammer x1={x0 + (i + 1) * sw} x2={x0 + (i + 2) * sw} y={120} f={F.gold} /></g>;
+        })}
+        <Pille x={B / 2} y={150} text={gelegt <= 1 ? `${p.cm} cm` : `${gelegt} · ${p.cm} cm = ${de(gelegt * p.cm)} cm`} g={12} o={klemm(ul * 6)} />
         <g opacity={uq}>
           <Strich x1={x0} y1={50} x2={x1} y2={50} u={1} f={F.blau} b={1.6} />
           <Spitze x={x1} y={50} f={F.blau} g={7} />
           <Spitze x={x0} y={50} winkel={180} f={F.blau} g={7} />
           <Pille x={(x0 + x1) / 2} y={54} text={`etwa ${m} m`} g={12} f={F.blauHell} tf={F.blau} />
         </g>
-        <Tippen x={B / 2} y={170} g={13.5} f={F.granat} w={800} u={uq} text={`${n} · ${p.cm} cm = ${de(n * p.cm)} cm = ${m} m`} />
+        <Tx x={B / 2} y={176} g={12} f={F.granat} w={800} opacity={uq}>{`${de(n * p.cm)} cm = ${m} m`}</Tx>
       </>
     );
   },
@@ -204,7 +216,8 @@ const g_treppe = {
     const ab = [{ k: "stufen", ms: 1000, text: p.t0 || (runter ? "Die Einheitentreppe: Nach unten werden die Einheiten kleiner – also mal." : "Die Einheitentreppe: Nach oben werden die Einheiten größer – also geteilt.") }];
     for (let i = p.von; i !== p.bis; i += d) {
       const j = i + d, f = p.faktor[Math.min(i, j)];
-      ab.push({ k: `h${i}`, ms: 1150, text: `${zahl(v[i])} ${p.stufen[i]} ${runter ? "·" : ":"} ${de(f)} = ${zahl(v[j])} ${p.stufen[j]}` });
+      const gross = p.stufen[Math.min(i, j)], klein = p.stufen[Math.max(i, j)];
+      ab.push({ k: `h${i}`, ms: 1150, text: `1 ${gross} = ${de(f)} ${klein}, also ${zahl(v[i])} ${p.stufen[i]} ${runter ? "·" : ":"} ${de(f)} = ${zahl(v[j])} ${p.stufen[j]}` });
     }
     ab.push({ k: "schluss", ms: 1500, text: p.schluss || `${zahl(v[p.von])} ${p.stufen[p.von]} = ${zahl(v[p.bis])} ${p.stufen[p.bis]}` });
     return ab;
@@ -234,7 +247,7 @@ const g_treppe = {
               <rect x={xs(i)} y={ys(i)} width={sw - 3} height={h - 8 - ys(i)} rx="8" fill={an ? F.granatHell : F.flaeche} />
               <Tx x={cx(i)} y={ys(i) + 19} g={n > 6 ? 12 : 13} f={an ? F.granat : aktiv ? F.tinte : F.hell} w={800}>{e}</Tx>
               {an && <Tx x={cx(i)} y={ys(i) + 39} g={n > 6 ? 10.5 : 11.5} f={F.tinte} w={800} opacity={i === p.von ? 1 : teil(ui, 0.7, 1)}>{zahl(v[i])}</Tx>}
-              {i !== p.von && aktiv && <Puls x={cx(i)} y={ys(i) + 34} u={teil(ui, 0.7, 1)} r={16} />}
+              {i === p.bis && <Puls x={cx(i)} y={ys(i) + 34} u={teil(ui, 0.7, 1)} r={16} />}
             </g>
           );
         })}
@@ -337,7 +350,7 @@ const g_balken = {
   ablauf: (p) => [
     { k: "karten", ms: 1000, text: `${p.a.roh} und ${p.b.roh} – zwei verschiedene Schreibweisen.` },
     { k: "umrechnen", ms: 1400, text: `Erst in dieselbe Einheit: ${de(p.a.w)} ${p.e} und ${de(p.b.w)} ${p.e}.` },
-    { k: "balken", ms: 900, text: "Jede Masse als Streifen gezeichnet." },
+    { k: "balken", ms: 900, text: `Beide jetzt in ${p.e} – erst so passen die Streifen zueinander.` },
     { k: "summe", ms: 1600, text: `Zusammen: ${de(p.a.w)} ${p.e} + ${de(p.b.w)} ${p.e} = ${p.summe}.` },
     { k: "diff", ms: 1600, text: `Unterschied: ${de(p.a.w)} ${p.e} − ${de(p.b.w)} ${p.e} = ${p.diff}.` },
   ],
@@ -458,7 +471,7 @@ const g_massstab = {
       { k: "karte", ms: 1100, text: `Auf der Karte (Maßstab 1 : ${de(p.n)}) liegen A und B ${p.cm} cm auseinander.` },
       { k: "eins", ms: 1500, text: `1 cm auf der Karte sind ${de(p.n)} cm in Wirklichkeit – das sind ${de(per)} m.` },
       { k: "steine", ms: 1900, text: `Jeder Zentimeter der Karte wird zu ${de(per)} m.` },
-      { k: "summe", ms: 1600, text: `${p.cm} · ${de(per)} m = ${de(tot)} m${tot >= 1000 ? ` = ${de(tot / 1000)} km` : ""}.` },
+      { k: "summe", ms: 1600, text: `${p.cm} cm auf der Karte: ${p.cm} · ${de(per)} m = ${de(tot)} m${tot >= 1000 ? ` = ${de(tot / 1000)} km` : ""}.` },
     ];
   },
   bild: ({ Z, z, p }) => {
@@ -533,8 +546,8 @@ const g_linien = {
     { k: "punkt", ms: 1100, text: "Ein Punkt markiert nur eine Stelle. Er heißt A." },
     { k: "strecke", ms: 1500, text: "Die Strecke AB hat zwei Enden – man kann sie messen." },
     { k: "strahl", ms: 1600, text: "Der Strahl beginnt in A, läuft durch B und hört nie auf." },
-    { k: "gerade", ms: 1700, text: "Die Gerade hat weder Anfang noch Ende. Wir sehen nur ein Stück davon." },
-    { k: "fertig", ms: 1100, text: "Nur die Strecke hat eine Länge: |AB| = 5 cm." },
+    { k: "gerade", ms: 1700, text: "Die Gerade hat weder Anfang noch Ende – gezeichnet ist nur ein Stück." },
+    { k: "fertig", ms: 1100, text: "Nur die Strecke hört an beiden Enden auf – nur sie hat eine Länge." },
   ],
   bild: ({ Z, z }) => {
     const xa = 150, xb = 280, zeilen = [["Punkt", "eine Stelle"], ["Strecke", "zwei Enden"], ["Strahl", "ein Anfang"], ["Gerade", "ohne Ende"]];
@@ -551,7 +564,6 @@ const g_linien = {
           </g>
         ))}
         <P x={xa} yy={y(0)} t="A" o={Z("punkt", federnd)} />
-        <Puls x={xa} y={y(0)} u={z("punkt")} r={12} />
         {/* Strecke */}
         <Strich x1={xa} y1={y(1)} x2={xb} y2={y(1)} u={teil(us, 0.2, 0.9)} b={2.2} />
         <P x={xa} yy={y(1)} t="A" o={teil(us, 0, 0.2)} /><P x={xb} yy={y(1)} t="B" o={teil(us, 0, 0.2)} />
@@ -593,10 +605,10 @@ const g_lot = {
   label: () => "Senkrechte durch P zur Geraden g und Abstand",
   ablauf: () => [
     { k: "start", ms: 900, text: "Gegeben: die Gerade g und der Punkt P." },
-    { k: "legen", ms: 1600, text: "Mittellinie des Geodreiecks auf g legen und verschieben, bis die Kante durch P geht." },
-    { k: "zeichnen", ms: 1100, text: "An der Kante entlang zeichnen: die Senkrechte zu g." },
+    { k: "legen", ms: 1600, text: "Mittellinie des Geodreiecks auf g – schieben, bis die Kante P trifft." },
+    { k: "zeichnen", ms: 1100, text: "An der Kante entlang entsteht die Senkrechte zu g." },
     { k: "winkel", ms: 1100, text: "Sie trifft g im Lotfußpunkt F – im rechten Winkel." },
-    { k: "abstand", ms: 1500, text: "|PF| ist der Abstand von P zu g. Jeder schräge Weg ist länger." },
+    { k: "abstand", ms: 1500, text: "Der senkrechte Weg PF ist der kürzeste – ein schräger ist länger." },
   ],
   bild: ({ Z }) => {
     const gy = 120, px = 214, py = 50, L = 156;
@@ -616,8 +628,7 @@ const g_lot = {
           <Tx x={px + 10} y={gy + 18} g={12.5} f={F.granat} w={800}>F</Tx>
         </g>
         <g opacity={ua}>
-          <line x1={px} y1={py} x2={300} y2={gy} stroke={F.hell} strokeWidth="1.6" strokeDasharray="5 4" />
-          <Tx x={300} y={gy + 20} g={10.5} f={F.grau} w={700}>schräg: länger</Tx>
+          <line x1={px} y1={py} x2={300} y2={gy} stroke={F.hell} strokeWidth="1.6" strokeDasharray="5 4" />          <Tx x={300} y={gy + 20} g={10.5} f={F.grau} w={700}>schräg: länger</Tx>
           <rect x={px - 92} y={(py + gy) / 2 - 12} width={80} height={22} rx="11" fill={F.goldHell} />
           <Tx x={px - 52} y={(py + gy) / 2 + 3} g={11} f={F.goldDunkel} w={800}>Abstand</Tx>
         </g>
@@ -640,8 +651,8 @@ const g_parallel = {
   ablauf: () => [
     { k: "start", ms: 900, text: "Gegeben: die Gerade g und der Punkt P." },
     { k: "anlegen", ms: 1000, text: "Lange Kante des Geodreiecks an g, das Lineal fest daneben." },
-    { k: "schieben", ms: 1600, text: "Geodreieck am Lineal entlang schieben, bis die Kante durch P geht." },
-    { k: "zeichnen", ms: 1100, text: "Linie ziehen: h ist parallel zu g." },
+    { k: "schieben", ms: 1600, text: "Am Lineal hochschieben – das Geodreieck dreht sich dabei nicht." },
+    { k: "zeichnen", ms: 1100, text: "Durch P entlang der Kante: h ist parallel zu g." },
     { k: "abstand", ms: 1600, text: "Überall derselbe Abstand – g und h schneiden sich nie: g ∥ h." },
   ],
   bild: ({ Z }) => {
@@ -727,7 +738,7 @@ const g_koordinaten = {
               )}
               <circle cx={gs ? X(x) : cx} cy={gs ? Y(y) : cy} r={5.5} fill={gs ? F.blau : F.granat} stroke={F.weiss} strokeWidth="1.8" opacity={gs ? teil(u, 0.4, 0.8) : 1} />
               {(fertig || gs) && <Tx x={X(x) + (x >= 3 ? 10 : -10)} y={Y(y) - 8} g={12.5} f={gs ? F.blau : F.granat} w={800} a={x >= 3 ? "start" : "end"} opacity={gs ? teil(u, 0.6, 1) : teil(u, 0.92, 1)}>{nm}</Tx>}
-              <Puls x={X(x)} y={Y(y)} u={gs ? teil(u, 0.5, 1) : teil(u, 0.9, 1)} r={12} />
+              {(gs || (!p.gesucht && i === n - 1)) && <Puls x={X(x)} y={Y(y)} u={gs ? teil(u, 0.5, 1) : teil(u, 0.9, 1)} r={12} />}
             </g>
           );
         })}
@@ -756,7 +767,7 @@ const g_spiegeln = {
   ablauf: () => [
     { k: "figur", ms: 1000, text: "Das Dreieck ABC soll an der y-Achse gespiegelt werden." },
     { k: "klappen", ms: 1900, text: "Falten an der Achse: Das Dreieck klappt auf die andere Seite." },
-    { k: "linien", ms: 1500, text: "Jeder Punkt und sein Bildpunkt: gleich weit von der Achse, Verbindung senkrecht." },
+    { k: "linien", ms: 1500, text: "Punkt und Bildpunkt: gleich weit von der Achse, Linie senkrecht dazu." },
     { k: "koord", ms: 1700, text: "Die x-Koordinate wechselt das Vorzeichen, y bleibt gleich." },
   ],
   bild: ({ Z, p }) => {
@@ -809,9 +820,9 @@ const g_drehung = {
   label: (p) => p.selbst ? "Ein Parallelogramm fällt bei einer halben Drehung auf sich selbst" : `Punktspiegelung an Z${koord(p.z[0], p.z[1])}`,
   ablauf: (p) => p.selbst ? [
     { k: "figur", ms: 1000, text: "Ein Parallelogramm und der Schnittpunkt Z seiner Diagonalen." },
-    { k: "drehen", ms: 2400, text: "Eine halbe Drehung um Z – 180°." },
-    { k: "linien", ms: 1300, text: "Es fällt genau auf sich selbst: Jede Ecke landet auf der gegenüberliegenden." },
-    { k: "koord", ms: 1500, text: "Das Parallelogramm ist punktsymmetrisch – aber nicht achsensymmetrisch." },
+    { k: "drehen", ms: 2400, text: "Eine halbe Drehung um Z: Die Ecke A wandert auf dem Goldbogen …" },
+    { k: "linien", ms: 1300, text: "… genau nach C. Jede Ecke landet auf der gegenüberliegenden." },
+    { k: "koord", ms: 1500, text: "Das Parallelogramm fällt auf sich selbst: Es ist punktsymmetrisch." },
   ] : [
     { k: "figur", ms: 1000, text: `Das Dreieck soll am Punkt Z${koord(p.z[0], p.z[1])} gespiegelt werden.` },
     { k: "drehen", ms: 2400, text: "Punktspiegelung heißt: eine halbe Drehung um Z, also 180°." },
@@ -824,6 +835,9 @@ const g_drehung = {
     const poly = pts(p.fig.map(([, x, y]) => [X(x), Y(y)]));
     const bild = p.fig.map(([n, x, y]) => [n + "′", 2 * zx - x, 2 * zy - y]);
     const [, px, py] = p.fig[0];
+    /* Spur der ersten Ecke: ein Halbkreis um Z */
+    const rr = Math.hypot(px - zx, py - zy) * s, a0 = (Math.atan2(py - zy, px - zx) * 180) / Math.PI, aE = a0 + 180 * ud;
+    const [sx2, sy2] = pol(X(zx), Y(zy), rr, aE);
     return (
       <>
         <Gitter X={X} Y={Y} x0={0} x1={8} y0={0} y1={6} o={uf} />
@@ -833,7 +847,8 @@ const g_drehung = {
             <polygon points={poly} fill={ud >= 1 ? F.blauHell : F.granatHell} fillOpacity="0.8" stroke={ud >= 1 ? F.blau : F.granat} strokeWidth="2" strokeLinejoin="round" />
           </g>
         )}
-        {ud > 0 && ud < 1 && <path d={bogen(X(zx), Y(zy), 22, 90, 90 + 180 * ud)} fill="none" stroke={F.gold} strokeWidth="2.5" strokeLinecap="round" />}
+        {ud > 0.02 && <path d={bogen(X(zx), Y(zy), rr, a0, aE)} fill="none" stroke={F.gold} strokeWidth="2.6" strokeDasharray="6 4" strokeLinecap="round" />}
+        {ud > 0.1 && <Spitze x={sx2} y={sy2} winkel={-(aE + 90)} f={F.goldDunkel} g={8} />}
         {!p.selbst && p.fig.map(([n, x, y]) => (
           <g key={n} opacity={ul}>
             <line x1={X(x)} y1={Y(y)} x2={X(x) + (X(2 * zx - x) - X(x)) * ul} y2={Y(y) + (Y(2 * zy - y) - Y(y)) * ul} stroke={F.grau} strokeWidth="1.2" strokeDasharray="3 3" />
@@ -858,71 +873,102 @@ const g_drehung = {
 };
 
 /* ============================================================
-   g_vierecke – Quadrat verformt sich nacheinander zu Rechteck, Raute, Parallelogramm, Trapez, Drachen
+   g_vierecke – Ein Quadrat wird Schritt für Schritt verformt; jeder Schritt streicht eine Bedingung.
+   p: { weg: "rechteck" }  Quadrat → Rechteck → Parallelogramm → Trapez
+      { weg: "raute" }     Quadrat (auf der Spitze) → Raute → Drachen
+   Die Verformungen erhalten genau die Eigenschaften, die stehen bleiben (lineare Übergänge:
+   Rechteck bleibt rechtwinklig, Scherung bleibt Parallelogramm, Raute bleibt gleichseitig, Drachen bleibt Drachen).
    ============================================================ */
-const VIERECKE = [
-  { n: "Quadrat", e: [[-45, 45], [45, 45], [45, -45], [-45, -45]], marke: [[0, 1], [1, 1], [2, 1], [3, 1]], rechte: [0, 1, 2, 3],
-    achsen: [[[0, -62], [0, 62]], [[-62, 0], [62, 0]], [[-56, 56], [56, -56]], [[-56, -56], [56, 56]]],
-    eig: ["4 gleich lange Seiten", "4 rechte Winkel", "4 Symmetrieachsen"], t: "Das Quadrat: vier gleich lange Seiten und vier rechte Winkel." },
-  { n: "Rechteck", e: [[-68, 36], [68, 36], [68, -36], [-68, -36]], marke: [[0, 1], [1, 2], [2, 1], [3, 2]], rechte: [0, 1, 2, 3],
-    achsen: [[[0, -52], [0, 52]], [[-82, 0], [82, 0]]],
-    eig: ["Gegenseiten gleich lang", "4 rechte Winkel", "2 Symmetrieachsen"], t: "Seiten ziehen: ein Rechteck. Die rechten Winkel bleiben." },
-  { n: "Raute", e: [[0, 52], [44, 0], [0, -52], [-44, 0]], marke: [[0, 1], [1, 1], [2, 1], [3, 1]], rechte: [], parallel: [[0, 1], [1, 2], [2, 1], [3, 2]],
-    achsen: [[[0, -66], [0, 66]], [[-58, 0], [58, 0]]],
-    eig: ["4 gleich lange Seiten", "Gegenseiten parallel", "2 Symmetrieachsen"], t: "Das Quadrat schräg gedrückt: eine Raute. Alle Seiten bleiben gleich lang." },
-  { n: "Parallelogramm", e: [[-70, 36], [36, 36], [70, -36], [-36, -36]], marke: [[0, 1], [1, 2], [2, 1], [3, 2]], rechte: [], parallel: [[0, 1], [1, 2], [2, 1], [3, 2]], zentrum: true,
-    eig: ["Gegenseiten parallel", "Gegenseiten gleich lang", "punktsymmetrisch"], t: "Das Parallelogramm: gegenüberliegende Seiten parallel und gleich lang." },
-  { n: "Trapez", e: [[-70, 36], [70, 36], [34, -36], [-42, -36]], marke: [], rechte: [], parallel: [[0, 1], [2, 1]],
-    eig: ["ein Paar paralleler Seiten", "sonst keine Bedingung"], t: "Das Trapez: nur noch ein Paar paralleler Seiten." },
-  { n: "Drachen", e: [[-46, -12], [0, 58], [46, -12], [0, -40]], marke: [[0, 2], [1, 2], [2, 1], [3, 1]], rechte: [],
-    achsen: [[[0, -56], [0, 72]]],
-    eig: ["je 2 Nachbarseiten gleich", "1 Symmetrieachse"], t: "Der Drachen: zwei Paare gleich langer Nachbarseiten." },
-];
+const VIERECK_FORM = {
+  Quadrat: { n: "Quadrat", e: [[-45, 45], [45, 45], [45, -45], [-45, -45]], marke: [[0, 1], [1, 1], [2, 1], [3, 1]], rechte: [0, 1, 2, 3] },
+  QuadratSpitze: { n: "Quadrat", e: [[0, 58], [58, 0], [0, -58], [-58, 0]], marke: [[0, 1], [1, 1], [2, 1], [3, 1]], rechte: [0, 1, 2, 3] },
+  Rechteck: { n: "Rechteck", e: [[-68, 36], [68, 36], [68, -36], [-68, -36]], marke: [[0, 1], [1, 2], [2, 1], [3, 2]], rechte: [0, 1, 2, 3] },
+  Parallelogramm: { n: "Parallelogramm", e: [[-84, 36], [52, 36], [84, -36], [-52, -36]], parallel: [[0, 1], [2, 1], [1, 2], [3, 2]] },
+  Trapez: { n: "Trapez", e: [[-84, 36], [52, 36], [30, -36], [-52, -36]], parallel: [[0, 1], [2, 1]] },
+  Raute: { n: "Raute", e: [[0, 58], [36, 0], [0, -58], [-36, 0]], marke: [[0, 1], [1, 1], [2, 1], [3, 1]] },
+  Drachen: { n: "Drachen", e: [[0, 70], [36, 0], [0, -46], [-36, 0]], marke: [[0, 2], [1, 1], [2, 1], [3, 2]] },
+};
+const VIERECK_WEGE = {
+  rechteck: {
+    folge: ["Quadrat", "Rechteck", "Parallelogramm", "Trapez"],
+    bed: ["4 gleich lange Seiten", "4 rechte Winkel", "beide Seitenpaare parallel", "ein Seitenpaar parallel"],
+    t: ["Ein Quadrat erfüllt alle vier Bedingungen.",
+      "Seiten ungleich ziehen – die rechten Winkel bleiben: Rechteck.",
+      "Schräg schieben – die Seiten bleiben parallel: Parallelogramm.",
+      "Eine Ecke verschieben – nur ein Paar bleibt parallel: Trapez."],
+    haus: "Jeder Schritt streicht eine Bedingung. Das Quadrat erfüllt alle.",
+  },
+  raute: {
+    folge: ["QuadratSpitze", "Raute", "Drachen"],
+    bed: ["4 rechte Winkel", "4 gleich lange Seiten", "je 2 Nachbarseiten gleich"],
+    t: ["Ein Quadrat, auf die Spitze gestellt: alle Bedingungen erfüllt.",
+      "Zusammendrücken – alle Seiten bleiben gleich lang: Raute.",
+      "Unten länger ziehen – je zwei Nachbarseiten gleich: Drachen."],
+    haus: "Quadrat und Raute sind besondere Drachen – sie erfüllen mehr.",
+  },
+};
 const g_vierecke = {
-  h: 222,
-  label: () => "Besondere Vierecke: " + VIERECKE.map((v) => v.n).join(", "),
-  ablauf: () => [
-    { k: "m0", ms: 1500, text: VIERECKE[0].t },
-    ...VIERECKE.slice(1).flatMap((v, i) => [{ k: `m${i + 1}`, ms: 900, text: v.t }, { k: `h${i + 1}`, ms: 700 }]),
-    { k: "haus", ms: 1300, text: "Jedes Quadrat ist auch Rechteck, Raute, Parallelogramm und Trapez." },
-  ],
-  bild: ({ Z, z }) => {
-    const cx = 92, cy = 92, N = VIERECKE.length;
-    let pos = VIERECKE[0].e.map((p) => p.slice());
-    for (let i = 1; i < N; i++) { const u = Z(`m${i}`); if (u > 0) pos = pos.map((p, j) => mixP(p, VIERECKE[i].e[j], u)); }
-    let c = 0; for (let i = 1; i < N; i++) if (z(`m${i}`) >= 0.5) c = i;
-    const v = VIERECKE[c], fertig = c === 0 ? Z("m0") : teil(z(`m${c}`), 0.75, 1) * 1;
-    const welt = pos.map(([x, y]) => [cx + x, cy + y]), W = (q) => [cx + q[0], cy + q[1]];
+  h: 228,
+  label: (p) => "Vom Quadrat zum " + VIERECK_FORM[VIERECK_WEGE[p.weg || "rechteck"].folge.slice(-1)[0]].n + ": " + VIERECK_WEGE[p.weg || "rechteck"].folge.map((k) => VIERECK_FORM[k].n).join(", "),
+  ablauf: (p) => {
+    const W = VIERECK_WEGE[p.weg || "rechteck"];
+    return [
+      ...W.folge.map((_, i) => ({ k: `m${i}`, ms: 1500, text: W.t[i] })),
+      { k: "haus", ms: 1300, text: W.haus },
+    ];
+  },
+  bild: ({ Z, z, p }) => {
+    const W = VIERECK_WEGE[p.weg || "rechteck"], N = W.folge.length, cx = 92, cy = 84;
+    const FORM = W.folge.map((k) => VIERECK_FORM[k]);
+    /* Form: Übergang i passiert in der ersten Hälfte von Abschnitt m_i */
+    let pos = FORM[0].e.map((q) => q.slice()), c = 0;
+    for (let i = 1; i < N; i++) {
+      const u = z(`m${i}`), um = sanft(teil(u, 0, 0.5));
+      if (um > 0) pos = pos.map((q, j) => mixP(q, FORM[i].e[j], um));
+      if (u >= 0.5) c = i;
+    }
+    const v = FORM[c], u0 = Z("m0"), uc = z(`m${c}`);
+    const zeichen = c === 0 ? teil(u0, 0.3, 1) : teil(uc, 0.55, 0.9);
+    const welt = pos.map(([x, y]) => [cx + x, cy + y]);
     const kante = (i) => [welt[i], welt[(i + 1) % 4]];
     const uh = Z("haus");
+    const xs = (i) => 50 + (i * 260) / (N - 1);
     return (
       <>
-        {(v.achsen || []).map(([a, b], i) => <line key={c + "a" + i} x1={W(a)[0]} y1={W(a)[1]} x2={W(b)[0]} y2={W(b)[1]} stroke={F.gold} strokeWidth="1.6" strokeDasharray="5 4" opacity={fertig} />)}
-        <polygon points={pts(welt)} fill={F.granatHell} stroke={F.granat} strokeWidth="2.4" strokeLinejoin="round" opacity={Z("m0")} />
-        {v.marke.map(([i, n]) => <Marke key={c + "m" + i} a={kante(i)[0]} b={kante(i)[1]} n={n} f={F.granat} o={fertig} />)}
-        {(v.parallel || []).map(([i, n]) => { const [a, b] = kante(i), k = i >= 2; return <ParallelZeichen key={c + "p" + i} a={mixP(a, b, k ? 0.8 : 0.2)} b={mixP(a, b, k ? 0.6 : 0.4)} n={n} o={fertig} />; })}
-        {v.rechte.map((i) => { const p = welt[i], a = welt[(i + 1) % 4], b = welt[(i + 3) % 4]; const w1 = (Math.atan2(-(a[1] - p[1]), a[0] - p[0]) * 180) / Math.PI, w2 = (Math.atan2(-(b[1] - p[1]), b[0] - p[0]) * 180) / Math.PI; let lo = Math.min(w1, w2), hi = Math.max(w1, w2); if (hi - lo > 180) { const t = lo; lo = hi; hi = t + 360; } return <RechterWinkel key={c + "r" + i} x={p[0]} y={p[1]} w1={lo} w2={hi} r={12} f={F.blau} o={fertig} />; })}
-        {v.zentrum && <circle cx={cx} cy={cy} r={4} fill={F.gold} stroke={F.tinte} strokeWidth="1.2" opacity={fertig} />}
-        <g opacity={fertig}>
-          <Tx x={190} y={42} g={17} f={F.granat} w={800} a="start">{v.n}</Tx>
-          {v.eig.map((t, i) => (
-            <g key={c + t}>
-              <circle cx={196} cy={66 + i * 24 - 4} r={3} fill={F.gold} />
-              <Tx x={206} y={66 + i * 24} g={11} f={F.tinte} w={700} a="start">{t}</Tx>
-            </g>
-          ))}
+        <polygon points={pts(welt)} fill={F.granatHell} stroke={F.granat} strokeWidth="2.4" strokeLinejoin="round" opacity={u0} />
+        {(v.marke || []).map(([i, n]) => <Marke key={c + "m" + i} a={kante(i)[0]} b={kante(i)[1]} n={n} f={F.granat} o={zeichen} />)}
+        {(v.parallel || []).map(([i, n]) => { const [a, b] = kante(i), k = i >= 2; return <ParallelZeichen key={c + "p" + i} a={mixP(a, b, k ? 0.8 : 0.2)} b={mixP(a, b, k ? 0.6 : 0.4)} n={n} o={zeichen} />; })}
+        {(v.rechte || []).map((i) => { const q = welt[i], a = welt[(i + 1) % 4], b = welt[(i + 3) % 4]; const w1 = (Math.atan2(-(a[1] - q[1]), a[0] - q[0]) * 180) / Math.PI, w2 = (Math.atan2(-(b[1] - q[1]), b[0] - q[0]) * 180) / Math.PI; let lo = Math.min(w1, w2), hi = Math.max(w1, w2); if (hi - lo > 180) { const t = lo; lo = hi; hi = t + 360; } return <RechterWinkel key={c + "r" + i} x={q[0]} y={q[1]} w1={lo} w2={hi} r={12} f={F.blau} o={zeichen} />; })}
+        {/* Bedingungen: jeder Schritt streicht die oberste noch gültige */}
+        <g opacity={u0}>
+          <Tx x={190} y={30} g={16} f={F.granat} w={800} a="start" opacity={c === 0 ? 1 : teil(uc, 0.5, 0.65)}>{v.n}</Tx>
+          {W.bed.map((t, i) => {
+            const weg = i < c, jetzt = i === c - 1, us = jetzt ? teil(uc, 0.5, 0.8) : weg ? 1 : 0;
+            const tw = breite(t, 10.5) * 0.8;
+            return (
+              <g key={t}>
+                <circle cx={196} cy={50 + i * 22 - 4} r={3} fill={weg && us >= 1 ? F.hell : F.gold} />
+                <Tx x={206} y={50 + i * 22} g={10.5} f={weg && us >= 1 ? F.hell : F.tinte} w={700} a="start">{t}</Tx>
+                {us > 0 && <line x1={204} y1={50 + i * 22 - 4} x2={204 + (tw + 4) * us} y2={50 + i * 22 - 4} stroke={jetzt && uc < 1 ? F.gold : F.grau} strokeWidth="1.8" strokeLinecap="round" />}
+              </g>
+            );
+          })}
         </g>
-        {VIERECKE.map((q, i) => {
-          const x = 30 + i * 60, an = i <= c, akt = i === c;
-          const s = q.n === "Parallelogramm" ? 0.2 : 0.22;
+        {FORM.map((q, i) => {
+          const an = i <= c, akt = i === c, s = 0.2;
           return (
-            <g key={q.n} opacity={Z("m0") * (an ? 1 : 0.35)}>
-              <polygon points={pts(q.e.map(([a, b]) => [x + a * s, 176 + b * s]))} fill={akt ? F.granat : an ? F.granatHell : F.flaeche} stroke={an ? F.granat : F.hell} strokeWidth="1.2" strokeLinejoin="round" />
-              <Tx x={x} y={206} g={10} f={akt ? F.granat : F.grau} w={800}>{q.n === "Parallelogramm" ? "Parallelogr." : q.n}</Tx>
+            <g key={q.n + i} opacity={u0 * (an ? 1 : 0.35)}>
+              <polygon points={pts(q.e.map(([a, b]) => [xs(i) + a * s, 168 + (b - (W.folge[i] === "Drachen" ? 12 : 0)) * s]))} fill={akt ? F.granat : an ? F.granatHell : F.flaeche} stroke={an ? F.granat : F.hell} strokeWidth="1.2" strokeLinejoin="round" />
+              <Tx x={xs(i)} y={194} g={10} f={akt ? F.granat : F.grau} w={800}>{q.n}</Tx>
+              {i > 0 && <Tx x={(xs(i - 1) + xs(i)) / 2} y={172} g={14} f={F.hell} w={800}>›</Tx>}
             </g>
           );
         })}
-        <rect x={6} y={150} width={348} height={66} rx="12" fill="none" stroke={F.gold} strokeWidth="1.6" opacity={uh} />
+        <g opacity={uh}>
+          <line x1={xs(0)} y1={206} x2={xs(0) + (xs(N - 1) - xs(0)) * teil(uh, 0, 0.7)} y2={206} stroke={F.gold} strokeWidth="2.4" strokeLinecap="round" />
+          {uh > 0.1 && <Spitze x={xs(0) + (xs(N - 1) - xs(0)) * teil(uh, 0, 0.7) + 4} y={206} f={F.gold} g={7} />}
+          <Tx x={B / 2} y={222} g={10.5} f={F.goldDunkel} w={800} opacity={teil(uh, 0.5, 1)}>jede Figur ist auch alles, was rechts von ihr steht</Tx>
+        </g>
       </>
     );
   },
@@ -1003,19 +1049,19 @@ function Rund({ art, cx, cy, s, el = 22, phi = 0, o = 1, f = F.granat, fuell = F
   );
 }
 const KOERPER_LISTE = [
-  { n: "Quader", k: "quader", z: "8 E · 12 K · 6 F", t: "Quader: 8 Ecken, 12 Kanten, 6 Rechtecke." },
-  { n: "Prisma", k: "prisma", z: "6 E · 9 K · 5 F", t: "Dreiseitiges Prisma: zwei Dreiecke, dazwischen Rechtecke." },
-  { n: "Pyramide", k: "pyramide", z: "5 E · 8 K · 5 F", t: "Pyramide: Grundfläche und Dreiecke, die sich in der Spitze treffen." },
-  { n: "Zylinder", k: "zylinder", z: "2 Kreise + Mantel", t: "Zylinder: zwei Kreise und eine gebogene Mantelfläche." },
+  { n: "Quader", k: "quader", z: "8 E · 12 K · 6 F", t: "Quader: 6 Rechtecke, 8 Ecken, 12 Kanten." },
+  { n: "Prisma", k: "prisma", z: "6 E · 9 K · 5 F", t: "Prisma: 2 Dreiecke, dazwischen Rechtecke." },
+  { n: "Pyramide", k: "pyramide", z: "5 E · 8 K · 5 F", t: "Pyramide: Dreiecke mit einer Spitze." },
+  { n: "Zylinder", k: "zylinder", z: "2 Kreise + Mantel", t: "Zylinder: 2 Kreise und ein Mantel." },
   { n: "Kegel", k: "kegel", z: "1 Kreis + Spitze", t: "Kegel: ein Kreis und eine Spitze." },
-  { n: "Kugel", k: "kugel", z: "1 Fläche, gewölbt", t: "Kugel: nur eine gebogene Fläche – keine Ecken, keine Kanten." },
+  { n: "Kugel", k: "kugel", z: "1 Fläche, gewölbt", t: "Kugel: nur eine gebogene Fläche." },
 ];
 const g_koerper = {
   h: 230,
   label: () => "Körper: " + KOERPER_LISTE.map((k) => k.n).join(", "),
   ablauf: () => [
     ...KOERPER_LISTE.map((k, i) => ({ k: `k${i}`, ms: 1400, text: k.t })),
-    { k: "euler", ms: 1600, text: "Bei Quader, Prisma und Pyramide gilt: Ecken + Flächen = Kanten + 2." },
+    { k: "sortieren", ms: 1600, text: "Oben nur ebene Flächen, unten gebogene: daran erkennt man sie." },
   ],
   bild: ({ Z, z }) => {
     return (
@@ -1034,7 +1080,13 @@ const g_koerper = {
             </g>
           );
         })}
-        <Tippen x={B / 2} y={224} g={12} f={F.granat} w={800} u={Z("euler")} text="Quader: 8 + 6 = 12 + 2" />
+        {/* sortieren: Reihe mit nur ebenen Flächen (Ecken und Kanten) gegen Reihe mit gebogenen Flächen */}
+        <g opacity={Z("sortieren")}>
+          <rect x={2} y={4} width={356} height={96} rx="14" fill="none" stroke={F.granat} strokeWidth="2" />
+          <rect x={2} y={100} width={356} height={96} rx="14" fill="none" stroke={F.blau} strokeWidth="2" strokeDasharray="6 4" />
+          <Tx x={B / 2} y={212} g={11} f={F.granat} w={800}>oben: nur ebene Flächen – mit Ecken und Kanten</Tx>
+          <Tx x={B / 2} y={226} g={11} f={F.blau} w={800}>unten: mindestens eine gebogene Fläche</Tx>
+        </g>
       </>
     );
   },
@@ -1049,9 +1101,9 @@ const g_schraegbild = {
   label: (p) => `Schrägbild eines Quaders ${p.a} cm × ${p.b} cm × ${p.c} cm`,
   ablauf: (p) => [
     { k: "vorn", ms: 1400, text: `Die Vorderseite in wahrer Größe: ${p.a} cm breit, ${p.c} cm hoch.` },
-    { k: "tief", ms: 1500, text: `Die Tiefe ${p.b} cm schräg nach hinten (45°) und halb so lang: ${de(p.b / 2)} cm.` },
+    { k: "tief", ms: 1500, text: `Die Tiefe ${p.b} cm geht schräg (45°) nach hinten – halb so lang: ${de(p.b / 2)} cm.` },
     { k: "hinten", ms: 1200, text: "Die hinteren Kanten verbinden – parallel zu den vorderen." },
-    { k: "verdeckt", ms: 1200, text: "Verdeckte Kanten werden gestrichelt." },
+    { k: "verdeckt", ms: 1200, text: "Kanten, die man nicht sehen kann, werden gestrichelt." },
     { k: "zaehlen", ms: 1500, text: "Ein Quader hat 8 Ecken, 12 Kanten und 6 Flächen." },
   ],
   bild: ({ Z, p }) => {
@@ -1118,13 +1170,14 @@ const g_dreiecke = {
   label: () => "Dreiecksarten nach Seiten und Winkeln",
   ablauf: () => [
     { k: "d0", ms: 1700, text: DREIECK_C[0].t },
-    ...DREIECK_C.slice(1).flatMap((q, i) => [{ k: `d${i + 1}`, ms: 1100, text: q.t }, { k: `r${i + 1}`, ms: 900 }]),
+    ...DREIECK_C.slice(1).map((q, i) => ({ k: `d${i + 1}`, ms: 2000, text: q.t })),
   ],
   bild: ({ Z, z }) => {
+    /* C wandert in den ersten 55 % eines Abschnitts, danach steht das Dreieck und wird benannt */
     const A = [24, 176], Bp = [154, 176];
     let C = DREIECK_C[0].c, st = 0;
-    for (let i = 1; i < DREIECK_C.length; i++) { const u = Z(`d${i}`); if (u > 0) C = mixP(C, DREIECK_C[i].c, u); if (z(`d${i}`) >= 0.5) st = i; }
-    const ruhig = DREIECK_C.every((_, i) => i === 0 || z(`d${i}`) === 0 || z(`d${i}`) === 1);
+    for (let i = 1; i < DREIECK_C.length; i++) { const u = sanft(teil(z(`d${i}`), 0, 0.55)); if (u > 0) C = mixP(C, DREIECK_C[i].c, u); if (z(`d${i}`) >= 0.55) st = i; }
+    const ruhig = DREIECK_C.every((_, i) => i === 0 || z(`d${i}`) === 0 || z(`d${i}`) >= 0.55);
     const info = dreieckInfo(A, Bp, C), fest = dreieckInfo(A, Bp, DREIECK_C[st].c), u0 = Z("d0");
     const winkelBogen = (P, Q, R, wert, k) => {
       const a0 = (Math.atan2(-(Q[1] - P[1]), Q[0] - P[0]) * 180) / Math.PI, a1 = (Math.atan2(-(R[1] - P[1]), R[0] - P[0]) * 180) / Math.PI;
@@ -1273,17 +1326,17 @@ const g_umfang = {
   label: (p) => `Umfang eines Rechtecks ${p.a} ${p.e} mal ${p.b} ${p.e}`,
   ablauf: (p) => [
     { k: "rahmen", ms: 900, text: `Ein Garten: ${p.a} ${p.e} lang, ${p.b} ${p.e} breit. Wie lang ist der Zaun?` },
-    { k: "s0", ms: 1100, text: `Einmal außen herum: ${p.a} ${p.e} …` },
-    { k: "s1", ms: 900, text: `… + ${p.b} ${p.e} …` },
-    { k: "s2", ms: 1100, text: `… + ${p.a} ${p.e} …` },
-    { k: "s3", ms: 900, text: `… + ${p.b} ${p.e} = ${2 * (p.a + p.b)} ${p.e}.` },
-    { k: "formel", ms: 1500, text: `Kürzer: u = 2 · (${p.a} + ${p.b}) = 2 · ${p.a + p.b} = ${2 * (p.a + p.b)} ${p.e}.` },
+    { k: "s0", ms: 1100, text: `Einmal außen herum – unten entlang: ${p.a} ${p.e}.` },
+    { k: "s1", ms: 900, text: `Rechts hoch: + ${p.b} ${p.e}.` },
+    { k: "s2", ms: 1100, text: `Oben zurück: + ${p.a} ${p.e}.` },
+    { k: "s3", ms: 900, text: `Links runter: + ${p.b} ${p.e} – einmal herum sind ${2 * (p.a + p.b)} ${p.e}.` },
+    { k: "formel", ms: 1500, text: `Jede Seite kommt zweimal vor: u = 2 · (${p.a} + ${p.b}) = ${2 * (p.a + p.b)} ${p.e}.` },
     ...(p.tor ? [{ k: "tor", ms: 1500, text: `Ein Tor bleibt frei: ${2 * (p.a + p.b)} ${p.e} − ${p.tor} ${p.e} = ${2 * (p.a + p.b) - p.tor} ${p.e} Zaun.` }] : []),
   ],
   bild: ({ Z, z, p }) => {
     const k = Math.min(8, 160 / p.a), W = p.a * k, H = p.b * k, x0 = 34, y0 = 30;
     const E = [[x0, y0 + H], [x0 + W, y0 + H], [x0 + W, y0], [x0, y0]];
-    const L = [p.a, p.b, p.a, p.b], ur = Z("rahmen"), uo = Z("formel"), ut = Z("tor");
+    const L = [p.a, p.b, p.a, p.b], ur = Z("rahmen"), uo = Z("formel"), ut = p.tor ? Z("tor") : 0;
     let pos = E[0], sum = 0;
     for (let i = 0; i < 4; i++) { const u = z(`s${i}`); if (u > 0) { pos = mixP(E[i], E[(i + 1) % 4], sanft(u)); sum += L[i] * (u >= 1 ? 1 : 0); } }
     const torW = (p.tor || 0) * k;
@@ -1300,6 +1353,11 @@ const g_umfang = {
           <Tx x={x0 + W / 2} y={y0 + H + 17} g={11} f={F.granat} w={800}>{`${p.a} ${p.e}`}</Tx>
           <Tx x={x0 + W + 8} y={y0 + H / 2 + 4} g={11} f={F.blau} w={800} a="start">{`${p.b} ${p.e}`}</Tx>
         </g>
+        {/* jede Seite kommt zweimal vor: auch die Gegenseiten tragen ihre Länge */}
+        <g opacity={uo}>
+          <Tx x={x0 + W / 2} y={y0 - 7} g={11} f={F.granat} w={800}>{`${p.a} ${p.e}`}</Tx>
+          <Tx x={x0 - 8} y={y0 + H / 2 + 4} g={11} f={F.blau} w={800} a="end">{`${p.b} ${p.e}`}</Tx>
+        </g>
         {z("s0") > 0 && (
           <g transform={`translate(${n1(pos[0])} ${n1(pos[1])})`}>
             <circle r={7} fill={F.gold} stroke={F.weiss} strokeWidth="2" />
@@ -1310,7 +1368,9 @@ const g_umfang = {
           <Tx x={298} y={45} g={10} f={F.grau} w={700}>gelaufen</Tx>
           <Tx x={298} y={66} g={16} f={F.tinte} w={800}>{`${sum} ${p.e}`}</Tx>
         </g>
-        <Tippen x={x0} y={182} g={13} f={F.granat} w={800} a="start" u={uo} text={`u = 2 · (${p.a} + ${p.b}) = ${2 * (p.a + p.b)} ${p.e}`} />
+        <Tx x={x0} y={182} g={13} f={F.tinte} w={800} a="start" opacity={uo}>
+          {"u = 2 · ("}<tspan fill={F.granat}>{p.a}</tspan>{" + "}<tspan fill={F.blau}>{p.b}</tspan>{`) = ${2 * (p.a + p.b)} ${p.e}`}
+        </Tx>
         <Tippen x={x0} y={202} g={12} f={F.gruen} w={800} a="start" u={ut} text={`Zaun: ${2 * (p.a + p.b)} − ${p.tor || 0} = ${2 * (p.a + p.b) - (p.tor || 0)} ${p.e}`} />
       </>
     );
@@ -1325,9 +1385,9 @@ const g_gleicherumfang = {
   h: 200,
   label: () => "Gleicher Umfang, verschiedene Flächeninhalte",
   ablauf: () => [
-    { k: "f0", ms: 1400, text: "Eine Schnur, 16 cm lang, als Rechteck 7 cm × 1 cm: A = 7 cm²." },
-    ...UMF.slice(1).map(([a, b], i) => ({ k: `f${i + 1}`, ms: 1300, text: `Dieselbe Schnur als ${a} cm × ${b} cm: u = 16 cm, aber A = ${a * b} cm².` })),
-    { k: "fertig", ms: 1500, text: "Gleicher Umfang heißt nicht gleicher Flächeninhalt. Das Quadrat hat den größten." },
+    { k: "f0", ms: 1400, text: "Eine 16 cm lange Schnur als Rechteck 7 cm × 1 cm: 7 Kästchen." },
+    ...UMF.slice(1).map(([a, b], i) => ({ k: `f${i + 1}`, ms: 1300, text: `Dieselbe Schnur, ${a} cm × ${b} cm: schon ${a * b} Kästchen.` })),
+    { k: "fertig", ms: 1500, text: "Gleicher Umfang, verschiedene Flächen – das Quadrat fasst am meisten." },
   ],
   bild: ({ Z, z }) => {
     const k = 20, cx = 100, cy = 92;
@@ -1372,17 +1432,16 @@ const g_lfigur = {
   ablauf: (p) => {
     const l = p.A - p.c, u = p.B - p.d;
     return [
-      { k: "figur", ms: 1000, text: `Eine L-Figur. Außen ${p.A} cm × ${p.B} cm, oben rechts fehlt ${p.c} cm × ${p.d} cm.` },
-      { k: "schnitt", ms: 1000, text: "Weg 1: Zerlegen – ein Schnitt teilt das L in zwei Rechtecke." },
-      { k: "auseinander", ms: 1200, text: `Links ${l} · ${p.B} = ${l * p.B} cm², unten ${p.c} · ${u} = ${p.c * u} cm².` },
-      { k: "zusammen", ms: 1200, text: `Zusammen: ${l * p.B} + ${p.c * u} = ${p.A * p.B - p.c * p.d} cm².` },
-      { k: "ergaenzen", ms: 1300, text: `Weg 2: Ergänzen zum großen Rechteck: ${p.A} · ${p.B} = ${p.A * p.B} cm².` },
-      { k: "abziehen", ms: 1500, text: `Die Ecke wieder abziehen: ${p.A * p.B} − ${p.c * p.d} = ${p.A * p.B - p.c * p.d} cm². Beide Wege – dasselbe Ergebnis.` },
+      { k: "figur", ms: 1000, text: `Eine L-Figur: außen ${p.A} cm × ${p.B} cm, oben rechts fehlt ${p.c} cm × ${p.d} cm.` },
+      { k: "schnitt", ms: 1000, text: "Weg 1, zerlegen: Ein Schnitt teilt das L in zwei Rechtecke." },
+      { k: "zerlegt", ms: 2200, text: `Links ${l} · ${p.B} = ${l * p.B}, unten ${p.c} · ${u} = ${p.c * u} – zusammen ${p.A * p.B - p.c * p.d} cm².` },
+      { k: "ergaenzen", ms: 1300, text: `Weg 2, ergänzen: das große Rechteck, ${p.A} · ${p.B} = ${p.A * p.B} cm².` },
+      { k: "abziehen", ms: 1500, text: `Die Ecke wieder weg: ${p.A * p.B} − ${p.c * p.d} = ${p.A * p.B - p.c * p.d} cm² – dasselbe Ergebnis.` },
     ];
   },
-  bild: ({ Z, p }) => {
+  bild: ({ Z, z, p }) => {
     const k = 18, x0 = 26, y0 = 50, l = p.A - p.c, u = p.B - p.d;
-    const us = Z("schnitt"), ua = Z("auseinander"), uz = Z("zusammen"), ue = Z("ergaenzen"), ub = Z("abziehen"), uf = Z("figur");
+    const uzl = z("zerlegt"), us = Z("schnitt"), ua = sanft(teil(uzl, 0, 0.3)), uz = sanft(teil(uzl, 0.7, 1)), ue = Z("ergaenzen"), ub = Z("abziehen"), uf = Z("figur");
     const sp = 12 * ua * (1 - uz);
     const X = (v) => x0 + v * k, Y = (v) => y0 + (p.B - v) * k;
     const L = [[X(0), Y(0)], [X(p.A), Y(0)], [X(p.A), Y(u)], [X(l), Y(u)], [X(l), Y(p.B)], [X(0), Y(p.B)]];
@@ -1431,10 +1490,10 @@ const g_parallelogramm = {
   label: (p) => `Parallelogramm g = ${p.g} cm, h = ${p.h} cm: A = ${p.g * p.h} cm²`,
   ablauf: (p) => [
     { k: "figur", ms: 1000, text: `Ein Parallelogramm mit Grundseite g = ${p.g} cm.` },
-    { k: "hoehe", ms: 1200, text: `Die Höhe steht senkrecht auf g: h = ${p.h} cm – nicht die schräge Seite!` },
+    { k: "hoehe", ms: 1200, text: `Die Höhe h = ${p.h} cm steht senkrecht auf g – nicht die schräge Seite!` },
     { k: "schnitt", ms: 1000, text: "Entlang der Höhe ein Dreieck abschneiden …" },
-    { k: "schieben", ms: 1600, text: "… und rechts wieder ansetzen." },
-    { k: "formel", ms: 1600, text: `Ein Rechteck ${p.g} cm × ${p.h} cm: A = g · h = ${p.g} · ${p.h} = ${p.g * p.h} cm².` },
+    { k: "schieben", ms: 1600, text: "… und rechts wieder ansetzen – es passt genau." },
+    { k: "formel", ms: 1600, text: `Ein Rechteck mit derselben Fläche: A = g · h = ${p.g} · ${p.h} = ${p.g * p.h} cm².` },
   ],
   bild: ({ Z, p }) => {
     const k = 32, x0 = 40, y0 = 160, G = p.g * k, H = p.h * k, V = p.v * k;
@@ -1444,6 +1503,8 @@ const g_parallelogramm = {
     return (
       <>
         <polygon points={pts([Fp, Bp, C, D])} fill={F.granatHell} stroke={F.granat} strokeWidth="2.2" strokeLinejoin="round" opacity={uf} />
+        {/* der abgeschnittene Teil bleibt als Umriss an seinem alten Platz */}
+        {uv > 0 && <polygon points={pts([A, Fp, D])} fill="none" stroke={F.granat} strokeWidth="1.4" strokeDasharray="4 3" strokeLinejoin="round" opacity={teil(uv, 0, 0.3)} />}
         <g transform={`translate(${n1(dx)} ${n1(lift)})`}>
           <polygon points={pts([A, Fp, D])} fill={us > 0 ? F.goldHell : F.granatHell} stroke={F.granat} strokeWidth="2.2" strokeLinejoin="round" opacity={uf} />
         </g>
@@ -1474,9 +1535,9 @@ const g_dreieckflaeche = {
   ablauf: (p) => [
     { k: "figur", ms: 1000, text: `Ein Dreieck: Grundseite g = ${p.g} cm, Höhe h = ${p.h} cm.` },
     { k: "kopie", ms: 900, text: "Eine genau gleiche Kopie …" },
-    { k: "drehen", ms: 1700, text: "… um eine halbe Drehung gedreht und angelegt." },
-    { k: "para", ms: 1300, text: `Zusammen: ein Parallelogramm mit A = g · h = ${p.g} · ${p.h} = ${p.g * p.h} cm².` },
-    { k: "halb", ms: 1600, text: `Das Dreieck ist genau die Hälfte: A = ${p.g * p.h} : 2 = ${(p.g * p.h) / 2} cm².` },
+    { k: "drehen", ms: 1700, text: "… halb herumgedreht und an die schräge Seite gelegt." },
+    { k: "para", ms: 1300, text: `Zusammen ein Parallelogramm: A = g · h = ${p.g} · ${p.h} = ${p.g * p.h} cm².` },
+    { k: "halb", ms: 1600, text: `Das Dreieck ist genau die Hälfte: ${p.g * p.h} : 2 = ${(p.g * p.h) / 2} cm².` },
   ],
   bild: ({ Z, p }) => {
     const k = 18, x0 = 20, y0 = 172, G = p.g * k, H = p.h * k, V = p.v * k;
@@ -1580,35 +1641,41 @@ function Netz3D({ flaechen, winkel, phi, el, cx, cy, s, farbe, mitte, beschrift 
 const FARBE6 = { boden: F.goldHell, vorn: F.granatHell, hinten: F.granatHell, links: F.blauHell, rechts: F.blauHell, deckel: F.goldHell };
 const g_wuerfelnetz = {
   h: 214,
-  label: () => "Ein Würfelnetz wird zum Würfel gefaltet",
+  label: () => "Ein Würfelnetz wird zum Würfel gefaltet; gegenüberliegende Flächen haben dieselbe Farbe",
   ablauf: () => [
-    { k: "netz", ms: 1200, text: "Sechs Quadrate, die zusammenhängen: ein Würfelnetz." },
+    { k: "netz", ms: 1200, text: "Sechs Quadrate hängen zusammen: ein Würfelnetz." },
     { k: "seiten", ms: 1600, text: "Vier Seiten klappen um 90° nach oben." },
-    { k: "deckel", ms: 1300, text: "Zum Schluss klappt der Deckel zu." },
-    { k: "drehen", ms: 1300, text: "Fertig ist der Würfel: Gegenüberliegende Flächen sind im Netz durch eine Fläche getrennt." },
-    { k: "nicht", ms: 2000, text: "Wieder aufgeklappt. Kein Netz sind: fünf in einer Reihe oder ein 2 × 2-Block – dann überlappen sich Flächen." },
+    { k: "deckel", ms: 1300, text: "Zum Schluss klappt der Deckel zu – ein Würfel." },
+    { k: "paare", ms: 2200, text: "Gleiche Farbe liegt gegenüber – im Netz ist ein Feld dazwischen." },
   ],
-  bild: ({ Z, z }) => {
-    const us = Z("seiten"), ud = Z("deckel"), un = Z("netz"), ur = Z("drehen"), ux = Z("nicht");
+  bild: ({ Z }) => {
+    const us = Z("seiten"), ud = Z("deckel"), un = Z("netz"), up = Z("paare");
     const fl = kreuzNetz(1, 1, 1);
-    const zu = 1 - ux;
-    const winkel = (id) => (id === "deckel" ? 90 * ud * zu : 90 * us * zu);
-    const ein = us * zu, el = mix(88, 26, ein), phi = mix(0, 28, ein) + 20 * ur * zu;
-    const k = 1 - 0.42 * ux, cx = mix(180, 92, ux), cy = mix(104, 100, ux);
+    const winkel = (id) => (id === "deckel" ? 90 * ud : 90 * us);
+    const el = mix(88, 26, us), phi = mix(0, 28, us) + 14 * up;
+    const k = 1 - 0.18 * up, cx = mix(180, 104, up), cy = 104;
+    /* flaches Netz rechts, gleiche Lage wie das Netz am Anfang (von oben gesehen) */
+    const q = 22, nx = 276, ny = 30;
+    const flach = [[0, 0, FARBE6.deckel], [0, 1, FARBE6.vorn], [-1, 2, FARBE6.links], [0, 2, FARBE6.boden], [1, 2, FARBE6.rechts], [0, 3, FARBE6.hinten]];
+    const rand = (f) => (f === F.goldHell ? F.goldDunkel : f === F.blauHell ? F.blau : F.granat);
     return (
       <>
         <g opacity={un} transform={`translate(${n1(cx)} ${n1(cy)}) scale(${n1(k)}) translate(${-180} ${-104})`}>
-          <Netz3D flaechen={fl} winkel={winkel} phi={phi} el={el} cx={180} cy={106 + 4 * (1 - ein)} s={mix(34, 60, ein) - 10 * Math.sin(Math.PI * ein)} farbe={(id) => FARBE6[id]} mitte={[0.5, ein * 0.5, mix(0.5, 1, 1 - ein)]} />
+          <Netz3D flaechen={fl} winkel={winkel} phi={phi} el={el} cx={180} cy={106 + 4 * (1 - us)} s={mix(34, 60, us) - 10 * Math.sin(Math.PI * us)} farbe={(id) => FARBE6[id]} mitte={[0.5, us * 0.5, mix(0.5, 1, 1 - us)]} />
         </g>
-        <g opacity={ux}>
-          <Tx x={270} y={26} g={10.5} f={F.grau} w={800}>5 in einer Reihe</Tx>
-          {[[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [1, 1]].map(([i, j], n) => <rect key={"a" + n} x={210 + i * 24} y={36 + j * 24} width={22} height={22} rx="3" fill={F.flaeche} stroke={F.hell} strokeWidth="1.2" />)}
-          <Pille x={270} y={98} text="kein Netz" g={10} f={F.granatHell} tf={F.granat} />
-          <Tx x={270} y={128} g={10.5} f={F.grau} w={800}>2 × 2-Block</Tx>
-          {[[0, 0], [1, 0], [0, 1], [1, 1], [2, 1], [3, 1]].map(([i, j], n) => <rect key={"b" + n} x={222 + i * 24} y={138 + j * 24} width={22} height={22} rx="3" fill={F.flaeche} stroke={F.hell} strokeWidth="1.2" />)}
-          <rect x={220} y={136} width={50} height={50} rx="5" fill="none" stroke={F.granat} strokeWidth="1.6" strokeDasharray="4 3" />
-          <Pille x={270} y={202} text="kein Netz" g={10} f={F.granatHell} tf={F.granat} />
-          <Pille x={92} y={204} text="Würfelnetz ✓" g={10.5} f={F.goldHell} tf={F.goldDunkel} />
+        <g opacity={teil(up, 0, 0.4)}>
+          {flach.map(([i, j, f], n) => <rect key={n} x={nx + i * q - q / 2} y={ny + j * q} width={q - 2} height={q - 2} rx="3" fill={f} stroke={rand(f)} strokeWidth="1.4" />)}
+          {/* gegenüber: die beiden Goldflächen, dazwischen genau ein Feld */}
+          <g opacity={teil(up, 0.4, 0.7)}>
+            <line x1={nx - 1} y1={ny + q / 2 - 1} x2={nx - 1} y2={ny + 2.5 * q - 1} stroke={F.goldDunkel} strokeWidth="1.8" strokeDasharray="3 3" />
+            <circle cx={nx - 1} cy={ny + q / 2 - 1} r={3} fill={F.goldDunkel} /><circle cx={nx - 1} cy={ny + 2.5 * q - 1} r={3} fill={F.goldDunkel} />
+          </g>
+          <g opacity={teil(up, 0.55, 0.85)}>
+            <line x1={nx - q - 1} y1={ny + 2.5 * q + 4} x2={nx + q - 1} y2={ny + 2.5 * q + 4} stroke={F.blau} strokeWidth="1.8" strokeDasharray="3 3" />
+            <circle cx={nx - q - 1} cy={ny + 2.5 * q + 4} r={3} fill={F.blau} /><circle cx={nx + q - 1} cy={ny + 2.5 * q + 4} r={3} fill={F.blau} />
+          </g>
+          <Puls x={nx - 1} y={ny + q * 1.5 - 1} u={teil(up, 0.4, 1)} r={16} />
+          <Pille x={nx} y={ny + 4 * q + 22} text="gleiche Farbe = gegenüber" g={10} f={F.goldHell} tf={F.goldDunkel} />
         </g>
       </>
     );
@@ -1626,8 +1693,8 @@ const g_oberflaeche = {
     { k: "quader", ms: 1100, text: `Ein Quader: ${p.a} cm lang, ${p.b} cm breit, ${p.c} cm hoch.` },
     { k: "auf", ms: 2000, text: "Aufklappen: Die sechs Flächen liegen flach als Netz." },
     { k: "paare", ms: 1500, text: "Je zwei Flächen sind gleich groß – drei Paare in drei Farben." },
-    { k: "rechnen", ms: 1700, text: `${p.a} · ${p.b} = ${p.a * p.b}, ${p.a} · ${p.c} = ${p.a * p.c}, ${p.b} · ${p.c} = ${p.b * p.c} – jedes doppelt.` },
-    { k: "summe", ms: 1600, text: `O = 2 · (${p.a * p.b} + ${p.a * p.c} + ${p.b * p.c}) = 2 · ${p.a * p.b + p.a * p.c + p.b * p.c} = ${2 * (p.a * p.b + p.a * p.c + p.b * p.c)} cm².` },
+    { k: "rechnen", ms: 1700, text: `Jede Farbe kommt zweimal vor: 2 · ${p.a * p.b}, 2 · ${p.a * p.c} und 2 · ${p.b * p.c}.` },
+    { k: "summe", ms: 1600, text: `Alles zusammen: O = ${2 * p.a * p.b} + ${2 * p.a * p.c} + ${2 * p.b * p.c} = ${2 * (p.a * p.b + p.a * p.c + p.b * p.c)} cm².` },
   ],
   bild: ({ Z, p }) => {
     const uq = Z("quader"), ua = Z("auf"), up = Z("paare"), ur = Z("rechnen"), us = Z("summe");
@@ -1650,13 +1717,13 @@ const g_oberflaeche = {
           {[["ab", F.goldHell, F.goldDunkel, `${p.a} · ${p.b}`], ["ac", F.granatHell, F.granat, `${p.a} · ${p.c}`], ["bc", F.blauHell, F.blau, `${p.b} · ${p.c}`]].map(([g, f, tf, t], i) => (
             <g key={g}>
               <rect x={234} y={30 + i * 34} width={116} height={26} rx="13" fill={f} />
-              <Tx x={292} y={47.5 + i * 34} g={11} f={tf} w={800}>{`2 × (${t} = ${wert[g]})`}</Tx>
+              <Tx x={292} y={47.5 + i * 34} g={11} f={tf} w={800}>{`2 · ${t} = ${2 * wert[g]}`}</Tx>
             </g>
           ))}
         </g>
         <g opacity={us} transform={`translate(0 ${(1 - us) * 6})`}>
           <rect x={234} y={136} width={116} height={50} rx="12" fill={F.granatTief} />
-          <Tx x={292} y={157} g={12} f={F.goldHell} w={800}>{`O = 2 · ${wert.ab + wert.ac + wert.bc}`}</Tx>
+          <Tx x={292} y={157} g={11.5} f={F.goldHell} w={800}>{`O = ${2 * wert.ab} + ${2 * wert.ac} + ${2 * wert.bc}`}</Tx>
           <Tx x={292} y={176} g={12} f={F.weiss} w={800}>{`= ${O} cm²`}</Tx>
         </g>
       </>
@@ -1818,8 +1885,8 @@ const g_winkelteile = {
   ablauf: (p) => [
     { k: "scheitel", ms: 900, text: "Ein Punkt S: der Scheitel." },
     { k: "schenkel1", ms: 1000, text: "Von S aus läuft ein Strahl: der erste Schenkel." },
-    { k: "drehen", ms: 1700, text: "Der zweite Schenkel dreht sich gegen den Uhrzeigersinn auf." },
-    { k: "name", ms: 1300, text: `Das ist der Winkel α = ∠ASB = ${p.grad}°. Der Scheitel steht in der Mitte.` },
+    { k: "drehen", ms: 1700, text: "Der zweite Schenkel dreht sich auf – gegen den Uhrzeigersinn." },
+    { k: "name", ms: 1300, text: `Das ist der Winkel α = ∠ASB = ${p.grad}° – S steht in der Mitte.` },
     { k: "laenger", ms: 1700, text: "Längere Schenkel? Die Öffnung bleibt gleich – der Winkel auch." },
   ],
   bild: ({ Z, p }) => {
@@ -1867,13 +1934,13 @@ const STOPPS = [[40, "spitz"], [90, "recht"], [135, "stumpf"], [180, "gestreckt"
 const g_winkelarten = {
   h: 228,
   label: () => "Winkelarten von spitz bis Vollwinkel",
-  ablauf: () => STOPPS.flatMap(([w], i) => [
-    { k: `d${i}`, ms: i === 0 ? 1000 : 900 + (w - STOPPS[i - 1][0]) * 4, text: { 0: "Unter 90°: ein spitzer Winkel.", 1: "Genau 90°: ein rechter Winkel – mit Bogen und Punkt.", 2: "Zwischen 90° und 180°: ein stumpfer Winkel.", 3: "Genau 180°: ein gestreckter Winkel – sieht aus wie eine Gerade.", 4: "Zwischen 180° und 360°: ein überstumpfer Winkel.", 5: "Genau 360°: eine volle Drehung, der Vollwinkel." }[i] },
-    { k: `h${i}`, ms: 500 },
-  ]),
+  ablauf: () => STOPPS.map(([w], i) => (
+    { k: `d${i}`, ms: i === 0 ? 1000 : 900 + (w - STOPPS[i - 1][0]) * 4, text: { 0: "Unter 90°: ein spitzer Winkel.", 1: "Genau 90°: ein rechter Winkel – mit Bogen und Punkt.", 2: "Zwischen 90° und 180°: ein stumpfer Winkel.", 3: "Genau 180°: ein gestreckter Winkel – wie eine Gerade.", 4: "Zwischen 180° und 360°: ein überstumpfer Winkel.", 5: "Genau 360°: eine volle Drehung, der Vollwinkel." }[i] }
+  )),
   bild: ({ Z, z }) => {
+    /* der Schenkel dreht in den ersten 70 % eines Abschnitts, danach steht er (Zeit zum Lesen) */
     let w = 0;
-    STOPPS.forEach(([g], i) => { const u = Z(`d${i}`); if (u > 0) w = mix(i ? STOPPS[i - 1][0] : 0, g, u); });
+    STOPPS.forEach(([g], i) => { const u = sanft(teil(z(`d${i}`), 0, 0.7)); if (u > 0) w = mix(i ? STOPPS[i - 1][0] : 0, g, u); });
     const sx = 108, sy = 102, art = winkelArt(w);
     const skala = [0, 90, 180, 270];
     return (
@@ -1887,7 +1954,7 @@ const g_winkelarten = {
           <Tx x={286} y={112} g={10.5} f={F.weiss} w={800}>{art}</Tx>
         </g>
         {STOPPS.map(([g, n], i) => {
-          const x = 32 + i * 59.2, erreicht = z(`d${i}`) >= 0.98;
+          const x = 32 + i * 59.2, erreicht = z(`d${i}`) >= 0.7;
           return (
             <g key={g} opacity={erreicht ? 1 : 0.35}>
               <rect x={x - 28} y={202} width={56} height={20} rx="10" fill={erreicht ? F.goldHell : F.flaeche} />
@@ -1910,8 +1977,8 @@ const g_geodreieck = {
   ablauf: (p) => [
     { k: "winkel", ms: 900, text: `Erst schätzen: Der Winkel ist ${p.grad > 90 ? "stumpf – also über 90°" : "spitz – also unter 90°"}.` },
     { k: "anlegen", ms: 1600, text: "Nullpunkt auf den Scheitel, die Kante an den ersten Schenkel." },
-    { k: "skala", ms: 1300, text: "Die Skala, die am ersten Schenkel bei 0 beginnt, wandert mit nach oben." },
-    { k: "ablesen", ms: 1500, text: `Am zweiten Schenkel ablesen: ${p.grad}°. Die andere Skala zeigt ${180 - p.grad} – passt nicht zur Schätzung.` },
+    { k: "skala", ms: 1300, text: "Nur die Skala zählen, die am ersten Schenkel bei 0 beginnt." },
+    { k: "ablesen", ms: 1500, text: `Am zweiten Schenkel ablesen: ${p.grad}°. Die ${180 - p.grad} der anderen Skala passt nicht.` },
   ],
   bild: ({ Z, p }) => {
     const sx = 180, sy = 172, R = 150, uw = Z("winkel"), ua = Z("anlegen"), us = Z("skala"), ur = Z("ablesen");
@@ -2009,10 +2076,10 @@ const g_ueberstumpf = {
   h: 206,
   label: (p) => `Überstumpfer Winkel ${p.grad}° = 360° − ${360 - p.grad}°`,
   ablauf: (p) => [
-    { k: "gross", ms: 1300, text: `Ein überstumpfer Winkel – größer als 180°. Das Geodreieck reicht nur bis 180°.` },
+    { k: "gross", ms: 1300, text: "Ein überstumpfer Winkel – das Geodreieck reicht nur bis 180°." },
     { k: "klein", ms: 1300, text: `Also den anderen, kleineren Winkel messen: ${360 - p.grad}°.` },
     { k: "voll", ms: 1300, text: "Beide zusammen ergeben eine volle Drehung: 360°." },
-    { k: "rechnen", ms: 1500, text: `360° − ${360 - p.grad}° = ${p.grad}°.` },
+    { k: "rechnen", ms: 1500, text: `Der große Winkel ist der Rest: 360° − ${360 - p.grad}° = ${p.grad}°.` },
   ],
   bild: ({ Z, p }) => {
     const sx = 110, sy = 106, k = 360 - p.grad, ug = Z("gross"), uk = Z("klein"), uv = Z("voll"), ur = Z("rechnen");
@@ -2051,10 +2118,10 @@ const g_scheitelwinkel = {
   ablauf: (p) => [
     { k: "geraden", ms: 1100, text: "Zwei Geraden schneiden sich – es entstehen vier Winkel." },
     { k: "alpha", ms: 1000, text: `Gegeben: α = ${p.alpha}°.` },
-    { k: "scheitel", ms: 1500, text: `Der gegenüberliegende Winkel γ ist sein Scheitelwinkel: auch ${p.alpha}°.` },
-    { k: "neben", ms: 1500, text: `β liegt neben α: Zusammen bilden sie einen gestreckten Winkel. β = 180° − ${p.alpha}° = ${180 - p.alpha}°.` },
-    { k: "delta", ms: 1300, text: `δ ist der Scheitelwinkel von β: ebenfalls ${180 - p.alpha}°.` },
-    { k: "summe", ms: 1500, text: `Alle vier zusammen: ${p.alpha} + ${180 - p.alpha} + ${p.alpha} + ${180 - p.alpha} = 360.` },
+    { k: "scheitel", ms: 1500, text: `Halb herumgedreht landet α genau auf γ: Scheitelwinkel, auch ${p.alpha}°.` },
+    { k: "neben", ms: 1500, text: `α und β bilden zusammen eine Gerade: β = 180° − ${p.alpha}° = ${180 - p.alpha}°.` },
+    { k: "delta", ms: 1300, text: `δ liegt β gegenüber: ebenfalls ${180 - p.alpha}°.` },
+    { k: "summe", ms: 1500, text: "Alle vier zusammen sind eine volle Drehung: 360°." },
   ],
   bild: ({ Z, p }) => {
     const sx = 120, sy = 110, L = 104, a = p.alpha, b = 180 - a;
@@ -2108,32 +2175,34 @@ const g_zirkel = {
     { k: "mitte", ms: 900, text: "Die Zirkelspitze kommt in den Mittelpunkt M." },
     { k: "oeffnen", ms: 1100, text: `Den Zirkel auf den Radius einstellen: r = ${p.r} cm.` },
     { k: "kreis", ms: 2200, text: `Einmal herum: Jeder Punkt der Kreislinie ist ${p.r} cm von M entfernt.` },
-    { k: "durch", ms: 1400, text: `Der Durchmesser geht durch M von Rand zu Rand: d = 2 · r = ${2 * p.r} cm.` },
-    { k: "begriffe", ms: 1600, text: "Dazu: Sehne, Kreisbogen und Kreisausschnitt." },
+    { k: "durch", ms: 1800, text: `Ein zweiter Radius zur Gegenseite: zusammen d = 2 · r = ${2 * p.r} cm.` },
   ],
   bild: ({ Z, p }) => {
-    const mx = 120, my = 112, R = 74, um = Z("mitte"), uo = Z("oeffnen"), uk = Z("kreis", linear), ud = Z("durch"), ub = Z("begriffe");
-    const w = 360 * uk, rr = R * uo;
+    const mx = 120, my = 112, R = 74, um = Z("mitte"), uo = Z("oeffnen"), uk = Z("kreis", linear), ud = Z("durch");
+    const w = 360 * uk, rr = R * uo, wd = 180 * sanft(teil(ud, 0, 0.6));
     const [px, py] = pol(mx, my, rr, w);
+    const [qx, qy] = pol(mx, my, R, wd);
     /* Zirkel: Gelenk über der Mitte zwischen Spitze und Mine */
     const gx = (mx + px) / 2, gy = Math.min(my, py) - 64 + Math.abs(py - my) * 0.3;
-    const zirkelSicht = um * (1 - teil(ud, 0, 0.4));
+    const zirkelSicht = um * (1 - teil(ud, 0, 0.3));
     return (
       <>
-        <path d={sektor(mx, my, R, 20, 70)} fill={F.goldHell} opacity={ub} />
+        {/* jede Stellung der Mine ist r von M entfernt: Radien bleiben als Spur stehen */}
+        {[45, 90, 135, 180, 225, 270, 315].map((g) => w >= g && (
+          <line key={g} x1={mx} y1={my} x2={pol(mx, my, R, g)[0]} y2={pol(mx, my, R, g)[1]} stroke={F.gold} strokeWidth="1.2" strokeDasharray="3 3" opacity={0.55 * (1 - teil(ud, 0, 0.3))} />
+        ))}
         {uk > 0 && <path d={bogen(mx, my, R, 0, Math.max(0.5, w))} fill="none" stroke={F.granat} strokeWidth="2.6" strokeLinecap="round" />}
-        <g opacity={ub}>
-          <path d={bogen(mx, my, R, 20, 70)} fill="none" stroke={F.gold} strokeWidth="4.5" strokeLinecap="round" />
-          <line x1={pol(mx, my, R, 200)[0]} y1={pol(mx, my, R, 200)[1]} x2={pol(mx, my, R, 300)[0]} y2={pol(mx, my, R, 300)[1]} stroke={F.blau} strokeWidth="2" />
-        </g>
-        <line x1={mx} y1={my} x2={mx + rr} y2={my} stroke={F.gold} strokeWidth="2.4" opacity={uo * (uk >= 1 ? 1 : 0.9)} strokeLinecap="round" />
-        <Tx x={mx + rr / 2 + 4} y={my + 17} g={11} f={F.goldDunkel} w={800} opacity={teil(uo, 0.6, 1)}>{`r = ${p.r} cm`}</Tx>
-        <g opacity={ud}>
-          <line x1={mx - R} y1={my + 0.01} x2={mx - R + 2 * R * ud} y2={my} stroke={F.blau} strokeWidth="2.4" strokeLinecap="round" transform={`rotate(-90 ${mx} ${my})`} />
-          <Tx x={mx - 8} y={my - R / 2} g={11} f={F.blau} w={800} a="end">{`d = ${2 * p.r} cm`}</Tx>
+        <line x1={mx} y1={my} x2={mx + rr} y2={my} stroke={F.gold} strokeWidth="2.6" opacity={uo} strokeLinecap="round" />
+        <Tx x={mx + rr / 2} y={my + 17} g={11} f={F.goldDunkel} w={800} opacity={teil(uo, 0.6, 1)}>{`r = ${p.r} cm`}</Tx>
+        {/* zweiter Radius dreht zur Gegenseite: zusammen der Durchmesser */}
+        {ud > 0 && <line x1={mx} y1={my} x2={qx} y2={qy} stroke={F.blau} strokeWidth="2.6" strokeLinecap="round" />}
+        <Tx x={mx - R / 2} y={my + 17} g={11} f={F.blau} w={800} opacity={teil(ud, 0.55, 0.8)}>{`r = ${p.r} cm`}</Tx>
+        <g opacity={teil(ud, 0.65, 1)}>
+          <Klammer x1={mx - R} x2={mx + R} y={my - 9} unten={false} f={F.granat} />
+          <Tx x={mx} y={my - 22} g={12} f={F.granat} w={800}>{`d = ${2 * p.r} cm`}</Tx>
         </g>
         <circle cx={mx} cy={my} r={4} fill={F.tinte} opacity={um} />
-        <Tx x={mx - 10} y={my + 17} g={12} f={F.tinte} w={800} opacity={um}>M</Tx>
+        <Tx x={mx - 10} y={my + 30} g={12} f={F.tinte} w={800} opacity={um}>M</Tx>
         {zirkelSicht > 0 && (
           <g opacity={zirkelSicht}>
             <line x1={mx} y1={my} x2={gx} y2={gy} stroke={F.grau} strokeWidth="3" strokeLinecap="round" />
@@ -2143,19 +2212,12 @@ const g_zirkel = {
             <circle cx={px} cy={py} r={3} fill={F.granat} />
           </g>
         )}
-        <g opacity={ub}>
-          <path d="M246 140 q8 -8 18 -6" fill="none" stroke={F.gold} strokeWidth="4.5" strokeLinecap="round" />
-          <Tx x={274} y={142} g={11} f={F.goldDunkel} w={800} a="start">Kreisbogen</Tx>
-          <path d="M246 168 L264 168 L258 154 Z" fill={F.goldHell} />
-          <Tx x={274} y={166} g={11} f={F.goldDunkel} w={800} a="start">Ausschnitt</Tx>
-          <line x1={246} y1={186} x2={264} y2={182} stroke={F.blau} strokeWidth="2" />
-          <Tx x={274} y={189} g={11} f={F.blau} w={800} a="start">Sehne</Tx>
+        <g opacity={teil(ud, 0.7, 1)}>
+          <rect x={236} y={78} width={112} height={56} rx="12" fill={F.granatTief} />
+          <Tx x={292} y={102} g={14} f={F.goldHell} w={800}>d = 2 · r</Tx>
+          <Tx x={292} y={122} g={11} f={F.weiss} w={800}>{`${2 * p.r} cm = 2 · ${p.r} cm`}</Tx>
         </g>
-        <g opacity={ud}>
-          <rect x={236} y={56} width={112} height={56} rx="12" fill={F.granatTief} />
-          <Tx x={292} y={80} g={14} f={F.goldHell} w={800}>d = 2 · r</Tx>
-          <Tx x={292} y={100} g={11} f={F.weiss} w={800}>{`${2 * p.r} cm = 2 · ${p.r} cm`}</Tx>
-        </g>
+        <Puls x={mx - R} y={my} u={teil(ud, 0.45, 0.9)} r={12} />
       </>
     );
   },
@@ -2169,8 +2231,8 @@ const g_blume = {
   label: () => "Kreisblume aus sechs Bögen",
   ablauf: () => [
     { k: "kreis", ms: 1300, text: "Ein Kreis um M. Den Radius nicht mehr verstellen!" },
-    { k: "boegen", ms: 3300, text: "Spitze auf die Kreislinie, Bogen ziehen – vom neuen Schnittpunkt aus weiter." },
-    { k: "fertig", ms: 1500, text: "Sechs Bögen, sechs Schritte: Der Radius passt genau sechsmal um den Kreis." },
+    { k: "boegen", ms: 3300, text: "Spitze auf die Kreislinie, Bogen ziehen – vom neuen Punkt aus weiter." },
+    { k: "fertig", ms: 1500, text: "Die sechs Punkte liegen je r auseinander – der Radius passt sechsmal herum." },
   ],
   bild: ({ Z, z }) => {
     const mx = 130, my = 108, R = 76, uk = Z("kreis", linear), ub = z("boegen"), uf = Z("fertig");
@@ -2187,14 +2249,21 @@ const g_blume = {
             <g key={i}>
               <path d={bogen(cx, cy, R, a0, a0 + (a1 - a0) * sanft(u))} fill="none" stroke={i % 2 ? F.blau : F.gold} strokeWidth="2.4" strokeLinecap="round" />
               <circle cx={cx} cy={cy} r={3.5} fill={F.granat} opacity={u < 1 ? 1 : 0.6} />
-              {u < 1 && <Puls x={cx} y={cy} u={u} r={10} f={F.granat} />}
             </g>
           );
         })}
+        {/* der Grund: Nachbarpunkte liegen genau r auseinander – ein Sechseck aus sechs gleichseitigen Dreiecken */}
+        {Array.from({ length: 6 }, (_, i) => {
+          const [ax, ay] = pol(mx, my, R, 90 + i * 60), [bx, by] = pol(mx, my, R, 150 + i * 60), o = staffel(uf, i, 6, 0.5);
+          return o > 0 && <line key={"s" + i} x1={ax} y1={ay} x2={mix(ax, bx, o)} y2={mix(ay, by, o)} stroke={F.goldDunkel} strokeWidth="2.4" strokeLinecap="round" />;
+        })}
+        {/* ein Dreieck des Sechsecks: zwei Radien und eine Sehne, alle gleich lang */}
+        <polygon points={pts([[mx, my], pol(mx, my, R, 90), pol(mx, my, R, 150)])} fill={F.gold} fillOpacity="0.28" stroke={F.goldDunkel} strokeWidth="1.4" strokeDasharray="3 3" opacity={teil(uf, 0.5, 1)} />
+        <Tx x={pol(mx, my, R + 12, 120)[0]} y={pol(mx, my, R + 12, 120)[1] + 4} g={12} f={F.goldDunkel} w={800} opacity={teil(uf, 0.5, 1)}>r</Tx>
         <g opacity={uf}>
           <rect x={232} y={70} width={116} height={64} rx="12" fill={F.flaeche} />
-          <Tx x={290} y={94} g={12} f={F.granat} w={800}>6 Bögen</Tx>
-          <Tx x={290} y={114} g={11} f={F.grau} w={700}>immer derselbe r</Tx>
+          <Tx x={290} y={94} g={12} f={F.granat} w={800}>6 Schritte zu r</Tx>
+          <Tx x={290} y={114} g={11} f={F.grau} w={700}>einmal herum</Tx>
         </g>
       </>
     );

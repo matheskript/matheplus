@@ -1,6 +1,6 @@
 /* Zweite Animationen (Gruppe Geometrie) für Lerneinheiten, die bisher nur eine hatten – Vertrag: siehe kern.jsx */
 import React from "react";
-import { B, F, Tx, Strich, Pille, Puls, mix, klemm, teil, staffel, raus } from "./kern.jsx";
+import { B, F, Tx, Strich, Pille, Puls, Spitze, mix, klemm, teil, staffel, raus, sanft } from "./kern.jsx";
 
 /* ---------- lokale Hilfen (wie in szenenGeometrie.jsx, dort nicht exportiert) ---------- */
 const rad = (g) => (g * Math.PI) / 180;
@@ -95,12 +95,12 @@ const g_netzwahl = {
   h: 222,
   label: () => "Zwei Netze werden gefaltet: Netz A ergibt einen Würfel, Netz B nicht",
   ablauf: () => [
-    { k: "netze", ms: 1400, text: "Zwei Netze aus je sechs Quadraten. Welches ergibt einen Würfel?" },
-    { k: "faltA", ms: 2200, text: "Netz A falten: Alle Flächen klappen um 90° nach oben." },
-    { k: "okA", ms: 1300, text: "Jede Würfelseite ist genau einmal bedeckt – A ist ein Würfelnetz." },
+    { k: "netze", ms: 1400, text: "Zwei Netze aus je sechs Quadraten. Welches wird ein Würfel?" },
+    { k: "faltA", ms: 2200, text: "Netz A falten: Alle Flächen klappen um 90° hoch." },
+    { k: "okA", ms: 1300, text: "Jede Würfelseite ist genau einmal bedeckt: ein Würfelnetz." },
     { k: "faltB", ms: 2200, text: "Jetzt Netz B falten …" },
-    { k: "ueber", ms: 1700, text: "Zwei Flächen landen hinten aufeinander – vorn bleibt ein Loch." },
-    { k: "zurueck", ms: 1700, text: "B ist kein Würfelnetz: Die beiden roten Flächen überlappen beim Falten." },
+    { k: "ueber", ms: 1700, text: "Zwei Flächen landen aufeinander – dafür bleibt ein Loch." },
+    { k: "zurueck", ms: 1700, text: "Aufgeklappt: Die roten Flächen sind die doppelten." },
   ],
   bild: ({ Z }) => {
     const un = Z("netze"), ua = Z("faltA"), uok = Z("okA"), ub = Z("faltB"), uu = Z("ueber"), uz = Z("zurueck");
@@ -134,7 +134,7 @@ const g_flaechenpaare = {
   h: 224,
   label: (p) => `Quader ${p.a} × ${p.b} × ${p.c}: drei Flächenpaare, O = ${2 * (p.a * p.b + p.a * p.c + p.b * p.c)} cm²`,
   ablauf: (p) => [
-    { k: "quader", ms: 1300, text: `Ein Quader: ${p.a} cm lang, ${p.b} cm breit, ${p.c} cm hoch. Er hat sechs Flächen.` },
+    { k: "quader", ms: 1300, text: `Ein Quader: ${p.a} cm lang, ${p.b} cm breit, ${p.c} cm hoch – sechs Flächen.` },
     { k: "p0", ms: 1700, text: `Oben und unten liegen sich gegenüber: gleich groß, je ${p.a} · ${p.b} = ${p.a * p.b} cm².` },
     { k: "p1", ms: 1700, text: `Vorn und hinten: je ${p.a} · ${p.c} = ${p.a * p.c} cm².` },
     { k: "p2", ms: 1700, text: `Rechts und links: je ${p.b} · ${p.c} = ${p.b * p.c} cm².` },
@@ -214,16 +214,15 @@ const g_kantedoppelt = {
   ablauf: (p) => {
     const V = p.a * p.b * p.c;
     return [
-      { k: "start", ms: 1700, text: `Ein Quader aus Zentimeterwürfeln: ${p.a} · ${p.b} · ${p.c} = ${V} Würfel, also V = ${V} cm³.` },
-      { k: "laenger", ms: 1900, text: `Die Länge wird verdoppelt: ${2 * p.a} cm statt ${p.a} cm. Ein zweiter, gleicher Block kommt dazu.` },
-      { k: "doppelt", ms: 1300, text: `V = ${2 * p.a} · ${p.b} · ${p.c} = ${2 * V} cm³ – doppelt so viel.` },
-      { k: "hoeher", ms: 1900, text: `Jetzt auch die Höhe verdoppeln: Auf alles kommt noch einmal dieselbe Schicht.` },
-      { k: "vier", ms: 1900, text: `V = ${2 * p.a} · ${p.b} · ${2 * p.c} = ${4 * V} cm³ – zweimal verdoppelt, also das Vierfache.` },
+      { k: "start", ms: 1700, text: `Ein Quader aus ${V} Zentimeterwürfeln: V = ${p.a} · ${p.b} · ${p.c} = ${V} cm³.` },
+      { k: "laenger", ms: 2200, text: `Länge verdoppeln: Ein zweiter, gleicher Block kommt dazu – ${2 * V} cm³.` },
+      { k: "hoeher", ms: 2200, text: `Auch die Höhe verdoppeln: Alles noch einmal obendrauf – ${4 * V} cm³.` },
+      { k: "regel", ms: 1500, text: "Jede verdoppelte Kante verdoppelt das Volumen noch einmal." },
     ];
   },
   bild: ({ Z, z, p }) => {
     const { a, b, c } = p, V = a * b * c;
-    const us = z("start"), ul = Z("laenger"), ud = Z("doppelt"), uh = Z("hoeher"), uv = Z("vier");
+    const us = z("start"), ul = Z("laenger"), ud = teil(z("laenger"), 0.75, 1), uh = Z("hoeher"), uz = teil(z("hoeher"), 0.75, 1), uv = Z("regel");
     const k = 25, d = k * 0.5 * Math.SQRT1_2 * 1.3, x0 = 42, y0 = 192;
     const teile = [];
     const n0 = a * b * c;
@@ -248,7 +247,7 @@ const g_kantedoppelt = {
     const zeilen = [
       { t: `${a} · ${b} · ${c} = ${V}`, z: "", f: F.goldDunkel, o: klemm(us * 3) },
       { t: `${2 * a} · ${b} · ${c} = ${2 * V}`, z: "· 2", f: F.granat, o: ud },
-      { t: `${2 * a} · ${b} · ${2 * c} = ${4 * V}`, z: "· 4", f: F.blau, o: uv },
+      { t: `${2 * a} · ${b} · ${2 * c} = ${4 * V}`, z: "· 4", f: F.blau, o: uz },
     ];
     const laenge = ul > 0.5 ? 2 * a : a, hoehe = uh > 0.5 ? 2 * c : c;
     return (
@@ -283,12 +282,12 @@ const g_winkeldrehung = {
   h: 214,
   label: () => "Der Minutenzeiger dreht sich um 60°, 90° und 120°: Ein Winkel ist eine Drehung um den Scheitel",
   ablauf: () => [
-    { k: "uhr", ms: 1100, text: "Eine Uhr: Der Minutenzeiger dreht sich um die Mitte." },
-    { k: "start", ms: 1100, text: "Er startet bei der 12. Diese Lage bleibt als erster Schenkel stehen." },
-    { k: "d10", ms: 1900, text: "10 Minuten später hat er sich um 60° gedreht – 60 Minuten sind 360°, also 1 Minute 6°." },
-    { k: "d15", ms: 1300, text: "Nach 15 Minuten: eine Vierteldrehung, 90°." },
-    { k: "d20", ms: 1300, text: "Nach 20 Minuten: 20 · 6° = 120°." },
-    { k: "namen", ms: 1900, text: "Der Drehpunkt ist der Scheitel. Anfang und Ende der Drehung sind die beiden Schenkel." },
+    { k: "uhr", ms: 1100, text: "Der Minutenzeiger einer Uhr dreht sich um die Mitte." },
+    { k: "start", ms: 1100, text: "Er startet bei der 12 – diese Lage bleibt als Schenkel stehen." },
+    { k: "d10", ms: 1900, text: "10 Minuten: 60°. Eine Stunde sind 360°, also 6° je Minute." },
+    { k: "d15", ms: 1300, text: "15 Minuten: eine Vierteldrehung, 90°." },
+    { k: "d20", ms: 1300, text: "20 Minuten: 20 · 6° = 120°." },
+    { k: "namen", ms: 1900, text: "Drehpunkt = Scheitel, Anfang und Ende der Drehung = Schenkel." },
   ],
   bild: ({ Z, z }) => {
     const cx = 108, cy = 110, R = 84, uu = Z("uhr"), ust = Z("start"), un = Z("namen");
@@ -339,85 +338,60 @@ const g_winkeldrehung = {
 };
 
 /* ============================================================
-   g_winkelschaetzen – Drei Winkel: schätzen (Vergleich mit 90° und 180°), messen, auf der Skala einordnen
+   g_winkelschaetzen – Drei Winkel einordnen: jeder dreht sich an zwei Hilfslinien (90° und 180°) vorbei;
+   die überschrittene Linie leuchtet Gold, dann fällt der Winkel auf die Skala 0°–360°.
    p: { winkel: [65, 140, 250], schaetz: [60, 135, 240] }
    ============================================================ */
 const ART = (w) => (w < 90 ? "spitz" : w < 180 ? "stumpf" : "überstumpf");
+const ART_FARBE = (w) => (w < 90 ? [F.granat, F.granatHell] : w < 180 ? [F.goldDunkel, F.goldHell] : [F.blau, F.blauHell]);
 const g_winkelschaetzen = {
   h: 236,
-  label: (p) => `Winkel ${p.winkel.join("°, ")}° schätzen, messen und einordnen`,
+  label: (p) => `Winkel ${p.winkel.join("°, ")}° mit dem rechten und dem gestreckten Winkel vergleichen und einordnen`,
   ablauf: (p) => [
-    ...p.winkel.flatMap((w, i) => {
+    { k: "ref", ms: 1400, text: "Zwei Hilfslinien zum Vergleich: der rechte Winkel und die Gerade." },
+    ...p.winkel.map((w, i) => {
       const s = p.schaetz[i];
-      const sText = w < 90 ? `Kleiner als ein rechter Winkel – spitz. Schätzung: etwa ${s}°.`
-        : w < 180 ? `Größer als 90°, kleiner als 180° – stumpf. Schätzung: etwa ${s}°.`
-          : `Mehr als 180° – überstumpf. Schätzung: etwa ${s}°.`;
-      const mText = w < 180 ? `Mit dem Geodreieck gemessen: ${w}°. Die Schätzung war nah dran.`
-        : `Den kleinen Winkel messen: ${360 - w}°. Also 360° − ${360 - w}° = ${w}°.`;
-      return [
-        { k: `z${i}`, ms: 900, text: `Winkel ${i + 1}: erst schätzen, dann messen.` },
-        { k: `s${i}`, ms: 1500, text: sText },
-        { k: `m${i}`, ms: 1800, text: mText },
-        { k: `e${i}`, ms: 800, text: `${w}° ist ein ${ART(w)}er Winkel – ab auf die Skala.` },
-      ];
+      return { k: `w${i}`, ms: 1800, text: w < 90 ? `Bleibt unter der 90°-Linie: spitz, etwa ${s}°. Gemessen: ${w}°.`
+        : w < 180 ? `Über 90°, aber unter der Geraden: stumpf, etwa ${s}°. Gemessen: ${w}°.`
+          : `Über die Gerade hinaus: überstumpf, etwa ${s}°. Gemessen: ${w}°.` };
     }),
-    { k: "fertig", ms: 1700, text: "Spitz unter 90°, stumpf zwischen 90° und 180°, überstumpf über 180°." },
   ],
   bild: ({ Z, z, p }) => {
-    const sx = 100, sy = 106, L = 66, ys = 206, X = (v) => 20 + (v / 360) * 320;
-    let i = -1;
-    p.winkel.forEach((_, j) => { if (z(`z${j}`) > 0) i = j; });
-    const W = i >= 0 ? p.winkel[i] : 0, uz = i >= 0 ? Z(`z${i}`) : 0, usch = i >= 0 ? Z(`s${i}`) : 0, um = i >= 0 ? Z(`m${i}`) : 0, ue = i >= 0 ? Z(`e${i}`) : 0;
-    const w = W * uz, [x1, y1] = pol(sx, sy, L, 0), [x2, y2] = pol(sx, sy, L, w);
-    const gross = W > 180;
-    const s0 = gross ? W : 0, mess = gross ? 360 - W : W, Rg = 54;
-    const geo = um * (1 - ue);
-    const ticks = [];
-    for (let g = 0; g <= 180; g += 10) {
-      const [a1, b1] = pol(sx, sy, Rg, s0 + g), [a2, b2] = pol(sx, sy, Rg - (g % 30 ? 4 : 8), s0 + g);
-      ticks.push(<line key={g} x1={a1} y1={b1} x2={a2} y2={b2} stroke={F.blau} strokeWidth={g % 30 ? 0.8 : 1.2} />);
-    }
-    const [lx, ly] = pol(sx, sy, Rg + 12, s0 + mess);
-    const [tx, ty] = pol(sx, sy, 34, w / 2);
+    const L = 46, cy = 88, ys = 200, X = (v) => 20 + (v / 360) * 320, ur = Z("ref");
     return (
       <>
-        {/* Vergleichslinien 90° und 180° */}
-        <g opacity={usch * (1 - teil(um, 0, 0.4))}>
-          <line x1={sx} y1={sy} x2={sx} y2={sy - L} stroke={F.grau} strokeWidth="1.4" strokeDasharray="4 3" />
-          <line x1={sx} y1={sy} x2={sx - L} y2={sy} stroke={F.grau} strokeWidth="1.4" strokeDasharray="4 3" />
-          <Tx x={sx} y={sy - L - 6} g={10} f={F.grau} w={800}>90°</Tx>
-          <Tx x={sx - L - 4} y={sy - 6} g={10} f={F.grau} w={800} a="start">180°</Tx>
-        </g>
-        {i >= 0 && <path d={sektor(sx, sy, 20, 0, Math.max(w, 0.01))} fill={gross ? F.goldHell : F.granatHell} stroke={gross ? F.goldDunkel : F.granat} strokeWidth="1.5" />}
-        {i >= 0 && <line x1={sx} y1={sy} x2={x1} y2={y1} stroke={F.tinte} strokeWidth="2.4" strokeLinecap="round" />}
-        {i >= 0 && <line x1={sx} y1={sy} x2={x2} y2={y2} stroke={F.tinte} strokeWidth="2.4" strokeLinecap="round" />}
-        <circle cx={sx} cy={sy} r={4} fill={F.tinte} />
-        {i >= 0 && uz >= 1 && geo <= 0.05 && <Tx x={tx} y={ty + 4} g={11} f={gross ? F.goldDunkel : F.granat} w={800}>{ue > 0.2 || i < 0 ? `${W}°` : "?"}</Tx>}
-        {/* Geodreieck-Skala (Halbkreis), Nullpunkt im Scheitel, Kante am Startschenkel */}
-        <g opacity={geo * 0.95}>
-          <path d={`${bogen(sx, sy, Rg, s0, s0 + 180)} Z`} fill={F.blauHell} fillOpacity="0.55" stroke={F.blau} strokeWidth="1.2" />
-          {ticks}
-          <path d={bogen(sx, sy, Rg - 2, s0, s0 + mess * teil(um, 0.2, 0.8))} fill="none" stroke={F.gold} strokeWidth="3" strokeLinecap="round" />
-          <g opacity={teil(um, 0.7, 1)}>
-            <circle cx={pol(sx, sy, Rg - 2, s0 + mess)[0]} cy={pol(sx, sy, Rg - 2, s0 + mess)[1]} r={4} fill={F.granat} />
-            <Tx x={lx} y={ly + 4} g={11} f={F.blau} w={800}>{`${mess}°`}</Tx>
-          </g>
-        </g>
-        {/* Karte rechts */}
-        {i >= 0 && (
-          <g>
-            <rect x={218} y={16} width={134} height={110} rx="12" fill={F.flaeche} />
-            <Tx x={285} y={36} g={10.5} f={F.grau} w={800}>{`Winkel ${i + 1}`}</Tx>
-            <Tx x={228} y={58} g={11} f={F.tinte} w={700} a="start" o={usch}>Schätzung</Tx>
-            <Tx x={342} y={58} g={11.5} f={F.tinte} w={800} a="end" o={usch}>{`≈ ${p.schaetz[i]}°`}</Tx>
-            <Tx x={228} y={78} g={11} f={F.tinte} w={700} a="start" o={teil(um, 0.6, 1)}>gemessen</Tx>
-            <Tx x={342} y={78} g={11.5} f={F.blau} w={800} a="end" o={teil(um, 0.6, 1)}>{`${mess}°`}</Tx>
-            {gross && <Tx x={285} y={98} g={11} f={F.blau} w={800} o={teil(um, 0.7, 1)}>{`360° − ${mess}° = ${W}°`}</Tx>}
-            <Tx x={285} y={gross ? 117 : 106} g={12} f={gross ? F.goldDunkel : F.granat} w={800} o={teil(um, 0.8, 1)}>{ART(W)}</Tx>
-          </g>
-        )}
+        {p.winkel.map((W, i) => {
+          const cx = 60 + i * 120, u = z(`w${i}`), ud = sanft(teil(u, 0, 0.6)), w = W * ud;
+          const [fl, fh] = ART_FARBE(W), [ex, ey] = pol(cx, cy, L, w), aktiv = u > 0 && u < 1;
+          const linie = (grenze) => (aktiv && w > grenze ? F.gold : F.hell);
+          return (
+            <g key={i}>
+              {/* Hilfslinien 90° (hoch) und 180° (nach links) */}
+              <g opacity={ur}>
+                <line x1={cx} y1={cy} x2={cx} y2={cy - L} stroke={linie(90)} strokeWidth={aktiv && w > 90 ? 2.4 : 1.4} strokeDasharray="4 3" />
+                <line x1={cx} y1={cy} x2={cx - L} y2={cy} stroke={linie(180)} strokeWidth={aktiv && w > 180 ? 2.4 : 1.4} strokeDasharray="4 3" />
+                <Tx x={cx + 3} y={cy - L - 4} g={9} f={F.grau} w={700} a="start">90°</Tx>
+                <Tx x={cx - L} y={cy - 5} g={9} f={F.grau} w={700} a="start">180°</Tx>
+                <line x1={cx} y1={cy} x2={cx + L} y2={cy} stroke={F.tinte} strokeWidth="2.2" strokeLinecap="round" />
+                <circle cx={cx} cy={cy} r={3.5} fill={F.tinte} />
+              </g>
+              {u > 0 && (
+                <g>
+                  <path d={sektor(cx, cy, 17, 0, Math.max(w, 0.5))} fill={fh} stroke={fl} strokeWidth="1.4" />
+                  <line x1={cx} y1={cy} x2={ex} y2={ey} stroke={fl} strokeWidth="2.6" strokeLinecap="round" />
+                  <circle cx={cx} cy={cy} r={3.5} fill={F.tinte} />
+                </g>
+              )}
+              <g opacity={teil(u, 0.6, 0.85)}>
+                <Tx x={cx} y={150} g={12} f={fl} w={800}>{ART(W)}</Tx>
+                <Tx x={cx} y={164} g={9.5} f={F.grau} w={700}>{`geschätzt ≈ ${p.schaetz[i]}°`}</Tx>
+                <Tx x={cx} y={176} g={9.5} f={F.tinte} w={800}>{`gemessen ${W}°`}</Tx>
+              </g>
+            </g>
+          );
+        })}
         {/* Skala 0° … 360° */}
-        <g>
+        <g opacity={ur}>
           <rect x={X(0)} y={ys - 6} width={X(90) - X(0)} height={12} fill={F.granatHell} />
           <rect x={X(90)} y={ys - 6} width={X(180) - X(90)} height={12} fill={F.goldHell} />
           <rect x={X(180)} y={ys - 6} width={X(360) - X(180)} height={12} fill={F.blauHell} />
@@ -427,18 +401,17 @@ const g_winkelschaetzen = {
           <Tx x={X(270)} y={ys + 22} g={10} f={F.blau} w={800}>überstumpf</Tx>
           <Tx x={X(90)} y={ys + 22} g={8.5} f={F.grau} w={700}>90°</Tx>
           <Tx x={X(180)} y={ys + 22} g={8.5} f={F.grau} w={700}>180°</Tx>
-          {p.winkel.map((v, j) => {
-            const u = Z(`e${j}`), x = X(v);
-            if (u <= 0) return null;
-            const y = mix(150, ys - 9, raus(u));
-            return (
-              <g key={j} opacity={klemm(u * 2)}>
-                <path d={`M${n1(x)} ${n1(y)} l-5 -8 h10 Z`} fill={F.tinte} />
-                <Tx x={x} y={y - 12} g={10.5} f={F.tinte} w={800}>{`${v}°`}</Tx>
-              </g>
-            );
-          })}
         </g>
+        {p.winkel.map((v, j) => {
+          const u = teil(z(`w${j}`), 0.6, 1), x = X(v);
+          if (u <= 0) return null;
+          const y = mix(182, ys - 9, raus(u));
+          return (
+            <g key={j} opacity={klemm(u * 2)}>
+              <path d={`M${n1(x)} ${n1(y)} l-5 -8 h10 Z`} fill={F.tinte} />
+            </g>
+          );
+        })}
       </>
     );
   },
@@ -453,17 +426,16 @@ const g_stufenwinkel = {
   h: 214,
   label: (p) => `Stufen- und Wechselwinkel an Parallelen: alle ${p.alpha}°`,
   ablauf: (p) => [
-    { k: "geraden", ms: 1200, text: "Zwei parallele Geraden g und h. Eine dritte Gerade schneidet beide." },
+    { k: "geraden", ms: 1200, text: "Zwei Parallelen g und h, eine dritte Gerade schneidet beide." },
     { k: "alpha", ms: 1000, text: `An der oberen Kreuzung: α = ${p.alpha}°.` },
-    { k: "schieben", ms: 2000, text: "Die Kreuzung an der schneidenden Geraden entlang nach unten schieben – sie passt genau." },
-    { k: "stufen", ms: 1300, text: `Gleiche Lage an der anderen Parallele: Stufenwinkel sind gleich, ${p.alpha}°.` },
-    { k: "wechsel", ms: 1700, text: `Sein Scheitelwinkel liegt auf der anderen Seite der Schneidenden: Wechselwinkel, auch ${p.alpha}°.` },
-    { k: "kipp", ms: 2000, text: "Kippt h, ändern sich die Winkel unten – oben bleibt α. Gleich sind sie nur an Parallelen." },
-    { k: "zurueck", ms: 1200, text: "Wieder parallel: Stufenwinkel und Wechselwinkel sind gleich groß." },
+    { k: "schieben", ms: 2000, text: "Die obere Kreuzung nach unten schieben – sie passt genau." },
+    { k: "stufen", ms: 1300, text: `Gleiche Lage unten: Stufenwinkel, auch ${p.alpha}°.` },
+    { k: "wechsel", ms: 1700, text: `Gegenüber am Scheitel: Wechselwinkel, auch ${p.alpha}°.` },
+    { k: "kipp", ms: 2600, text: "Kippt h, passt die Kreuzung nicht mehr – nur an Parallelen gleich." },
   ],
   bild: ({ Z, p }) => {
     const a = p.alpha, ug = Z("geraden"), ua = Z("alpha"), us = Z("schieben"), ust = Z("stufen"), uw = Z("wechsel");
-    const tau = -14 * Math.sin(Math.PI * Z("kipp")) * (1 - Z("zurueck"));
+    const tau = -14 * Math.sin(Math.PI * Z("kipp", (u) => u));
     const Q = [118, 152], P = [118 + 82 / Math.tan(rad(a)), 70];
     const dir = [Math.cos(rad(a)), -Math.sin(rad(a))];
     const T0 = [Q[0] - 52 * dir[0], Q[1] - 52 * dir[1]], T1 = [Q[0] + 150 * dir[0], Q[1] + 150 * dir[1]];
@@ -510,7 +482,7 @@ const g_stufenwinkel = {
           <Tx x={308} y={87} g={10} f={F.goldDunkel} w={800}>Wechselwinkel</Tx>
           <Tx x={308} y={103} g={11} f={F.goldDunkel} w={800}>{parallel ? "gleich" : "ungleich"}</Tx>
         </g>
-        <g opacity={uw}>
+        <g opacity={teil(Z("kipp"), 0.2, 0.6)}>
           <rect x={262} y={150} width={92} height={42} rx="10" fill={F.granatTief} />
           <Tx x={308} y={167} g={10} f={F.goldHell} w={800}>gilt nur, wenn</Tx>
           <Tx x={308} y={183} g={11} f={F.weiss} w={800}>g ∥ h</Tx>

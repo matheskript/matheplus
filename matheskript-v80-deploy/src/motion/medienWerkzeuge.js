@@ -67,7 +67,7 @@ export const ANIM_WERKZEUGE = {
     { szene: "x_grundwert", titel: "Der Grundwert", p: { p: 30, W: 24, einheit: "Schüler" }, frage: "30 % sind 24 Schüler – wie viele sind 100 %?", kern: "Der Weg geht über 1 %: Teile durch 30, dann nimm mal 100. Ein Prozent ist das Stück, aus dem sich das Ganze zusammensetzen lässt." },
     { szene: "x_rabatt", titel: "Rabatt", p: { G: 60, p: 20 }, frage: "Warum rechnet man bei 20 % Rabatt einfach mal 0,8?", kern: "20 % gehen weg, 80 % bleiben – und 80 % vom alten Preis heißt: alter Preis mal 0,8. Ein Schritt statt zwei." },
     { szene: "x_rabatt", titel: "Mehrwertsteuer", p: { G: 50, p: 19, art: "mwst" }, frage: "Warum rechnet man bei 19 % Mehrwertsteuer einfach mal 1,19?", kern: "100 % bleiben, 19 % kommen dazu: zusammen 119 % vom Nettopreis – also Nettopreis mal 1,19." },
-    { szene: "x_zinseszins", titel: "Zinseszins", p: { K: 1000, p: 10, n: 8 }, frage: "Warum wird der Zuwachs beim Zinseszins jedes Jahr größer?", kern: "Die Zinsen bleiben im Topf und bringen im nächsten Jahr selbst Zinsen – das Kapital wird jedes Jahr mit 1,1 malgenommen, nicht nur um 100 € mehr." },
+    { szene: "x_zinseszins", titel: "Zinseszins", p: { K: 1000, p: 10, n: 8 }, frage: "Warum wird der Zuwachs beim Zinseszins jedes Jahr größer?", kern: "Die Zinsen bleiben im Topf und bringen selbst Zinsen: Jedes Jahr wird mal 1,1 gerechnet, nicht einfach 100 € dazugezählt." },
   ],
   diagramme: [
     { aus: "daten-erheben-diagramme", nr: 0 },
