@@ -22,7 +22,7 @@ export const ANBIETER = {
   strasse: "Heinrich-von-Tettingen-Straße 24",
   ort: "78465 Konstanz",
   land: "Deutschland",
-  email: "lakepoker.consulting@gmail.com",
+  email: "info@mythosmathe.de",
   telefon: "0160 55 74 171",
   /* Umsatzsteuer-Identifikationsnummer (nicht die Steuer-ID!). Leer = Abschnitt „Umsatzsteuer“ im Impressum entfällt. */
   ustId: "",
@@ -33,7 +33,7 @@ export const ANBIETER = {
   supabaseRegion: "[Serverstandort prüfen und eintragen – empfohlen: Frankfurt am Main (eu-central-1)]",
 };
 
-export const STAND_DATENSCHUTZ = "19. Oktober 2026";
+export const STAND_DATENSCHUTZ = "22. Oktober 2026";
 
 const anschrift = `${ANBIETER.strasse}, ${ANBIETER.ort}, ${ANBIETER.land}`;
 
@@ -285,6 +285,9 @@ const DATENSCHUTZ = [
   ["Freiwillige Spenden", [
     "Besucher können auf der Seite „Donate“ freiwillig zu den KI-Kosten beitragen. Die Zahlung läuft nicht über unsere Server: Mit einem Klick öffnet sich PayPal in einem neuen Fenster, oder Sie überweisen per SEPA an das dort genannte Konto. Zahlungsdaten geben Sie nur bei PayPal bzw. Ihrer Bank ein; PayPal verarbeitet sie als eigener Verantwortlicher nach seinen Datenschutzhinweisen, und Daten können dabei in Drittländer gelangen. Wir erhalten von der Zahlung Name, gegebenenfalls E-Mail-Adresse, Betrag und Zeitpunkt, soweit PayPal sie uns mitteilt oder sie auf dem Kontoauszug stehen. Beim Öffnen des PayPal-Links erfährt PayPal Ihre IP-Adresse; vorher wird nichts übertragen.",
     "Rechtsgrundlage für die Buchung der Zahlung ist Art. 6 Abs. 1 lit. c DSGVO (Buchführungspflichten), die Aufbewahrung richtet sich nach dem Handels- und Steuerrecht. Eine Spende ist ein freiwilliges Dankeschön: Sie begründet keinen Anspruch auf eine Gegenleistung, schaltet nichts frei und wird nicht mit Ihrem Lernstand verknüpft. Eine Spendenquittung stellen wir nicht aus.",
+  ]],
+  ["Kontakt per E-Mail", [
+    "Schreiben Sie uns eine E-Mail, verarbeiten wir Ihre Adresse und den Inhalt der Nachricht, um Ihre Anfrage zu beantworten. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, wenn es um einen Vertrag oder dessen Anbahnung geht, sonst unser berechtigtes Interesse an der Beantwortung (Art. 6 Abs. 1 lit. f DSGVO). Unser Postfach betreibt Google Workspace (Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland) als Auftragsverarbeiter; Daten können dabei an Google LLC in die USA gelangen. " + DRITTLAND + " Wir löschen die Nachrichten, sobald die Anfrage erledigt ist und keine gesetzliche Aufbewahrungspflicht besteht.",
   ]],
   ["E-Mails und Benachrichtigungen", [
     "Eltern können einen wöchentlichen Lernbericht per E-Mail bestellen. Für den Versand nutzen wir Resend (Resend, Inc., San Francisco, USA) als Auftragsverarbeiter; übermittelt werden E-Mail-Adresse, Name und der Berichtsinhalt. " + DRITTLAND + " Jede Mail enthält einen Abmeldelink. Rechtsgrundlage ist Ihre Einwilligung (Art. 6 Abs. 1 lit. a DSGVO).",
