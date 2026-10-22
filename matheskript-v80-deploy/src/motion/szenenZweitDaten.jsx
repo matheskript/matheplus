@@ -26,16 +26,16 @@ const dz_bereich_rechnen = {
   h: 200,
   label: () => "Zahlenbereiche erweitern: 3 − 5 führt zu ℤ, 3 : 4 führt zu ℚ",
   ablauf: () => [
-    { k: "n", ms: 1200, text: "ℕ auf dem Zahlenstrahl: 0, 1, 2, 3, … – er beginnt bei 0." },
-    { k: "rueck", ms: 2000, text: "3 − 5: fünf Schritte nach links. Nach drei Schritten ist bei 0 Schluss." },
-    { k: "z", ms: 1400, text: "ℤ verlängert den Strahl nach links: die negativen Zahlen." },
-    { k: "rest", ms: 1400, text: "Jetzt gehen die letzten zwei Schritte: 3 − 5 = −2." },
-    { k: "teil", ms: 1900, text: "3 : 4: die Strecke von 0 bis 3 in 4 gleich lange Teile." },
-    { k: "q", ms: 1700, text: "Ein Teil endet zwischen 0 und 1 – keine ganze Zahl. ℚ nimmt die Brüche dazu." },
-    { k: "fertig", ms: 1500, text: "Jede Erweiterung macht eine neue Rechnung möglich: ℕ ⊂ ℤ ⊂ ℚ." },
+    { k: "n", ms: 1200, text: "ℕ auf dem Zahlenstrahl beginnt bei 0." },
+    { k: "rueck", ms: 2000, text: "3 − 5: fünf Schritte nach links – nach drei ist bei 0 Schluss." },
+    { k: "z", ms: 2600, text: "ℤ verlängert den Strahl nach links. Jetzt geht 3 − 5 = −2." },
+    { k: "teil", ms: 1900, text: "3 : 4 heißt: die Strecke von 0 bis 3 in 4 gleiche Teile." },
+    { k: "q", ms: 1700, text: "Ein Teil endet bei drei Vierteln – keine ganze Zahl. Dafür gibt es ℚ." },
+    { k: "fertig", ms: 1500, text: "Jede Erweiterung macht eine neue Rechnung möglich." },
   ],
   bild: ({ Z, z }) => {
-    const y = 88, un = Z("n", raus), ur = z("rueck"), uz = Z("z"), ue = z("rest"), ut = Z("teil"), uq = Z("q"), uf = Z("fertig");
+    /* Abschnitt z: erst wächst der Strahl nach links, dann folgen die letzten zwei Schritte */
+    const y = 88, un = Z("n", raus), ur = z("rueck"), uz = sanft(teil(z("z"), 0, 0.45)), ue = teil(z("z"), 0.5, 1), ut = Z("teil"), uq = Z("q"), uf = Z("fertig");
     const xl = mix(ZX(0) - 8, ZX(-4) - 10, uz), xr = ZX(5) + 12;
     const dimm = 1 - 0.6 * teil(ut, 0, 0.3) * (1 - uf);
     const sprung = (a, b, u, key) => <Sprung key={key} xa={ZX(a)} xb={ZX(b)} y={y - 3} hoch={20} u={u} f={F.gold} b={2.4} />;
@@ -72,7 +72,6 @@ const dz_bereich_rechnen = {
           {[0, 1].map((i) => sprung(-i, -1 - i, sanft(staffel(ue, i, 2, 0.2)), "b" + i))}
           <circle cx={ZX(3)} cy={y} r="4.5" fill={F.granat} opacity={teil(ur, 0, 0.1)} />
           {ue >= 0.85 && <circle cx={ZX(-2)} cy={y} r="5" fill={F.gold} stroke={F.granat} strokeWidth="1.6" opacity={teil(ue, 0.85, 1)} />}
-          <Puls x={ZX(-2)} y={y} u={teil(ue, 0.85, 1)} r={16} f={F.gold} />
         </g>
         <Tx x={ZX(-0.6)} y={y - 16} g={20} f={F.granat} w={800} o={teil(ur, 0.75, 1) * (1 - uz)}>?</Tx>
         <Pille x={ZX(0.5)} y={30} text="3 − 5 = ?" g={12} f={F.granatHell} tf={F.granat} o={teil(ur, 0, 0.2) * (1 - teil(ue, 0.8, 1))} />
@@ -135,15 +134,15 @@ const dz_streifen_kreis = {
     const pr = p.teile.map(([, w]) => (w / p.gesamt) * 100);
     return [
       { k: "streifen", ms: 1500, text: `Ein Streifendiagramm: ${p.gesamt} Schüler, jede Sportart ein Abschnitt.` },
-      { k: "anteile", ms: 1700, text: `${p.teile[0][0]}: ${p.teile[0][1]} von ${p.gesamt} sind ${de(pr[0])} %. So bekommt jede Sportart ihren Anteil am Streifen.` },
-      { k: "rollen", ms: 2300, text: "Jetzt rollt sich der Streifen zu einem Ring. Die Längen bleiben gleich." },
-      { k: "fuellen", ms: 1400, text: "Aus dem Ring wird ein Kreis – jeder Anteil bleibt, wie er war." },
-      { k: "winkel", ms: 2200, text: `Der ganze Kreis hat 360°: ${de(pr[0])} % von 360° sind ${de((pr[0] / 100) * 360)}°.` },
-      { k: "fertig", ms: 1400, text: "Zusammen 360°. Streifen und Kreis zeigen dieselben Anteile." },
+      { k: "anteile", ms: 1700, text: `${p.teile[0][0]}: ${p.teile[0][1]} von ${p.gesamt} sind ${de(pr[0])} % des Streifens.` },
+      { k: "rollen", ms: 3700, text: "Der Streifen rollt sich zum Ring, dann zum Kreis – die Anteile bleiben." },
+      { k: "winkel", ms: 2200, text: `Der Kreis hat 360°: ${de(pr[0])} % von 360° sind ${de((pr[0] / 100) * 360)}°.` },
+      { k: "fertig", ms: 1400, text: "Zusammen 360° – Streifen und Kreis zeigen dieselben Anteile." },
     ];
   },
-  bild: ({ Z, p }) => {
-    const us = Z("streifen"), ua = Z("anteile"), ur = Z("rollen"), uf = Z("fuellen"), uw = Z("winkel"), ue = Z("fertig");
+  bild: ({ Z, z, p }) => {
+    /* rollen: erst biegt sich der Streifen zum Ring (bis 60 %), dann füllt sich der Ring zum Kreis */
+    const us = Z("streifen"), ua = Z("anteile"), ur = sanft(teil(z("rollen"), 0, 0.6)), uf = sanft(teil(z("rollen"), 0.65, 1)), uw = Z("winkel"), ue = Z("fertig");
     const G = p.gesamt;
     let s = 0;
     const seg = p.teile.map(([name, w], i) => { const o = { name, w, s0: s, s1: s + w / G, i, pr: (w / G) * 100, gr: (w / G) * 360 }; s += w / G; return o; });
@@ -190,6 +189,11 @@ const dz_streifen_kreis = {
           );
         })}
         <Tx x={tx + 15} y={66 + seg.length * 25} g={12} f={F.gruen} w={800} a="start" o={ue}>Summe: 360° ✓</Tx>
+        {/* Vorher: der Streifen erscheint am Ende noch einmal klein unter dem Kreis */}
+        {ue > 0 && seg.map((g) => {
+          const xa = (B - SK_L) / 2;
+          return <rect key={"v" + g.i} x={xa + g.s0 * SK_L} y={170} width={(g.s1 - g.s0) * SK_L} height={10} fill={SK_F[g.i % 4][0]} stroke={F.weiss} strokeWidth="1.2" opacity={ue} />;
+        })}
         {/* Legende */}
         {(() => {
           const g = 10, ws = seg.map((x) => 13 + breite(x.name, g)), gap = 12, tot = ws.reduce((a, b) => a + b, 0) + gap * (ws.length - 1);
@@ -220,15 +224,15 @@ const dz_ursprungsgerade = {
   ablauf: (p) => [
     { k: "tabelle", ms: 1500, text: `1 ${p.xE} ${p.ding} kostet ${de(p.k, 2)} ${p.yE}. Die Wertetabelle.` },
     { k: "punkte", ms: 1900, text: "Jedes Wertepaar wird ein Punkt im Koordinatensystem." },
-    { k: "strahlen", ms: 2000, text: "Vom Ursprung zu jedem Punkt eine Linie – alle Linien liegen genau übereinander." },
-    { k: "gerade", ms: 1200, text: `Also eine einzige Gerade durch den Ursprung: 0 ${p.xE} kosten 0 ${p.yE}.` },
-    { k: "quotient", ms: 2100, text: `Preis : Gewicht = ${de(p.k)} in jeder Zeile. Jedes ${p.xE} mehr: ${de(p.k, 2)} ${p.yE} mehr.` },
-    { k: "fertig", ms: 1400, text: `Gleicher Quotient, Gerade durch den Ursprung: proportional, y = ${de(p.k)} · x.` },
+    { k: "quotient", ms: 3400, text: `Ab dem Ursprung: 1 ${p.xE} nach rechts, ${de(p.k, 2)} ${p.yE} nach oben – immer gleich.` },
+    { k: "gerade", ms: 1600, text: "Gleiche Stufen ergeben eine Gerade – sie startet im Ursprung." },
+    { k: "fertig", ms: 1400, text: `Gleicher Quotient, Gerade durch den Ursprung: y = ${de(p.k)} · x.` },
   ],
   bild: ({ Z, z, p }) => {
     const { k, n } = p, xmax = n + 0.6, ymax = Math.ceil(k * xmax);
     const X = (v) => 178 + v * 34, Y = (v) => 190 - v * (148 / ymax);
-    const ut = Z("tabelle"), up = z("punkte"), us = z("strahlen"), ug = Z("gerade"), uq = Z("quotient"), uf = Z("fertig");
+    /* quotient: Stufe für Stufe ab dem Ursprung (GOLD), daneben füllt sich die Quotienten-Spalte */
+    const ut = Z("tabelle"), up = z("punkte"), ug = Z("gerade"), uq = z("quotient"), uf = Z("fertig");
     const cx = 40, cy = 80, cq = 124, ry = (i) => 70 + i * 28;
     const yt = []; for (let v = 0; v <= ymax + 1e-9; v += k) yt.push(v);
     const xEnde = Math.min(xmax, ymax / k);
@@ -238,16 +242,16 @@ const dz_ursprungsgerade = {
         <rect x={14} y={30} width={146} height={ry(n - 1) + 16 - 30} rx="10" fill={F.flaeche} opacity={ut} />
         <Tx x={cx} y={46} g={10.5} f={F.blau} w={800} o={ut}>{p.xE}</Tx>
         <Tx x={cy} y={46} g={10.5} f={F.granat} w={800} o={ut}>{p.yE}</Tx>
-        <Tx x={cq} y={46} g={10.5} f={F.goldDunkel} w={800} o={uq}>{`${p.yE} : ${p.xE}`}</Tx>
+        <Tx x={cq} y={46} g={10.5} f={F.goldDunkel} w={800} o={teil(uq, 0, 0.15)}>{`${p.yE} : ${p.xE}`}</Tx>
         <line x1={60} x2={60} y1={36} y2={ry(n - 1) + 10} stroke={F.linie} strokeWidth="1.4" opacity={ut} />
-        <line x1={100} x2={100} y1={36} y2={ry(n - 1) + 10} stroke={F.linie} strokeWidth="1.4" opacity={uq} />
+        <line x1={100} x2={100} y1={36} y2={ry(n - 1) + 10} stroke={F.linie} strokeWidth="1.4" opacity={teil(uq, 0, 0.15)} />
         {Array.from({ length: n }, (_, i) => (
           <g key={i}>
             <g opacity={staffel(ut, i, n, 0.5)}>
               <Tx x={cx} y={ry(i) + 5} g={14} f={F.tinte} w={800}>{i + 1}</Tx>
               <Tx x={cy} y={ry(i) + 5} g={14} f={F.tinte} w={800}>{de((i + 1) * k)}</Tx>
             </g>
-            <Tx x={cq} y={ry(i) + 5} g={14} f={F.goldDunkel} w={800} o={staffel(uq, i, n, 0.5)}>{de(k)}</Tx>
+            <Tx x={cq} y={ry(i) + 5} g={14} f={F.goldDunkel} w={800} o={teil(staffel(uq, i, n, 0.15), 0.7, 1)}>{de(k)}</Tx>
           </g>
         ))}
         {/* Achsen */}
@@ -262,22 +266,17 @@ const dz_ursprungsgerade = {
           <Tx x={X(xmax) + 14} y={Y(0) - 8} g={10} f={F.tinte} w={800} a="end">{p.xE}</Tx>
           <Tx x={X(0) + 8} y={Y(ymax) - 8} g={10} f={F.tinte} w={800} a="start">{p.yE}</Tx>
         </g>
-        {/* Strahlen vom Ursprung, danach Gerade */}
-        {Array.from({ length: n }, (_, j) => {
-          const i = n - 1 - j, u = sanft(staffel(us, j, n, 0.3));
-          if (u <= 0) return null;
-          return <line key={"s" + i} x1={X(0)} y1={Y(0)} x2={mix(X(0), X(i + 1), u)} y2={mix(Y(0), Y((i + 1) * k), u)} stroke={[F.blau, F.gold, F.rosa, F.granat][i % 4]} strokeWidth={4.5 - j} strokeLinecap="round" opacity={1 - ug * 0.9} />;
-        })}
         {ug > 0 && <line x1={X(0)} y1={Y(0)} x2={X(xEnde * ug)} y2={Y(k * xEnde * ug)} stroke={F.granat} strokeWidth="2.2" strokeLinecap="round" />}
-        {/* Steigungsdreiecke */}
+        {/* Stufen: 1 nach rechts, k nach oben – jede landet genau auf dem nächsten Punkt */}
         {Array.from({ length: n }, (_, i) => {
-          const u = staffel(uq, i, n, 0.5);
+          const u = staffel(uq, i, n, 0.15);
           if (u <= 0) return null;
+          const ur = teil(u, 0, 0.5), uo = teil(u, 0.5, 1);
           return (
-            <g key={"d" + i} opacity={u}>
-              <path d={`M${X(i)} ${Y(i * k)} H${X(i + 1)} V${Y((i + 1) * k)}`} fill="none" stroke={F.gold} strokeWidth="2" strokeLinejoin="round" />
-              {i === 0 && <Tx x={X(0.5)} y={Y(0) - 5} g={10} f={F.goldDunkel} w={800}>1</Tx>}
-              {i === 0 && <Tx x={X(1) + 4} y={Y(k / 2) + 3.5} g={10} f={F.goldDunkel} w={800} a="start">{de(k)}</Tx>}
+            <g key={"d" + i}>
+              <path d={`M${X(i)} ${Y(i * k)} H${mix(X(i), X(i + 1), ur)}${uo > 0 ? ` V${mix(Y(i * k), Y((i + 1) * k), uo)}` : ""}`} fill="none" stroke={F.gold} strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" />
+              {i === 0 && <Tx x={X(0.5)} y={Y(0) - 5} g={10} f={F.goldDunkel} w={800} o={ur}>1</Tx>}
+              {i === 0 && <Tx x={X(1) + 4} y={Y(k / 2) + 3.5} g={10} f={F.goldDunkel} w={800} a="start" o={uo}>{de(k)}</Tx>}
             </g>
           );
         })}
@@ -290,7 +289,7 @@ const dz_ursprungsgerade = {
           return <circle key={"p" + i} cx={px} cy={py} r="4.6" fill={F.gold} stroke={F.granat} strokeWidth="1.6" />;
         })}
         <Pille x={X(0.4)} y={Y(ymax * 0.86)} a="start" text={`y = ${de(k)} · x`} g={12} f={F.granat} tf={F.weiss} o={uf} />
-        <Tx x={87} y={ry(n - 1) + 40} g={11} f={F.goldDunkel} w={800} o={uq}>Quotient immer gleich</Tx>
+        <Tx x={87} y={ry(n - 1) + 40} g={11} f={F.goldDunkel} w={800} o={teil(uq, 0.85, 1)}>Quotient immer gleich</Tx>
       </>
     );
   },
@@ -338,9 +337,9 @@ const dz_zwei_wege = {
     const [l0, , l2] = p.a, k = p.k, wort = (o) => o.replace(": ", "durch ").replace("· ", "mal ");
     return [
       { k: "auf", ms: 1500, text: `${l0} ${p.kopf[0]} kosten ${euro(l0 * k)}. Was kosten ${l2} ${p.kopf[0]}?` },
-      { k: "a1", ms: 1500, text: `Weg 1: beide Seiten ${wort(p.opsA[0])} – ein Heft kostet ${euro(k)}.` },
+      { k: "a1", ms: 1500, text: `Weg 1 über die 1: beide Seiten ${wort(p.opsA[0])} – ein Heft kostet ${euro(k)}.` },
       { k: "a2", ms: 1400, text: `Dann beide Seiten ${wort(p.opsA[1])}: ${euro(l2 * k)}.` },
-      { k: "b1", ms: 1900, text: `Weg 2: ${l0} und ${l2} sind beide Vielfache von ${p.teiler}. Beide Seiten ${wort(p.opsB[0])}: ${p.b[1]} Hefte kosten ${euro(p.b[1] * k)}.` },
+      { k: "b1", ms: 1900, text: `Weg 2 über die ${p.teiler}: beide Seiten ${wort(p.opsB[0])} – ${p.b[1]} ${p.kopf[0]} kosten ${euro(p.b[1] * k)}.` },
       { k: "b2", ms: 1400, text: `Dann beide Seiten ${wort(p.opsB[1])}: wieder ${euro(l2 * k)}.` },
       { k: "fertig", ms: 1500, text: "Gleiches Ergebnis. Über die gemeinsame Zahl bleiben die Zahlen glatt." },
     ];

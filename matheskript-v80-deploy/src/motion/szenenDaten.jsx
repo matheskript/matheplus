@@ -86,9 +86,9 @@ const d_ausgleich = {
   ablauf: (p) => {
     const w = p.werte, n = w.length, s = summe(w), m = s / n;
     return [
-      { k: "saeulen", ms: 1300, text: `${p.name}: ${w.map((v) => de(v)).join(", ")} – jeder Wert als Säule.` },
-      { k: "ausgleich", ms: 2800, text: "Hohe Säulen geben ab, niedrige bekommen dazu – bis alle gleich hoch sind." },
-      { k: "gleich", ms: 1300, text: `Alle sind jetzt gleich hoch: ${de(m)}. Das ist der Mittelwert.` },
+      { k: "saeulen", ms: 1300, text: `${p.name}: ${w.map((v) => de(v)).join(", ")} – jeder Wert eine Säule.` },
+      { k: "ausgleich", ms: 3400, text: "Hohe Säulen geben ab, niedrige bekommen dazu – bis alle gleich hoch sind." },
+      { k: "gleich", ms: 1300, text: `Alle sind gleich hoch: ${de(m)}. Das ist der Mittelwert.` },
       { k: "rechnung", ms: 1700, text: p.schluss || `Gerechnet: Summe ${de(s)} geteilt durch Anzahl ${n} ergibt ${de(m)}.` },
     ];
   },
@@ -114,17 +114,22 @@ const d_ausgleich = {
           );
         })}
         <line x1={xa - 12} y1={y0} x2={xb + 4} y2={y0} stroke={F.tinte} strokeWidth="1.5" />
-        {/* Säulen */}
+        {/* Säulen (der Teil bis zur Mittelwert-Höhe bleibt stehen) */}
         {w.map((v, i) => {
           const hoch = us < 1 ? v * us : Math.min(v, m);
-          return <rect key={i} x={X(i) - bw / 2} y={Y(hoch)} width={bw} height={Math.max(0, hoch * k)} rx="3" fill={F.gold} />;
+          return <rect key={i} x={X(i) - bw / 2} y={Y(hoch)} width={bw} height={Math.max(0, hoch * k)} rx="3" fill={F.blauHell} stroke={F.blau} strokeWidth="1.2" />;
         })}
+        {/* Vorher: wo die hohen Säulen abgegeben haben, bleibt ein gestrichelter Umriss */}
+        {ua > 0 && w.map((v, i) => v > m + 1e-9 && (
+          <rect key={"g" + i} x={X(i) - bw / 2} y={Y(v)} width={bw} height={(v - m) * k} rx="3" fill="none" stroke={F.blau} strokeWidth="1.3" strokeDasharray="4 3" opacity={teil(ua, 0, 0.15)} />
+        ))}
+        {/* die wandernden Stücke werden GOLD, sobald der Ausgleich beginnt */}
         {us >= 1 && st.map((s0, j) => {
           const u = sanft(staffel(ua, j, P, 0.35));
           const x = mix(X(s0.von), X(s0.nach), u), unten = mix(s0.oben - s0.a, s0.ziel, u);
           const hub = Math.sin(Math.PI * u) * 22;
-          const farbe = ua > 0 ? F.rosa : F.gold;
-          return <rect key={"s" + j} x={x - bw / 2} y={Y(unten + s0.a) - hub} width={bw} height={s0.a * k} rx="3" fill={farbe} stroke={ua > 0 ? F.granat : "none"} strokeWidth={u > 0 && u < 1 ? 1.4 : 0.8} strokeOpacity={0.6} />;
+          const an = ua > 0;
+          return <rect key={"s" + j} x={x - bw / 2} y={Y(unten + s0.a) - hub} width={bw} height={s0.a * k} rx="3" fill={an ? F.gold : F.blauHell} stroke={an ? F.goldDunkel : F.blau} strokeWidth={an ? 1.2 : 1.2} />;
         })}
         {/* Mittelwert-Linie */}
         {ug > 0 && <line x1={xa - 12} y1={ym} x2={mix(xa - 12, xb + 4, ug)} y2={ym} stroke={F.granat} strokeWidth="2" strokeDasharray="6 4" />}
@@ -137,6 +142,71 @@ const d_ausgleich = {
             {`(${w.map((v) => de(v)).join(" + ")}) : ${n} = ${de(s)} : ${n} = `}<tspan fill={F.granat} fontWeight="800">{de(m)}</tspan>
           </Tx>
         </g>
+      </>
+    );
+  },
+};
+
+/* ============================================================
+   d_verteilen – Mittelwert als gerechtes Verteilen: alles auf einen Haufen (Summe), reihum verteilen (: Anzahl).
+   Links bleibt das Vorher blass stehen, rechts das Nachher.
+   p: { werte: [7, 3, 6, 4], namen: ["Ali", "Ben", "Cem", "Dana"], ding: "Murmeln" }   (Summe durch Anzahl teilbar)
+   ============================================================ */
+const d_verteilen = {
+  h: 214,
+  label: (p) => `Mittelwert von ${p.werte.join(", ")} durch Zusammenlegen und gerechtes Verteilen`,
+  ablauf: (p) => {
+    const w = p.werte, n = w.length, s = summe(w), m = s / n;
+    const liste = w.slice(0, -1).join(", ") + " und " + w[n - 1];
+    return [
+      { k: "sehen", ms: 1500, text: `${n} Kinder haben ${liste} ${p.ding} – ungleich viele.` },
+      { k: "sammeln", ms: 2400, text: `Alle ${p.ding} auf einen Haufen: zusammen ${s} – die Summe.` },
+      { k: "verteilen", ms: 3200, text: `Reihum gerecht verteilen: ${s} ${p.ding} an ${n} Kinder.` },
+      { k: "fertig", ms: 1400, text: `Jeder bekommt ${de(m)}. Das ist der Mittelwert.` },
+    ];
+  },
+  bild: ({ Z, z, p }) => {
+    const w = p.werte, n = w.length, s = summe(w), m = s / n;
+    const us = Z("sehen"), uc = z("sammeln"), uv = z("verteilen"), uf = Z("fertig");
+    const yR = (i) => 52 + i * 33, d = 12, r = 4.6;
+    const xL = (j) => 54 + j * d, xR = (j) => 256 + j * d;
+    const sp = 5, xP = (k) => 198 + ((k % sp) - (sp - 1) / 2) * 11, yP = (k) => 70 + Math.floor(k / sp) * 11;
+    const pileUnten = yP(s - 1) + 8;
+    /* Murmel k: woher (Kind i, Platz j), wohin (Kind k % n, Platz k / n) */
+    const herkunft = []; w.forEach((v, i) => { for (let j = 0; j < v; j++) herkunft.push([i, j]); });
+    return (
+      <>
+        <Tx x={95} y={24} g={10.5} f={F.grau} w={700} o={us}>vorher</Tx>
+        <Tx x={285} y={24} g={10.5} f={F.grau} w={700} o={teil(uv, 0, 0.2)}>nachher</Tx>
+        {w.map((v, i) => (
+          <g key={"n" + i} opacity={us}>
+            <Tx x={12} y={yR(i) + 4} g={11} f={F.tinte} w={800} a="start">{p.namen[i]}</Tx>
+            <Tx x={xL(Math.max(...w)) + 2} y={yR(i) + 4} g={12} f={F.blau} w={800} a="start">{v}</Tx>
+          </g>
+        ))}
+        {/* Vorher: bleibt blass stehen */}
+        {herkunft.map(([i, j], k) => {
+          const o = staffel(us, k, s, 0.85), weg = staffel(uc, k, s, 0.85);
+          return o > 0 && <circle key={"l" + k} cx={xL(j)} cy={yR(i)} r={r} fill={F.blauHell} stroke={F.blau} strokeWidth="1.2" opacity={o * (1 - 0.6 * weg)} />;
+        })}
+        {/* Haufen-Beschriftung */}
+        <g opacity={teil(uc, 0.7, 1) * (1 - 0.4 * uf)}>
+          <Tx x={198} y={pileUnten + 14} g={12} f={F.goldDunkel} w={800}>{`zusammen ${s}`}</Tx>
+        </g>
+        {w.map((_, i) => <line key={"t" + i} x1={xR(0) - 10} x2={xR(0) - 10} y1={yR(i) - 8} y2={yR(i) + 8} stroke={F.linie} strokeWidth="1.4" opacity={teil(uv, 0, 0.2)} />)}
+        {/* wandernde Murmeln: GOLD, angekommen GRANAT */}
+        {herkunft.map(([i, j], k) => {
+          const u1 = sanft(staffel(uc, k, s, 0.85)), u2 = sanft(staffel(uv, k, s, 0.8));
+          if (u1 <= 0) return null;
+          const ziel = [xR(Math.floor(k / n)), yR(k % n)];
+          let x, y;
+          if (u2 <= 0) { x = mix(xL(j), xP(k), u1); y = mix(yR(i), yP(k), u1) - Math.sin(Math.PI * u1) * 16; }
+          else { x = mix(xP(k), ziel[0], u2); y = mix(yP(k), ziel[1], u2) - Math.sin(Math.PI * u2) * 16; }
+          const da = u2 >= 1;
+          return <circle key={"m" + k} cx={x} cy={y} r={r} fill={da ? F.granat : F.gold} stroke={da ? F.granatTief : F.goldDunkel} strokeWidth="1.2" />;
+        })}
+        {w.map((_, i) => <Tx key={"e" + i} x={xR(m) + 2} y={yR(i) + 4} g={12} f={F.granat} w={800} a="start" o={uf}>{de(m)}</Tx>)}
+        <Pille x={B / 2} y={202} text={`Mittelwert: ${s} : ${n} = ${de(m)}`} g={12.5} f={F.granat} tf={F.weiss} o={uf} />
       </>
     );
   },
@@ -157,18 +227,16 @@ const d_zahlenbereiche = {
   h: 220,
   label: () => "Zahlenbereiche N, Z und Q als ineinander liegende Mengen",
   ablauf: () => [
-    { k: "n", ms: 1000, text: "ℕ, die natürlichen Zahlen 0, 1, 2, 3, … – zum Zählen." },
-    { k: "nz", ms: 900 },
-    { k: "z", ms: 1300, text: "3 − 5 geht in ℕ nicht. ℤ nimmt die negativen Zahlen dazu." },
-    { k: "zz", ms: 1000 },
-    { k: "q", ms: 1300, text: "3 : 4 geht in ℤ nicht aus. ℚ nimmt alle Brüche dazu." },
-    { k: "qz", ms: 1200 },
-    { k: "fertig", ms: 1700, text: "ℕ ⊂ ℤ ⊂ ℚ: Jeder Bereich enthält den vorherigen. Die 7 ist natürlich, ganz und rational." },
+    { k: "n", ms: 2000, text: "ℕ, die natürlichen Zahlen 0, 1, 2, 3, … – zum Zählen." },
+    { k: "z", ms: 2300, text: "3 − 5 geht in ℕ nicht. ℤ nimmt die negativen Zahlen dazu." },
+    { k: "q", ms: 2400, text: "3 : 4 geht in ℤ nicht auf. ℚ nimmt alle Brüche dazu." },
+    { k: "fertig", ms: 1700, text: "Die 7 liegt in allen dreien: ℕ ⊂ ℤ ⊂ ℚ." },
   ],
-  bild: ({ Z }) => {
-    const un = Z("n", raus), uz = Z("z"), uq = Z("q"), uf = Z("fertig");
+  bild: ({ Z, z: zl }) => {
+    /* je Abschnitt: erst wächst der Bereich (erste Hälfte), dann fallen seine Zahlen hinein (zweite Hälfte) */
+    const un = raus(teil(zl("n"), 0, 0.45)), uz = sanft(teil(zl("z"), 0, 0.45)), uq = sanft(teil(zl("q"), 0, 0.45)), uf = Z("fertig");
     const rz = rmix(RN, RZ, uz), rq = rmix(RZ, RQ, uq);
-    const ph = ["nz", "zz", "qz"];
+    const zahlen = ["n", "z", "q"].map((k) => teil(zl(k), 0.5, 1));
     const kasten = (r, fill, rand, o) => <rect x={r.x} y={r.y} width={r.w} height={r.h} rx="16" fill={fill} stroke={rand} strokeWidth="1.8" opacity={o} />;
     return (
       <>
@@ -180,7 +248,7 @@ const d_zahlenbereiche = {
         <Tx x={RN.x + 12} y={RN.y + 23} g={18} f={F.granat} w={800} a="start" o={teil(un, 0.5, 1)}>ℕ</Tx>
         {ZB_ITEMS.map((it, i) => {
           const gruppe = ZB_ITEMS.filter((x) => x.b === it.b), j = gruppe.indexOf(it);
-          const u = raus(staffel(Z(ph[it.b]), j, gruppe.length, 0.4));
+          const u = raus(staffel(zahlen[it.b], j, gruppe.length, 0.4));
           if (u <= 0) return null;
           const f = [F.granat, F.goldDunkel, F.blau][it.b];
           const dy = (1 - u) * -26, siebenPuls = it.t === "7" ? z7(uf) : 0;
@@ -217,7 +285,7 @@ const d_einsetzen = {
   label: (p) => `Einsetzen in den Term ${termText(p.a, p.b, p.v)}`,
   ablauf: (p) => [
     { k: "aufbau", ms: 1200, text: `Die Variable ${p.v} ist ein Platzhalter – ein Kästchen für eine Zahl.` },
-    ...p.werte.map((w, i) => ({ k: `e${i}`, ms: 1500, text: `${p.v} = ${de(w)}: ${de(p.a)} · ${de(w)} ${op(p.b)} = ${de(p.a * w + p.b)}` })),
+    ...p.werte.map((w, i) => ({ k: `e${i}`, ms: 1500, text: `${de(w)} ins Kästchen: ${de(p.a)} · ${de(w)} ${op(p.b)} = ${de(p.a * w + p.b)}` })),
     p.muster
       ? { k: "ende", ms: 1500, text: `Jeder Schritt um 1 bei ${p.v} macht ${de(p.a)} mehr beim Term.` }
       : { k: "ende", ms: 1200, text: "Für jede Zahl ein anderer Wert – der Term ist eine Rechenvorschrift." },
@@ -268,6 +336,68 @@ const d_einsetzen = {
           );
         })}
         {p.muster && werte.slice(1).map((w, i) => <BogenUnten key={"m" + i} xa={cx(i) + 6} xb={cx(i + 1) - 6} y={yT + 12} tiefe={6} u={staffel(ue, i, n - 1, 0.4)} text={`+ ${de(a * (werte[i + 1] - werte[i]))}`} />)}
+      </>
+    );
+  },
+};
+
+/* ============================================================
+   d_saeckchen – Variable als Säckchen: 3x + 2 = x + x + x + 2; in jedes Säckchen kommt dieselbe Zahl
+   p: { a: 3, b: 2, w: 4, v: "x" }   (a ≤ 4, b ≤ 3, w ≤ 6)
+   ============================================================ */
+function Sack({ cx, yb, o = 1, v }) {
+  if (o <= 0) return null;
+  const d = `M${cx - 11} ${yb - 50} Q${cx - 29} ${yb - 40} ${cx - 26} ${yb - 18} Q${cx - 24} ${yb} ${cx} ${yb} Q${cx + 24} ${yb} ${cx + 26} ${yb - 18} Q${cx + 29} ${yb - 40} ${cx + 11} ${yb - 50} Z`;
+  return (
+    <g opacity={o}>
+      <path d={d} fill={F.blauHell} stroke={F.blau} strokeWidth="1.8" strokeLinejoin="round" />
+      <path d={`M${cx - 11} ${yb - 50} L${cx - 17} ${yb - 60} M${cx + 11} ${yb - 50} L${cx + 17} ${yb - 60} M${cx - 12} ${yb - 50} H${cx + 12}`} stroke={F.blau} strokeWidth="1.8" strokeLinecap="round" />
+      <Tx x={cx} y={yb - 31} g={15} f={F.blau} w={800} style={{ ...SCHRIFT, fontStyle: "italic" }}>{v}</Tx>
+    </g>
+  );
+}
+const d_saeckchen = {
+  h: 214,
+  label: (p) => `Term ${p.a}${p.v} + ${p.b} als Säckchen: für ${p.v} = ${p.w} kommen ${p.w} Murmeln in jedes Säckchen`,
+  ablauf: (p) => {
+    const r = p.a * p.w + p.b, wort = ["", "ein", "zwei", "drei", "vier"][p.a] || de(p.a);
+    return [
+      { k: "sehen", ms: 1600, text: `${p.a}${p.v} + ${p.b} heißt: ${Array(p.a).fill(p.v).join(" + ")} + ${p.b} – gleiche Säckchen, ${p.b} Murmeln.` },
+      { k: "fuellen", ms: 2600, text: `Für ${p.v} = ${p.w}: in jedes Säckchen kommen ${p.w} Murmeln – in alle gleich viele.` },
+      { k: "zaehlen", ms: 1600, text: `${wort[0].toUpperCase() + wort.slice(1)} Säckchen zu je ${p.w} und ${p.b} dazu: ${p.a} · ${p.w} + ${p.b} = ${r}.` },
+    ];
+  },
+  bild: ({ Z, z, p }) => {
+    const { a, b, w, v } = p, r = a * w + b;
+    const us = Z("sehen"), uf = z("fuellen"), uz = Z("zaehlen");
+    const yb = 150, abst = 70, x0 = 52, sx = (i) => x0 + i * abst, xl = sx(a - 1) + 50;
+    const mr = 5.2, proReihe = w > 4 ? 3 : 2;
+    const platz = (i, k) => { const reihe = Math.floor(k / proReihe), sp = k % proReihe, inR = Math.min(proReihe, w - reihe * proReihe); return [sx(i) + (sp - (inR - 1) / 2) * 11.5, yb - 9 - reihe * 11]; };
+    const Murmel = ({ x, y, f, s, o = 1 }) => <circle cx={x} cy={y} r={mr} fill={f} stroke={s} strokeWidth="1.2" opacity={o} />;
+    return (
+      <>
+        {/* Term oben – bleibt als Vorher stehen */}
+        <Tx x={B / 2} y={34} g={22} f={F.tinte} w={800} o={us}>{`${a}`}<tspan fill={F.blau} fontStyle="italic">{v}</tspan>{` + ${b}`}</Tx>
+        <Pille x={B / 2 + 74} y={30} a="start" text={`${v} = ${w}`} g={12.5} f={F.goldHell} tf={F.goldDunkel} o={teil(uf, 0, 0.15)} />
+        {Array.from({ length: a }, (_, i) => (
+          <g key={i}>
+            <Sack cx={sx(i)} yb={yb} v={v} o={staffel(us, i, a + 1, 0.5)} />
+            {i < a - 1 && <Tx x={(sx(i) + sx(i + 1)) / 2} y={yb - 22} g={18} f={F.grau} w={800} o={staffel(us, i, a + 1, 0.5)}>+</Tx>}
+          </g>
+        ))}
+        <Tx x={sx(a - 1) + 35} y={yb - 22} g={18} f={F.grau} w={800} o={staffel(us, a, a + 1, 0.5)}>+</Tx>
+        {Array.from({ length: b }, (_, k) => <Murmel key={"b" + k} x={xl + 6 + (k % 2) * 15} y={yb - 9 - Math.floor(k / 2) * 14} f={F.granatHell} s={F.granat} o={staffel(us, a, a + 1, 0.5)} />)}
+        {/* Einfüllen: in alle Säckchen gleichzeitig dieselbe Zahl (GOLD) */}
+        {Array.from({ length: a }, (_, i) => Array.from({ length: w }, (_, k) => {
+          const u = sanft(staffel(uf, k, w, 0.4));
+          if (u <= 0) return null;
+          const [x, y] = platz(i, k);
+          return <Murmel key={i + "-" + k} x={x} y={mix(52, y, u)} f={F.gold} s={F.goldDunkel} o={klemm(u * 4)} />;
+        }))}
+        {/* Zählen */}
+        {Array.from({ length: a }, (_, i) => <Tx key={"z" + i} x={sx(i)} y={yb + 20} g={14} f={F.granat} w={800} o={uz}>{w}</Tx>)}
+        <Tx x={xl + 13} y={yb + 20} g={14} f={F.granat} w={800} o={uz}>{b}</Tx>
+        <Pille x={B / 2} y={200} text={`${a} · ${w} + ${b} = ${r}`} g={13} f={F.granat} tf={F.weiss} o={uz} />
       </>
     );
   },
@@ -346,6 +476,64 @@ const d_streichhoelzer = {
 };
 
 /* ============================================================
+   d_tarif – Term aus einem Tarif: fester Block (Grundgebühr) + je Einheit ein gleicher Block; Term abgelesen
+   p: { grund: 3, preis: 1.5, n: 4, v: "h", wofuer: "Eintritt", einheit: "Stunde", einheiten: "Stunden" }
+   ============================================================ */
+const d_tarif = {
+  h: 216,
+  label: (p) => `Term ${de(p.grund)} + ${de(p.preis)} · ${p.v} aus Grundgebühr und Preis pro ${p.einheit}`,
+  ablauf: (p) => {
+    const e = (v) => de(v, Number.isInteger(v) ? 0 : 2);
+    return [
+      { k: "grund", ms: 1500, text: `${e(p.grund)} € ${p.wofuer} zahlt jeder, egal wie lange er bleibt.` },
+      { k: "stunden", ms: 3200, text: `Jede ${p.einheit} legt ein gleiches Stück von ${e(p.preis)} € dazu.` },
+      { k: "term", ms: 1800, text: `Fest ${e(p.grund)} €, dazu ${p.v} Stücke zu ${e(p.preis)} €: ${de(p.grund)} + ${de(p.preis)} · ${p.v}.` },
+      { k: "probe", ms: 1500, text: `Für ${p.n} ${p.einheiten}: ${de(p.grund)} + ${de(p.preis)} · ${p.n} = ${e(p.grund + p.preis * p.n)} € – die längste Reihe.` },
+    ];
+  },
+  bild: ({ Z, z, p }) => {
+    const { grund, preis, n, v } = p, e = (x) => de(x, Number.isInteger(x) ? 0 : 2);
+    const ug = Z("grund"), us = z("stunden"), ut = Z("term"), up = Z("probe");
+    const ry = (h) => 26 + h * 26, x0 = 58, k = Math.min(18, 200 / (grund + preis * n)), bh = 20;
+    const wg = grund * k, wp = preis * k;
+    return (
+      <>
+        {Array.from({ length: n + 1 }, (_, h) => {
+          const o = staffel(ug, h, n + 1, 0.6), letzte = h === n;
+          return (
+            <g key={h}>
+              <Tx x={14} y={ry(h) + 5} g={11.5} f={letzte && up > 0 ? F.granat : F.tinte} w={800} a="start" o={o}>{`${v} = ${h}`}</Tx>
+              {letzte && <rect x={x0 - 4} y={ry(h) - bh / 2 - 4} width={wg + wp * n + 70} height={bh + 8} rx="8" fill="none" stroke={F.granat} strokeWidth="2" opacity={up} />}
+              <g opacity={o}>
+                <rect x={x0} y={ry(h) - bh / 2} width={wg} height={bh} rx="4" fill={F.blauHell} stroke={F.blau} strokeWidth="1.3" />
+                <Tx x={x0 + wg / 2} y={ry(h) + 4} g={10.5} f={F.blau} w={800}>{`${e(grund)} €`}</Tx>
+              </g>
+              {Array.from({ length: h }, (_, j) => {
+                /* Reihe h bekommt ihre Stücke nacheinander; alle Reihen wachsen im Gleichschritt Stunde für Stunde */
+                const u = raus(staffel(us, j, n, 0.25));
+                if (u <= 0) return null;
+                const x = x0 + wg + j * wp;
+                return (
+                  <g key={j} opacity={klemm(u * 2)} transform={`translate(${(1 - u) * 14} 0)`}>
+                    <rect x={x} y={ry(h) - bh / 2} width={wp} height={bh} rx="4" fill={F.gold} stroke={F.goldDunkel} strokeWidth="1.2" />
+                    <Tx x={x + wp / 2} y={ry(h) + 4} g={9.5} f={F.granatTief} w={800}>{e(preis)}</Tx>
+                  </g>
+                );
+              })}
+              <Tx x={x0 + wg + wp * h + 8} y={ry(h) + 5} g={12.5} f={letzte && up > 0 ? F.granat : F.tinte} w={800} a="start" o={h === 0 ? o : teil(us, (h - 1) / n + 0.1, Math.min(1, h / n + 0.05))}>{`${e(grund + preis * h)} €`}</Tx>
+            </g>
+          );
+        })}
+        <g opacity={ut} transform={`translate(0 ${(1 - ut) * 6})`}>
+          <Tx x={B / 2} y={ry(n) + 40} g={18} f={F.tinte} w={800}>{"Kosten = "}<tspan fill={F.blau}>{de(grund)}</tspan>{" + "}<tspan fill={F.goldDunkel}>{`${de(preis)} · ${v}`}</tspan></Tx>
+        </g>
+        <Pille x={B / 2} y={ry(n) + 66} text={`${v} = ${n}: ${de(grund)} + ${de(preis)} · ${n} = ${e(grund + preis * n)} €`} g={12} f={F.granat} tf={F.weiss} o={up} />
+      </>
+    );
+  },
+};
+
+/* ============================================================
    d_sortieren – gleichartige Glieder sortieren sich und werden zusammengefasst
    p: { glieder: [[5, 1], [3, 0], [2, 1], [-1, 0]], v: "a" }   ([Koeffizient, istVariable])
    ============================================================ */
@@ -363,10 +551,10 @@ const d_sortieren = {
     const orig = gl.map((x, i) => gliedText(x[0], x[1], v, i === 0)).join(" ");
     return [
       { k: "zeigen", ms: 1100, text: `Der Term ${orig} hat ${gl.length} Glieder.` },
-      { k: "sortieren", ms: 1700, text: `Sortieren: ${v}-Glieder zu ${v}-Gliedern, Zahlen zu Zahlen. Das Rechenzeichen wandert mit.` },
+      { k: "sortieren", ms: 1700, text: `${v}-Glieder zu ${v}-Gliedern, Zahlen zu Zahlen – samt Rechenzeichen.` },
       { k: "va", ms: 1400, text: `${vs.map((x, i) => gliedText(x[0], 1, v, i === 0)).join(" ")} = ${gliedText(kv, 1, v, true)} – wie ${de(vs[0][0])} Äpfel plus ${de(vs[1][0])} Äpfel.` },
       { k: "za", ms: 1200, text: `Die Zahlen: ${zs.map((x, i) => gliedText(x[0], 0, v, i === 0)).join(" ")} = ${de(kz)}.` },
-      { k: "fertig", ms: 1400, text: `Vereinfacht: ${gliedText(kv, 1, v, true)} ${op(kz)}. ${v}-Glied und Zahl bleiben getrennt.` },
+      { k: "fertig", ms: 1400, text: `Vereinfacht: ${gliedText(kv, 1, v, true)} ${op(kz)} – ${v}-Glied und Zahl bleiben getrennt.` },
     ];
   },
   bild: ({ Z, p }) => {
@@ -424,6 +612,68 @@ const d_sortieren = {
 };
 
 /* ============================================================
+   d_klammer – Klammer auflösen mit Bausteinen: (3x + 4) ist ein Paket, 2 · heißt das Paket zweimal;
+   spaltenweise zählen: 2 · 3x = 6x, 2 · 4 = 8; mit dem x dazu 7x + 8
+   p: { a: 2, k: 3, c: 4, extra: 1, v: "x" }   → a · (k·v + c) + extra·v
+   ============================================================ */
+const d_klammer = {
+  h: 214,
+  label: (p) => `Klammer auflösen: ${p.a} · (${p.k}${p.v} + ${p.c}) + ${p.extra === 1 ? "" : p.extra}${p.v} = ${p.a * p.k + p.extra}${p.v} + ${p.a * p.c}`,
+  ablauf: (p) => {
+    const { a, k, c, extra, v } = p, wort = ["", "ein", "zwei", "drei", "vier", "fünf"];
+    return [
+      { k: "sehen", ms: 1400, text: `(${k}${v} + ${c}) ist ein Paket: ${wort[k] || k} ${v} und ${wort[c] || c} Einer.` },
+      { k: "doppeln", ms: 2400, text: `${a} · heißt: das ganze Paket ${a}-mal – jedes Glied ${a}-mal.` },
+      { k: "zaehlen", ms: 2000, text: `Spaltenweise zählen: ${a} · ${k}${v} = ${a * k}${v} und ${a} · ${c} = ${a * c}.` },
+      { k: "fertig", ms: 1700, text: `Mit dem ${extra === 1 ? "" : extra}${v} dazu: ${a * k + extra}${v} + ${a * c}.` },
+    ];
+  },
+  bild: ({ Z, p }) => {
+    const { a, k, c, extra, v } = p, kx = a * k + extra, kc = a * c;
+    const us = Z("sehen"), ud = Z("doppeln"), uz = Z("zaehlen"), uf = Z("fertig");
+    const tw = 28, th = 22, ew = 15, y1 = 66, dy = 40, yr = (r) => y1 + r * dy;
+    const xs = 62, xT = (i) => xs + i * (tw + 5), xE0 = xT(k) + 8, xE = (j) => xE0 + j * (ew + 4);
+    const kl0 = xs - 14, kl1 = xE(c - 1) + ew + 14, xX = kl1 + 34;
+    const Kachel = ({ x, y, o = 1 }) => <g opacity={o}><rect x={x} y={y - th / 2} width={tw} height={th} rx="4" fill={F.blauHell} stroke={F.blau} strokeWidth="1.4" /><Tx x={x + tw / 2} y={y + 4.5} g={12.5} f={F.blau} w={800} style={{ ...SCHRIFT, fontStyle: "italic" }}>{v}</Tx></g>;
+    const Einer = ({ x, y, o = 1 }) => <rect x={x} y={y - ew / 2} width={ew} height={ew} rx="3" fill={F.granatHell} stroke={F.granat} strokeWidth="1.3" opacity={o} />;
+    const Paket = ({ y, rand, o = 1 }) => (
+      <g opacity={o}>
+        <rect x={kl0} y={y - th / 2 - 7} width={kl1 - kl0} height={th + 14} rx="12" fill="none" stroke={rand} strokeWidth="1.8" />
+        {Array.from({ length: k }, (_, i) => <Kachel key={"t" + i} x={xT(i)} y={y} />)}
+        {Array.from({ length: c }, (_, j) => <Einer key={"e" + j} x={xE(j)} y={y} />)}
+      </g>
+    );
+    const kopie = sanft(teil(ud, 0, 0.7));
+    const xMitte = (xT(0) + xT(k - 1) + tw) / 2, eMitte = (xE(0) + xE(c - 1) + ew) / 2;
+    return (
+      <>
+        <Tx x={B / 2} y={26} g={19} f={F.tinte} w={800} o={us}>{`${a} · (${k}`}<tspan fill={F.blau}>{v}</tspan>{` + ${c}) + ${extra === 1 ? "" : extra}`}<tspan fill={F.blau}>{v}</tspan></Tx>
+        {/* Original-Paket und das zusätzliche x */}
+        <Paket y={yr(0)} rand={F.grau} o={us} />
+        <Tx x={kl1 + 14} y={yr(0) + 6} g={18} f={F.grau} w={800} o={us}>+</Tx>
+        {Array.from({ length: extra }, (_, j) => <Kachel key={"x" + j} x={xX + j * (tw + 5)} y={yr(0)} o={us} />)}
+        {/* die weiteren Pakete (GOLD umrandet = der Schritt) */}
+        {Array.from({ length: a - 1 }, (_, r) => kopie > 0 && <Paket key={"p" + r} y={mix(yr(0), yr(r + 1), kopie)} rand={F.gold} o={klemm(kopie * 3)} />)}
+        <g opacity={teil(ud, 0.6, 1)}>
+          <path d={`M${kl0 - 6} ${yr(0) - 16} h-6 V${yr(a - 1) + 16} h6`} fill="none" stroke={F.goldDunkel} strokeWidth="2" strokeLinejoin="round" />
+          <Tx x={kl0 - 16} y={(yr(0) + yr(a - 1)) / 2 + 5} g={14} f={F.goldDunkel} w={800} a="end">{`${a} ·`}</Tx>
+        </g>
+        {/* Zählen je Spalte */}
+        <g opacity={uz}>
+          <Tx x={xMitte} y={yr(a - 1) + 40} g={14} f={F.blau} w={800}>{`${a} · ${k}${v} = ${a * k}${v}`}</Tx>
+          <Tx x={eMitte} y={yr(a - 1) + 40} g={14} f={F.granat} w={800}>{`${a} · ${c} = ${kc}`}</Tx>
+          <Tx x={xX + tw / 2} y={yr(a - 1) + 40} g={14} f={F.blau} w={800}>{`+ ${extra === 1 ? "" : extra}${v}`}</Tx>
+        </g>
+        <g opacity={uf} transform={`translate(0 ${(1 - uf) * 6})`}>
+          <Tx x={B / 2 - 40} y={yr(a - 1) + 74} g={16} f={F.tinte} w={800}>{`= ${a * k}${v} + ${kc} + ${extra === 1 ? "" : extra}${v} =`}</Tx>
+          <Pille x={B / 2 + 48} y={yr(a - 1) + 74} a="start" text={`${kx}${v} + ${kc}`} g={15} f={F.granat} tf={F.weiss} />
+        </g>
+      </>
+    );
+  },
+};
+
+/* ============================================================
    d_waage – Gleichung a·x + b = c als Balkenwaage
    p: { a: 3, b: 2, c: 17 }
    ============================================================ */
@@ -433,18 +683,18 @@ const d_waage = {
   ablauf: (p) => {
     const x = (p.c - p.b) / p.a;
     return [
-      { k: "aufbau", ms: 1500, text: `Jede Kiste wiegt x, jede Kugel 1. Links ${p.a} Kisten und ${p.b} Kugeln, rechts ${p.c} Kugeln.` },
-      { k: "kippt", ms: 1400, text: `Nur links ${p.b} Kugeln wegnehmen? Die Waage kippt!` },
-      { k: "zurueck", ms: 700 },
-      { k: "beide", ms: 1600, text: `Auf beiden Seiten ${p.b} Kugeln weg – die Waage bleibt im Gleichgewicht: ${p.a}x = ${p.c - p.b}.` },
-      { k: "teilen", ms: 2000, text: `Beide Seiten durch ${p.a} teilen: eine Kiste wiegt so viel wie ${x} Kugeln.` },
+      { k: "aufbau", ms: 1500, text: `Jede Kiste wiegt x, jede Kugel 1: links ${p.a}x + ${p.b}, rechts ${p.c}.` },
+      { k: "kippt", ms: 2200, text: `Nur links ${p.b} Kugeln weg? Die Waage kippt – so geht es nicht.` },
+      { k: "beide", ms: 1600, text: `Auf beiden Seiten ${p.b} Kugeln weg – die Waage bleibt im Gleichgewicht.` },
+      { k: "teilen", ms: 2000, text: `Beide Seiten durch ${p.a}: eine Kiste wiegt so viel wie ${x} Kugeln.` },
       { k: "probe", ms: 1400, text: `Also x = ${x}. Probe: ${p.a} · ${x} + ${p.b} = ${p.c} ✓` },
     ];
   },
   bild: ({ Z, z, p }) => {
     const { a, b, c } = p, x = (c - b) / a;
     const P = { x: 180, y: 162 }, plY = 152;
-    const uk = Z("kippt"), ur = Z("zurueck"), ub = Z("beide"), ut = Z("teilen"), upr = Z("probe"), ua = z("aufbau");
+    /* kippt: erst kippt die Waage (erste Hälfte), dann wird es zurückgenommen */
+    const uk = sanft(teil(z("kippt"), 0, 0.45)), ur = sanft(teil(z("kippt"), 0.6, 1)), ub = Z("beide"), ut = Z("teilen"), upr = Z("probe"), ua = z("aufbau");
     const fall = (i, n) => { const u = raus(staffel(ua, i, n, 0.6)); return { o: klemm(u * 3), dy: (u - 1) * 30 }; };
     const kipp = uk * (1 - ur), winkel = 7 * kipp;
     const weg = Math.max(kipp, ub);   // Kugeln links b: weg
@@ -463,17 +713,19 @@ const d_waage = {
     }
     const reihenR = Math.ceil(x / proReihe), extraY = plY - r - 1 - reihenR * d - 2;
     const Kugel = ({ cx, cy, o = 1, dy = 0 }) => o > 0 ? <circle cx={cx} cy={cy + dy} r={r} fill={F.gold} stroke={F.goldDunkel} strokeWidth="1" opacity={o} /> : null;
-    const gl0 = `${a}x + ${b} = ${c}`, gl1 = `${a}x = ${c - b}`, gl2 = `x = ${x}`;
-    const stufe = ut >= 0.6 ? 2 : ub >= 0.7 ? 1 : 0;
-    const glText = [gl0, gl1, gl2][stufe];
-    const opText = ut > 0 ? `| : ${a}` : ub > 0 ? `| − ${b}` : null;
-    const opO = ut > 0 ? teil(ut, 0, 0.2) : teil(ub, 0, 0.2);
+    /* Gleichungskette oben: alle Stufen bleiben stehen (Vorher und Nachher), Umformung in GOLD dazwischen */
+    const gg = 16, gl = [`${a}x + ${b} = ${c}`, `${a}x = ${c - b}`, `x = ${x}`], ops = [`| − ${b}`, `| : ${a}`];
+    const wGl = gl.map((t) => breite(t, gg)), wOp = ops.map((t) => breite(t, 11) + 14), luft = 8;
+    const ges = wGl[0] + wGl[1] + wGl[2] + wOp[0] + wOp[1] + 4 * luft, xg0 = (B - ges) / 2;
+    const xGl = [xg0, xg0 + wGl[0] + wOp[0] + 2 * luft, xg0 + wGl[0] + wGl[1] + wOp[0] + wOp[1] + 4 * luft];
+    const xOp = [xg0 + wGl[0] + luft, xGl[1] + wGl[1] + luft];
+    const oGl = [1, teil(ub, 0.6, 1), teil(ut, 0.6, 1)], oOp = [teil(ub, 0, 0.3), teil(ut, 0, 0.3)];
     return (
       <>
-        <Tx x={20} y={34} g={21} f={stufe === 2 ? F.granat : F.tinte} w={800} a="start">{glText}</Tx>
-        {opText && <Pille x={340 - (breite(opText, 13) + 16)} y={31} a="start" text={opText} g={13} f={F.granat} tf={F.weiss} o={opO} />}
-        {uk > 0 && ur < 1 && <Pille x={340 - (breite("nur links? falsch!", 11.5) + 16)} y={31} a="start" text="nur links? falsch!" g={11.5} f={F.granatHell} tf={F.granat} o={teil(uk, 0.2, 0.5) * (1 - ur)} />}
-        <Tx x={20} y={60} g={12.5} f={F.gruen} w={800} a="start" o={upr}>{`Probe: ${a} · ${x} + ${b} = ${c} ✓`}</Tx>
+        {gl.map((t, i) => <Tx key={"gl" + i} x={xGl[i]} y={32} g={gg} f={i === 2 ? F.granat : F.tinte} w={800} a="start" o={oGl[i] * klemm(ua * 3)}>{t}</Tx>)}
+        {ops.map((t, i) => <Pille key={"op" + i} x={xOp[i]} y={30} a="start" text={t} g={11} f={F.goldHell} tf={F.goldDunkel} o={oOp[i]} />)}
+        {uk > 0 && ur < 1 && <Pille x={B / 2} y={66} text="nur links? falsch!" g={11.5} f={F.granatHell} tf={F.granat} o={teil(uk, 0.2, 0.5) * (1 - ur)} />}
+        <Tx x={B / 2} y={62} g={12.5} f={F.gruen} w={800} o={upr}>{`Probe: ${a} · ${x} + ${b} = ${c} ✓`}</Tx>
         {/* Ständer */}
         <path d={`M${P.x} ${P.y} L${P.x - 20} 204 L${P.x + 20} 204 Z`} fill={F.tinte} />
         <rect x={P.x - 44} y={204} width={88} height={6} rx="3" fill={F.tinte} />
@@ -525,8 +777,7 @@ const d_pfeilkette = {
   ablauf: (p) => {
     const k = p.ops.length, w = p.werte;
     return [
-      { k: "aufbau", ms: 1400, text: p.start || `${p.gleichung}: Aus ${p.v} wird ${de(w[k])} – erst ${p.ops.map((o) => o.hin).join(", dann ")}.` },
-      { k: "hin", ms: 600 + k * 500 },
+      { k: "aufbau", ms: 2000 + k * 500, text: p.start || `${p.gleichung}: Aus ${p.v} wird ${de(w[k])} – erst ${p.ops.map((o) => o.hin).join(", dann ")}.` },
       ...p.ops.map((o, i) => k - 1 - i).map((i) => ({ k: `r${i}`, ms: 1500, text: `Rückwärts mit der Umkehrung: ${de(w[i + 1])} ${p.ops[i].rueck} = ${de(w[i])}` })),
       { k: "fertig", ms: 1600, text: `Also ${p.v} = ${de(w[0])}. Probe: ${p.probe}` },
     ];
@@ -534,7 +785,8 @@ const d_pfeilkette = {
   bild: ({ Z, p }) => {
     const k = p.ops.length, w = p.werte, bw = 58, bh = 40, y = 92;
     const X = (i) => (k === 1 ? [110, 250][i] : 46 + (i * (B - 92)) / k);
-    const ua = Z("aufbau"), uh = Z("hin"), uf = Z("fertig");
+    /* aufbau: erst die Kästchen, dann laufen die Hin-Pfeile */
+    const ua = sanft(teil(Z("aufbau", (u) => u), 0, 0.4)), uh = sanft(teil(Z("aufbau", (u) => u), 0.4, 1)), uf = Z("fertig");
     const bekannt = (i) => (i === k ? 1 : Z(`r${i}`));
     return (
       <>
@@ -632,6 +884,74 @@ const d_formel = {
           <rect x={fx - (breite(`u = ${de(u)} ${e}`, 17) + 24) / 2} y={136} width={breite(`u = ${de(u)} ${e}`, 17) + 24} height={32} rx="12" fill="none" stroke={F.granat} strokeWidth="2" />
           <Tx x={fx} y={158} g={17} f={F.granat} w={800}>{`u = ${de(u)} ${e}`}</Tx>
         </g>
+      </>
+    );
+  },
+};
+
+/* ============================================================
+   d_quader – Quaderformel rückwärts: eine Schicht hat a · b Würfel; Schichten stapeln, bis V erreicht ist → c = V : (a · b)
+   p: { a: 8, b: 6, V: 480 }   (Schrägbild: Breite a, Tiefe b, Höhe c)
+   ============================================================ */
+const d_quader = {
+  h: 214,
+  label: (p) => `Quader mit V = ${p.V} cm³, a = ${p.a} cm, b = ${p.b} cm: Höhe c = ${p.V / (p.a * p.b)} cm`,
+  ablauf: (p) => {
+    const G = p.a * p.b, c = p.V / G;
+    return [
+      { k: "sehen", ms: 1500, text: `Ein Quader: ${p.V} cm³, Grundfläche ${p.a} cm mal ${p.b} cm. Wie hoch ist er?` },
+      { k: "schicht", ms: 2000, text: `Eine Schicht aus Zentimeterwürfeln: ${p.a} · ${p.b} = ${G} Würfel.` },
+      { k: "stapeln", ms: 3200, text: `Schicht auf Schicht, bis ${p.V} cm³ erreicht sind: ${c} Schichten.` },
+      { k: "fertig", ms: 1500, text: `Also c = ${p.V} : ${G} = ${c} cm. Probe: ${p.a} · ${p.b} · ${c} = ${p.V} ✓` },
+    ];
+  },
+  bild: ({ Z, z, p }) => {
+    const { a, b, V } = p, G = a * b, c = V / G;
+    const us = Z("sehen"), ul = Z("schicht"), ust = z("stapeln"), uf = Z("fertig");
+    const u = Math.min(9, 92 / c, 80 / a), tx = 0.42 * u * 0.87, ty = -0.42 * u * 0.5;   // Schrägbild: Tiefe nach hinten oben
+    const ox = 34, oy = 190, W = a * u, dX = b * tx, dY = b * ty;
+    const sichtbar = ul >= 1 ? 1 + Math.floor(ust * (c - 1) + 1e-9) : ul > 0 ? 1 : 0;   // Anzahl Schichten
+    const fall = ul >= 1 ? (ust * (c - 1)) % 1 : 1;
+    const Schicht = ({ L, gold, oben, dy = 0, o = 1 }) => {
+      const yb = oy - L * u + dy, yt = yb - u;
+      const fl = gold ? F.goldHell : F.blauHell, st = gold ? F.goldDunkel : F.blau;
+      return (
+        <g opacity={o}>
+          <rect x={ox} y={yt} width={W} height={u} fill={fl} stroke={st} strokeWidth="1" />
+          <path d={`M${ox + W} ${yb} L${ox + W + dX} ${yb + dY} L${ox + W + dX} ${yt + dY} L${ox + W} ${yt} Z`} fill={fl} stroke={st} strokeWidth="1" />
+          <path d={`M${ox} ${yt} L${ox + W} ${yt} L${ox + W + dX} ${yt + dY} L${ox + dX} ${yt + dY} Z`} fill={fl} stroke={st} strokeWidth="1" />
+          {Array.from({ length: a - 1 }, (_, i) => <line key={"v" + i} x1={ox + (i + 1) * u} x2={ox + (i + 1) * u} y1={yt} y2={yb} stroke={st} strokeWidth="0.6" opacity="0.7" />)}
+          {oben && Array.from({ length: a - 1 }, (_, i) => <line key={"t" + i} x1={ox + (i + 1) * u} y1={yt} x2={ox + (i + 1) * u + dX} y2={yt + dY} stroke={st} strokeWidth="0.6" opacity="0.7" />)}
+          {oben && Array.from({ length: b - 1 }, (_, j) => <line key={"d" + j} x1={ox + (j + 1) * tx} y1={yt + (j + 1) * ty} x2={ox + W + (j + 1) * tx} y2={yt + (j + 1) * ty} stroke={st} strokeWidth="0.6" opacity="0.7" />)}
+        </g>
+      );
+    };
+    const hc = c * u, xr = ox + W + dX + 10;
+    const zeilen = [
+      { t: "V = a · b · c", o: us, f: F.tinte },
+      { t: `${V} = ${a} · ${b} · c`, o: teil(us, 0.4, 1), f: F.tinte },
+      { t: `${V} = ${G} · c`, o: ul, f: F.tinte },
+      { t: `c = ${V} : ${G}`, o: teil(ust, 0.85, 1), f: F.tinte },
+    ];
+    return (
+      <>
+        {/* Umriss des ganzen Quaders (gestrichelt) */}
+        <g opacity={us * (1 - 0.6 * uf)}>
+          <path d={`M${ox} ${oy} H${ox + W} L${ox + W + dX} ${oy + dY} V${oy + dY - hc} L${ox + dX} ${oy + dY - hc} L${ox} ${oy - hc} Z M${ox} ${oy - hc} H${ox + W} L${ox + W + dX} ${oy - hc + dY} M${ox + W} ${oy - hc} V${oy}`} fill="none" stroke={F.grau} strokeWidth="1.2" strokeDasharray="4 3" />
+        </g>
+        <Tx x={ox + W / 2} y={oy + 16} g={11} f={F.tinte} w={800} o={us}>{`a = ${a} cm`}</Tx>
+        <Tx x={ox + W + dX / 2 + 6} y={oy + dY / 2 + 14} g={11} f={F.tinte} w={800} a="start" o={us}>{`b = ${b} cm`}</Tx>
+        <Tx x={xr} y={oy + dY - hc / 2 + 4} g={12} f={uf > 0 ? F.granat : F.grau} w={800} a="start" o={us}>{uf > 0.5 ? `c = ${c} cm` : "c = ?"}</Tx>
+        {/* Schichten: die erste GOLD mit Würfelraster, darauf die weiteren */}
+        {Array.from({ length: sichtbar }, (_, L) => {
+          const neu = L === sichtbar - 1 && L > 0 && ust < 1;
+          return <Schicht key={L} L={L} gold={L === 0} oben={L >= sichtbar - 2} dy={neu ? -(1 - sanft(fall)) * 16 : 0} o={L === 0 ? klemm(ul * 3) : neu ? klemm(fall * 3) : 1} />;
+        })}
+        {ul > 0 && <Pille x={ox + W / 2 + 4} y={oy - u - 22 - (sichtbar - 1) * u} text={sichtbar <= 1 ? `${G} Würfel` : `${sichtbar} · ${G} = ${sichtbar * G}`} g={11} f={F.goldHell} tf={F.goldDunkel} o={teil(ul, 0.4, 1) * (1 - uf)} />}
+        {/* Rechnung rechts */}
+        {zeilen.map((zz, i) => <Tx key={i} x={262} y={44 + i * 28} g={15} f={zz.f} w={800} o={zz.o}>{zz.t}</Tx>)}
+        <Pille x={262} y={44 + 4 * 28 + 4} text={`c = ${c} cm`} g={15} f={F.granat} tf={F.weiss} o={uf} />
+        <Tx x={262} y={44 + 5 * 28 + 8} g={11.5} f={F.gruen} w={800} o={uf}>{`Probe: ${a} · ${b} · ${c} = ${V} ✓`}</Tx>
       </>
     );
   },
@@ -785,7 +1105,7 @@ const d_kreis = {
   ablauf: (p) => {
     const gr = 360 / p.gesamt;
     return [
-      { k: "grad", ms: 1700, text: `${p.gesamt} Schüler teilen sich den ganzen Kreis, 360°. Einer bekommt 360° : ${p.gesamt} = ${de(gr)}°.` },
+      { k: "grad", ms: 1700, text: `${p.gesamt} Schüler teilen sich 360°. Einer bekommt 360° : ${p.gesamt} = ${de(gr)}°.` },
       ...p.teile.map(([name, w], i) => ({ k: `s${i}`, ms: 1200, text: `${name}: ${w} · ${de(gr)}° = ${de(w * gr)}°` })),
       { k: "summe", ms: 1300, text: `Zusammen ${p.teile.map(([, w]) => de(w * gr)).join("° + ")}° = 360° – der Kreis ist genau voll.` },
     ];
@@ -899,7 +1219,7 @@ const d_klassen = {
     { k: "aufbau", ms: 1700, text: `${p.a[0]}: ${p.a[2]} von ${p.a[1]} fahren ${p.was}. ${p.b[0]}: ${p.b[2]} von ${p.b[1]}.` },
     { k: "frage", ms: 1300, text: `${p.b[2]} ist mehr als ${p.a[2]} – aber die ${p.b[0]} ist auch größer!` },
     { k: "strecken", ms: 1800, text: "Beide Klassen auf dieselbe Länge strecken: jede Klasse ist ein Ganzes." },
-    { k: "anteile", ms: 1900, text: `Anteile: ${p.a[2]} : ${p.a[1]} ≈ ${de(p.a[2] / p.a[1], 2)} und ${p.b[2]} : ${p.b[1]} ≈ ${de(p.b[2] / p.b[1], 2)}. Die ${p.a[0]} hat knapp den größeren Anteil.` },
+    { k: "anteile", ms: 1900, text: `Anteile: ${p.a[2]} : ${p.a[1]} ≈ ${de(p.a[2] / p.a[1], 2)} und ${p.b[2]} : ${p.b[1]} ≈ ${de(p.b[2] / p.b[1], 2)} – die ${p.a[2] / p.a[1] >= p.b[2] / p.b[1] ? p.a[0] : p.b[0]} liegt vorn.` },
   ],
   bild: ({ Z, z, p }) => {
     const ua = z("aufbau"), uf = Z("frage"), us = Z("strecken"), uan = Z("anteile");
@@ -932,7 +1252,7 @@ const d_klassen = {
           ))}
           <line x1={x0} x2={x0 + L} y1={179} y2={179} stroke={F.grau} strokeWidth="1.2" />
         </g>
-        {uan > 0 && <line x1={x0 + (L * p.a[2]) / p.a[1]} x2={x0 + (L * p.a[2]) / p.a[1]} y1={38} y2={150} stroke={F.gold} strokeWidth="2" strokeDasharray="4 3" opacity={uan} />}
+        {uan > 0 && reihen.map(([, y]) => <line key={"g" + y} x1={x0 + (L * p.a[2]) / p.a[1]} x2={x0 + (L * p.a[2]) / p.a[1]} y1={y - 6} y2={y + 32} stroke={F.gold} strokeWidth="2.2" strokeDasharray="4 3" opacity={uan} />)}
       </>
     );
   },
@@ -949,7 +1269,7 @@ const d_zwecke = {
     { k: "w1", ms: 2400, text: `${p.n} Würfe mit einer Reißzwecke. Gefüllter Punkt: Sie landet auf dem ${p.ja}.` },
     { k: "w2", ms: 2600, text: `Der Anteil der ${p.ja}-Würfe springt erst hin und her und wird dann ruhiger.` },
     { k: "bruch", ms: 1300, text: `${p.k} von ${p.n} Würfen: als Bruch gekürzt.` },
-    { k: "dezimal", ms: 1200, text: `${p.k} : ${p.n} = ${de(p.k / p.n)}` },
+    { k: "dezimal", ms: 1200, text: `Als Dezimalzahl: ${p.k} : ${p.n} = ${de(p.k / p.n)}.` },
     { k: "prozent", ms: 1500, text: `${de(p.k / p.n)} = ${de((100 * p.k) / p.n)} %. Das ist die relative Häufigkeit für ${p.ja}.` },
   ],
   bild: ({ Z, z, p }) => {
@@ -1002,19 +1322,16 @@ const d_urne = {
   label: () => "Urne mit 3 roten, 5 blauen und 2 grünen Kugeln",
   ablauf: () => [
     { k: "urne", ms: 1200, text: "In der Urne: 3 rote, 5 blaue und 2 grüne Kugeln." },
-    { k: "alle", ms: 1500, text: "Jede der 10 Kugeln kann gezogen werden: 10 mögliche Ergebnisse – sie kommen unter den Strich." },
-    { k: "guenstig", ms: 1500, text: "Günstig für „blau“ sind die 5 blauen – sie kommen über den Strich." },
+    { k: "alle", ms: 2200, text: "Jede der 10 Kugeln kann kommen – alle möglichen unter den Strich." },
+    { k: "guenstig", ms: 2000, text: "Günstig für „blau“ sind die 5 blauen – sie kommen über den Strich." },
     { k: "zahl1", ms: 1500, text: "P(blau) = 5 von 10 = ein Halb." },
-    { k: "raus", ms: 800, text: "Und „keine grüne Kugel“?" },
-    { k: "gegen", ms: 1500, text: "Günstig sind jetzt alle außer den 2 grünen: 8 Kugeln." },
-    { k: "zahl2", ms: 1600, text: "P(keine grüne) = 8 von 10 = vier Fünftel. Oder: 1 minus zwei Zehntel." },
   ],
   bild: ({ Z }) => {
     const ks = "brbgrbgbrb".split("");
     const pos = [[44, 176], [68, 176], [92, 176], [116, 176], [44, 152], [68, 152], [92, 152], [116, 152], [68, 128], [92, 128]];
-    const uu = Z("urne"), ual = z2(Z("alle")), ug = Z("guenstig"), u1 = Z("zahl1"), ur = Z("raus"), ugg = Z("gegen"), u2 = Z("zahl2");
+    const uu = Z("urne"), ual = z2(Z("alle")), ug = Z("guenstig"), u1 = Z("zahl1");
     const nx = (i, anz) => 258 + (i - (anz - 1) / 2) * 17;
-    const blau = ks.map((c, i) => (c === "b" ? i : -1)).filter((i) => i >= 0), nichtGruen = ks.map((c, i) => (c !== "g" ? i : -1)).filter((i) => i >= 0);
+    const blau = ks.map((c, i) => (c === "b" ? i : -1)).filter((i) => i >= 0);
     const Kugel = ({ x, y, c, r = 9.5, o = 1 }) => o > 0 && <g opacity={o}><circle cx={x} cy={y} r={r} fill={KUGEL_F[c]} /><circle cx={x - r * 0.35} cy={y - r * 0.35} r={r * 0.28} fill={F.weiss} opacity="0.45" /></g>;
     const fliege = (i, u, ziel) => ({ x: mix(pos[i][0], ziel[0], sanft(u)), y: mix(pos[i][1], ziel[1], sanft(u)) - Math.sin(Math.PI * u) * 30 });
     const formel = (lab, a, b, c, d, o) => {
@@ -1045,22 +1362,17 @@ const d_urne = {
           const p = fliege(i, u, [nx(i, 10), 114]);
           return <Kugel key={"n" + i} x={p.x} y={p.y} c={c} r={7.5} />;
         })}
+        {/* der Schritt: die günstigen Kugeln steigen über den Strich (GOLD-Rahmen) */}
+        <rect x={nx(0, blau.length) - 13} y={57} width={nx(blau.length - 1, blau.length) - nx(0, blau.length) + 26} height={26} rx="13" fill={F.goldHell} stroke={F.gold} strokeWidth="1.6" opacity={teil(ug, 0.6, 1)} />
         {blau.map((i, j) => {
-          const u = staffel(ug, j, blau.length, 0.5), o = 1 - ur;
-          if (u <= 0 || o <= 0) return null;
-          const p = fliege(i, u, [nx(j, blau.length), 70]);
-          return <Kugel key={"b" + i} x={p.x} y={p.y - ur * 10} c="b" r={7.5} o={o} />;
-        })}
-        {nichtGruen.map((i, j) => {
-          const u = staffel(ugg, j, nichtGruen.length, 0.6);
+          const u = staffel(ug, j, blau.length, 0.5);
           if (u <= 0) return null;
-          const p = fliege(i, u, [nx(j, nichtGruen.length), 70]);
-          return <Kugel key={"g" + i} x={p.x} y={p.y} c={ks[i]} r={7.5} />;
+          const p = fliege(i, u, [nx(j, blau.length), 70]);
+          return <Kugel key={"b" + i} x={p.x} y={p.y} c="b" r={7.5} />;
         })}
-        <Tx x={350} y={58} g={10} f={F.grau} w={700} a="end" o={Math.max(ug * (1 - ur), ugg)}>günstig</Tx>
+        <Tx x={350} y={50} g={10} f={F.goldDunkel} w={800} a="end" o={ug}>günstig</Tx>
         <Tx x={350} y={138} g={10} f={F.grau} w={700} a="end" o={teil(ual, 0.5, 1)}>alle möglichen</Tx>
-        {formel("P(blau) =", 5, 10, 1, 2, u1 * (1 - ur))}
-        {formel("P(keine grüne) =", 8, 10, 4, 5, u2)}
+        {formel("P(blau) =", 5, 10, 1, 2, u1)}
       </>
     );
   },
@@ -1082,7 +1394,7 @@ const d_gesetz = {
       { k: "start", ms: 1200, text: "Ein fairer Würfel: Die Sechs hat die Wahrscheinlichkeit ein Sechstel." },
       { k: "w1", ms: 2600, text: "Bei wenigen Würfen springt der Anteil der Sechsen stark hin und her." },
       { k: "w2", ms: 3600, text: "Je mehr Würfe, desto ruhiger wird die Kurve …" },
-      { k: "ende", ms: 1600, text: `… und sie nähert sich einem Sechstel: ${k} Sechsen bei ${p.n} Würfen, erwartet etwa ${Math.round(p.n / 6)}.` },
+      { k: "ende", ms: 1600, text: `… und nähert sich einem Sechstel: ${k} Sechsen bei ${p.n} Würfen.` },
     ];
   },
   bild: ({ Z, z, p }) => {
@@ -1123,7 +1435,7 @@ const d_wertegraph = {
   ablauf: (p) => [
     { k: "tabelle", ms: 1300, text: `Die Tabelle: ${p.xName} und ${p.yName}.` },
     { k: "punkte", ms: 2600, text: `Jedes Wertepaar wird ein Punkt: ${p.xName} nach rechts, ${p.yName} nach oben.` },
-    { k: "linie", ms: 1300, text: "Das Wasser fließt gleichmäßig – es gibt Zwischenwerte, also darf man verbinden." },
+    { k: "linie", ms: 1300, text: "Das Wasser fließt gleichmäßig – Zwischenwerte gibt es, also verbinden." },
     { k: "weiter", ms: 1800, text: `Je ${de(p.xs[1] - p.xs[0])} ${p.ex} kommen ${de(p.ys[1] - p.ys[0])} ${p.ey} dazu. Nach ${de(p.weiter[0])} ${p.ex}: ${de(p.weiter[1])} ${p.ey}.` },
   ],
   bild: ({ Z, z, p }) => {
@@ -1247,9 +1559,9 @@ const d_proportional = {
   label: (p) => `Proportionale Zuordnung: y = ${de(p.k)} · x`,
   ablauf: (p) => [
     { k: "tabelle", ms: 1700, text: `Ein ${p.ding} kostet ${de(p.k, 2)} €. So wächst der Preis.` },
-    { k: "doppelt", ms: 1600, text: `3 ${p.ding} kosten ${de(3 * p.k, 2)} €, 6 ${p.ding} ${de(6 * p.k, 2)} €: doppelte Menge, doppelter Preis.` },
+    { k: "doppelt", ms: 1600, text: `3 ${p.ding} kosten ${de(3 * p.k, 2)} €, 6 kosten ${de(6 * p.k, 2)} €: doppelte Menge, doppelter Preis.` },
     { k: "punkte", ms: 2000, text: "Jedes Wertepaar wird ein Punkt im Koordinatensystem." },
-    { k: "gerade", ms: 1300, text: "Alle Punkte liegen auf einer Geraden durch den Ursprung: 0 Stück kosten 0 €." },
+    { k: "gerade", ms: 1300, text: "Die Punkte liegen auf einer Geraden durch den Ursprung: 0 Stück, 0 €." },
     { k: "faktor", ms: 1700, text: `Preis : Anzahl = ${de(p.k, 2)} in jeder Zeile. Also y = ${de(p.k)} · x.` },
   ],
   bild: ({ Z, z, p }) => {
@@ -1293,7 +1605,7 @@ const d_proportional = {
 /* ============================================================
    d_dreisatz – drei Zeilen mit Pfeilen an beiden Seiten; Bilder links, Balken rechts
    p: { kopf: ["Hefte", "Preis"], zeilen: [{ l: 4, r: 3.2 }, …], rText: (Liste), ops: [[": 4", ": 4"], ["· 7", "· 7"]],
-        bild: "heft" | "maler", texte: [4 Untertitel] }
+        bild: "heft" | "maler", texte: [4 Untertitel], eins?: "je 0,80 €" (Pille am einzelnen Bildchen) }
    ============================================================ */
 function Bildchen({ art, anzahl, cx, cy, u }) {
   const proReihe = 4, d = 14, reihen = Math.ceil(anzahl / proReihe);
@@ -1318,15 +1630,15 @@ const d_dreisatz = {
   label: (p) => `Dreisatz: ${p.zeilen.map((z) => `${z.l} → ${z.rt}`).join(", ")}`,
   ablauf: (p) => [
     { k: "z0", ms: 1300, text: p.texte[0] },
-    { k: "op0", ms: 1300, text: p.texte[1] },
-    { k: "z1", ms: 1000 },
-    { k: "op1", ms: 1300, text: p.texte[2] },
-    { k: "z2", ms: 1000 },
+    { k: "op0", ms: 2300, text: p.texte[1] },
+    { k: "op1", ms: 2300, text: p.texte[2] },
     { k: "fertig", ms: 1400, text: p.texte[3] },
   ],
   bild: ({ Z, p }) => {
     const zl = p.zeilen, ry = (i) => 70 + i * 50, cl = 150, cr = 236;
-    const uz = [Z("z0"), Z("z1"), Z("z2")], uo = [Z("op0"), Z("op1")], uf = Z("fertig");
+    /* je Pfeil-Abschnitt: erst laufen die Pfeile (bis 60 %), dann erscheint die neue Zeile */
+    const uo = [sanft(teil(Z("op0", (u) => u), 0, 0.6)), sanft(teil(Z("op1", (u) => u), 0, 0.6))];
+    const uz = [Z("z0"), sanft(teil(Z("op0", (u) => u), 0.55, 1)), sanft(teil(Z("op1", (u) => u), 0.55, 1))], uf = Z("fertig");
     return (
       <>
         <Tx x={cl} y={30} g={11} f={F.blau} w={800} o={uz[0]}>{p.kopf[0]}</Tx>
@@ -1343,6 +1655,8 @@ const d_dreisatz = {
                 <Tx x={cr} y={ry(i) + 5} g={16} f={letzte ? F.granat : F.tinte} w={800}>{zz.rt}</Tx>
               </g>
               {p.bild && <Bildchen art={p.bild} anzahl={zz.l} cx={40} cy={ry(i)} u={u} />}
+              {/* der Baustein: was eins kostet bzw. braucht (GOLD) */}
+              {i === 1 && p.eins && <Pille x={40} y={ry(1) + 18} text={p.eins} g={10} o={teil(u, 0.5, 1)} />}
             </g>
           );
         })}
@@ -1367,24 +1681,20 @@ const d_antiprop = {
   ablauf: (p) => {
     const P = p.produkt, s = p.schritte;
     return [
-      { k: "start", ms: 1700, text: `${s[0]} ${p.x} brauchen ${P / s[0]} ${p.y}: ${s[0]} · ${P / s[0]} = ${P} Kästchen – das ist die ganze Arbeit.` },
-      ...s.slice(1).map((x, i) => {
-        const vor = s[i];
-        const t = x === 2 * vor ? `${x} ${p.x}: doppelt so viele, halb so lange – ${P / x} ${p.y}.` : `${x} ${p.x}: ${P} : ${x} = ${P / x} ${p.y}. Die Fläche bleibt ${P}.`;
-        return { k: `s${i + 1}`, ms: 1150, text: t };
-      }),
-      { k: "kurve", ms: 1700, text: "Die Ecken liegen auf einer fallenden Kurve, einer Hyperbel – keine Gerade." },
+      { k: "start", ms: 1700, text: `${s[0]} ${p.x} brauchen ${P / s[0]} ${p.y}: ${s[0]} · ${P / s[0]} = ${P} Kästchen Arbeit.` },
+      { k: "mehr", ms: 900 * (s.length - 1), text: `Mehr ${p.x}, weniger ${p.y} – die Fläche bleibt immer ${P} Kästchen.` },
+      { k: "kurve", ms: 1700, text: "Die Ecken liegen auf einer fallenden Kurve – keine Gerade." },
     ];
   },
   bild: ({ Z, z, p }) => {
     const P = p.produkt, s = p.schritte, m = s.length, e = 12.5, ox = 40, oy = 204, max = 13;
     const X = (v) => ox + v * e, Y = (v) => oy - v * e;
     const ust = Z("start");
-    let st = 0; for (let i = 1; i < m; i++) st += Z(`s${i}`);
-    const i0 = Math.min(m - 2, Math.floor(st)), fr = st - i0;
+    /* mehr: das Rechteck formt sich Stufe für Stufe um, an jeder Tabellenzeile kurz innehalten */
+    const ph = z("mehr") * (m - 1), i0 = Math.min(m - 2, Math.floor(ph)), fr = sanft(teil(ph - i0, 0, 0.75));
     const w = Math.exp(mix(Math.log(s[i0]), Math.log(s[i0 + 1]), fr)), h = P / w;
     const uk = Z("kurve");
-    const besucht = s.filter((_, i) => i === 0 ? ust >= 1 : z(`s${i}`) >= 0.95);
+    const besucht = s.filter((_, i) => i === 0 ? ust >= 1 : ph >= i - 0.25);
     const hyp = []; for (let x = P / max; x <= max + 1e-9; x += 0.1) hyp.push(`${X(x).toFixed(1)},${Y(P / x).toFixed(1)}`);
     const tx1 = 262, tx2 = 318;
     return (
@@ -1406,7 +1716,7 @@ const d_antiprop = {
         <Tx x={tx2} y={34} g={10.5} f={F.granat} w={800} o={ust}>{p.y}</Tx>
         <line x1={234} x2={350} y1={41} y2={41} stroke={F.linie} strokeWidth="1.4" opacity={ust} />
         {s.map((x, i) => {
-          const o = i === 0 ? teil(ust, 0.5, 1) : teil(z(`s${i}`), 0.6, 1), y = 62 + i * 21;
+          const o = i === 0 ? teil(ust, 0.5, 1) : teil(ph - (i - 1), 0.5, 0.75), y = 62 + i * 21;
           return (
             <g key={"t" + x} opacity={o}>
               <Tx x={tx1} y={y} g={14} f={F.tinte} w={800}>{x}</Tx>
@@ -1422,13 +1732,18 @@ const d_antiprop = {
 
 export const SZENEN_DATEN = {
   d_ausgleich,
+  d_verteilen,
   d_zahlenbereiche,
   d_einsetzen,
+  d_saeckchen,
   d_streichhoelzer,
+  d_tarif,
   d_sortieren,
+  d_klammer,
   d_waage,
   d_pfeilkette,
   d_formel,
+  d_quader,
   d_urliste,
   d_achse,
   d_kreis,
