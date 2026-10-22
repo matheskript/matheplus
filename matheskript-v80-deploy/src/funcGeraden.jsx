@@ -25,7 +25,8 @@ import { neueLageGE, neueLageGG, neuePunktprobe, neuesVektorPaar } from "./aufga
 import {
   dez, laenge, lageGE, lageGG, nullVek, punktprobe, q, qAdd, qGleich, qLies, qMul, qNum, qTex, skalar, winkelGeradeEbene, winkelZwischen,
 } from "./rechnen2.js";
-import { Bild, Ergebnis, FallWahl, Fusszeile, HauptKnopf, Hinweis, ModusReiter, ObjektBox, ObjektReihe, RSchritt, Rechenweg, Tafel, TippKacheln, VF, VekArbeit, VekBild, VekSeite } from "./vekUi.jsx";
+import { Bild, Ergebnis, FallWahl, Fusszeile, HauptKnopf, Hinweis, ObjektBox, ObjektReihe, RSchritt, Rechenweg, Tafel, TippKacheln, VF, VekArbeit, VekBild, VekModusErsatz, VekSeite } from "./vekUi.jsx";
+import { useVekModus } from "./vekNav.js";
 import { useDesktop } from "./arbeitsflaeche.jsx";
 
 /* Objektfarben: g (erstes Objekt) Blau, h / E / P (zweites Objekt) Gold, Ergebnis Smaragd */
@@ -477,19 +478,14 @@ function GeradeVsEbene() {
    Seite „Geraden im Raum“
    ====================================================================== */
 
-const GERADEN_MODI = [
-  { id: "probe", name: ["Punktprobe", "Point test"], bild: "auf" },
-  { id: "gg", name: ["Gerade – Gerade", "Line – line"], bild: "schneidend" },
-  { id: "ge", name: ["Gerade – Ebene", "Line – plane"], bild: "ge-schneidend" },
-];
 
 export function GeradenImRaum() {
-  const [modus, setModus] = useState("probe");
+  /* Modus aus dem Seitenmenü (Punktprobe, g – h bei Geraden; g – E bei Ebenen) */
+  const [modus, setModus] = useVekModus("geraden", "probe");
   return (
     <VekSeite titel={zw("Geraden im Raum", "Lines in space")}
       text={zw("Erst vermuten, dann rechnen: Liegt ein Punkt auf der Geraden, wie liegen zwei Geraden – und wie eine Gerade zur Ebene?", "Guess first, then calculate: is a point on the line, how do two lines lie – and a line relative to a plane?")}>
-      <ModusReiter label={zw("Geraden-Übungen", "Line exercises")} wert={modus} setWert={setModus}
-        modi={GERADEN_MODI.map((m) => ({ id: m.id, name: zw(m.name[0], m.name[1]), bild: m.bild }))} />
+      <VekModusErsatz ansicht="geraden" label={zw("Geraden-Übungen", "Line exercises")} wert={modus} setWert={setModus} />
       <div style={{ display: modus === "probe" ? "block" : "none" }}><Punktprobe /></div>
       <div style={{ display: modus === "gg" ? "block" : "none" }}><GeradeVsGerade /></div>
       <div style={{ display: modus === "ge" ? "block" : "none" }}><GeradeVsEbene /></div>
@@ -967,19 +963,14 @@ function GeradeEbeneWinkel() {
    Seite „Winkel und Skalarprodukt“
    ====================================================================== */
 
-const WINKEL_MODI = [
-  { id: "skalar", name: ["Skalarprodukt", "Dot product"], bild: "skalar" },
-  { id: "winkel", name: ["Vektorwinkel", "Vector angle"], bild: "vektorwinkel" },
-  { id: "ge", name: ["Gerade – Ebene", "Line – plane"], bild: "ge-winkel" },
-];
 
 export function WinkelSkalarprodukt() {
-  const [modus, setModus] = useState("skalar");
+  /* Modus aus dem Seitenmenü (Skalarprodukt, Vektorwinkel bei Rechnen; Schnittwinkel g – E bei Ebenen) */
+  const [modus, setModus] = useVekModus("winkel", "skalar");
   return (
     <VekSeite titel={zw("Winkel und Skalarprodukt", "Angles and the dot product")}
       text={zw("Schätze Winkel am Bild, berechne das Skalarprodukt und leite daraus Winkel zwischen Vektoren, Geraden und Ebenen ab.", "Estimate angles from the picture, compute the dot product and derive angles between vectors, lines and planes.")}>
-      <ModusReiter label={zw("Winkel-Übungen", "Angle exercises")} wert={modus} setWert={setModus}
-        modi={WINKEL_MODI.map((m) => ({ id: m.id, name: zw(m.name[0], m.name[1]), bild: m.bild }))} />
+      <VekModusErsatz ansicht="winkel" label={zw("Winkel-Übungen", "Angle exercises")} wert={modus} setWert={setModus} />
       <div style={{ display: modus === "skalar" ? "block" : "none" }}><SkalarproduktVerstehen /></div>
       <div style={{ display: modus === "winkel" ? "block" : "none" }}><Vektorwinkel /></div>
       <div style={{ display: modus === "ge" ? "block" : "none" }}><GeradeEbeneWinkel /></div>

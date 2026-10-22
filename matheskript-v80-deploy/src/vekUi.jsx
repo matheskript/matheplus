@@ -31,6 +31,8 @@ import React from "react";
 import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
 import { Arbeitsflaeche, BildKarte, useBreite } from "./arbeitsflaeche.jsx";
+import { useVekStand, vekAktiv, vekEintragOeffnen } from "./vekNav.js";
+import { VEK_BEREICHE } from "./trainingsKurse.js";
 
 const zw = (de, en) => (englisch() ? en : de);
 
@@ -151,9 +153,71 @@ export function VekSeite({ titel, text, children, oben = 28 }) {
           {text && <p style={{ color: C.grau, fontSize: 15, lineHeight: 1.6, margin: "0 0 20px", maxWidth: 540 }}>{text}</p>}
         </div>
       )}
+      <VekBereichsMenue />
       {children}
     </div>
   );
+}
+
+/* ---------- Seitenmenü der Gruppe (Rechnen · Geraden · Ebenen) ----------
+   Daten: VEK_BEREICHE in trainingsKurse.js, Stand: vekNav.js.
+   stapel = links in der Arbeitsfläche (Desktop, VekArbeit setzt es selbst ein),
+   sonst eine waagrechte Leiste unter dem Titel (Handy; am Desktop nur, wenn die Seite keine Arbeitsfläche hat). */
+const VBM_CSS = `.vbm-oben{scrollbar-width:none}.vbm-oben::-webkit-scrollbar{display:none}
+@media (max-width:839px){[data-vbm-links]{display:none !important}}
+@media (min-width:840px){[data-vek-seite]:has([data-vbm-links]) .vbm-oben{display:none !important}}
+.vbm-knopf:hover{border-color:${C.see} !important}`;
+export function VekBereichsMenue({ stapel = false }) {
+  const s = useVekStand();
+  const wo = vekAktiv(s);
+  if (!wo || wo.bereich.eintraege.length < 2) return null;
+  const { bereich, eintrag } = wo;
+  if (stapel) {
+    return (
+      <nav data-vbm-links="" aria-label={`${bereich.name}: Themen`} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        <style>{VBM_CSS}</style>
+        <p style={{ margin: "0 0 2px 4px", fontSize: 10.5, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#8A6A00" }}>{bereich.name}</p>
+        {bereich.eintraege.map((e) => {
+          const an = e.id === eintrag.id;
+          return (
+            <button key={e.id} type="button" className="vbm-knopf" data-vbm={e.id} aria-current={an ? "page" : undefined} onClick={() => vekEintragOeffnen(e)}
+              style={{ display: "flex", alignItems: "center", gap: 11, minHeight: 48, padding: "6px 12px 6px 8px", borderRadius: 14, fontFamily: "inherit", cursor: an ? "default" : "pointer", textAlign: "left",
+                border: `1.5px solid ${an ? C.see : C.linie}`, backgroundColor: an ? VF.einsHell : C.weiss, boxShadow: an ? "0 0 0 3px rgba(0,77,152,0.10)" : "none", transition: "background-color .15s, border-color .15s" }}>
+              <Bild art={e.bild} breite={34} />
+              <span style={{ fontSize: 13.5, fontWeight: an ? 800 : 600, lineHeight: 1.2, color: an ? C.see : C.tinte }}>{e.name}</span>
+            </button>
+          );
+        })}
+      </nav>
+    );
+  }
+  return (
+    <nav className="vbm-oben" data-vbm-oben="" aria-label={`${bereich.name}: Themen`}
+      style={{ display: "flex", gap: 8, overflowX: "auto", margin: "0 -24px 20px", padding: "2px 24px 4px" }}>
+      <style>{VBM_CSS}</style>
+      {bereich.eintraege.map((e) => {
+        const an = e.id === eintrag.id;
+        return (
+          <button key={e.id} type="button" className="vbm-knopf" data-vbm={e.id} aria-current={an ? "page" : undefined} onClick={() => vekEintragOeffnen(e)}
+            style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, width: 92, minHeight: 74, padding: "8px 6px 7px",
+              borderRadius: 14, fontFamily: "inherit", cursor: an ? "default" : "pointer", border: `1.5px solid ${an ? C.see : C.linie}`,
+              backgroundColor: an ? VF.einsHell : C.weiss, boxShadow: an ? "0 0 0 3px rgba(0,77,152,0.10)" : "none" }}>
+            <Bild art={e.bild} breite={34} />
+            <span style={{ fontSize: 11.5, fontWeight: an ? 800 : 600, lineHeight: 1.15, color: an ? C.see : C.tinte, textAlign: "center" }}>{e.kurz}</span>
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
+/* Eingebettet (Kursmodul, Session) gibt es kein Seitenmenü: dann zeigt das Werkzeug seine Modi wie früher als Reiter.
+   Die Modi kommen aus VEK_BEREICHE (Einträge mit dieser Ansicht und einem Modus). */
+export function VekModusErsatz({ ansicht, wert, setWert, label }) {
+  const s = useVekStand();
+  if (s.ansicht === ansicht) return null;
+  const modi = VEK_BEREICHE.flatMap((b) => b.eintraege).filter((e) => e.ansicht === ansicht && e.modus).map((e) => ({ id: e.modus, name: e.kurz, bild: e.bild }));
+  return <ModusReiter label={label} wert={wert} setWert={setWert} modi={modi} />;
 }
 
 /* ---------- Reiter mit Bildzeichen ---------- */
@@ -419,8 +483,8 @@ export function HauptKnopf({ children, onClick, disabled, art = "gruen", stil })
    dort genauso stehen wie am Handy – zwei Boxen (g | h, a⃗ | b⃗, A | B) passen nebeneinander. */
 export const VEK_LINKS = 340;
 
-export function VekArbeit({ links, rechts, stil, linksBreite = VEK_LINKS }) {
-  return <Arbeitsflaeche linksBreite={linksBreite} links={links} rechts={rechts} style={stil} />;
+export function VekArbeit({ links, rechts, stil, linksBreite = VEK_LINKS, ohneMenue = false }) {
+  return <Arbeitsflaeche linksBreite={linksBreite} links={ohneMenue ? links : <><VekBereichsMenue stapel />{links}</>} rechts={rechts} style={stil} />;
 }
 
 /* Bild rechts: BildKarte mit dem Bühnen-Verlauf; children(breite) zeichnet in echten Pixeln

@@ -1450,7 +1450,7 @@ export function klausurPlan(auswertung) {
 
 /* ---------- Prüfungsmodus von einer Fachseite aus: passende Themen zur Ansicht ---------- */
 const ANSICHT_THEMA = { ableitungstrainer: "ableiten", plotter: "kurven", advplotter: "kurven", integrale: "integrale", gleichungen: "gleichungen", lgs: "gleichungen", gleichverstehen: "gleichungen", terme: "terme", bernoulli: "bernoulli" };
-const VEKTOR_ANSICHTEN = ["vektoren", "ebenen", "ebenevsebene", "kreuzprodukt", "vektorgenerator", "zweipunkte", "dreipunkte", "abstaende", "geraden", "winkel"];
+const VEKTOR_ANSICHTEN = ["vektoren", "ebenen", "ebenevsebene", "kreuzprodukt", "vektorgenerator", "zweipunkte", "dreipunkte", "abstaende", "geraden", "winkel", "hesse"];
 export function pruefungsThemen(ansicht) {
   if (ANSICHT_THEMA[ansicht]) return [ANSICHT_THEMA[ansicht]];
   if (VEKTOR_ANSICHTEN.includes(ansicht)) return ["vektoren"];

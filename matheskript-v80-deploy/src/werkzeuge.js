@@ -75,7 +75,7 @@ export const WERKZEUGE = {
 
   /* ---------- Vektoren ---------- */
   vektorgenerator: { name: "Rechnen mit Vektoren", kurz: "Rechnen", zeile: "A ± B, k · A, Skalarprodukt mit Weg", slogan: "Addition, Vielfache, Linearkombination und Skalarprodukt – immer neue Beispiele mit Rechenweg.",
-    zeichen: "a⃗", bild: "wuerfel", ziel: { ansicht: "vektorgenerator" }, etikett: "rechnen", stufe: "ober" },
+    zeichen: "a+b", bild: "wuerfel", ziel: { ansicht: "vektorgenerator" }, etikett: "rechnen", stufe: "ober" },
   kreuzprodukt: { name: "Kreuzprodukt", kurz: "Kreuz", zeile: "a × b – Formel, eingesetzt, Ergebnis", slogan: "Zwei Vektoren eingeben – Formel, eingesetzt, Ergebnis.",
     zeichen: "×", bild: "kreuz", ziel: { ansicht: "kreuzprodukt" }, etikett: "rechnen", stufe: "ober" },
   winkel: { name: "Winkel und Skalarprodukt", kurz: "Winkel", zeile: "Skalarprodukt und Vektorwinkel", slogan: "Skalarprodukt verstehen und Winkel berechnen.",
@@ -90,6 +90,8 @@ export const WERKZEUGE = {
     zeichen: "g", bild: "geraden", ziel: { ansicht: "geraden" }, etikett: "trainieren", stufe: "ober" },
   ebenevsebene: { name: "Zwei Ebenen", kurz: "Zwei Ebenen", zeile: "Schnittgerade und Schnittwinkel", slogan: "Schnittgerade und Schnittwinkel zweier Ebenen.",
     zeichen: "E₁E₂", bild: "ebenen2", ziel: { ansicht: "ebenevsebene" }, etikett: "rechnen", stufe: "ober" },
+  hesse: { name: "Hesse-Normalenform", kurz: "HNF", zeile: "Normalenvektor, Normalenform, Abstand mit Vorzeichen", slogan: "Vom Normalenvektor zur Hesse-Normalenform – mit Herleitung, 3D-Bild und Übung.",
+    zeichen: "n₀", bild: "abstand", ziel: { ansicht: "hesse" }, etikett: "entdecken", stufe: "ober" },
   abstaende: { name: "Abstände", kurz: "Abstände", zeile: "Alle Kombinationen mit 3D-Bild", slogan: "Punkt, Gerade, Ebene – jede Kombination mit 3D-Bild.",
     zeichen: "d", bild: "abstand", ziel: { ansicht: "abstaende" }, etikett: "rechnen", stufe: "ober" },
 
@@ -208,7 +210,7 @@ export const BEREICHE = [
     stationen: [
       { id: "rechnen", titel: "Rechnen", zeile: "Vektoren, Kreuz- und Skalarprodukt", werkzeuge: ["vektorgenerator", "kreuzprodukt", "winkel"] },
       { id: "aufstellen", titel: "Aufstellen", zeile: "Geraden und Ebenen aus Punkten", werkzeuge: ["zweipunkte", "dreipunkte", "ebenen"] },
-      { id: "lage", titel: "Lage und Abstand", zeile: "Schneiden, parallel, windschief, Abstände", werkzeuge: ["geraden", "ebenevsebene", "abstaende"] },
+      { id: "lage", titel: "Lage und Abstand", zeile: "Schneiden, parallel, windschief, Abstände", werkzeuge: ["geraden", "ebenevsebene", "abstaende", "hesse"] },
     ] },
   { id: "stochastik", titel: "Wahrscheinlichkeitsrechnung", uebersicht: "stochastik", text: "Vier Stationen: zählen, Zufallsgrößen, testen, Normalverteilung.",
     video: { name: "Videokurs Stochastik", zeile: "Vom Baumdiagramm zum Hypothesentest" },

@@ -13,7 +13,7 @@ bekannt = lambda t: "ERR_TUNNEL" in t or "net::ERR" in t or "Failed to load reso
 # Pfad, Desktop-Kennung, Selektor der linken Spalte (erste Karte)
 SEITEN = [
     ("/ebenen", "[data-ebenen=breit]", "[data-ebenen=breit] [data-vek-box]"),
-    ("/vektorrechnen", "[data-vg=breit]", "[data-vg-arten]"),
+    ("/vektorrechnen", "[data-vg=breit]", "[data-vbm-links]"),
     ("/zwei-punkte", "[data-zp=breit]", "[data-zp-punkte]"),
     ("/drei-punkte", "[data-dp=breit]", "[data-dp-punkte]"),
     ("/abstaende", "[data-abst=breit]", "[data-abst-objekt=von]"),
@@ -69,6 +69,17 @@ def zwei_spalten(p, n, links):
     pruefe(p.locator(links).first.is_visible(), f"{n}: linke Karte fehlt")
 
 
+
+GRUPPE_VON = {"gg": "geraden", "punktprobe": "geraden", "ge": "ebenen", "gewinkel": "ebenen", "skalarprodukt": "rechnen", "vektorwinkel": "rechnen", "linear": "rechnen"}
+def menue(p, eintrag):
+    """Eintrag des Vektor-Seitenmenüs öffnen; liegt er in einer anderen Gruppe, erst die Gruppe im Band wählen (seit 22.10.)"""
+    if p.locator(f"[data-vbm={eintrag}]:visible").count() == 0:
+        p.locator(f"[data-wb-gruppe={GRUPPE_VON[eintrag]}]").click()
+        p.wait_for_timeout(900)
+    p.locator(f"[data-vbm={eintrag}]:visible").first.click()
+    p.wait_for_timeout(500)
+
+
 with sync_playwright() as pw:
     b = pw.chromium.launch()
     for (w, h) in [(1440, 900), (1100, 760), (860, 760), (390, 844), (360, 740)]:
@@ -101,7 +112,7 @@ with sync_playwright() as pw:
             p.close()
 
             p = oeffne(ctx, "/vektorrechnen", w)
-            p.locator("[data-vek-reiter=linear]").click()
+            menue(p, 'linear')
             pruefe(p.get_by_text("Skalare hineinmultiplizieren").count() == 1, f"{w} vektorrechnen: Rechenart wechselt nicht")
             p.locator("[data-vek-neu]").click()
             pruefe(p.get_by_text("Beispiel 2").count() == 1, f"{w} vektorrechnen: Neues Beispiel zählt nicht")
@@ -126,8 +137,8 @@ with sync_playwright() as pw:
             p.close()
 
             p = oeffne(ctx, "/geraden-im-raum", w)
-            for tab in ["gg", "ge", "probe"]:
-                p.locator(f"[data-vek-reiter={tab}]").click()
+            for tab in ["gg", "ge", "probe"]:   # Modi stehen seit 22.10. im Seitenmenü der Gruppe (vekNav)
+                menue(p, {'gg': 'gg', 'ge': 'ge', 'probe': 'punktprobe'}[tab])
                 box = p.locator(f"[data-ger-breit={tab}]")
                 pruefe(box.is_visible(), f"{w} geraden: Modus {tab} nicht sichtbar")
                 if tab == "gg":
@@ -145,9 +156,9 @@ with sync_playwright() as pw:
             box.get_by_role("textbox", name="Skalarprodukt").fill("0")
             box.get_by_role("button", name="Prüfen").click()
             pruefe(box.locator("[data-ger-rechnung] [data-vek-ergebnis]").count() == 1, f"{w} winkel: Rechnung nach Prüfen fehlt")
-            p.locator("[data-vek-reiter=winkel]").click()
+            menue(p, 'vektorwinkel')
             pruefe(p.locator("[data-ger-breit=winkel]").is_visible(), f"{w} winkel: Vektorwinkel fehlt")
-            p.locator("[data-vek-reiter=ge]").click()
+            menue(p, 'gewinkel')
             pruefe(p.locator("[data-ger-breit=ge-winkel]").is_visible(), f"{w} winkel: Modus-Wechsel fehlt")
             pruefe(p.locator("[data-ger-breit=ge-winkel] [data-ger-warum]").count() == 1, f"{w} winkel: Erklärung Sinus/Kosinus fehlt")
             ueberbreite(p, f"{w} winkel")

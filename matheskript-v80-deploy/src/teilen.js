@@ -29,6 +29,7 @@ export const TOOL_SAETZE = {
   optimierung: { de: "Extremwertaufgaben lösen", en: "solve optimisation problems" },
   integrale: { de: "Integrale und Flächen berechnen", en: "calculate integrals and areas" },
   vektorgenerator: { de: "mit Vektoren rechnen", en: "calculate with vectors" },
+  hesse: { de: "die Hesse-Normalenform verstehen", en: "understand the Hesse normal form" },
   kreuzprodukt: { de: "das Kreuzprodukt rechnen", en: "calculate the cross product" },
   winkel: { de: "Winkel zwischen Vektoren berechnen", en: "calculate angles between vectors" },
   zweipunkte: { de: "Geraden aus zwei Punkten aufstellen", en: "set up a line from two points" },

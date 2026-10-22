@@ -26,6 +26,7 @@ import { kapitelAusSlug, kapitelPfad } from "./kapitelPfade.js";
 /* Werkzeuge, deren Pfad vom Schlüssel abweicht */
 export const WZ_SLUG = {
   diffq: "differenzenquotient",
+  hesse: "hesse-normalenform",
   /* Suchwörter statt Code-Namen (21.10.); die alte Id bleibt als Alias erreichbar */
   lgs: "gleichungssysteme",
   zufall: "wahrscheinlichkeit",
