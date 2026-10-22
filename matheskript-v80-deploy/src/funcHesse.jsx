@@ -2,9 +2,9 @@
    Vektoren-Bereich: Hesse-Normalenform
    Drei Schritte, die man nacheinander durchgeht (seit 22.10. mit Motion-Animationen, src/motion/szenenVektoren.jsx):
      Die Idee           – Vermutung → Animation v_normalenform (fester Punkt P, beliebiger Punkt X, x⃗ − p⃗ liegt in E,
-                          senkrecht auf n⃗, Skalarprodukt 0, X wandert, X verlässt E, Normalenform) → Kernsatz →
+                          senkrecht auf n⃗, Skalarprodukt 0, X wandert, Q über E gibt ≠ 0, Normalenform) → Kernsatz →
                           selbst ausprobieren (X mit s, t, h im 3D-Bild, Skalarprodukt live) → Herleitung bis zur Koordinatenform
-     Hesse-Normalenform – drei Schreibweisen → Animation v_hnf (n⃗₀, Schatten = Lot = Abstand, Vorzeichen) → Kernsatz →
+     Hesse-Normalenform – drei Schreibweisen → Animation v_hnf (n⃗₀, Schatten gleitet aufs Lot = Abstand, Vorzeichen) → Kernsatz →
                           Q bewegen (Schatten von PQ⃗ auf n⃗₀ im Bild) → warum der Abstand herauskommt
      Trainieren         – Ebene gegeben → HNF → Abstand eines Punktes, mit Vermutung, Eingabe, Prüfen und Rechenweg
    Farben: Ebene und Normalenvektor Blau, Punkt (X, Q) Gold, Lot/Ergebnis Smaragd.
@@ -16,7 +16,8 @@
 import React, { useRef, useState } from "react";
 import { C, HESSE_VIDEO_ID } from "./base1.jsx";
 import { ErklaerVideo } from "./func1.jsx";
-import { Motion } from "./funcUnterstufeMotion.jsx";
+import { Motion, SZENEN } from "./funcUnterstufeMotion.jsx";
+import { zeitplan } from "./motion/kern.jsx";
 import { springe } from "./sprung.js";
 import { M } from "./func3.jsx";
 import { DrehKnoepfe, FARBE_ACHSE, GRUND_AUS, GrundebenenGitter, GrundebenenSchalter, kamera } from "./func16.jsx";
@@ -283,20 +284,37 @@ const hilfeKontext = (modus) => ({
 const P_LEER = {};
 const KAPITEL_IDEE = [
   { k: "ebene", name: "Ebene und n⃗" }, { k: "punktP", name: "P und X" }, { k: "orts", name: "x⃗ − p⃗" }, { k: "senkrecht", name: "Senkrecht" },
-  { k: "wandern", name: "X wandert" }, { k: "heben", name: "X verlässt E" }, { k: "gleichung", name: "Normalenform" },
+  { k: "wandern", name: "X wandert" }, { k: "ausserhalb", name: "Q außerhalb" }, { k: "gleichung", name: "Normalenform" },
 ];
 const KAPITEL_HNF = [
   { k: "laenge", name: "Länge egal" }, { k: "punktQ", name: "Punkt Q" }, { k: "wert", name: "9 oder 18?" }, { k: "normieren", name: "n⃗₀" }, { k: "hnf", name: "HNF" },
   { k: "schatten", name: "Schatten" }, { k: "lot", name: "Lot" }, { k: "durch", name: "Vorzeichen" }, { k: "fazit", name: "Abstand" },
 ];
 
-/* Animation in einer Karte mit Kicker; am Desktop rechts in der Arbeitsfläche */
-/* tempo 0,5: beide Animationen laufen halb so schnell (30 s → 60 s, 23 s → 46 s), die Szenen bleiben unverändert */
-function MotionKarte({ szene, titel, kapitel, kicker = "Animation", tempo = 0.5 }) {
+/* Frage (vor dem Start) und Kernsatz („Das Wichtigste“, am Ende) je Animation – Motion-Norm src/motion/NORM.md.
+   Frage und Kern laufen durch mitPfeilen: „n⃗“, „PQ⃗“ (U+20D7) zeichnet der Abspieler. */
+const MOTION_TEXTE = {
+  v_normalenform: {
+    frage: "Wie zeigt ein Skalarprodukt, ob ein Punkt X in der Ebene liegt?",
+    kern: "X liegt genau dann in E, wenn PX⃗ = x⃗ − p⃗ in E liegt – also senkrecht auf n⃗ steht und das Skalarprodukt 0 ist.",
+  },
+  v_hnf: {
+    frage: "Warum braucht man für den Abstand einen Normalenvektor der Länge 1?",
+    kern: "Mit n⃗ kommt 9 heraus, mit 2n⃗ 18 – erst n⃗₀ (Länge 1) macht den Wert eindeutig: Der Schatten von PQ⃗ ist so lang wie das Lot.",
+  },
+};
+/* Dauer in Sekunden aus dem Zeitplan (Lesezeit der Untertitel eingerechnet) – nie von Hand in den Kicker schreiben */
+const motionSekunden = (szene) => { const S = SZENEN[szene]; return S ? Math.round(zeitplan(S.ablauf(P_LEER)).dauer / 1000) : 0; };
+
+/* Animation in einer Karte mit Kicker; am Desktop rechts in der Arbeitsfläche.
+   tempo 1: seit 22.10. dehnt zeitplan jeden Abschnitt auf die Lesezeit seines Untertitels – die Bewegungen dauern
+   dadurch 3–5 s je Abschnitt; mit dem früheren tempo 0,5 wären es 80–90 s und zäh. */
+function MotionKarte({ szene, titel, kapitel, kicker, tempo = 1 }) {
+  const texte = MOTION_TEXTE[szene] || {};
   return (
     <div data-hesse-motion={szene} style={{ backgroundColor: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 18, padding: "10px 10px 2px" }}>
-      <p style={{ margin: "0 4px 6px", fontSize: 10.5, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#8A6A00" }}>{kicker}</p>
-      <Motion szene={szene} p={P_LEER} titel={titel} thema="vektoren" kapitel={kapitel} tempo={tempo} />
+      <p style={{ margin: "0 4px 6px", fontSize: 10.5, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#8A6A00" }}>{kicker || `Animation · ${motionSekunden(szene)} Sekunden`}</p>
+      <Motion szene={szene} p={P_LEER} titel={titel} thema="vektoren" kapitel={kapitel} tempo={tempo} frage={texte.frage} kern={texte.kern} />
     </div>
   );
 }
@@ -386,7 +404,7 @@ function ReiterIdee({ e, desktop, grund, werkzeuge, handyWerkzeuge, weiter }) {
         : <HinweisV art="schlecht">Schau es dir in der Animation an: Das Produkt bleibt 0, egal wie weit du X schiebst. PX⃗ liegt immer in der Ebene.</HinweisV>)}
     </Tafel>
   );
-  const motion = <MotionKarte szene="v_normalenform" titel="Die Idee hinter der Normalenform" kapitel={KAPITEL_IDEE} kicker="Animation · 60 Sekunden" />;
+  const motion = <MotionKarte szene="v_normalenform" titel="Die Idee der Normalenform" kapitel={KAPITEL_IDEE} />;
   const kernsatz = (
     <Kernsatz>
       Nimm einen festen Punkt P der Ebene und irgendeinen Punkt X der Ebene. Der Vektor x⃗ − p⃗ von P nach X liegt in der Ebene – also steht er senkrecht auf n⃗,
@@ -541,7 +559,7 @@ function ReiterHesse({ e, desktop, grund, werkzeuge, handyWerkzeuge, weiter }) {
       </Satz>
     </div>
   );
-  const motion = <MotionKarte szene="v_hnf" titel="Warum die HNF den Abstand liefert" kapitel={KAPITEL_HNF} kicker="Animation · 57 Sekunden" />;
+  const motion = <MotionKarte szene="v_hnf" titel="Warum die HNF den Abstand liefert" kapitel={KAPITEL_HNF} />;
   const kernsatz = (
     <Kernsatz kicker="Der Kern">
       Die Gleichung (x⃗ − p⃗) · n⃗ = 0 gilt für jede Länge von n⃗. Setzt man aber einen Punkt Q außerhalb ein, hängt der Wert von |n⃗| ab – erst mit n⃗₀ (Länge 1)

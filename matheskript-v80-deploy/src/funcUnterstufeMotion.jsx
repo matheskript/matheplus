@@ -37,7 +37,8 @@ const STIL = `
   .usm-frage{color:#7A0032}
   .usm-frage::before{content:"?";display:inline-block;width:1.3em;height:1.3em;margin-right:6px;border-radius:999px;background:#7A0032;color:#FFD66B;font-size:11px;line-height:1.3em;text-align:center;font-weight:800;vertical-align:1px}
   .usm-kern{margin:8px 0 0;padding:8px 11px;border-radius:12px;background:#FFF1C7;border:1px solid #E2B53C;color:#3A0019;font-size:13.5px;line-height:1.45;font-weight:700;animation:usm-auf .35s ease}
-  .usm-kern b{display:block;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:#8A6400;margin:0 0 2px}
+  .usm-kern b{display:block;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:#8A6400;margin:0 0 5px}
+  .usm-kern .usm-vec,.usm-frage .usm-vec{margin-top:2px}
   @keyframes usm-auf{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
   @media (prefers-reduced-motion: reduce){.usm-kern{animation:none}}
   .usm-leiste{-webkit-appearance:none;appearance:none;width:100%;height:4px;margin:7px 0 0;border-radius:4px;cursor:pointer;
@@ -154,7 +155,7 @@ export function Motion({ szene, p = {}, titel, thema, kapitel, tempo = 1, frage,
   /* Vor dem ersten Abspielen: die Frage; in der Ruhe am Ende (und im Standbild danach): der Kernsatz */
   const vorher = !lief && !gestartet.current;
   const schluss = t >= dauer - NACHLAUF - 1;
-  const zeigeFrage = !!frage && vorher;
+  const zeigeFrage = !!frage && vorher && !reduziert();
   const zeigeKern = !!kern && ((schluss && !vorher) || reduziert());
   const proz = `${((t / dauer) * 100).toFixed(1)}%`;
   const springe = (k) => { const a = plan.abschnitte.find((x) => x.k === k); if (!a) return; gestartet.current = true; setT(a.start); setLaeuft(true); };
@@ -170,7 +171,7 @@ export function Motion({ szene, p = {}, titel, thema, kapitel, tempo = 1, frage,
         </button>
         <div className="usm-mitte">
           {titel && <p className="usm-titel">{titel}</p>}
-          <p className={`usm-text${zeigeFrage ? " usm-frage" : ""}`} aria-live="polite" data-usm-text={zeigeFrage ? "frage" : "text"}>{zeigeFrage ? frage : mitPfeilen(text)}</p>
+          <p className={`usm-text${zeigeFrage ? " usm-frage" : ""}`} aria-live="polite" data-usm-text={zeigeFrage ? "frage" : "text"}>{mitPfeilen(zeigeFrage ? frage : text)}</p>
           {zeigeKern && <p className="usm-kern" data-usm-kern=""><b>Das Wichtigste</b>{mitPfeilen(kern)}</p>}
           <input type="range" className="usm-leiste" min="0" max={Math.round(dauer)} step="10" value={Math.round(t)} aria-label="Animation spulen"
             style={{ "--usm-u": proz }} onChange={(e) => { gestartet.current = true; setLaeuft(false); setT(Number(e.target.value)); }} />

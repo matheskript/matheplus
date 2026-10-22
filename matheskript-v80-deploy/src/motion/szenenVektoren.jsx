@@ -31,7 +31,9 @@ const SC = 36, OX = 64.6, OY = 154.4;           // Maßstab und Bildschirmlage d
 const pr = ([x1, x2, x3]) => { const u = -x1 * sp + x2 * cp, w = x1 * cp + x2 * sp; return [OX + SC * u, OY - SC * (x3 * ct - w * st)]; };
 const n1 = (v) => Math.round(v * 10) / 10;
 const pstr = (p) => `${n1(p[0])},${n1(p[1])}`;
-const ECKEN = [[-1.4, -1.4], [1.4, -1.4], [1.4, 1.4], [-1.4, 1.4]].map(([s, t]) => pr(inE(s, t)));
+/* Ebenen-Ausschnitt (s, t) ∈ [−1,5; 1,5] × [−0,8; 1,5]: oben rechts knapp, damit die Spitze von n⃗ sichtbar über den Rand
+   hinausragt – sonst sieht n⃗ in diesem Blickwinkel aus, als läge er in der Ebene */
+const ECKEN = [[-1.5, -0.8], [1.5, -0.8], [1.5, 1.5], [-1.5, 1.5]].map(([s, t]) => pr(inE(s, t)));
 const EBENE_PFAD = ECKEN.map((p, i) => `${i ? "L" : "M"}${pstr(p)}`).join(" ") + " Z";
 const zahl = (x) => de(Math.round(x * 100) / 100);
 /* eine Nachkommastelle, ganze Zahlen ohne Komma („3“, „−1,5“) */
@@ -143,16 +145,20 @@ function Kasten3({ y, h = 34, o = 1, f = F.weiss, rand = F.linie, children }) {
 }
 
 /* ---------- Zahlen der Szene 1 ---------- */
-/* Stationen von X in der Ebene: (s, t) → PX⃗ = s·u⃗ + t·v⃗ mit n⃗·PX⃗ = 0 */
-const STOPS = [[1, 0], [-1, 1], [0, -1], [-1, -1], [1, 1]];
+/* Stationen von X in der Ebene: (s, t) → PX⃗ = s·u⃗ + t·v⃗ = (2t | s − t | −s), n⃗ · PX⃗ = 0.
+   Die letzte Station ist F(−2 | 3 | 1) – über ihr liegt Q(−1 | 5 | 3), derselbe Q wie in v_hnf. */
+const STOPS = [[1, 0], [1, 1], [0, 1], [-1, 0]];
 const X_VON = (i) => inE(STOPS[i][0], STOPS[i][1]);
-const HOPS = STOPS.length - 1, HOP_MS = 1800, HOP_LAUF = 0.56;   // je Station: 56 % Bewegung, dann Ruhe mit Zahlen
+const HOPS = STOPS.length - 1;
+/* Wanderung: Ruhe (Zahlen lesen) – Weg – Ruhe – Weg – Ruhe – Weg – Ruhe; RUHE + WEG je Anteil an „wandern“ */
+const RUHE = 0.13, WEG = (1 - (HOPS + 1) * RUHE) / HOPS;
+const HOEHE_Q = 3;                                          // Q liegt 3 LE über F
 
 /* Produktzeile n⃗ · PX⃗ = 1·a + 2·b + 2·c = ergebnis (mit Zahlen) */
-const produktTeile = (PX, ergebnisFarbe, ergebnisText, mitZahlen = true) => {
+const produktTeile = (PX, ergebnisFarbe, ergebnisText, mitZahlen = true, name = "PX", nameFarbe = F.goldDunkel) => {
   const terme = mitZahlen ? [0, 1, 2].map((i) => `${N[i]}·${kl(PX[i])}`).join(" + ") : null;
   return [
-    { t: "n", vec: true, f: F.blau }, { t: "·" }, { t: "PX", vec: true, f: F.goldDunkel }, { t: "=" },
+    { t: "n", vec: true, f: F.blau }, { t: "·" }, { t: name, vec: true, f: nameFarbe }, { t: "=" },
     mitZahlen && { t: terme, w: 700 }, mitZahlen && { t: "=" },
     { t: ergebnisText, f: ergebnisFarbe, w: 900, g: 14.5 },
   ];
@@ -161,53 +167,51 @@ const produktTeile = (PX, ergebnisFarbe, ergebnisText, mitZahlen = true) => {
 /* ============================================================
    v_normalenform – Warum (x⃗ − p⃗) · n⃗ = 0 genau die Punkte der Ebene beschreibt
    p: {} (keine Parameter)
+   Sehen: E, n⃗, P fest, X beliebig · Verändern: x⃗ − p⃗ = PX⃗ liegt in E → senkrecht zu n⃗ (Kern-Moment, Goldpuls am
+   rechten Winkel) → X wandert, das Produkt bleibt 0 · Erkennen: Q über E gibt ≠ 0; Schlussbild zeigt X (= 0) und Q (≠ 0).
    ============================================================ */
 const v_normalenform = {
   h: 276,
-  label: () => "Ein fester Punkt P und ein beliebiger Punkt X der Ebene: Der Vektor von P nach X liegt in der Ebene, steht senkrecht auf dem Normalenvektor, das Skalarprodukt ist 0 – die Normalenform.",
+  label: () => "Ebene E mit Normalenvektor n, festem Punkt P und beliebigem Punkt X in E: Der Vektor von P nach X liegt in E und steht senkrecht auf n, das Skalarprodukt ist 0. Für einen Punkt Q außerhalb von E ist es nicht 0 – die Normalenform.",
   ablauf: () => [
     { k: "ebene", ms: 900, text: "Eine Ebene E im Raum." },
-    { k: "normale", ms: 1300, text: "Ein Vektor n⃗, der senkrecht auf E steht – auf jeder Richtung in der Ebene: der Normalenvektor." },
-    { k: "punktP", ms: 1400, text: "Wir halten einen Punkt der Ebene fest: P, den Aufpunkt." },
-    { k: "punktX", ms: 1300, text: "X ist irgendein anderer Punkt der Ebene – beliebig, Hauptsache in E." },
-    { k: "orts", ms: 1800, text: "Vom Ursprung O aus zeigen die Ortsvektoren: p⃗ auf P, x⃗ auf X." },
-    { k: "differenz", ms: 2000, text: "Zieht man p⃗ von x⃗ ab, bleibt der Vektor von P nach X: x⃗ − p⃗ = PX⃗. Er liegt ganz in der Ebene." },
-    { k: "senkrecht", ms: 1800, text: "PX⃗ liegt in E – und n⃗ steht senkrecht auf allem, was in E liegt. Also steht n⃗ senkrecht auf PX⃗." },
-    { k: "skalar", ms: 2200, text: "Senkrecht heißt: Das Skalarprodukt ist 0. Denn n⃗ · PX⃗ = |n⃗| · |PX⃗| · cos 90°, und cos 90° = 0." },
-    { k: "zahlen", ms: 2200, text: "Mit Zahlen: n⃗ = (1 | 2 | 2) und PX⃗ = (0 | 1 | −1). Nachrechnen: 1·0 + 2·1 + 2·(−1) = 0." },
-    { k: "wandern", ms: HOPS * HOP_MS, text: "Egal, wohin X in der Ebene wandert: Die Zahlen ändern sich – das Skalarprodukt bleibt 0." },
-    { k: "heben", ms: 1500, text: "Und wenn X die Ebene verlässt? Dann liegt PX⃗ nicht mehr in E …" },
-    { k: "oben", ms: 1700, text: "… PX⃗ steht nicht mehr senkrecht auf n⃗ – und das Skalarprodukt ist nicht mehr 0." },
-    { k: "zurueck", ms: 1300, text: "Zurück in die Ebene: Das Produkt ist wieder 0." },
-    { k: "gleichung", ms: 2600, text: "Genau die Punkte X mit (x⃗ − p⃗) · n⃗ = 0 liegen in E. Das ist die Normalenform der Ebene." },
+    { k: "normale", ms: 1300, text: "n⃗ steht senkrecht auf E – auf jeder Richtung in der Ebene." },
+    { k: "punktP", ms: 1200, text: "P ist ein fester Punkt in E: der Aufpunkt." },
+    { k: "punktX", ms: 1200, text: "X ist irgendein Punkt in E – ganz beliebig." },
+    { k: "orts", ms: 1600, text: "Die Ortsvektoren p⃗ und x⃗ zeigen vom Ursprung O auf P und X." },
+    { k: "differenz", ms: 1800, text: "x⃗ − p⃗ ist der Pfeil PX⃗ von P nach X – er liegt ganz in E." },
+    { k: "senkrecht", ms: 1800, text: "PX⃗ liegt in E – also steht n⃗ senkrecht auf PX⃗." },
+    { k: "skalar", ms: 1600, text: "Senkrecht heißt: Das Skalarprodukt ist 0, denn cos 90° = 0." },
+    { k: "wandern", ms: 7000, text: "X wandert durch E: Die Zahlen ändern sich, das Produkt bleibt 0." },
+    { k: "ausserhalb", ms: 2200, text: "Q liegt über E: PQ⃗ steht nicht senkrecht auf n⃗ – das Produkt ist nicht 0." },
+    { k: "gleichung", ms: 1600, text: "Also liegt X genau dann in E, wenn (x⃗ − p⃗) · n⃗ = 0 ist." },
   ],
   bild: ({ Z, z }) => {
     const uE = Z("ebene"), uN = Z("normale"), uP = Z("punktP"), uX = Z("punktX"), uO = Z("orts"), uD = Z("differenz");
-    const uS = Z("senkrecht"), uSk = Z("skalar"), uZ = Z("zahlen"), uW = z("wandern"), uH = Z("heben"), uOb = Z("oben"), uR = Z("zurueck"), uG = Z("gleichung");
+    const uS = Z("senkrecht"), uSk = Z("skalar"), uW = z("wandern"), uG = Z("gleichung");
+    /* Q steigt in den ersten 70 % von „ausserhalb“, danach stehen die Zahlen (sonst krumme Zwischenwerte) */
+    const zA = z("ausserhalb"), uA = sanft(teil(zA, 0, 0.7));
 
-    /* Lage von X: Station 0 → Wanderung über die Stationen → am Ende angehoben und zurück */
-    let X, stop = 0, ruhe = 1;                   // ruhe: 1 = X steht auf einer Station (Zahlen zeigen)
-    if (uW <= 0) X = X_VON(0);
-    else if (uW >= 1) { X = X_VON(HOPS); stop = HOPS; }
-    else {
-      const f = uW * HOPS, i = Math.min(HOPS - 1, Math.floor(f)), r = f - i;
-      const lauf = sanft(klemm(r / HOP_LAUF));
-      X = add(X_VON(i), mul(sub(X_VON(i + 1), X_VON(i)), lauf));
-      stop = r < HOP_LAUF ? i : i + 1;
-      ruhe = r < HOP_LAUF ? (r < 0.06 ? 1 - r / 0.06 : 0) : teil(r, HOP_LAUF, HOP_LAUF + 0.12);
+    /* Lage von X: Ruhe auf Station i, dann Weg zur nächsten (sanft) */
+    let X = X_VON(0), stop = 0, ruhe = 1;
+    if (uW >= 1) { X = X_VON(HOPS); stop = HOPS; }
+    else if (uW > 0) {
+      const takt = RUHE + WEG, i = Math.min(HOPS, Math.floor(uW / takt)), r = uW - i * takt;
+      if (i >= HOPS || r < RUHE) { X = X_VON(Math.min(i, HOPS)); stop = Math.min(i, HOPS); ruhe = 1; }
+      else {
+        const w = sanft((r - RUHE) / WEG);
+        X = add(X_VON(i), mul(sub(X_VON(i + 1), X_VON(i)), w));
+        stop = w < 0.5 ? i : i + 1; ruhe = 0;
+      }
     }
-    const hoehe = 1.5 * (uH > 0 && uR < 1 ? (uR > 0 ? 1 - uR : uH) : 0);     // Anheben entlang n⃗₀
-    const Xf = X;                                                              // Fußpunkt in E
-    X = add(X, mul(N0, hoehe));
-    const PX = sub(X, P0);
-    const prod = dot(N, PX);
-    const lPX = len(PX) || 1, e = mul(PX, 1 / lPX);
+    const PX = sub(X, P0), lPX = len(PX) || 1, e = mul(PX, 1 / lPX);
     const nTip = add(P0, mul(N0, LN * uN));
+    /* Q steigt von der letzten Station senkrecht nach oben */
+    const XE = X_VON(HOPS), Q = add(XE, mul(N0, HOEHE_Q * uA)), PQ = sub(Q, P0), prodQ = dot(N, PQ);
 
-    const [xP, yP] = pr(P0), [xX, yX] = pr(X), [xO, yO] = pr([0, 0, 0]);
-    const oO = Math.min(uO, 1 - uS);                                           // Ursprung + Ortsvektoren: rein in „orts“, raus in „senkrecht“
-    const inEbene = hoehe < 1e-6;
-    const ausserhalb = !inEbene;
+    const [xP, yP] = pr(P0), [xX, yX] = pr(X), [xO, yO] = pr([0, 0, 0]), [xQ, yQ] = pr(Q), [xXE, yXE] = pr(XE);
+    const oO = Math.min(uO, 1 - uS);                                         // Ursprung + Ortsvektoren: rein in „orts“, raus in „senkrecht“
+    const winkelMitte = pr(add(P0, mul(add(N0, e), 0.3)));
 
     /* Formelkasten unten */
     const yK = 238;
@@ -221,27 +225,22 @@ const v_normalenform = {
           <Tx x={B - 20} y={yK + 21} g={10.5} f={F.blau} w={800} a="end">NORMALENFORM</Tx>
         </Kasten3>
       );
-    } else if (uH > 0) {
-      const warn = ausserhalb && hoehe > 0.08;
-      const voll = uOb > 0 && uR <= 0;
+    } else if (uA > 0) {
+      const oben = zA >= 0.75;
       kasten = (
-        <Kasten3 y={yK} h={32} f={warn ? "#FBEAF0" : F.gruenHell} rand={warn ? F.granat : F.gruen}>
-          <Zeile x={B / 2} y={yK + 21} g={13} teile={voll
-            ? produktTeile(PX, F.granat, `${zahl(prod)} ≠ 0`, true)
-            : produktTeile(PX, warn ? F.granat : F.gruen, warn ? `${zahl(prod)} ≠ 0` : "0", false)} />
+        <Kasten3 y={yK} h={32} f="#FBEAF0" rand={F.granat}>
+          <Zeile x={B / 2} y={yK + 21} g={13} teile={produktTeile(PQ, F.granat, oben ? `${zahl(prodQ)} ≠ 0` : prodQ > 0.05 ? "≠ 0" : "0", oben, "PQ", F.granat)} />
         </Kasten3>
       );
-    } else if (uZ > 0) {
-      const mitZahlen = uW <= 0 ? uZ > 0.35 : ruhe > 0.5;
+    } else if (uW > 0) {
       kasten = (
         <Kasten3 y={yK} h={32} f={F.gruenHell} rand={F.gruen}>
-          <Zeile x={B / 2} y={yK + 21} g={13} teile={produktTeile(uW <= 0 ? sub(X_VON(0), P0) : sub(X_VON(stop), P0), F.gruen, "0", mitZahlen)}
-            o={uW <= 0 ? 1 : Math.max(0.35, ruhe)} />
+          <Zeile x={B / 2} y={yK + 21} g={13} teile={produktTeile(sub(X_VON(stop), P0), F.gruen, "0", ruhe > 0.5)} o={ruhe > 0.5 ? 1 : 0.55} />
         </Kasten3>
       );
     } else if (uSk > 0) {
       kasten = (
-        <Kasten3 y={yK} h={32} o={uSk}>
+        <Kasten3 y={yK} h={32} o={uSk} f={F.gruenHell} rand={F.gruen}>
           <Zeile x={B / 2} y={yK + 21} g={13} teile={[
             { t: "n", vec: true, f: F.blau }, { t: "·" }, { t: "PX", vec: true, f: F.goldDunkel }, { t: "=" },
             { t: "|n|·|PX|·cos 90°", w: 700 }, { t: "=" }, { t: "0", f: F.gruen, w: 900, g: 14.5 },
@@ -272,11 +271,11 @@ const v_normalenform = {
           </g>
         )}
         <Ebene o={uE} blass={oO} />
-        {/* Lot vom angehobenen X auf die Ebene */}
-        {hoehe > 0.02 && (
+        {/* Q über E: Lot zur Ebene (gestrichelt) und PQ⃗ – beide Granat (≠ 0) */}
+        {uA > 0 && (
           <g>
-            <Strich x1={pr(Xf)[0]} y1={pr(Xf)[1]} x2={xX} y2={yX} f={F.granat} b={1.4} strokeDasharray="4 3" />
-            <circle cx={pr(Xf)[0]} cy={pr(Xf)[1]} r="2.6" fill={F.granat} />
+            <Strich x1={xXE} y1={yXE} x2={xQ} y2={yQ} f={F.granat} b={1.4} strokeDasharray="4 3" />
+            <Pfeil3 von={P0} bis={Q} u={1} f={F.granat} b={2.4} o={teil(uA, 0.05, 0.3)} />
           </g>
         )}
         {/* n⃗ */}
@@ -284,20 +283,20 @@ const v_normalenform = {
         {uN > 0.6 && <VecTx x={pr(nTip)[0] + 8} y={pr(nTip)[1] + 2} text="n" g={14} f={F.blau} a="start" o={teil(uN, 0.6, 1)} />}
         {/* kleines Winkelzeichen „n⃗ senkrecht auf E“ während der Einführung */}
         <RechterWinkel3 p={P0} e1={N0} e2={mul(U, 1 / len(U))} g={0.42} f={F.blau} o={Math.min(teil(uN, 0.5, 1), 1 - uP)} />
-        {/* PX⃗ und das Winkelzeichen */}
+        {/* PX⃗ und das Winkelzeichen (bleibt bis zum Schluss: der sichtbare Grund) */}
         <Pfeil3 von={P0} bis={X} u={uD > 0 ? raus(klemm(uD * 1.6)) : 0} f={F.gold} b={2.8} />
-        <RechterWinkel3 p={P0} e1={N0} e2={e} g={0.5} f={F.gruen} o={inEbene ? uS : Math.max(0, 1 - hoehe * 6)} />
-        {uD > 0.55 && inEbene && uW <= 0 && uSk <= 0 && <VecTx x={(xP + xX) / 2 - 16} y={(yP + yX) / 2 + 16} text="PX" g={13} f={F.goldDunkel} o={teil(uD, 0.55, 0.9)} />}
+        <RechterWinkel3 p={P0} e1={N0} e2={e} g={0.5} f={F.gruen} o={uS} />
+        <Puls x={winkelMitte[0]} y={winkelMitte[1]} u={teil(uS, 0.25, 0.85)} r={15} f={F.gold} />
+        {uD > 0.55 && uW <= 0 && uSk <= 0 && <VecTx x={(xP + xX) / 2 + 14} y={(yP + yX) / 2 - 8} text="PX" g={13} f={F.goldDunkel} a="start" o={teil(uD, 0.55, 0.9)} />}
         {/* Punkte */}
         <Punkt3 p={P0} f={F.tinte} label="P" o={uP} dx={-18} dy={16} />
-        <Puls x={xP} y={yP} u={teil(uP, 0.1, 0.7)} r={16} f={F.tinte} />
-        <Pille x={xP - 62} y={yP + 34} text="fester Punkt (Aufpunkt)" g={10.5} f={F.flaeche} tf={F.grau} o={Math.min(teil(uP, 0.5, 1), 1 - uO)} />
-        <Punkt3 p={X} f={F.gold} label="X" o={uX} dx={9} dy={-6} lf={F.goldDunkel} />
-        <Puls x={xX} y={yX} u={teil(uX, 0.05, 0.65)} r={16} f={F.gold} />
-        <Pille x={xX - 40} y={yX + 28} text="beliebiger Punkt in E" g={10.5} f={F.goldHell} tf={F.goldDunkel} o={Math.min(teil(uX, 0.5, 1), 1 - uO)} />
+        <Pille x={xP - 62} y={yP + 34} text="fest (Aufpunkt)" g={10.5} f={F.flaeche} tf={F.grau} o={Math.min(teil(uP, 0.5, 1), 1 - uO)} />
+        <Punkt3 p={X} f={F.gold} label="X" o={uX} dx={xX < xP - 10 ? -18 : 9} dy={-6} lf={F.goldDunkel} />
+        <Pille x={xX + 4} y={yX + 26} text="beliebig in E" g={10.5} f={F.goldHell} tf={F.goldDunkel} o={Math.min(teil(uX, 0.5, 1), 1 - uO)} />
+        {uA > 0 && <Punkt3 p={Q} f={F.granat} label="Q" o={teil(uA, 0, 0.2)} dx={-16} dy={-4} />}
         {/* „senkrecht“-Etikett */}
         <Pille x={xP - 44} y={yP - 38} text="senkrecht" g={11} f={F.gruenHell} tf={F.gruen} o={Math.min(teil(uS, 0.4, 1), 1 - uSk)} />
-        {ausserhalb && uOb > 0 && <Pille x={xX + 22} y={yX - 30} text="nicht in E" g={11} f="#FBEAF0" tf={F.granat} a="start" o={uOb} />}
+        <Pille x={xQ + 12} y={yQ + 4} text="nicht in E" g={10.5} f="#FBEAF0" tf={F.granat} a="start" o={teil(uA, 0.6, 1)} />
         {kasten}
       </>
     );
@@ -317,18 +316,18 @@ const v_hnf = {
   h: 276,
   label: () => "Für die Normalenform ist die Länge des Normalenvektors egal. Setzt man aber einen Punkt außerhalb der Ebene ein, hängt der Wert von der Länge ab – deshalb wird der Normalenvektor auf Länge 1 gebracht: Dann ist das Skalarprodukt der Schatten des Verbindungsvektors, genau der Abstand, mit Vorzeichen für die Seite.",
   ablauf: () => [
-    { k: "ebene", ms: 1300, text: "Dieselbe Ebene E mit Aufpunkt P und Normalenvektor n⃗ = (1 | 2 | 2). Normalenform: (x⃗ − p⃗) · n⃗ = 0." },
-    { k: "laenge", ms: 2800, text: "Wie lang n⃗ ist, spielt dafür keine Rolle: Auch 2n⃗ oder ½n⃗ stehen senkrecht auf E – das Skalarprodukt mit jedem Vektor in E bleibt 0." },
+    { k: "ebene", ms: 1300, text: "Dieselbe Ebene E mit n⃗ = (1 | 2 | 2): (x⃗ − p⃗) · n⃗ = 0." },
+    { k: "laenge", ms: 2800, text: "Die Länge von n⃗ ist dafür egal: auch 2n⃗ und ½n⃗ stehen senkrecht auf E." },
     { k: "punktQ", ms: 1500, text: "Jetzt ein Punkt Q, der NICHT in E liegt." },
-    { k: "pq", ms: 1700, text: "PQ⃗ = q⃗ − p⃗ liegt nicht in der Ebene – das Skalarprodukt mit n⃗ ist nicht 0. Aber welcher Wert kommt heraus?" },
-    { k: "wert", ms: 3200, text: "Mit n⃗ kommt 9 heraus, mit 2n⃗ schon 18: Der Wert hängt von der Länge des Normalenvektors ab – so ist er noch kein Abstand." },
-    { k: "normieren", ms: 2100, text: "Deshalb erst jetzt: n⃗ durch seine Länge teilen. n⃗₀ = n⃗ / 3 hat die Länge 1 – damit ist der Wert eindeutig." },
-    { k: "hnf", ms: 1700, text: "Die Normalenform mit n⃗₀ heißt Hesse-Normalenform: (x⃗ − p⃗) · n⃗₀ = 0." },
-    { k: "schatten", ms: 2300, text: "PQ⃗ · n⃗₀ = |PQ⃗| · 1 · cos φ: die Länge des Schattens, den PQ⃗ auf die Richtung von n⃗₀ wirft." },
-    { k: "lot", ms: 2300, text: "Dieser Schatten ist genauso lang wie das Lot von Q auf E – also der Abstand von Q zur Ebene." },
+    { k: "pq", ms: 1700, text: "PQ⃗ liegt nicht in E – das Skalarprodukt ist nicht 0. Aber was dann?" },
+    { k: "wert", ms: 3200, text: "Mit n⃗ kommt 9 heraus, mit 2n⃗ schon 18 – so ist es noch kein Abstand." },
+    { k: "normieren", ms: 2100, text: "Deshalb jetzt: n⃗ durch seine Länge 3 teilen. n⃗₀ hat die Länge 1." },
+    { k: "hnf", ms: 1700, text: "Mit n⃗₀ heißt sie Hesse-Normalenform: (x⃗ − p⃗) · n⃗₀ = 0." },
+    { k: "schatten", ms: 2300, text: "PQ⃗ · n⃗₀ ist der Schatten, den PQ⃗ auf die Richtung von n⃗₀ wirft." },
+    { k: "lot", ms: 2300, text: "Der Schatten ist so lang wie das Lot von Q auf E: der Abstand." },
     { k: "zahlen", ms: 2400, text: "Mit Zahlen: PQ⃗ · n⃗₀ = 9 / 3 = 3. Q ist 3 LE von E entfernt." },
-    { k: "durch", ms: 4200, text: "Schiebt man Q durch die Ebene, wechselt das Vorzeichen: positiv auf der n⃗₀-Seite, 0 in E, negativ dahinter." },
-    { k: "fazit", ms: 2600, text: "Q in die Hesse-Normalenform einsetzen liefert δ: den Abstand mit Vorzeichen. Der Abstand selbst ist |δ|." },
+    { k: "durch", ms: 4200, text: "Q durch E schieben: plus vor E, 0 in E, minus dahinter." },
+    { k: "fazit", ms: 2600, text: "Q einsetzen liefert δ, den Abstand mit Vorzeichen. Der Abstand ist |δ|." },
   ],
   bild: ({ Z, z }) => {
     const uE = Z("ebene"), uLa = z("laenge"), uQ = Z("punktQ"), uPQ = Z("pq"), uW = Z("wert"), uNo = Z("normieren"), uH = Z("hnf");
