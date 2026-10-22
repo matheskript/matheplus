@@ -6,7 +6,8 @@
      Auto   – die App rechnet den Musterweg vor (früher „Rechnen“)
      Üben   – der Schüler geht jeden Schritt selbst, wählt aber aus zwei fertigen
               Zeilen (eine richtig, eine mit typischem Fehler; diffqUeben.js)
-     Lernen – der Schüler tippt jede Zeile selbst (früher „Trainieren“) Der Schüler baut den Differenzenquotienten
+     Lernen – der Schüler tippt jede Zeile selbst (früher „Trainieren“)
+   Der Schüler baut den Differenzenquotienten
    Zeile für Zeile selbst auf – der Bruch ist interaktiv, unten steht immer h:
 
      f′(x) = lim  f(x+h) − f(x)       Vorlage
