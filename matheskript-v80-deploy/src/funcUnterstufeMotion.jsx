@@ -87,8 +87,9 @@ const Icon = ({ art }) => (
   </svg>
 );
 
-/* thema: "vektoren" färbt den Abspieler blau (Oberstufe); kapitel: [{ k, name }] – Sprungmarken auf Abschnitte des Ablaufs */
-export function Motion({ szene, p = {}, titel, thema, kapitel }) {
+/* thema: "vektoren" färbt den Abspieler blau (Oberstufe); kapitel: [{ k, name }] – Sprungmarken auf Abschnitte des Ablaufs;
+   tempo: Abspielgeschwindigkeit (0,5 = halb so schnell, die Szene selbst bleibt unverändert) */
+export function Motion({ szene, p = {}, titel, thema, kapitel, tempo = 1 }) {
   React.useInsertionEffect(stilSetzen, []);
   const S = SZENEN[szene];
   const plan = useMemo(() => (S ? zeitplan(S.ablauf(p)) : null), [S, p]);
@@ -120,7 +121,7 @@ export function Motion({ szene, p = {}, titel, thema, kapitel }) {
     let id, vorher = null;
     const schritt = (jetzt) => {
       if (vorher != null) {
-        const n = Math.min(dauer, tRef.current + Math.min(64, jetzt - vorher));
+        const n = Math.min(dauer, tRef.current + Math.min(64, jetzt - vorher) * tempo);
         tRef.current = n; setT(n);
         if (n >= dauer) { setLaeuft(false); return; }
       }
@@ -129,7 +130,7 @@ export function Motion({ szene, p = {}, titel, thema, kapitel }) {
     };
     id = requestAnimationFrame(schritt);
     return () => cancelAnimationFrame(id);
-  }, [laeuft, dauer]);
+  }, [laeuft, dauer, tempo]);
 
   if (!S || !plan) return null;
   const am_ende = lief && t >= dauer - 1;

@@ -291,11 +291,12 @@ const KAPITEL_HNF = [
 ];
 
 /* Animation in einer Karte mit Kicker; am Desktop rechts in der Arbeitsfläche */
-function MotionKarte({ szene, titel, kapitel, kicker = "Animation" }) {
+/* tempo 0,5: beide Animationen laufen halb so schnell (30 s → 60 s, 23 s → 46 s), die Szenen bleiben unverändert */
+function MotionKarte({ szene, titel, kapitel, kicker = "Animation", tempo = 0.5 }) {
   return (
     <div data-hesse-motion={szene} style={{ backgroundColor: C.weiss, border: `1px solid ${C.linie}`, borderRadius: 18, padding: "10px 10px 2px" }}>
       <p style={{ margin: "0 4px 6px", fontSize: 10.5, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#8A6A00" }}>{kicker}</p>
-      <Motion szene={szene} p={P_LEER} titel={titel} thema="vektoren" kapitel={kapitel} />
+      <Motion szene={szene} p={P_LEER} titel={titel} thema="vektoren" kapitel={kapitel} tempo={tempo} />
     </div>
   );
 }
@@ -385,7 +386,7 @@ function ReiterIdee({ e, desktop, grund, werkzeuge, handyWerkzeuge, weiter }) {
         : <HinweisV art="schlecht">Schau es dir in der Animation an: Das Produkt bleibt 0, egal wie weit du X schiebst. PX⃗ liegt immer in der Ebene.</HinweisV>)}
     </Tafel>
   );
-  const motion = <MotionKarte szene="v_normalenform" titel="Die Idee hinter der Normalenform" kapitel={KAPITEL_IDEE} kicker="Animation · 30 Sekunden" />;
+  const motion = <MotionKarte szene="v_normalenform" titel="Die Idee hinter der Normalenform" kapitel={KAPITEL_IDEE} kicker="Animation · 60 Sekunden" />;
   const kernsatz = (
     <Kernsatz>
       Nimm einen festen Punkt P der Ebene und irgendeinen Punkt X der Ebene. Der Vektor x⃗ − p⃗ von P nach X liegt in der Ebene – also steht er senkrecht auf n⃗,
@@ -539,7 +540,7 @@ function ReiterHesse({ e, desktop, grund, werkzeuge, handyWerkzeuge, weiter }) {
       </Satz>
     </div>
   );
-  const motion = <MotionKarte szene="v_hnf" titel="Warum die HNF den Abstand liefert" kapitel={KAPITEL_HNF} kicker="Animation · 23 Sekunden" />;
+  const motion = <MotionKarte szene="v_hnf" titel="Warum die HNF den Abstand liefert" kapitel={KAPITEL_HNF} kicker="Animation · 46 Sekunden" />;
   const kernsatz = (
     <Kernsatz kicker="Der Kern">
       Mit n⃗₀ (Länge 1) ist das Skalarprodukt (q⃗ − p⃗) · n⃗₀ die Länge des Schattens von PQ⃗ auf der Normalenrichtung – und der ist genauso lang wie das Lot von Q auf E.
