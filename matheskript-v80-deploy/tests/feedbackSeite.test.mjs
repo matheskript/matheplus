@@ -140,3 +140,14 @@ test("Feedback-Knopf: Hook herausgelöst, dritter Punkt führt zur Feedback-Seit
   assert.ok(knopf.includes('gehe({ ansicht: "feedback" })') && knopf.includes('aktuell.ansicht !== "feedback"'));
   assert.ok(quelle("func10.jsx").includes("<FeedbackKnopf gehe={gehe}"));
 });
+
+test("Ganz unten: „Diese Seite teilen“ mit festem Direct Link mythosmathe.de/feedback, ohne Passwort", async () => {
+  const { FEEDBACK_LINK, feedbackTeilenText } = await import("../src/feedback.js");
+  assert.equal(FEEDBACK_LINK, "https://mythosmathe.de/feedback");
+  assert.equal(pfadAufloesen(new URL(FEEDBACK_LINK).pathname).ansicht, "feedback");
+  const t = feedbackTeilenText();
+  assert.ok(t.endsWith("\n" + FEEDBACK_LINK) && !/passwort/i.test(t), "Nachricht endet mit dem Link, kein Passwort");
+  assert.ok(seite.includes("<FeedbackTeilen />") && seite.includes("data-feedback-teilen-kopieren") && seite.includes("whatsappUrl(text)"));
+  const i = seite.indexOf("<FeedbackTeilen />");
+  assert.ok(i > seite.indexOf('id="fb-danach"'), "steht im letzten Abschnitt");
+});

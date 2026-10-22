@@ -11,6 +11,7 @@ Geprüft je Breite (360, 390, 768, 1280):
   - Formular: Prüfung in der Reihenfolge Rolle → Art → Text → Einwilligung; Voice-Umschalter zeigt das Mikrofon;
     Senden ohne Supabase meldet den Demo-Modus (nichts wird gesendet)
   - Handy: feste Knopfleiste nach der Bühne, weg beim Formular
+  - Ganz unten „Diese Seite teilen“: Direct Link https://mythosmathe.de/feedback, WhatsApp mit Link, „Link kopieren“ meldet sich
   - Feedback-Knopf auf einer anderen Seite (/vision): Auswahl hat den dritten Punkt zur Feedback-Seite
   - Unten auf jeder Seite (320/360/390/1280): Link „Feedback-Seite“ rechts neben „Feedback geben“, als Paar mittig
     (unter 350 px darunter); Tool-Seiten: eigene Zeile unter Teilen | Feedback, offenes Teilen-Panel dazwischen;
@@ -118,6 +119,18 @@ with sync_playwright() as p:
         page.wait_for_timeout(1200)
         pruefe(page.evaluate("[...document.querySelectorAll('.fs-auf')].every(e => e.classList.contains('da'))"), f"{tag}: nicht alles eingeblendet")
         pruefe(not page.evaluate("document.documentElement.scrollWidth > window.innerWidth + 1"), f"{tag}: Überbreite unten")
+        # Ganz unten: „Diese Seite teilen“ mit Direct Link
+        t = page.locator("[data-feedback-teilen]")
+        pruefe(t.count() == 1, f"{tag}: Block „Diese Seite teilen“ fehlt")
+        pruefe(page.locator("[data-feedback-teilen-link]").get_attribute("href") == "https://mythosmathe.de/feedback", f"{tag}: Direct Link falsch")
+        wa = page.locator("[data-feedback-teilen-wa]").get_attribute("href") or ""
+        pruefe(wa.startswith("https://wa.me/?text=") and "mythosmathe.de%2Ffeedback" in wa, f"{tag}: WhatsApp-Link ohne Direct Link")
+        ctx.grant_permissions(["clipboard-read", "clipboard-write"])
+        page.locator("[data-feedback-teilen-kopieren]").click(); page.wait_for_timeout(300)
+        pruefe("kopiert" in (t.inner_text() or ""), f"{tag}: Link kopieren meldet nichts")
+        kb = page.evaluate("""() => { const r = document.querySelector('[data-feedback-teilen]').getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth + 1; }""")
+        pruefe(kb, f"{tag}: Teilen-Block ragt über den Rand")
+        t.scroll_into_view_if_needed(); foto(page, f"teilen-{breite}")
         page.evaluate("window.scrollTo(0,0)"); page.wait_for_timeout(300)  # sprung-frei: Test
         foto(page, f"ganz-{breite}", voll=True)
         pruefe(not konsole, f"{tag}: Konsole {konsole}")

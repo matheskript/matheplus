@@ -85,6 +85,16 @@ export const KLASSEN = [5, 6, 7, 8, 9, 10, 11, 12, 13];
 
 export const SEITEN_NAME = "Feedback-Seite";
 
+/* Direct Link der Seite – fest auf die Hauptadresse, damit auch aus Vorschau-Deploys der richtige Link geteilt wird.
+   /feedback ist ohne Passwort erreichbar (OEFFENTLICH in middleware.js), deshalb steht in der Nachricht kein Passwort. */
+export const FEEDBACK_LINK = "https://mythosmathe.de/feedback";
+
+/* Nachricht für WhatsApp und das Teilen-Menü des Handys */
+export function feedbackTeilenText(link = FEEDBACK_LINK) {
+  return "Hey, mythosmathe.de baut gerade eine neue Mathe-Lernseite und will wissen, was Schüler, Eltern und Lehrkräfte davon halten. "
+    + "Hier kannst du sagen, was gut ist und was nicht – per Text oder Sprachnachricht:\n" + link;
+}
+
 /* Prüft eine Eingabe; liefert "" (in Ordnung) oder den Hinweis für den Nutzer. */
 export function feedbackPruefen({ rolle, art, text, dauer, zustimmung, weg }) {
   if (!ROLLEN.some((r) => r.id === rolle)) return "Sag uns bitte zuerst, wer du bist: Schüler, Elternteil oder Lehrkraft.";

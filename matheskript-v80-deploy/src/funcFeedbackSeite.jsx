@@ -24,7 +24,10 @@ import { sb } from "./konto.js";
 import { basisModus, editionVon, EVENT_START_MODUS, startModus } from "./startModus.js";
 import { useSprachaufnahme, audioHochladen, geraetDaten, MikroIcon, TextIcon, MAX_SEKUNDEN } from "./funcFeedback.jsx";
 import { ROLLEN, ARTEN, SCHUELER_FRAGEN, ELTERN_PUNKTE, GENAU, VORHER_NACHHER, DANACH, FEEDBACK_KAPITEL,
-  MAX_ZEICHEN, MAX_ORT, KLASSEN, feedbackPruefen, feedbackZeile, gesiezt } from "./feedback.js";
+  MAX_ZEICHEN, MAX_ORT, KLASSEN, feedbackPruefen, feedbackZeile, gesiezt,
+  FEEDBACK_LINK, feedbackTeilenText } from "./feedback.js";
+import { kopieren, TeilenIcon, WhatsAppIcon } from "./funcTeilen.jsx";
+import { whatsappUrl } from "./teilen.js";
 
 const NACHT = "#050B1F";
 const NACHT2 = "#0B1A44";
@@ -249,9 +252,26 @@ textarea.fs-feld { min-height: 150px; resize: vertical; }
 .fs-zitat p { font-size: clamp(20px, 3.6vw, 26px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.32; color: #FFFFFF; text-wrap: pretty; }
 .fs-zitat footer { margin-top: 14px; font-size: 13.5px; color: ${NEBEL}; }
 .fs-zitat footer b { color: #FFFFFF; font-weight: 700; }
+
+/* ---------- Diese Seite teilen (ganz unten) ---------- */
+.fs-teilen { margin-top: clamp(48px, 7vw, 72px); padding: clamp(22px, 4vw, 32px); border-radius: 26px; border: 1px solid rgba(237,187,0,0.35);
+  background: linear-gradient(160deg, rgba(237,187,0,0.10) 0%, rgba(255,255,255,0.03) 100%); }
+.fs-teilen-kopf { display: flex; align-items: center; gap: 12px; color: ${GOLD_HELL}; font-size: 12.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.fs-teilen h3 { margin-top: 12px; font-size: clamp(24px, 5vw, 32px); font-weight: 900; letter-spacing: -0.03em; line-height: 1.12; color: #FFFFFF; }
+.fs-teilen > p { margin-top: 10px; max-width: 52ch; font-size: 15.5px; line-height: 1.6; color: ${NEBEL}; }
+.fs-teilen-link { margin-top: 20px; display: inline-flex; align-items: center; max-width: 100%; min-height: 48px; padding: 0 20px; border-radius: 14px; box-sizing: border-box;
+  background: rgba(5,11,31,0.55); border: 1.5px dashed rgba(237,187,0,0.55); color: #FFFFFF; font-size: clamp(16px, 4.4vw, 19px); font-weight: 800;
+  letter-spacing: -0.01em; text-decoration: none; overflow-wrap: anywhere; user-select: all; }
+.fs-teilen-link b { color: ${GOLD}; font-weight: 800; }
+.fs-teilen-reihe { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 10px; }
+.fs-teilen-reihe .fs-knopf { min-height: 50px; padding: 0 20px; font-size: 15px; }
+.fs-teilen-reihe .fs-knopf.wa { color: #FFFFFF; background: #1FA855; border-color: #1FA855; text-decoration: none; }
+@media (max-width: 520px) { .fs-teilen-reihe .fs-knopf { flex: 1 1 100%; } }
+.fs-teilen-ok { margin-top: 12px; font-size: 14px; font-weight: 700; color: ${GOLD_HELL}; }
 `;
 
 /* ---------------------------------------------------------------- Bausteine */
+
 function Kicker({ nr, children }) {
   return <p className="fs-kicker">{nr ? <><b>{nr}</b> {children}</> : children}</p>;
 }
@@ -693,6 +713,7 @@ export function FeedbackSeite({ gehe }) {
             <button type="button" className="fs-knopf gold" onClick={() => zumFormular()}>Feedback geben <i aria-hidden="true">→</i></button>
             <button type="button" className="fs-knopf rand" onClick={() => gehe({ ansicht: "start" })}>Weiter üben</button>
           </div>
+          <FeedbackTeilen />
         </div>
       </section>
 
@@ -700,6 +721,35 @@ export function FeedbackSeite({ gehe }) {
       <div className={leisteU ? "fs-leiste-u sichtbar" : "fs-leiste-u"} aria-hidden={!leisteU}>
         <button type="button" className="fs-knopf gold" tabIndex={leisteU ? 0 : -1} onClick={() => zumFormular()} data-feedback-leiste>Feedback geben <i aria-hidden="true">→</i></button>
       </div>
+    </div>
+  );
+}
+
+/* Ganz unten: „Diese Seite teilen“ mit festem Direct Link mythosmathe.de/feedback */
+function FeedbackTeilen() {
+  const [meldung, setMeldung] = useState("");
+  const timer = useRef(null);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  const zeige = (t) => { setMeldung(t); clearTimeout(timer.current); timer.current = setTimeout(() => setMeldung(""), 2800); };
+  const text = feedbackTeilenText();
+  const nativ = typeof navigator !== "undefined" && typeof navigator.share === "function";
+  const linkKopieren = async () => zeige((await kopieren(FEEDBACK_LINK)) ? "✓ Link kopiert" : "Kopieren hat nicht geklappt – tippe den Link oben lange an und kopiere ihn.");
+  const teilen = async () => {
+    try { await navigator.share({ title: "Feedback für mythosmathe.de", text, url: FEEDBACK_LINK }); }
+    catch (e) { /* abgebrochen */ }
+  };
+  return (
+    <div className="fs-teilen fs-auf" id="fb-teilen" data-feedback-teilen>
+      <div className="fs-teilen-kopf"><TeilenIcon groesse={18} /> Diese Seite teilen</div>
+      <h3>Wer sollte noch mitreden?</h3>
+      <p>Schick den Link an Mitschüler, Eltern oder Lehrkräfte. Die Feedback-Seite ist ohne Passwort erreichbar.</p>
+      <a className="fs-teilen-link" href={FEEDBACK_LINK} data-feedback-teilen-link>mythosmathe.de<b>/feedback</b></a>
+      <div className="fs-teilen-reihe">
+        {nativ && <button type="button" className="fs-knopf gold" onClick={teilen} data-feedback-teilen-nativ><TeilenIcon groesse={18} /> Teilen</button>}
+        <button type="button" className={"fs-knopf " + (nativ ? "rand" : "gold")} onClick={linkKopieren} data-feedback-teilen-kopieren>Link kopieren</button>
+        <a className="fs-knopf wa" href={whatsappUrl(text)} target="_blank" rel="noopener noreferrer" data-feedback-teilen-wa><WhatsAppIcon /> Per WhatsApp</a>
+      </div>
+      {meldung && <p className="fs-teilen-ok" role="status">{meldung}</p>}
     </div>
   );
 }
