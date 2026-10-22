@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useId } from "react";
 import { C } from "./base1.jsx";
 import { zw } from "./ui2.jsx";
+import { ENDEN, FOLGERUNG, PAAR_ZEIT, WURZEL_BEISPIELE, WURZEL_PAARE, WURZEL_START, gz, wurzelBeschreibung, wurzelInfo, wurzelSchritte, wurzelZeiten } from "./wurzelMotion.js";
 
 /* ======================================================================
    ERKLÄRANIMATION
@@ -12,7 +13,8 @@ import { zw } from "./ui2.jsx";
    Szenen: "produkt" (Produktregel am Rechteck), "kette" (Kettenregel als
    Verstärkerkette), "stamm" (Stammfunktion: Ableiten rückwärts), "integral"
    (bestimmtes Integral: Streifen und Hauptsatz), "wurzel" (Wurzel aus
-   vierstelligen Quadratzahlen: erst 1² bis 10², dann die Zehnerquadrate).
+   vierstelligen Quadratzahlen, eine Minute: 1² bis 10², daneben die Zehnerquadrate,
+   letzte Ziffern, dann „zwischen welchen Zehnerquadraten?“ – Logik in wurzelMotion.js).
    ====================================================================== */
 
 /* ---------- Zeit-Hilfen ---------- */
@@ -167,272 +169,313 @@ function ketteZeichne(t) {
 }
 
 /* ======================================================================
-   SZENE 3 · Wurzel aus vierstelligen Quadratzahlen
-   Sieben Schritte (sechs bei nur einem Kandidaten):
-   1 Quadratzahlen 1² bis 10² · 2 Endziffer (z. B. 3·3 und 7·7 enden auf 9)
-   3 Beispielzahl mit Endziffer-Tabelle · 4 Quadratzahlen der Zehner (10² bis 100²,
-   dieselben Zahlen mit zwei Nullen) · 5 Zehnerstelle: zwischen welchen Zehner-
-   Quadraten liegt die Zahl? · 6 näher an der unteren oder oberen Zahl? · 7 Ergebnis
+   SZENE 3 · Wurzel aus vierstelligen Quadratzahlen (eine Minute, seit 22.10.2026)
+   Zeiten, Texte und Rechnung rein in src/wurzelMotion.js (Test tests/wurzelMotion.test.mjs).
+   1 Quadratzahlen 1² bis 10² · 2 daneben die Zehnerquadrate (dieselben Zahlen mit 00)
+   3 letzte Ziffern: 1|81, 4|64, 9|49, 16|36 enden gleich (Klammern), 25 und 100 allein
+   4 Folgerung: letzte Ziffer → Einerziffer der Wurzel · 5 Beispiel: die letzte Ziffer
+   6 zwischen welchen Zehnerquadraten liegt die Zahl? (Leiter) → Zehnerziffer
+   7 nur bei zwei Kandidaten: näher am unteren oder oberen Zehnerquadrat? · Ergebnis
    ====================================================================== */
-const WURZEL_BEISPIELE = [1296, 2025, 5329, 7569, 9604];
-const ENDEN = [[1, "1 | 9"], [4, "2 | 8"], [9, "3 | 7"], [6, "4 | 6"], [5, "5"], [0, "0"]];
-const KANDIDATEN = { 0: [0], 1: [1, 9], 4: [2, 8], 5: [5], 6: [4, 6], 9: [3, 7] };
-const NB = " ";
-const SP = " ";
-const gz = (n) => (n >= 10000 ? `10${NB}000` : String(n));
+const SP = " ";
 const ZEHN = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+const mische = (a, b, p) => a + (b - a) * p;
+const RY = (i) => 46 + i * 36; // Oberkante der Zeile i in der Liste 1² bis 10²
+const RH = 30;
 
-function wurzelInfo(N) {
-  const n = Math.round(Math.sqrt(N));
-  const ende = N % 10;
-  const kand = KANDIDATEN[ende] || [n % 10];
-  const kandKlein = kand.map((k) => (k === 0 ? 10 : k)); // Endziffer der Wurzel als Zahl von 1 bis 10
-  const vorne = Math.floor(N / 100);
-  const z = Math.floor(Math.sqrt(vorne)); // Zehnerstelle
-  const unten = z * z * 100, oben = (z + 1) * (z + 1) * 100; // 4900 = 70², 6400 = 80²
-  const zwei = kand.length === 2;
-  const abU = N - unten, abO = oben - N;
-  const kleiner = abU < abO; // näher an der unteren Zehnerquadratzahl
-  const gewaehlt = zwei ? (kleiner ? 10 * z + kand[0] : 10 * z + kand[1]) : 10 * z + kand[0];
-  return { N, n, ende, kand, kandKlein, vorne, z, unten, oben, zwei, abU, abO, kleiner, gewaehlt, kandZahlen: kand.map((k) => 10 * z + k) };
+/* Zahl mit hervorgehobener letzter Ziffer: Grundtext + Goldziffer darüber (gleiche Laufweite) */
+function Wert({ x, y, text, groesse, gold, farbe = C.seeTief, nullen = false }) {
+  const vorn = text.slice(0, -1), hinten = text.slice(-1);
+  return (
+    <g>
+      <T x={x} y={y} textAnchor="end" fontSize={groesse} fontWeight="800" fill={farbe}>
+        {text}{nullen && <tspan fill={C.gold}>00</tspan>}
+      </T>
+      {gold > 0.001 && (
+        <T x={x} y={y} textAnchor="end" fontSize={groesse} fontWeight="800" fill={C.gold} opacity={gold}>
+          <tspan fillOpacity="0">{vorn}</tspan>{hinten}{nullen && <tspan fillOpacity="0">00</tspan>}
+        </T>
+      )}
+    </g>
+  );
 }
 
-/* Anfangszeiten der Schritte und Gesamtdauer */
-const wurzelZeiten = (zwei) => (zwei
-  ? { s: [0, 5.5, 11.5, 17.5, 25, 31.5, 38], dauer: 44 }
-  : { s: [0, 5.5, 11.5, 17.5, 25, 31.5], dauer: 38 });
-
-function wurzelSchritte(I) {
-  const [a, b] = I.kandKlein;
-  const s1 = "Zuerst die Quadratzahlen von 1² bis 10²: 1, 4, 9, 16, 25, 36, 49, 64, 81 und 100. Nur diese zehn Zahlen brauchst du für den Trick.";
-  const s2 = I.zwei
-    ? `Schau auf die Endziffern: ${a} · ${a} = ${a * a} und ${b} · ${b} = ${b * b} enden beide auf ${I.ende}. Endet eine Quadratzahl auf ${I.ende}, dann endet ihre Wurzel auf ${a} oder ${b}.`
-    : `Schau auf die Endziffern: ${a} · ${a} = ${a * a} endet auf ${I.ende}, und keine andere Zahl von 1 bis 10 tut das. Endet eine Quadratzahl auf ${I.ende}, dann endet ihre Wurzel immer auf ${a}.`;
-  const s3 = I.zwei
-    ? `Jetzt eine Beispielzahl: ${I.N}. Sie endet auf ${I.ende}, also endet ihre Wurzel auf ${a} oder ${b}. Die Tabelle zeigt dir alle Endziffern auf einen Blick.`
-    : `Jetzt eine Beispielzahl: ${I.N}. Sie endet auf ${I.ende}, also endet ihre Wurzel immer auf ${a}. Die Tabelle zeigt dir alle Endziffern auf einen Blick.`;
-  const s4 = `Jetzt die Quadratzahlen der Zehner: 10², 20², 30² bis 100². Das sind genau die Zahlen von eben mit zwei Nullen hinten dran: 1 wird zu 100, 4 zu 400, 9 zu 900 und so weiter bis 10${NB}000.`;
-  const s5 = I.zwei
-    ? `${I.N} liegt zwischen ${gz(I.unten)} = ${I.z * 10}² und ${gz(I.oben)} = ${(I.z + 1) * 10}². Die Wurzel liegt also zwischen ${I.z * 10} und ${(I.z + 1) * 10} und beginnt mit ${I.z}. Mit der Endziffer bleiben zwei Kandidaten: ${I.kandZahlen[0]} und ${I.kandZahlen[1]}.`
-    : `${I.N} liegt zwischen ${gz(I.unten)} = ${I.z * 10}² und ${gz(I.oben)} = ${(I.z + 1) * 10}². Die Wurzel liegt also zwischen ${I.z * 10} und ${(I.z + 1) * 10} und beginnt mit ${I.z}. Mit der Endziffer bleibt nur ein Kandidat: ${I.gewaehlt}.`;
-  const kurz = I.kleiner ? I.abU : I.abO;
-  const s6 = `Liegt ${I.N} näher an ${gz(I.unten)} oder an ${gz(I.oben)}? Nach unten sind es ${I.abU}, nach oben ${I.abO}. Weil ${kurz} der kürzere Abstand ist, nimmst du ${I.kleiner ? "den kleineren" : "den größeren"} Kandidaten: ${I.gewaehlt}.`;
-  const s7 = `Fertig: √${I.N} = ${I.gewaehlt}. Probe: ${I.gewaehlt}² = ${I.N}. Mehr als die Quadratzahlen von 1 bis 10 brauchst du dafür nicht.`;
-  const texte = I.zwei ? [s1, s2, s3, s4, s5, s6, s7] : [s1, s2, s3, s4, s5, s7];
-  return wurzelZeiten(I.zwei).s.map((von, i) => ({ von, text: texte[i] }));
-}
+/* waagrechter Pfeil (Schriftzeichen „→“ ist in Montserrat zu klein) */
+const Pfeil = ({ x1, x2, y, farbe, breite = 2 }) => (
+  <path d={`M${x1} ${y} H${x2} M${x2 - 5} ${y - 4.5} L${x2} ${y} L${x2 - 5} ${y + 4.5}`} fill="none" stroke={farbe} strokeWidth={breite} strokeLinecap="round" strokeLinejoin="round" />
+);
 
 function wurzelZeichne(t, I) {
   const Zt = wurzelZeiten(I.zwei).s;
-  const [a, b] = I.kandKlein;
-  const ziff = String(I.N).split("");
-  const bx = (i) => 98 + i * 52;
-  /* zwei Spalten: links 1 bis 5, rechts 6 bis 10 */
-  const kx = (i) => 17 + Math.floor(i / 5) * 170;
-  const ky = (i) => 46 + (i % 5) * 58;
-  const KB = 156, KH = 50;
   const tE = Zt[Zt.length - 1];
+  const [tZehner, tEnden, tFolge, tBsp, tLeiter] = [Zt[1], Zt[2], Zt[3], Zt[4], Zt[5]];
+  const tNaeher = I.zwei ? Zt[6] : null;
+  const ziff = String(I.N).split("");
 
-  /* Phasen: A = 1² bis 10², B = Beispielzahl, C = Zehnerquadrate, D = Zehnerstelle bis Ergebnis */
-  const phA = 1 - lauf(t, Zt[2] - 0.2, Zt[2] + 0.7);
-  const phB = lauf(t, Zt[2] + 0.2, Zt[2] + 1.1) * (1 - lauf(t, Zt[3] - 0.1, Zt[3] + 0.8));
-  const phC = lauf(t, Zt[3] + 0.3, Zt[3] + 1.2) * (1 - lauf(t, Zt[4] - 0.1, Zt[4] + 0.8));
-  const phD = lauf(t, Zt[4] + 0.2, Zt[4] + 1.1);
-  const rootOp = Math.min(1, phB + phD);
+  /* ---------- Sichtbarkeit der großen Abschnitte ---------- */
+  const listeAn = 1 - lauf(t, tBsp - 0.2, tBsp + 0.6); // Liste 1² bis 10² (Schritte 1 bis 4)
+  const rechtsAn = lauf(t, tZehner + 0.2, tZehner + 0.8) * (1 - lauf(t, tEnden, tEnden + 0.7)); // Zehnerquadrate
+  const sl = lauf(t, tEnden + 0.4, tEnden + 1.3); // Liste rückt nach rechts, Platz für die Klammern
+  const endenAn = lauf(t, tEnden + 0.9, tEnden + 1.5) * listeAn;
+  const bspAn = lauf(t, tBsp + 0.3, tBsp + 1.1);
 
-  /* A: Quadratzahlen 1² bis 10² */
-  const hiA = lauf(t, Zt[1] + 0.4, Zt[1] + 1.4);
-  const ban = lauf(t, Zt[1] + 2.0, Zt[1] + 3.0);
+  /* ---------- Schritt 3: Paare ---------- */
+  const paarT = PAAR_ZEIT.map((d) => tEnden + d);
+  const fertig = paarT.map((p) => lauf(t, p, p + 0.7));
+  const aktiv = paarT.map((p, k) => lauf(t, p, p + 0.5) * (1 - lauf(t, (k + 1 < paarT.length ? paarT[k + 1] : tEnden + 14) - 0.2, (k + 1 < paarT.length ? paarT[k + 1] : tEnden + 14) + 0.4)));
+  /* in Schritt 4 leuchtet das Beispiel der Folgerung (Endziffer 9) noch einmal auf */
+  const folgeAn = lauf(t, tFolge + 0.4, tFolge + 1.2) * (1 - lauf(t, tBsp - 0.6, tBsp));
+  const zeileAktiv = (i) => {
+    let a = 0;
+    WURZEL_PAARE.forEach((p, k) => { if (p.zeilen.includes(i)) a = Math.max(a, aktiv[k], k === 2 ? folgeAn : 0); });
+    return a;
+  };
+  const zeileFertig = (i) => {
+    let f = 0;
+    WURZEL_PAARE.forEach((p, k) => { if (p.zeilen.includes(i)) f = fertig[k]; });
+    return f;
+  };
 
-  /* B: Beispielzahl und Endziffer-Tabelle */
-  const h1 = lauf(t, Zt[2] + 0.9, Zt[2] + 1.9);
-  const tab = lauf(t, Zt[2] + 1.3, Zt[2] + 2.3);
-  const hl = lauf(t, Zt[2] + 2.6, Zt[2] + 3.6);
-  const hint = lauf(t, Zt[2] + 3.8, Zt[2] + 4.8);
+  /* Liste: Lage und Breite */
+  const LX = mische(14, 60, sl), LW = mische(148, 124, sl);
+
+  /* ---------- Beispiel ---------- */
+  const bx = (i) => 98 + i * 52;
   const col = ENDEN.findIndex(([e]) => e === I.ende);
+  const tab = lauf(t, tBsp + 1.0, tBsp + 1.8);
+  const endHi = lauf(t, tBsp + 2.0, tBsp + 2.8);
+  const colHi = lauf(t, tBsp + 2.6, tBsp + 3.4);
+  const verb1 = lauf(t, tBsp + 3.2, tBsp + 4.0) * (1 - lauf(t, tLeiter, tLeiter + 0.6));
+  const einerAn = lauf(t, tBsp + 3.6, tBsp + 4.4);
+  const boxenAn = lauf(t, tBsp + 1.2, tBsp + 2.0);
+  const vorneHi = lauf(t, tLeiter + 0.2, tLeiter + 1.0);
+  const leiterAn = (s) => lauf(t, tLeiter + 0.4 + s * 0.22, tLeiter + 1.0 + s * 0.22);
+  const nAn = lauf(t, tLeiter + 1.6, tLeiter + 2.4);
+  const randHi = lauf(t, tLeiter + 2.4, tLeiter + 3.2);
+  const zwischen = lauf(t, tLeiter + 2.8, tLeiter + 3.6);
+  const verb2 = lauf(t, tLeiter + 3.2, tLeiter + 4.0) * (1 - lauf(t, tE, tE + 0.6));
+  const zehnerAn = lauf(t, tLeiter + 3.6, tLeiter + 4.4);
+  const kandAn = I.zwei ? lauf(t, tLeiter + 4.6, tLeiter + 5.4) : 0;
+  const ab1 = tNaeher != null ? lauf(t, tNaeher + 0.4, tNaeher + 1.2) : 0;
+  const ab2 = tNaeher != null ? lauf(t, tNaeher + 1.0, tNaeher + 1.8) : 0;
+  const nahHi = tNaeher != null ? lauf(t, tNaeher + 1.6, tNaeher + 2.4) : 0;
+  const entscheid = tNaeher != null ? lauf(t, tNaeher + 2.6, tNaeher + 3.4) : 0;
+  const einerFest = I.zwei ? lauf(t, tNaeher + 3.2, tNaeher + 4.0) : 1;
+  const erg = lauf(t, tE + 0.5, tE + 1.5);
+  const probe = lauf(t, tE + 1.8, tE + 2.6);
 
-  /* C: Zehnerquadrate */
-  const cap1 = lauf(t, Zt[3] + 5.2, Zt[3] + 6.2);
-  const cap2 = lauf(t, Zt[3] + 6.4, Zt[3] + 7.4);
-
-  /* D: Zehnerstelle, Kandidaten, näher dran, Ergebnis */
-  const tD = Zt[4];
-  const h2 = lauf(t, tD + 1.0, tD + 2.0);
-  const kopf = lauf(t, tD + 0.8, tD + 1.8);
-  const nl = lauf(t, tD + 1.2, tD + 2.2);
-  const mk = lauf(t, tD + 2.8, tD + 4.2);
-  const zz = lauf(t, tD + 4.2, tD + 5.2);
-  const pl = lauf(t, tD + 5.0, tD + 6.0);
-  const tV = Zt[5];
-  const ab = lauf(t, tV + 0.4, tV + 1.4);
-  const abL = lauf(t, tV + 1.2, tV + 2.2);
-  const gl = lauf(t, tV + 2.4, tV + 3.4);
-  const ent = lauf(t, tV + 4.0, tV + 5.0);
-  const wahl = I.zwei ? lauf(t, tV + 4.2, tV + 5.2) : lauf(t, tD + 5.6, tD + 6.4);
-  const erg = lauf(t, tE + 0.6, tE + 1.8);
-
-  const frac = (I.N - I.unten) / (I.oben - I.unten);
-  const mx = 50 + 260 * frac * mk;
-  const mxEnd = 50 + 260 * frac;
-  const pillX = I.zwei ? [130, 230] : [180];
-  const gruen = I.kleiner ? C.smaragd : C.hellgrau;
-  const gruenR = I.kleiner ? C.hellgrau : C.smaragd;
+  /* Leiter: z − 1, z, die Zahl, z + 1, z + 2 */
+  const LEITER = [I.z - 1, I.z, "N", I.z + 1, I.z + 2];
+  const leiterY = (s) => 194 + s * 36;
+  const naeherZeile = I.kleiner ? 1 : 3;
+  const einerText = I.zwei ? `${I.kand[0]}|${I.kand[1]}` : String(I.kand[0]);
 
   return (
     <g>
-      {/* ---------- A: Quadratzahlen von 1² bis 10² ---------- */}
-      <g opacity={phA}>
-        <T x="180" y="30" textAnchor="middle" fontSize="11.5" fontWeight="700" fill={C.hellgrau} letterSpacing="0.08em" opacity={lauf(t, 0.1, 0.8)}>QUADRATZAHLEN VON 1 BIS 10</T>
-        {ZEHN.map((n, i) => {
-          const an = I.kandKlein.includes(n);
-          const ein = lauf(t, 0.4 + i * 0.38, 1.0 + i * 0.38);
-          const dim = an ? 1 : 1 - 0.6 * hiA;
-          const s = String(n * n);
+      {/* ================= Schritte 1 bis 4: die Liste ================= */}
+      <g opacity={listeAn}>
+        {/* Überschriften */}
+        <T x={LX + LW / 2} y="30" textAnchor="middle" fontSize="10.5" fontWeight="700" fill={C.hellgrau} letterSpacing="0.08em" opacity={lauf(t, 0.1, 0.8)}>QUADRATZAHLEN</T>
+        <T x="272" y="30" textAnchor="middle" fontSize="10.5" fontWeight="700" fill={C.gold} letterSpacing="0.08em" opacity={rechtsAn}>ZEHNERQUADRATE</T>
+        <T x="280" y="30" textAnchor="middle" fontSize="9.5" fontWeight="700" fill={C.hellgrau} letterSpacing="0.05em" opacity={endenAn}>LETZTE ZIFFER → WURZEL</T>
+
+        {/* Klammern: n² und (10 − n)² enden gleich */}
+        {WURZEL_PAARE.slice(0, 4).map((p, k) => {
+          const ya = RY(p.zeilen[0]) + RH / 2, yb = RY(p.zeilen[1]) + RH / 2;
+          const xr = LX - 4, xl = 16 + k * 9;
+          const d = `M${xr} ${ya} H${xl + 6} Q${xl} ${ya} ${xl} ${ya + 6} V${yb - 6} Q${xl} ${yb} ${xl + 6} ${yb} H${xr}`;
           return (
-            <g key={n} opacity={ein * dim}>
-              <rect x={kx(i)} y={ky(i)} width={KB} height={KH} rx="12" fill={C.himmel} stroke={C.see} strokeWidth="1.6" />
-              {an && <rect x={kx(i)} y={ky(i)} width={KB} height={KH} rx="12" fill={C.flaggold} fillOpacity={0.5 * hiA} stroke={C.gold} strokeWidth="2.6" strokeOpacity={hiA} />}
-              <T x={kx(i) + 20} y={ky(i) + 32} fontSize="16" fontWeight="700" fill={C.see}>{n}²</T>
-              <T x={kx(i) + KB - 20} y={ky(i) + 34} textAnchor="end" fontSize="24" fontWeight="800" fill={C.seeTief}>
-                {s.slice(0, -1)}<tspan fontSize={an ? 24 + 6 * hiA : 24}>{s.slice(-1)}</tspan>
-              </T>
+            <g key={k} opacity={endenAn}>
+              <path d={d} fill="none" stroke={C.see} strokeOpacity="0.4" strokeWidth="1.8" strokeLinecap="round" pathLength="1" strokeDasharray="1 1" strokeDashoffset={1 - fertig[k]} />
+              {aktiv[k] > 0.001 && <path d={d} fill="none" stroke={C.gold} strokeWidth="2.8" strokeLinecap="round" opacity={aktiv[k]} />}
             </g>
           );
         })}
-        <g opacity={ban}>
-          <T x="180" y="362" textAnchor="middle" fontSize="16" fontWeight="800" fill={C.tinte}>
-            {I.zwei ? `${a} · ${a} = ${a * a}${SP}und${SP}${b} · ${b} = ${b * b}` : `${a} · ${a} = ${a * a}`}
-          </T>
-          <T x="180" y="386" textAnchor="middle" fontSize="13.5" fontWeight="600" fill={C.grau}>
-            {I.zwei ? `enden beide auf ${I.ende}` : "keine andere Zahl von 1 bis 10 tut das"}
-          </T>
-          <T x="180" y="428" textAnchor="middle" fontSize="15.5" fontWeight="700" fill={C.tinte}>Quadratzahl endet auf {I.ende}</T>
-          <T x="180" y="452" textAnchor="middle" fontSize="15.5" fontWeight="800" fill={C.see}>
-            {"→ Wurzel endet auf "}<tspan fill={C.gold}>{I.zwei ? `${a} oder ${b}` : a}</tspan>
-          </T>
+        {/* 25 und 100 stehen allein */}
+        {[4, 5].map((k) => {
+          const y = RY(WURZEL_PAARE[k].zeilen[0]) + RH / 2;
+          return (
+            <g key={k} opacity={endenAn * fertig[k]}>
+              <circle cx={LX - 10} cy={y} r={3.5 + 2 * aktiv[k]} fill={C.gold} />
+              {aktiv[k] > 0.001 && <circle cx={LX - 10} cy={y} r="9" fill="none" stroke={C.flaggold} strokeWidth="2" opacity={aktiv[k]} />}
+            </g>
+          );
+        })}
+
+        {/* Zeilen */}
+        {ZEHN.map((n, i) => {
+          const ein = lauf(t, 0.5 + i * 0.45, 1.1 + i * 0.45);
+          const hi = zeileAktiv(i);
+          const y = RY(i);
+          return (
+            <g key={n}>
+              <g opacity={ein}>
+                <rect x={LX} y={y} width={LW} height={RH} rx="9" fill={C.himmel} stroke={C.see} strokeWidth="1.5" />
+                {hi > 0.001 && <rect x={LX} y={y} width={LW} height={RH} rx="9" fill={C.flaggold} fillOpacity={0.45 * hi} stroke={C.gold} strokeWidth="2.4" strokeOpacity={hi} />}
+                <T x={LX + 13} y={y + 21} fontSize="14" fontWeight="700" fill={C.see}>{n}²</T>
+                <Wert x={LX + LW - 13} y={y + 22} text={String(n * n)} groesse={19} gold={Math.max(0.85 * zeileFertig(i) * endenAn, hi)} />
+              </g>
+              {/* daneben: (10 · n)² */}
+              <g opacity={lauf(t, tZehner + 0.5 + i * 0.4, tZehner + 1.1 + i * 0.4) * rechtsAn}>
+                <Pfeil x1={168} x2={191} y={y + RH / 2} farbe={C.flaggold} breite={2.2} />
+                <rect x="198" y={y} width="148" height={RH} rx="9" fill={C.weiss} stroke={C.gold} strokeWidth="1.5" />
+                <T x="211" y={y + 21} fontSize="14" fontWeight="700" fill={C.gold}>{n * 10}²</T>
+                <Wert x={333} y={y + 22} text={String(n * n)} groesse={19} gold={0} nullen />
+              </g>
+            </g>
+          );
+        })}
+
+        {/* rechts in Schritt 3/4: was die letzte Ziffer über die Wurzel sagt */}
+        {WURZEL_PAARE.map((p, k) => {
+          const y = RY(k);
+          const hi = Math.max(aktiv[k], k === 2 ? folgeAn : 0);
+          return (
+            <g key={k} opacity={endenAn * fertig[k]}>
+              <rect x="214" y={y} width="132" height={RH} rx="9" fill={C.weiss} stroke={C.linie} strokeWidth="1.3" />
+              {hi > 0.001 && <rect x="214" y={y} width="132" height={RH} rx="9" fill={C.flaggold} fillOpacity={0.3 * hi} stroke={C.gold} strokeWidth="2.2" strokeOpacity={hi} />}
+              <T x="227" y={y + 21} textAnchor="middle" fontSize="16" fontWeight="800" fill={C.seeTief}>{p.ende}</T>
+              <Pfeil x1={238} x2={252} y={y + RH / 2} farbe={C.hellgrau} breite={1.8} />
+              <T x="260" y={y + 21} fontSize="14.5" fontWeight="800" fill={C.gold}>{p.wurzel}</T>
+            </g>
+          );
+        })}
+        <g opacity={endenAn * lauf(t, tFolge + 4.0, tFolge + 4.8)}>
+          <rect x="214" y={RY(6)} width="132" height={RH} rx="9" fill="none" stroke={C.hellgrau} strokeWidth="1.3" strokeDasharray="4 3" />
+          <T x="223" y={RY(6) + 20} fontSize="12.5" fontWeight="800" fill={C.grau}>2 3 7 8</T>
+          <Pfeil x1={278} x2={293} y={RY(6) + RH / 2} farbe={C.hellgrau} breite={1.8} />
+          <T x="301" y={RY(6) + 20} fontSize="13" fontWeight="700" fill={C.grau}>nie</T>
         </g>
+
+        {/* Bildunterschriften */}
+        <g opacity={lauf(t, 5.4, 6.2) * (1 - lauf(t, tZehner + 4.6, tZehner + 5.2))}>
+          <T x="180" y="438" textAnchor="middle" fontSize="15" fontWeight="800" fill={C.tinte}>Diese zehn Zahlen reichen</T>
+          <T x="180" y="462" textAnchor="middle" fontSize="13" fontWeight="600" fill={C.grau}>{`für alle Wurzeln bis 10${SP}000`}</T>
+        </g>
+        <g opacity={lauf(t, tZehner + 5.2, tZehner + 6.0) * (1 - lauf(t, tEnden, tEnden + 0.6))}>
+          <T x="180" y="438" textAnchor="middle" fontSize="15" fontWeight="800" fill={C.tinte}>
+            {"Dieselben Zahlen – nur mit "}<tspan fill={C.gold}>zwei Nullen</tspan>{" dran"}
+          </T>
+          <T x="180" y="462" textAnchor="middle" fontSize="13" fontWeight="600" fill={C.grau}>denn (10 · n)² = n² · 100, z. B. 70² = 7² · 100 = 4900</T>
+        </g>
+        {WURZEL_PAARE.map((p, k) => (
+          <T key={k} x="180" y="438" textAnchor="middle" fontSize="14.5" fontWeight="800" fill={C.tinte} opacity={aktiv[k] * listeAn}>
+            {p.n.length === 2
+              ? `${p.n[0]}² = ${p.n[0] ** 2} und ${p.n[1]}² = ${p.n[1] ** 2}${SP}→${SP}beide enden auf `
+              : `Nur ${p.n[0]}² = ${p.n[0] ** 2} endet auf `}
+            <tspan fill={C.gold}>{p.ende}</tspan>
+          </T>
+        ))}
+        <T x="180" y="462" textAnchor="middle" fontSize="13" fontWeight="600" fill={C.grau}
+          opacity={lauf(t, paarT[3] + 0.6, paarT[3] + 1.4) * (1 - lauf(t, tFolge, tFolge + 0.6))}>Spiegelbildlich um die 5: n² und (10 − n)² enden gleich</T>
+        <g opacity={lauf(t, tFolge + 0.4, tFolge + 1.2)}>
+          <T x="180" y="438" textAnchor="middle" fontSize="15.5" fontWeight="800" fill={C.tinte}>
+            {`${FOLGERUNG.wurzel}² = ${FOLGERUNG.quadrat.toString().slice(0, -1)}`}<tspan fill={C.gold}>{FOLGERUNG.quadrat % 10}</tspan>
+            {` endet wie ${FOLGERUNG.einer}² = `}<tspan fill={C.gold}>{FOLGERUNG.einer ** 2}</tspan>
+          </T>
+          <T x="180" y="462" textAnchor="middle" fontSize="13" fontWeight="600" fill={C.grau}>Die Zehner der Wurzel ändern die letzte Ziffer nicht.</T>
+        </g>
+        <T x="180" y="482" textAnchor="middle" fontSize="13" fontWeight="700" fill={C.see}
+          opacity={lauf(t, tFolge + 2.0, tFolge + 2.8)}>Letzte Ziffer → Einerziffer der Wurzel</T>
       </g>
 
-      {/* ---------- Wurzelzeichen mit den Ziffern (B und D) ---------- */}
-      <g opacity={rootOp} transform={`translate(0 ${t < Zt[3] ? 96 : 0})`}>
+      {/* ================= Schritte 5 bis Ende: das Beispiel ================= */}
+      <g opacity={bspAn}>
+        <T x="180" y="24" textAnchor="middle" fontSize="10.5" fontWeight="700" fill={C.hellgrau} letterSpacing="0.08em">BEISPIEL</T>
         <path d="M60 72 L67 66 L77 94 L91 40 L300 40" stroke={C.tinte} strokeWidth="2.8" fill="none" strokeLinecap="round" strokeLinejoin="round" />
         {ziff.map((d, i) => (
           <g key={i}>
-            <rect x={bx(i)} y="50" width="44" height="50" rx="9" fill={C.sand} stroke={C.linie} strokeWidth="1.5" />
+            <rect x={bx(i)} y="50" width="44" height="50" rx="9" fill={C.weiss} stroke={C.linie} strokeWidth="1.5" />
             <T x={bx(i) + 22} y="86" textAnchor="middle" fontSize="30" fontWeight="800" fill={C.tinte}>{d}</T>
           </g>
         ))}
-        {/* Markierung Endziffer */}
-        <rect x={bx(3)} y="50" width="44" height="50" rx="9" fill={C.flaggold} fillOpacity={0.35 * h1} stroke={C.flaggold} strokeWidth="2.4" strokeOpacity={h1} />
-        {/* Markierung vordere Ziffern */}
-        <rect x={bx(0)} y="50" width="96" height="50" rx="9" fill={C.see} fillOpacity={0.14 * h2} stroke={C.see} strokeWidth="2.4" strokeOpacity={h2} />
-      </g>
+        <rect x={bx(3)} y="50" width="44" height="50" rx="9" fill={C.flaggold} fillOpacity={0.35 * endHi} stroke={C.flaggold} strokeWidth="2.4" strokeOpacity={endHi} />
+        <rect x={bx(0)} y="50" width="96" height="50" rx="9" fill={C.see} fillOpacity={0.14 * vorneHi} stroke={C.see} strokeWidth="2.4" strokeOpacity={vorneHi} />
 
-      {/* ---------- B: Tabelle Endziffer der Zahl → Endziffer der Wurzel ---------- */}
-      <g opacity={phB} transform="translate(0 96)">
+        {/* Tabelle: letzte Ziffer → Einerziffer der Wurzel */}
         <g opacity={tab}>
-          <T x="180" y="126" textAnchor="middle" fontSize="11.5" fontWeight="700" fill={C.hellgrau} letterSpacing="0.06em">ENDZIFFER: ZAHL → WURZEL</T>
+          <T x="180" y="120" textAnchor="middle" fontSize="10" fontWeight="700" fill={C.hellgrau} letterSpacing="0.06em">LETZTE ZIFFER → WURZEL ENDET AUF</T>
           {ENDEN.map(([e, w], i) => {
-            const an = i === col;
+            const an = i === col ? colHi : 0;
             const x = 24 + i * 52;
             return (
               <g key={e}>
-                <rect x={x + 2} y="134" width="48" height="24" rx="6" fill={an ? C.flaggold : C.silberHell} fillOpacity={an ? 0.25 + 0.75 * hl : 1} />
-                <T x={x + 26} y="151" textAnchor="middle" fontSize="14.5" fontWeight="700" fill={C.tinte}>{e}</T>
-                <rect x={x + 2} y="162" width="48" height="24" rx="6" fill={an ? C.flaggold : C.himmel} fillOpacity={an ? 0.25 + 0.75 * hl : 1} />
-                <T x={x + 26} y="179" textAnchor="middle" fontSize="14" fontWeight={an ? 800 : 600} fill={an ? C.seeTief : C.see}>{w}</T>
+                <rect x={x + 2} y="128" width="48" height="22" rx="6" fill={C.silberHell} />
+                <rect x={x + 2} y="128" width="48" height="22" rx="6" fill={C.flaggold} opacity={an} />
+                <T x={x + 26} y="144" textAnchor="middle" fontSize="14" fontWeight="700" fill={C.tinte}>{e}</T>
+                <rect x={x + 2} y="153" width="48" height="22" rx="6" fill={C.himmel} />
+                <rect x={x + 2} y="153" width="48" height="22" rx="6" fill={C.flaggold} opacity={an} />
+                <T x={x + 26} y="169" textAnchor="middle" fontSize="13.5" fontWeight={i === col ? 800 : 600} fill={C.see}>{w}</T>
               </g>
             );
           })}
         </g>
-        <T x="180" y="228" textAnchor="middle" fontSize="15.5" fontWeight="800" fill={C.tinte} opacity={hint}>
-          {`Endziffer ${I.ende}${SP}→${SP}Wurzel endet `}<tspan fill={C.gold}>{I.zwei ? `auf ${a} oder ${b}` : `immer auf ${a}`}</tspan>
-        </T>
-      </g>
+        {/* Goldfaden: Tabelle → Einerziffer */}
+        {col >= 0 && (
+          <path d={`M${24 + col * 52 + 26} 178 C ${24 + col * 52 + 26} 196, 309 188, 309 206`} fill="none" stroke={C.gold} strokeWidth="2" strokeDasharray="4 3" opacity={verb1} />
+        )}
 
-      {/* ---------- C: Quadratzahlen der Zehner, dieselben Zahlen mit zwei Nullen ---------- */}
-      <g opacity={phC}>
-        <T x="180" y="30" textAnchor="middle" fontSize="11.5" fontWeight="700" fill={C.hellgrau} letterSpacing="0.08em">QUADRATZAHLEN DER ZEHNER</T>
-        {ZEHN.map((n, i) => {
-          const ein = lauf(t, Zt[3] + 0.9 + i * 0.34, Zt[3] + 1.6 + i * 0.34);
+        {/* Leiter der Zehnerquadrate */}
+        <T x="98" y="188" textAnchor="middle" fontSize="10" fontWeight="700" fill={C.gold} letterSpacing="0.06em" opacity={leiterAn(0)}>ZEHNERQUADRATE</T>
+        {LEITER.map((m, s) => {
+          const y = leiterY(s);
+          if (m === "N") {
+            return (
+              <g key="N" opacity={nAn}>
+                <rect x="30" y={y} width="136" height={RH} rx="15" fill={C.flaggold} fillOpacity="0.35" stroke={C.gold} strokeWidth="2.2" />
+                <T x="98" y={y + 21} textAnchor="middle" fontSize="17" fontWeight="800" fill={C.tinte}>{I.N}</T>
+              </g>
+            );
+          }
+          if (m < 1 || m > 10) return null;
+          const rand = s === 1 || s === 3 ? randHi : 0;
+          const nah = s === naeherZeile ? nahHi : 0;
           return (
-            <g key={n} opacity={ein}>
-              <rect x={kx(i)} y={ky(i)} width={KB} height={KH} rx="12" fill={C.himmel} stroke={C.see} strokeWidth="1.6" />
-              <T x={kx(i) + 16} y={ky(i) + 31} fontSize="14.5" fontWeight="700" fill={C.see}>{n * 10}²</T>
-              <T x={kx(i) + KB - 16} y={ky(i) + 33} textAnchor="end" fontSize="22" fontWeight="800" fill={C.seeTief}>
-                {n * n}<tspan fill={C.gold}>00</tspan>
-              </T>
+            <g key={m} opacity={leiterAn(s) * (s === 1 || s === 3 ? 1 : 1 - 0.55 * randHi)}>
+              <rect x="18" y={y} width="160" height={RH} rx="9" fill={C.weiss} stroke={C.gold} strokeWidth="1.4" />
+              {rand > 0.001 && <rect x="18" y={y} width="160" height={RH} rx="9" fill={C.himmel} fillOpacity={rand} stroke={C.see} strokeWidth="2.4" strokeOpacity={rand} />}
+              {nah > 0.001 && <rect x="18" y={y} width="160" height={RH} rx="9" fill="none" stroke={C.smaragd} strokeWidth="3" opacity={nah} />}
+              <T x="31" y={y + 21} fontSize="14" fontWeight="700" fill={C.gold}>{m * 10}²</T>
+              <Wert x={165} y={y + 22} text={String(m * m)} groesse={18} gold={0} nullen />
             </g>
           );
         })}
-        <T x="180" y="362" textAnchor="middle" fontSize="13.5" fontWeight="600" fill={C.grau} opacity={cap1}>Das sind genau die Zahlen von eben,</T>
-        <T x="180" y="384" textAnchor="middle" fontSize="13.5" fontWeight="600" fill={C.grau} opacity={cap1}>nur mit zwei Nullen hinten dran:</T>
-        <T x="180" y="430" textAnchor="middle" fontSize="20" fontWeight="800" fill={C.tinte} opacity={cap2}>
-          {`${I.z}² = ${I.z * I.z}${SP}→${SP}${I.z * 10}² = ${I.z * I.z}`}<tspan fill={C.gold}>00</tspan>
-        </T>
-      </g>
+        {/* Faden: Leiter → Zehnerziffer */}
+        <path d={`M178 ${leiterY(2) + RH / 2} C 192 ${leiterY(2) + RH / 2}, 194 250, 205 244`} fill="none" stroke={C.see} strokeWidth="2" strokeDasharray="4 3" opacity={verb2} />
 
-      {/* ---------- D: Zehnerstelle, Kandidaten, näher dran, Ergebnis ---------- */}
-      <g opacity={phD}>
-        <T x="180" y="126" textAnchor="middle" fontSize="11.5" fontWeight="700" fill={C.hellgrau} letterSpacing="0.06em" opacity={kopf}>ZWISCHEN WELCHEN ZEHNERN LIEGT DIE ZAHL?</T>
-        <g opacity={nl}>
-          <path d="M50 186 H310" stroke={C.hellgrau} strokeWidth="2.5" strokeLinecap="round" />
-          <path d="M50 178 V194 M310 178 V194" stroke={C.tinte} strokeWidth="2.5" strokeLinecap="round" />
-          <T x="50" y="234" textAnchor="middle" fontSize="14" fontWeight="800" fill={C.tinte}>{gz(I.unten)}</T>
-          <T x="50" y="251" textAnchor="middle" fontSize="12.5" fontWeight="600" fill={C.grau}>= {I.z * 10}²</T>
-          <T x="310" y="234" textAnchor="middle" fontSize="14" fontWeight="800" fill={C.tinte}>{gz(I.oben)}</T>
-          <T x="310" y="251" textAnchor="middle" fontSize="12.5" fontWeight="600" fill={C.grau}>= {(I.z + 1) * 10}²</T>
+        {/* Zehner + Einer */}
+        <g opacity={boxenAn}>
+          <T x="233" y="284" textAnchor="middle" fontSize="10" fontWeight="700" fill={C.see} letterSpacing="0.08em">ZEHNER</T>
+          <T x="309" y="284" textAnchor="middle" fontSize="10" fontWeight="700" fill={C.gold} letterSpacing="0.08em">EINER</T>
+          <rect x="205" y="208" width="56" height="60" rx="12" fill={C.himmel} stroke={erg > 0.5 ? C.smaragd : C.see} strokeWidth="2.2" />
+          <rect x="281" y="208" width="56" height="60" rx="12" fill={C.weiss} stroke={erg > 0.5 ? C.smaragd : C.gold} strokeWidth="2.2" />
+          <T x="233" y="249" textAnchor="middle" fontSize="32" fontWeight="800" fill={C.hellgrau} opacity={1 - zehnerAn}>?</T>
+          <T x="233" y="249" textAnchor="middle" fontSize="32" fontWeight="800" fill={C.see} opacity={zehnerAn}>{I.z}</T>
+          <T x="309" y="249" textAnchor="middle" fontSize="32" fontWeight="800" fill={C.hellgrau} opacity={1 - einerAn}>?</T>
+          {I.zwei && <T x="309" y="246" textAnchor="middle" fontSize="23" fontWeight="800" fill={C.gold} opacity={einerAn * (1 - einerFest)}>{einerText}</T>}
+          <T x="309" y="249" textAnchor="middle" fontSize="32" fontWeight="800" fill={C.gold} opacity={einerAn * einerFest}>{I.gewaehlt % 10}</T>
+          <T x="233" y="300" textAnchor="middle" fontSize="11" fontWeight="600" fill={C.grau} opacity={zehnerAn}>{`${I.z * 10}² … ${(I.z + 1) * 10}²`}</T>
+          <T x="309" y="300" textAnchor="middle" fontSize="11" fontWeight="600" fill={C.grau} opacity={einerAn}>{`letzte Ziffer ${I.ende}`}</T>
         </g>
-        {/* Abstände nach unten und nach oben */}
+        <T x="271" y="326" textAnchor="middle" fontSize="14.5" fontWeight="800" fill={C.see} opacity={zwischen}>
+          {`${I.z * 10} < √${I.N} < ${(I.z + 1) * 10}`}
+        </T>
         {I.zwei && (
           <g>
-            <path d={`M50 186 H${mxEnd}`} stroke={gruen} strokeWidth="5" strokeLinecap="round" opacity={ab} />
-            <path d={`M${mxEnd} 186 H310`} stroke={gruenR} strokeWidth="5" strokeLinecap="round" opacity={ab} />
-            <T x={(50 + mxEnd) / 2} y="210" textAnchor="middle" fontSize="14" fontWeight="800" fill={I.kleiner ? C.smaragd : C.grau} opacity={abL}>{I.abU}</T>
-            <T x={(mxEnd + 310) / 2} y="210" textAnchor="middle" fontSize="14" fontWeight="800" fill={I.kleiner ? C.grau : C.smaragd} opacity={abL}>{I.abO}</T>
-          </g>
-        )}
-        <g opacity={mk}>
-          <circle cx={mx} cy="186" r="8" fill={C.see} stroke={C.weiss} strokeWidth="2" />
-          <T x={mx} y="166" textAnchor="middle" fontSize="15" fontWeight="800" fill={C.see}>{I.N}</T>
-        </g>
-        <T x="180" y="282" textAnchor="middle" fontSize="15.5" fontWeight="800" fill={C.see} opacity={zz}>{`Die Wurzel beginnt mit ${I.z}${SP}→${SP}${I.z}_`}</T>
-
-        {/* Kandidaten */}
-        <T x="180" y="304" textAnchor="middle" fontSize="12.5" fontWeight="600" fill={C.grau} opacity={pl}>
-          {I.zwei ? `Endziffer ${I.ende}${SP}→${SP}${a} oder ${b}: zwei Kandidaten` : `Endziffer ${I.ende}${SP}→${SP}nur ${a}: ein Kandidat`}
-        </T>
-        <g opacity={pl}>
-          {I.kandZahlen.map((k, i) => {
-            const gewinner = k === I.gewaehlt;
-            const dim = I.zwei ? 1 - 0.62 * wahl * (gewinner ? 0 : 1) : 1;
-            const an = gewinner && wahl > 0.5;
-            return (
-              <g key={k} opacity={dim}>
-                <rect x={pillX[i] - 42} y="314" width="84" height="34" rx="17" fill={an ? C.smaragd : C.himmel} stroke={an ? C.smaragd : C.see} strokeWidth="1.8" />
-                <T x={pillX[i]} y="337" textAnchor="middle" fontSize="18" fontWeight="800" fill={an ? C.weiss : C.see}>{k}</T>
-              </g>
-            );
-          })}
-        </g>
-
-        {/* näher dran */}
-        {I.zwei && (
-          <g>
-            <T x="180" y="378" textAnchor="middle" fontSize="13" fontWeight="600" fill={C.grau} opacity={gl}>
-              {`${I.N} − ${gz(I.unten)} = ${I.abU}${SP}|${SP}${gz(I.oben)} − ${I.N} = ${I.abO}`}
+            <T x="271" y="350" textAnchor="middle" fontSize="13" fontWeight="700" fill={C.tinte} opacity={kandAn * (1 - ab1)}>
+              {`Kandidaten: ${I.kandZahlen[0]} oder ${I.kandZahlen[1]}`}
             </T>
-            <T x="180" y="402" textAnchor="middle" fontSize="14.5" fontWeight="800" fill={C.tinte} opacity={ent}>
-              {`näher an ${gz(I.kleiner ? I.unten : I.oben)}${SP}→${SP}${I.kleiner ? "der kleinere" : "der größere"}: `}<tspan fill={C.smaragd}>{I.gewaehlt}</tspan>
+            <T x="271" y="350" textAnchor="middle" fontSize="12.5" fontWeight="600" fill={I.kleiner ? C.smaragd : C.grau} opacity={ab1}>{`${I.N} − ${gz(I.unten)} = ${I.abU}`}</T>
+            <T x="271" y="370" textAnchor="middle" fontSize="12.5" fontWeight="600" fill={I.kleiner ? C.grau : C.smaragd} opacity={ab2}>{`${gz(I.oben)} − ${I.N} = ${I.abO}`}</T>
+            <T x="271" y="396" textAnchor="middle" fontSize="14" fontWeight="800" fill={C.tinte} opacity={entscheid}>
+              {`näher an ${gz(I.kleiner ? I.unten : I.oben)}${SP}→${SP}`}<tspan fill={C.smaragd}>{I.gewaehlt}</tspan>
             </T>
           </g>
         )}
 
         {/* Ergebnis */}
-        <g opacity={erg}>
-          <T x="180" y="442" textAnchor="middle" fontSize="27" fontWeight="800" fill={C.smaragd}>√{I.N} = {I.gewaehlt}</T>
-          <T x="180" y="463" textAnchor="middle" fontSize="13.5" fontWeight="600" fill={C.grau}>Probe: {I.gewaehlt}² = {I.N} ✓</T>
-        </g>
+        <T x="180" y="440" textAnchor="middle" fontSize="27" fontWeight="800" fill={C.smaragd} opacity={erg}>√{I.N} = {I.gewaehlt}</T>
+        <T x="180" y="466" textAnchor="middle" fontSize="13.5" fontWeight="600" fill={C.grau} opacity={probe}>Probe: {I.gewaehlt}² = {I.N} ✓</T>
       </g>
     </g>
   );
@@ -715,7 +758,7 @@ function integralZeichne(t) {
 }
 
 /* Für weitere Szenen in anderen Dateien (Kopfrechnen: funcKopfVideo.jsx) */
-export { lauf, T };
+export { lauf, T, wurzelZeichne };   // wurzelZeichne: Kontaktbogen (scripts/wurzel-blatt.mjs)
 
 /* ---------- Szenen-Auswahl ---------- */
 export const INFO = {
@@ -723,7 +766,7 @@ export const INFO = {
   kette: { titel: "Kettenregel als Verstärkerkette", unter: "Warum die innere Ableitung nie fehlen darf" },
   stamm: { titel: "Stammfunktion: Ableiten rückwärts", unter: "Warum durch den neuen Exponenten geteilt wird – und warum + C" },
   integral: { titel: "Fläche unter der Kurve und der Hauptsatz", unter: "Vom Streifen-Zählen zu F(b) − F(a)" },
-  wurzel: { titel: "Wurzel aus vierstelligen Zahlen", unter: "Mit den Quadratzahlen von 1 bis 10 zur Wurzel im Kopf" },
+  wurzel: { titel: "Wurzel aus vierstelligen Zahlen", unter: "Eine Minute: Quadratzahlen bis 10, Zehnerquadrate, letzte Ziffern" },
 };
 
 function ProduktSzene() {
@@ -735,22 +778,22 @@ function KetteSzene() {
     beschreibung: "Animation: Ein kleiner Zuwachs Δx wird in der Kette zuerst mit 2 und dann mit 3 multipliziert, insgesamt mit 6. Das ist äußere mal innere Ableitung." }} />;
 }
 function WurzelSzene() {
-  const [N, setN] = useState(5329);
+  const [N, setN] = useState(WURZEL_START);
   const I = wurzelInfo(N);
   return (
     <div>
       <p style={{ fontSize: 12.5, fontWeight: 600, color: C.grau, marginBottom: 8 }}>Beispiel wählen</p>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }} role="group" aria-label="Beispielzahl">
         {WURZEL_BEISPIELE.map((z) => (
-          <button key={z} type="button" aria-pressed={z === N} onClick={() => setN(z)} className="erk-pille"
+          <button key={z} type="button" aria-pressed={z === N} onClick={() => setN(z)} className="erk-pille" data-wurzel-beispiel={z}
             style={{ minHeight: 40, padding: "0 14px", borderRadius: 999, fontFamily: "inherit", fontSize: 14, fontWeight: 700, cursor: "pointer",
               border: `1.5px solid ${z === N ? C.see : C.linie}`, background: z === N ? C.see : C.weiss, color: z === N ? C.weiss : C.see }}>
             {z}
           </button>
         ))}
       </div>
-      <Player key={N} szene={{ dauer: wurzelZeiten(I.zwei).dauer, hoehe: 474, schritte: wurzelSchritte(I), zeichne: (t) => wurzelZeichne(t, I),
-        beschreibung: `Animation: Wurzel aus ${N}. Erst die Quadratzahlen von 1 bis 10 und ihre Endziffern, dann die Quadratzahlen der Zehner mit zwei Nullen, dann die Frage, zwischen welchen Zehnerquadraten und näher an welchem die Zahl liegt. Ergebnis ${I.gewaehlt}.` }} />
+      <Player key={N} szene={{ dauer: wurzelZeiten(I.zwei).dauer, hoehe: 490, schritte: wurzelSchritte(I), zeichne: (t) => wurzelZeichne(t, I),
+        beschreibung: wurzelBeschreibung(I) }} />
     </div>
   );
 }

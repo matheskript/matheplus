@@ -1,0 +1,76 @@
+/* Wurzel-Motion (Kopfrechnen √10k, src/wurzelMotion.js): eine Minute, richtige Rechnung, Inhalt wie gewünscht */
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { WURZEL_DAUER, WURZEL_BEISPIELE, WURZEL_START, WURZEL_PAARE, PAAR_ZEIT, KANDIDATEN, FOLGERUNG, wurzelInfo, wurzelSchritte, wurzelZeiten } from "../src/wurzelMotion.js";
+
+test("Die Motion dauert eine Minute – mit einem und mit zwei Kandidaten", () => {
+  assert.equal(WURZEL_DAUER, 60);
+  for (const zwei of [false, true]) {
+    const { s, dauer } = wurzelZeiten(zwei);
+    assert.equal(dauer, 60);
+    assert.equal(s[0], 0);
+    for (let i = 1; i < s.length; i++) assert.ok(s[i] - s[i - 1] >= 5, `Schritt ${i + 1} zu kurz (${s[i] - s[i - 1]} s)`);
+    assert.ok(dauer - s[s.length - 1] >= 5, "Ergebnis steht mindestens 5 s");
+  }
+  /* die sechs Endziffern-Paare passen in Schritt 3 */
+  const { s } = wurzelZeiten(false);
+  assert.ok(s[2] + PAAR_ZEIT[PAAR_ZEIT.length - 1] + 1.5 < s[3]);
+});
+
+test("Startbeispiel 3025 = 55²: zwischen 2500 und 3600, Endziffer 5 nur von 5", () => {
+  assert.equal(WURZEL_START, 3025);
+  assert.ok(WURZEL_BEISPIELE.includes(3025));
+  const I = wurzelInfo(3025);
+  assert.equal(I.gewaehlt, 55);
+  assert.equal(I.unten, 2500);
+  assert.equal(I.oben, 3600);
+  assert.equal(I.zwei, false);
+  const texte = wurzelSchritte(I).map((x) => x.text).join(" ");
+  assert.match(texte, /zwischen 2500 = 50² und 3600 = 60²/i);
+  assert.match(texte, /Die Wurzel aus 3025 ist 55/);
+});
+
+test("Rechnung stimmt für jede Quadratzahl von 11² bis 99² (Endziffer + Zehnerquadrate + näher dran)", () => {
+  for (let n = 11; n <= 99; n++) {
+    const I = wurzelInfo(n * n);
+    assert.equal(I.gewaehlt, n, `${n * n}: ${I.gewaehlt} statt ${n}`);
+    assert.ok(I.unten <= n * n && n * n < I.oben, `${n * n} liegt nicht zwischen ${I.unten} und ${I.oben}`);
+    assert.ok(I.kand.includes(n % 10), `${n * n}: Endziffer ${n % 10} fehlt in den Kandidaten`);
+  }
+});
+
+test("Endziffern-Paare: n² und (10 − n)² enden gleich, 25 und 100 allein – genau die Tabelle", () => {
+  for (const p of WURZEL_PAARE) {
+    for (const n of p.n) assert.equal((n * n) % 10, p.ende, `${n}² endet nicht auf ${p.ende}`);
+    assert.deepEqual(p.zeilen, p.n.map((n) => n - 1));
+    assert.deepEqual(KANDIDATEN[p.ende].map((k) => (k === 0 ? 10 : k)), p.n);
+  }
+  /* 2, 3, 7, 8 kommen als letzte Ziffer einer Quadratzahl nie vor */
+  for (let n = 0; n < 100; n++) assert.ok(![2, 3, 7, 8].includes((n * n) % 10));
+  assert.equal(FOLGERUNG.wurzel ** 2, FOLGERUNG.quadrat);
+  assert.equal(FOLGERUNG.wurzel % 10, FOLGERUNG.einer);
+  assert.ok(!WURZEL_BEISPIELE.includes(FOLGERUNG.quadrat), "Folgerung nimmt kein Beispiel vorweg");
+});
+
+test("Texte: alle Beispiele vollständig, Reihenfolge wie gewünscht, keine Gendersprache", () => {
+  for (const N of WURZEL_BEISPIELE) {
+    const I = wurzelInfo(N);
+    const sch = wurzelSchritte(I);
+    assert.equal(sch.length, I.zwei ? 8 : 7);
+    const t = sch.map((x) => x.text);
+    assert.match(t[0], /1, 4, 9, 16, 25, 36, 49, 64, 81 und 100/);
+    assert.match(t[1], /zwei Nullen/);
+    assert.match(t[2], /1 und 81.*4 und 64.*9 und 49.*16 und 36.*Nur 25/);
+    assert.match(t[3], /Einerziffer|endet ihre Wurzel/);
+    assert.match(t[5], new RegExp(`Zwischen ${I.unten} = ${I.z * 10}²`));
+    assert.match(t[t.length - 1], new RegExp(`Probe: ${I.gewaehlt}² = ${N}`));
+    assert.ok(!/:innen|\*innen|Innen\b/.test(t.join(" ")));
+  }
+});
+
+test("Kopfrechnen √10k zeigt die Szene, der Film-Eintrag nennt eine Minute", () => {
+  assert.match(readFileSync(new URL("../src/func14.jsx", import.meta.url), "utf8"), /modus === "wurzel10k" && <ErklaerAnimation art="wurzel"/);
+  assert.match(readFileSync(new URL("../src/trainingszentrum.js", import.meta.url), "utf8"), /wurzel: \{[^}]*dauer: 60/);
+  assert.match(readFileSync(new URL("../src/funcErklaeranimation.jsx", import.meta.url), "utf8"), /useState\(WURZEL_START\)/);
+});

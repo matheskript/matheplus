@@ -141,6 +141,9 @@ Das alte Tastenfeld „Zahlen | Funktionen | Parameter“ (frühere `TermTastatu
 - Lage der Mathe-Tastatur (`MatheTastaturHost`): Handy unten als Leiste, Desktop schwebend neben dem Feld (rechts → links → darunter → darüber, `tastaturPlatz` in `matheTastaturLogik.js`).
 - Bewusst eigene Tastenfelder (Spezialwerkzeuge): Lösungsweg-Editor (func6 `LoesungsWeg`), Rechenweg-Editor (func3), Kopfrechnen-Ziffernblöcke, Gleichungen, Geraden-`ZahlPad`, Steckbrief.
 
+## Wurzel-Motion (Kopfrechnen √10k, seit 22.10.)
+Szene `wurzel` in `src/funcErklaeranimation.jsx` (Zeichnung `wurzelZeichne`), Logik, Zeiten und Texte rein in `src/wurzelMotion.js`. Genau **60 s** in beiden Fassungen: 1²–10² → daneben 10²–100² („dieselben Zahlen mit zwei Nullen“) → letzte Ziffern als Klammern (1|81, 4|64, 9|49, 16|36; 25 und 100 allein) mit Tabelle „letzte Ziffer → Wurzel“ → Folgerung (43² = 1849 endet wie 3² = 9; 2, 3, 7, 8 nie) → Beispiel: letzte Ziffer → Einer, Leiter der Zehnerquadrate → Zehner (3025 liegt zwischen 2500 und 3600) → bei zwei Kandidaten „näher an“ → Ergebnis. Startbeispiel 3025. Kontaktbogen: `node scripts/wurzel-blatt.mjs 3025,5329 /tmp/wb`. Test `tests/wurzelMotion.test.mjs` (Dauer, alle Quadratzahlen 11²–99², Paare, Texte).
+
 ## Startchunk klein halten (seit 21.10. nachts)
 `dist/assets/index-*.js` lag bei 3,4 MB (1,4 MB gzip) und liegt jetzt bei 1,5 MB (482 kB gzip). Regeln, damit es so bleibt (Wächter `tests/startchunk.test.mjs`: baut den statischen Import-Graphen ab `main.jsx` und schlägt an, wenn eine der großen Ansichten darin auftaucht oder der Graph über 125 Module wächst):
 - **Jede Ansicht lädt lazy**: in `func10.jsx` immer `lazyLaden(() => import("./funcX.jsx").then((m) => ({ default: m.X })))`, nie `import { X } from "./funcX.jsx"` für Komponenten. Alles liegt unter `<ChunkGrenze><React.Suspense>`; außerhalb (z. B. `KiEinwilligungFenster`) eigene `<React.Suspense fallback={null}>`.
