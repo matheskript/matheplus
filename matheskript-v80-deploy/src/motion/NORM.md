@@ -1,7 +1,7 @@
 # Motion-Norm – wie eine Animation den Kern eines Themas zeigt (seit 22.10.2026)
 
 Ziel: Ein Schüler versteht aus der Animation allein, worum es geht – ohne den Text drumherum zu lesen.
-Jede Animation ist ein kleines Erklärvideo von 8–25 Sekunden mit einer einzigen Einsicht.
+Jede Animation ist ein kleines Erklärvideo von 10–35 Sekunden mit einer einzigen Einsicht.
 
 ## 1. Eine Animation = eine Frage + eine Einsicht
 - `frage` (im Eintrag in `medien*.js`): die Frage, die die Animation beantwortet. Steht vor dem Start unter dem Standbild.
@@ -25,8 +25,9 @@ Jede Animation ist ein kleines Erklärvideo von 8–25 Sekunden mit einer einzig
 - Präsens, kein „wir“, du-Form sparsam, keine Gendersprache.
 
 ## 4. Tempo
-- Lesezeit kommt automatisch: `zeitplan` (kern.jsx) dehnt jeden Abschnitt auf mindestens `lesedauer(text)` = 1000 ms + 52 ms je Zeichen. Eine Szene muss also nicht selbst Lesepausen einbauen – aber lange Untertitel machen sie lang.
-- Gesamtdauer 8–25 s (Test: höchstens 26 s). Zu lang → Untertitel kürzen oder zwei Abschnitte zu einem zusammenlegen, nicht nötigen Text streichen.
+- **Kein Text verschwindet, bevor er gelesen ist.** Die Lesezeit kommt für alle Animationen der App aus `src/lesezeit.js`: 1,2 s + 70 ms je Zeichen (Lesetempo Klasse 5–7, ≈ 14 Zeichen/s). `zeitplan` (kern.jsx) dehnt jeden Abschnitt darauf; die Bewegung wird dabei höchstens 1,6-mal gestreckt, danach steht das Bild still, bis der Text gelesen ist. Startet eine Animation von vorn, steht zuerst die Frage so lange da, wie man zum Lesen braucht. Eine Szene baut also keine eigenen Lesepausen ein – aber lange Untertitel machen sie lang.
+- Gesamtdauer 10–35 s (Test: höchstens 35 s). Zu lang → Untertitel kürzen oder zwei Abschnitte zu einem zusammenlegen.
+- Dieselbe Regel gilt im Player der Erkläranimationen (funcErklaeranimation.jsx: `lesePlan`, Lesezeit des Schritttextes + 1,5 s) – Ableitungsregeln, Trigonometrie, GFS, Kreis, Normalverteilung, Kopfrechnen, KI-Kurs, Wurzel.
 - Pro Abschnitt bewegt sich eine Sache. Zwei gleichzeitige Bewegungen = zwei Abschnitte.
 
 ## 5. Hervorhebung: einmal, am Kern-Moment
@@ -46,7 +47,7 @@ Jede Animation ist ein kleines Erklärvideo von 8–25 Sekunden mit einer einzig
 
 ## Prüfliste je Animation
 ☐ `frage` ≤ 70 Zeichen mit „?“ · ☐ `kern` ≤ 130 Zeichen, sagt das Warum · ☐ Sehen → Verändern → Erkennen erkennbar ·
-☐ jeder Abschnitt mit Bewegung hat einen Untertitel ≤ 75 Zeichen, der die Beobachtung nennt · ☐ 8–25 s ·
+☐ jeder Abschnitt mit Bewegung hat einen Untertitel ≤ 75 Zeichen, der die Beobachtung nennt · ☐ 10–35 s ·
 ☐ eine Hervorhebung am Kern-Moment · ☐ Schlussbild ohne Untertitel verständlich, Vorher und Nachher sichtbar · ☐ Maße und Zahlen stimmen
 
 Kontaktbogen: `node scripts/motion-blatt.mjs <Lerneinheit-oder-Szene> <Ordner>` → `blatt-*.png` (fünf Zeitpunkte je Animation). Test: `node --test tests/unterstufeMedien.test.mjs`.

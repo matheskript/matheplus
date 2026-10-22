@@ -2,40 +2,42 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { DREHBUCH, LESEN, WURZEL_BEISPIELE, WURZEL_START, WURZEL_PAARE, PAAR_ZEIT, KANDIDATEN, FOLGERUNG, drehbuchZeit, wurzelInfo, wurzelSchritte, wurzelZeiten } from "../src/wurzelMotion.js";
+import { DREHBUCH, WURZEL_TEMPO, WURZEL_BEISPIELE, WURZEL_START, WURZEL_PAARE, PAAR_ZEIT, KANDIDATEN, FOLGERUNG, wurzelInfo, wurzelPlan, wurzelSchritte, wurzelZeiten } from "../src/wurzelMotion.js";
+import { lesezeitMs } from "../src/lesezeit.js";
 
 test("Jeder Schritt lässt Zeit zum Mitlesen: Lesezeit + 2,5 s, mindestens 1,5-mal das Drehbuch", () => {
+  assert.deepEqual(WURZEL_TEMPO, { faktor: 1.5, puffer: 2.5 });
   for (const N of WURZEL_BEISPIELE) {
-    const I = wurzelInfo(N), { s, dauer } = wurzelZeiten(I.zwei), a = DREHBUCH(I.zwei);
+    const I = wurzelInfo(N), { s, dauer } = wurzelZeiten(I), a = DREHBUCH(I.zwei);
     const ende = [...s.slice(1), dauer], aEnde = [...a.s.slice(1), a.dauer];
     assert.equal(s.length, a.s.length);
     wurzelSchritte(I).forEach((x, i) => {
       const d = ende[i] - s[i];
-      assert.ok(d >= LESEN(x.text) + 2.5 - 0.01, `${N}, Schritt ${i + 1}: ${d} s für ${x.text.length} Zeichen`);
-      assert.ok(d >= 1.5 * (aEnde[i] - a.s[i]) - 0.01, `${N}, Schritt ${i + 1}: schneller als 1,5 × Drehbuch`);
+      assert.ok(d >= lesezeitMs(x.text) / 1000 + 2.5 - 0.11, `${N}, Schritt ${i + 1}: ${d} s für ${x.text.length} Zeichen`);
+      assert.ok(d >= 1.5 * (aEnde[i] - a.s[i]) - 0.11, `${N}, Schritt ${i + 1}: schneller als 1,5 × Drehbuch`);
     });
-    assert.ok(dauer <= 120, `${N}: länger als zwei Minuten`);
+    assert.ok(dauer <= 150, `${N}: länger als zweieinhalb Minuten`);
   }
 });
 
 test("Abspielzeit → Drehbuch: Schrittgrenzen fallen zusammen, monoton, Ende = Ende", () => {
-  for (const zwei of [false, true]) {
-    const n = wurzelZeiten(zwei), a = DREHBUCH(zwei);
-    n.s.forEach((v, i) => assert.ok(Math.abs(drehbuchZeit(v, zwei) - a.s[i]) < 1e-9));
-    assert.equal(drehbuchZeit(n.dauer, zwei), a.dauer);
+  for (const N of [3025, 5329]) {
+    const I = wurzelInfo(N), p = wurzelPlan(I), a = DREHBUCH(I.zwei);
+    p.schritte.forEach((x, i) => assert.ok(Math.abs(p.zuDrehbuch(x.von) - a.s[i]) < 1e-9));
+    assert.equal(p.zuDrehbuch(p.dauer), a.dauer);
     let alt = -1;
-    for (let t = 0; t <= n.dauer; t += 0.25) { const d = drehbuchZeit(t, zwei); assert.ok(d >= alt); alt = d; }
+    for (let t = 0; t <= p.dauer; t += 0.25) { const d = p.zuDrehbuch(t); assert.ok(d >= alt); alt = d; }
   }
   /* die sechs Endziffern-Paare passen in Schritt 3 des Drehbuchs */
   const { s } = DREHBUCH(false);
   assert.ok(s[2] + PAAR_ZEIT[PAAR_ZEIT.length - 1] + 1.5 < s[3]);
 });
 
-test("Reihenfolge: 10² oben, 1² unten; Zehnerquadrat-Leiter ebenso", () => {
+test("Reihenfolge: 10² oben, 1² unten; Zehnerquadrat-Leiter ebenso; Player bekommt das Drehbuch-Tempo", () => {
   const q = readFileSync(new URL("../src/funcErklaeranimation.jsx", import.meta.url), "utf8");
   assert.match(q, /const LY = \(i\) => RY\(9 - i\)/);
   assert.match(q, /const leiterY = \(s\) => 194 \+ \(4 - s\) \* 36/);
-  assert.match(q, /const t = drehbuchZeit\(tAbspiel, I\.zwei\)/);
+  assert.match(q, /\.\.\.WURZEL_TEMPO/);
 });
 
 test("Startbeispiel 3025 = 55²: zwischen 2500 und 3600, Endziffer 5 nur von 5", () => {
@@ -91,6 +93,6 @@ test("Texte: alle Beispiele vollständig, Reihenfolge wie gewünscht, keine Gend
 
 test("Kopfrechnen √10k zeigt die Szene, der Film-Eintrag nennt die Dauer", () => {
   assert.match(readFileSync(new URL("../src/func14.jsx", import.meta.url), "utf8"), /modus === "wurzel10k" && <ErklaerAnimation art="wurzel"/);
-  assert.match(readFileSync(new URL("../src/trainingszentrum.js", import.meta.url), "utf8"), /wurzel: \{[^}]*dauer: 103/);
+  assert.match(readFileSync(new URL("../src/trainingszentrum.js", import.meta.url), "utf8"), /wurzel: \{[^}]*dauer: 121/);
   assert.match(readFileSync(new URL("../src/funcErklaeranimation.jsx", import.meta.url), "utf8"), /useState\(WURZEL_START\)/);
 });

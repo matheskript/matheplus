@@ -57,7 +57,7 @@ with sync_playwright() as p:
         ecke.locator("button").first.click(); page.wait_for_timeout(300)
         ecke.get_by_label("Schritt 3 abspielen").click(); page.wait_for_timeout(400)
         pruefe(ecke.get_by_text("Schritt 3 von").count() == 1, f"{breite}: Schrittwechsel in der Ecken-Animation fehlt")
-        ecke.locator("input[type=range]").fill("34"); page.wait_for_timeout(200)
+        leiste = ecke.locator("input[type=range]"); leiste.fill(leiste.get_attribute("max")); page.wait_for_timeout(200)   # ans Ende (Dauer hängt von der Lesezeit ab)
         pruefe(ecke.get_by_text("Nur diese fünf Ecken gehen").count() == 1, f"{breite}: Schlussbild der Ecken-Animation fehlt")
         breite_ok("Animationen")
         ecke.scroll_into_view_if_needed(); page.screenshot(path=f"{AUS}/{breite}-animation.png")

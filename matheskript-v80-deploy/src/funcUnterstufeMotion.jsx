@@ -3,11 +3,13 @@
    <Motion szene="roemisch" p={{ zahl: 2026 }} titel="…" />
    · zeigt zuerst das Schlussbild; startet von vorn, sobald die Animation zu 60 % im Bild ist (einmal), pausiert außerhalb des Bildes
    · ein Knopf: Abspielen / Pause / Nochmal; die Leiste darunter lässt sich ziehen (vor- und zurückspulen)
+   · Lesezeit (src/lesezeit.js): von vorn steht zuerst die Frage zum Lesen da, jeder Untertitel bleibt bis er gelesen ist
    · Untertitel je Abschnitt (aria-live), bei „Bewegung reduzieren“ sofort das Schlussbild
    Szenen: src/motion/szenen*.jsx (Vertrag in src/motion/kern.jsx), Zuordnung je Lerneinheit: src/unterstufeMedien.js.
    ============================================================ */
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { B, F, NACHLAUF, zeitplan, fortschritt, untertitel } from "./motion/kern.jsx";
+import { lesezeitMs } from "./lesezeit.js";
 import { SZENEN_ZAHLEN } from "./motion/szenenZahlen.jsx";
 import { SZENEN_GEOMETRIE } from "./motion/szenenGeometrie.jsx";
 import { SZENEN_BRUECHE } from "./motion/szenenBrueche.jsx";
@@ -114,6 +116,10 @@ export function Motion({ szene, p = {}, titel, thema, kapitel, tempo = 1, frage,
   const [lief, setLief] = useState(false);
   const setLaeuft = (an) => { if (an) setLief(true); setLaeuftRoh(an); };
   const huelle = useRef(null), gestartet = useRef(false), sichtbar = useRef(false);
+  /* Vorlauf: Startet die Animation von vorn, bleibt zuerst die Frage so lange stehen, wie man zum Lesen braucht */
+  const vorlaufRest = useRef(0);
+  const [imVorlauf, setImVorlauf] = useState(false);
+  const vonVorn = () => { setT(0); if (frage && !reduziert()) { vorlaufRest.current = lesezeitMs(frage); setImVorlauf(true); } };
 
   /* Bildlauf: einmal von selbst starten, außerhalb des Bildes pausieren */
   useEffect(() => {
@@ -121,7 +127,7 @@ export function Motion({ szene, p = {}, titel, thema, kapitel, tempo = 1, frage,
     if (!el || typeof IntersectionObserver === "undefined") return undefined;
     const io = new IntersectionObserver(([e]) => {
       sichtbar.current = e.isIntersecting && e.intersectionRatio >= 0.6;
-      if (sichtbar.current && !gestartet.current && !reduziert()) { gestartet.current = true; setT(0); setLaeuft(true); }
+      if (sichtbar.current && !gestartet.current && !reduziert()) { gestartet.current = true; vonVorn(); setLaeuft(true); }
       if (!e.isIntersecting) setLaeuft(false);
     }, { threshold: [0, 0.6] });
     io.observe(el);
@@ -132,7 +138,10 @@ export function Motion({ szene, p = {}, titel, thema, kapitel, tempo = 1, frage,
     if (!laeuft) return undefined;
     let id, vorher = null;
     const schritt = (jetzt) => {
-      if (vorher != null) {
+      if (vorher != null && vorlaufRest.current > 0) {
+        vorlaufRest.current -= Math.min(64, jetzt - vorher);
+        if (vorlaufRest.current <= 0) { vorlaufRest.current = 0; setImVorlauf(false); }
+      } else if (vorher != null) {
         const n = Math.min(dauer, tRef.current + Math.min(64, jetzt - vorher) * tempo);
         tRef.current = n; setT(n);
         if (n >= dauer) { setLaeuft(false); return; }
@@ -149,17 +158,17 @@ export function Motion({ szene, p = {}, titel, thema, kapitel, tempo = 1, frage,
   const knopf = () => {
     gestartet.current = true;
     if (laeuft) setLaeuft(false);
-    else { if (t >= dauer - 1) setT(0); setLaeuft(true); }
+    else { if (t >= dauer - 1) vonVorn(); setLaeuft(true); }
   };
   const { Z, z } = fortschritt(plan, t);
   const text = untertitel(plan, t);
   /* Vor dem ersten Abspielen: die Frage; in der Ruhe am Ende (und im Standbild danach): der Kernsatz */
   const vorher = !lief && !gestartet.current;
   const schluss = t >= dauer - NACHLAUF - 1;
-  const zeigeFrage = !!frage && vorher && !reduziert();
+  const zeigeFrage = !!frage && (vorher || imVorlauf) && !reduziert();
   const zeigeKern = !!kern && ((schluss && !vorher) || reduziert());
   const proz = `${((t / dauer) * 100).toFixed(1)}%`;
-  const springe = (k) => { const a = plan.abschnitte.find((x) => x.k === k); if (!a) return; gestartet.current = true; setT(a.start); setLaeuft(true); };
+  const springe = (k) => { const a = plan.abschnitte.find((x) => x.k === k); if (!a) return; gestartet.current = true; vorlaufRest.current = 0; setImVorlauf(false); setT(a.start); setLaeuft(true); };
   const aktuellesKapitel = kapitel && [...kapitel].reverse().find((kp) => { const a = plan.abschnitte.find((x) => x.k === kp.k); return a && a.start <= t + 1; });
   return (
     <figure className={`usm${thema ? ` usm-${thema}` : ""}`} ref={huelle} data-us-motion={szene} style={{ margin: "4px 0 14px" }}>
@@ -175,7 +184,7 @@ export function Motion({ szene, p = {}, titel, thema, kapitel, tempo = 1, frage,
           <p className={`usm-text${zeigeFrage ? " usm-frage" : ""}`} aria-live="polite" data-usm-text={zeigeFrage ? "frage" : "text"}>{mitPfeilen(zeigeFrage ? frage : text)}</p>
           {zeigeKern && <p className="usm-kern" data-usm-kern=""><b>Das Wichtigste</b>{mitPfeilen(kern)}</p>}
           <input type="range" className="usm-leiste" min="0" max={Math.round(dauer)} step="10" value={Math.round(t)} aria-label="Animation spulen"
-            style={{ "--usm-u": proz }} onChange={(e) => { gestartet.current = true; setLaeuft(false); setT(Number(e.target.value)); }} />
+            style={{ "--usm-u": proz }} onChange={(e) => { gestartet.current = true; vorlaufRest.current = 0; setImVorlauf(false); setLaeuft(false); setT(Number(e.target.value)); }} />
           {kapitel && kapitel.length > 0 && (
             <div className="usm-kapitel" role="group" aria-label="Zu einem Abschnitt springen">
               {kapitel.map((kp) => <button key={kp.k} type="button" className="usm-kap" aria-current={aktuellesKapitel && aktuellesKapitel.k === kp.k ? "true" : undefined} onClick={() => springe(kp.k)} data-usm-kap={kp.k}>{mitPfeilen(kp.name)}</button>)}

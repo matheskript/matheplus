@@ -1,3 +1,5 @@
+import { lesePlan } from "./lesezeit.js";
+
 /* ======================================================================
    Wurzel aus vierstelligen Quadratzahlen – Logik und Texte der Motion (22.10.2026)
    Die Zeichnung steht in funcErklaeranimation.jsx (Szene „wurzel“, Kopfrechnen √10k).
@@ -51,26 +53,16 @@ export function wurzelInfo(N) {
   return { N, n, ende, kand, kandKlein, vorne, z, unten, oben, zwei, abU, abO, kleiner, gewaehlt, kandZahlen: kand.map((k) => 10 * z + k) };
 }
 
-/* Drehbuch: die ursprünglichen Zeiten (eine Minute), nach denen die Zeichnung in funcErklaeranimation.jsx getaktet ist.
-   Abgespielt wird langsamer (wurzelZeiten): jeder Schritt dauert mindestens 1,5-mal so lang wie im Drehbuch und
-   mindestens so lang, wie man zum Lesen seines Textes braucht (1 s + 52 ms je Zeichen, wie die Motion-Norm) plus 2,5 s
-   zum Nachdenken. drehbuchZeit rechnet die Abspielzeit schrittweise linear auf das Drehbuch um – so bleiben Bild und
-   Text im selben Takt, alles läuft gleichmäßig ruhiger. */
+/* Drehbuch: die Zeiten (eine Minute), nach denen die Zeichnung in funcErklaeranimation.jsx getaktet ist.
+   Abgespielt wird langsamer: Der Player rechnet mit lesePlan (src/lesezeit.js) – jeder Schritt mindestens
+   1,5-mal so lang wie im Drehbuch und mindestens Lesezeit seines Textes + 2,5 s zum Nachdenken. */
 export const DREHBUCH = (zwei) => (zwei
   ? { s: [0, 7.5, 15.5, 30, 37, 42.5, 48.5, 54], dauer: 60 }
   : { s: [0, 7.5, 15.5, 30, 38, 44, 52], dauer: 60 });
-export const wurzelZeiten = (zwei) => (zwei
-  ? { s: [0, 14, 27.5, 49.5, 69, 78.5, 93.5, 104.5], dauer: 115 }
-  : { s: [0, 14, 27.5, 49.5, 69, 78, 91], dauer: 103 });
-export const LESEN = (text) => 1 + 0.052 * String(text).length;   // Sekunden zum Lesen eines Schritttextes
-export function drehbuchZeit(t, zwei) {
-  const a = DREHBUCH(zwei), n = wurzelZeiten(zwei);
-  const aE = [...a.s.slice(1), a.dauer], nE = [...n.s.slice(1), n.dauer];
-  let i = 0;
-  while (i < n.s.length - 1 && t >= n.s[i + 1]) i++;
-  const u = Math.max(0, Math.min(1, (t - n.s[i]) / (nE[i] - n.s[i])));
-  return a.s[i] + u * (aE[i] - a.s[i]);
-}
+export const WURZEL_TEMPO = { faktor: 1.5, puffer: 2.5 };
+export const wurzelPlan = (I) => lesePlan(wurzelSchritte(I), DREHBUCH(I.zwei).dauer, WURZEL_TEMPO);
+/* Abspielzeiten (Sekunden) – dieselben, die der Player zeigt */
+export const wurzelZeiten = (I) => { const p = wurzelPlan(I); return { s: p.schritte.map((x) => x.von), dauer: p.dauer }; };
 
 /* Zeitpunkte der sechs Endziffern-Paare in Schritt 3 (relativ zum Schrittbeginn, Drehbuch-Zeit) */
 export const PAAR_ZEIT = [1.5, 3.7, 5.9, 8.1, 10.3, 12.1];
@@ -92,9 +84,9 @@ export function wurzelSchritte(I) {
   const t7 = `Welcher der beiden? ${I.N} liegt näher an ${naeher}: nach unten sind es ${I.abU}, nach oben ${I.abO}. Also liegt die Wurzel näher an ${I.kleiner ? I.z * 10 : (I.z + 1) * 10} – es ist ${I.gewaehlt}.`;
   const t8 = `Zehnerziffer ${I.z} aus den Zehnerquadraten, Einerziffer ${I.gewaehlt % 10} aus der letzten Ziffer: Die Wurzel aus ${I.N} ist ${I.gewaehlt}. Probe: ${I.gewaehlt}² = ${I.N}.`;
   const texte = I.zwei ? [t1, t2, t3, t4, t5, t6, t7, t8] : [t1, t2, t3, t4, t5, t6, t8];
-  return wurzelZeiten(I.zwei).s.map((von, i) => ({ von, text: texte[i] }));
+  return DREHBUCH(I.zwei).s.map((von, i) => ({ von, text: texte[i] }));
 }
 
 export function wurzelBeschreibung(I) {
-  return `Animation, ${Math.round(wurzelZeiten(I.zwei).dauer)} Sekunden: Wurzel aus ${I.N}. Die Quadratzahlen von 1 bis 10 (1 unten, 10 oben), daneben die Zehnerquadrate mit zwei Nullen, dann die letzten Ziffern (1 und 81, 4 und 64, 9 und 49, 16 und 36 enden gleich, 25 und 100 allein). Die letzte Ziffer von ${I.N} liefert die Einerziffer, die Lage zwischen ${gz(I.unten)} und ${gz(I.oben)} die Zehnerziffer. Ergebnis ${I.gewaehlt}.`;
+  return `Animation, ${Math.round(wurzelZeiten(I).dauer)} Sekunden: Wurzel aus ${I.N}. Die Quadratzahlen von 1 bis 10 (1 unten, 10 oben), daneben die Zehnerquadrate mit zwei Nullen, dann die letzten Ziffern (1 und 81, 4 und 64, 9 und 49, 16 und 36 enden gleich, 25 und 100 allein). Die letzte Ziffer von ${I.N} liefert die Einerziffer, die Lage zwischen ${gz(I.unten)} und ${gz(I.oben)} die Zehnerziffer. Ergebnis ${I.gewaehlt}.`;
 }

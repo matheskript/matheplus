@@ -20,6 +20,7 @@
    über <Tx>. Keine Farben außerhalb von F verwenden.
    ============================================================ */
 import React from "react";
+import { lesezeitMs, BEWEGUNG_MAX } from "../lesezeit.js";
 
 export const B = 360;   // Breite jeder Szene
 
@@ -67,22 +68,24 @@ export const de = (n, stellen) => {
 
 /* ---------- Ablauf → Zeiten ---------- */
 export const NACHLAUF = 1600;   // ms Ruhe am Ende (Schlussbild + Kernsatz lesen)
-/* Lesezeit eines Untertitels: ein Fünftklässler liest etwa 3 Zeichen je 170 ms, dazu Anlauf.
-   Ein Abschnitt mit Text dauert nie kürzer als seine Lesezeit – die Bewegung darin wird dann
-   entsprechend gedehnt (Z/z laufen weiter von 0 bis 1). So ist kein Satz schneller weg, als man ihn lesen kann. */
-export const lesedauer = (text) => (text ? 1000 + 52 * String(text).length : 0);
+/* Lesezeit kommt aus src/lesezeit.js (1,2 s + 70 ms je Zeichen, Lesetempo Klasse 5–7) – für alle Animationen gleich.
+   Ein Abschnitt mit Text dauert nie kürzer als seine Lesezeit. Die Bewegung darin wird höchstens um BEWEGUNG_MAX
+   gestreckt (sonst wirkt sie zäh); danach steht das Bild still, bis der Text gelesen ist (a.bewegt ≤ a.ms). */
+export const lesedauer = lesezeitMs;
 export function zeitplan(ablauf) {
   let s = 0;
   const abschnitte = ablauf.map((a) => {
-    const ms = Math.max(a.ms || 0, lesedauer(a.text));
-    const o = { ...a, ms, start: s, ende: s + ms }; s += ms; return o;
+    const gezeichnet = a.ms || 0;
+    const ms = Math.max(gezeichnet, lesedauer(a.text));
+    const bewegt = Math.min(ms, Math.max(gezeichnet * BEWEGUNG_MAX, gezeichnet));
+    const o = { ...a, ms, bewegt, start: s, ende: s + ms }; s += ms; return o;
   });
   return { abschnitte, dauer: s + NACHLAUF };
 }
 export function fortschritt(plan, t) {
   const nach = {};
   for (const a of plan.abschnitte) nach[a.k] = a;
-  const z = (k) => { const a = nach[k]; if (!a) return 1; return klemm((t - a.start) / (a.ende - a.start || 1)); };
+  const z = (k) => { const a = nach[k]; if (!a) return 1; return klemm((t - a.start) / (a.bewegt || a.ende - a.start || 1)); };
   const Z = (k, kurve = sanft) => kurve(z(k));
   return { z, Z };
 }

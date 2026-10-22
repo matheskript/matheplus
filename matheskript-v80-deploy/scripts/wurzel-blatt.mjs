@@ -19,7 +19,7 @@ const eintrag = `
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { wurzelZeichne } from "./src/funcErklaeranimation.jsx";
-import { wurzelInfo, wurzelSchritte, wurzelZeiten, drehbuchZeit } from "./src/wurzelMotion.js";
+import { wurzelInfo, wurzelSchritte, wurzelZeiten } from "./src/wurzelMotion.js";
 export function lauf(N, zeiten) {
   const I = wurzelInfo(N), sch = wurzelSchritte(I);
   return zeiten.map((t) => {
@@ -28,7 +28,7 @@ export function lauf(N, zeiten) {
     return { t, svg, schritt: i + 1, fehler: /NaN|Infinity|undefined/.test(svg) };
   });
 }
-export { wurzelZeiten, wurzelInfo, drehbuchZeit };`;
+export { wurzelZeiten, wurzelInfo };`;
 const datei = path.join(wurzel, "node_modules", `.wurzel-lauf-${process.pid}.mjs`);
 await build({ stdin: { contents: eintrag, resolveDir: wurzel, loader: "jsx" }, bundle: true, platform: "node", format: "esm", outfile: datei, jsx: "transform",
   loader: { ".js": "jsx" }, logLevel: "error", external: ["react", "react-dom", "react-dom/server"], define: { "import.meta.env": "{}" },
@@ -37,10 +37,10 @@ await build({ stdin: { contents: eintrag, resolveDir: wurzel, loader: "jsx" }, b
     b.onResolve({ filter: /\.(webp|png|jpe?g|gif|svg|ttf|woff2?|mp3|mp4|webm|pdf|css)(\?.*)?$/ }, (a) => ({ path: a.path, namespace: "leer" }));
     b.onLoad({ filter: /.*/, namespace: "leer" }, () => ({ contents: "export default \"\";", loader: "js" }));
   } }] });
-const { lauf, wurzelZeiten: wz, wurzelInfo: wi } = await import(pathToFileURL(datei).href + "?" + Date.now());
+const { lauf } = await import(pathToFileURL(datei).href + "?" + Date.now());
 rmSync(datei, { force: true });
 
-/* Marken im Drehbuch (eine Minute); abgespielt wird langsamer – umgerechnet auf die echte Abspielzeit */
+/* Marken im Drehbuch (eine Minute); abgespielt wird langsamer (Player + lesePlan) */
 const DREHBUCH_MARKEN = [3, 7, 12, 15, 17.5, 21.8, 24.5, 28.3, 31.5, 35.5, 40, 42.5, 45, 47.5, 50, 53, 56, 59.9];
 const schrift = ["600", "700", "800"].map((g) => {
   const f = path.join(wurzel, "node_modules/@fontsource/montserrat/files", `montserrat-latin-${g}-normal.woff2`);
@@ -48,9 +48,7 @@ const schrift = ["600", "700", "800"].map((g) => {
 }).join("");
 let fehler = 0;
 for (const N of beispiele) {
-  const { s: neu, dauer } = wz(wi(N).zwei), alt = wi(N).zwei ? [0, 7.5, 15.5, 30, 37, 42.5, 48.5, 54, 60] : [0, 7.5, 15.5, 30, 38, 44, 52, 60];
-  const n2 = [...neu, dauer];
-  const ZEITEN = DREHBUCH_MARKEN.map((m) => { let i = 0; while (i < alt.length - 2 && m >= alt[i + 1]) i++; return Math.round((n2[i] + (m - alt[i]) / (alt[i + 1] - alt[i]) * (n2[i + 1] - n2[i])) * 10) / 10; });
+  const ZEITEN = DREHBUCH_MARKEN;   // wurzelZeichne zeichnet in Drehbuch-Zeit; der Player streckt (lesePlan)
   const bilder = lauf(N, ZEITEN);
   fehler += bilder.filter((b) => b.fehler).length;
   writeFileSync(path.join(aus, `wurzel-${N}.html`), `<!doctype html><meta charset="utf-8"><style>${schrift}

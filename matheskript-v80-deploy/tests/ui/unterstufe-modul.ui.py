@@ -53,7 +53,11 @@ with sync_playwright() as p:
                 pruefe(m.first.locator("input[type=range]").count() == 1, f"{wo}: keine Spul-Leiste")
                 pruefe(len(m.first.locator(".usm-text").inner_text().strip()) > 0, f"{wo}: kein Untertitel")
                 if breite == 390 and e is liste[0] or FILTER:
-                    page.wait_for_timeout(15000)
+                    # Dauer hängt von der Lesezeit ab (src/lesezeit.js): Leiste (ms) + Vorlauf mit der Frage + Reserve
+                    bis = int(m.first.locator("input[type=range]").get_attribute("max")) + 9000
+                    for _ in range(bis // 500):
+                        page.wait_for_timeout(500)
+                        if m.first.locator("[data-usm-knopf]").get_attribute("aria-label") != "Animation anhalten": break
                     lbl = m.first.locator("[data-usm-knopf]").get_attribute("aria-label")
                     pruefe(lbl == "Animation noch einmal abspielen", f"{wo}: Animation läuft nicht zu Ende ({lbl})")
                     m.first.screenshot(path=f"{AUS}/{e['id']}-anim.png")

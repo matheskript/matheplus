@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect, useId } from "react";
+import React, { useState, useRef, useEffect, useId, useMemo } from "react";
+import { lesePlan } from "./lesezeit.js";
 import { C } from "./base1.jsx";
 import { zw } from "./ui2.jsx";
-import { DREHBUCH, ENDEN, FOLGERUNG, PAAR_ZEIT, WURZEL_BEISPIELE, WURZEL_PAARE, WURZEL_START, drehbuchZeit, gz, wurzelBeschreibung, wurzelInfo, wurzelSchritte, wurzelZeiten } from "./wurzelMotion.js";
+import { DREHBUCH, ENDEN, FOLGERUNG, PAAR_ZEIT, WURZEL_BEISPIELE, WURZEL_PAARE, WURZEL_START, WURZEL_TEMPO, gz, wurzelBeschreibung, wurzelInfo, wurzelSchritte } from "./wurzelMotion.js";
 
 /* ======================================================================
    ERKLÄRANIMATION
@@ -13,7 +14,7 @@ import { DREHBUCH, ENDEN, FOLGERUNG, PAAR_ZEIT, WURZEL_BEISPIELE, WURZEL_PAARE, 
    Szenen: "produkt" (Produktregel am Rechteck), "kette" (Kettenregel als
    Verstärkerkette), "stamm" (Stammfunktion: Ableiten rückwärts), "integral"
    (bestimmtes Integral: Streifen und Hauptsatz), "wurzel" (Wurzel aus
-   vierstelligen Quadratzahlen, knapp zwei Minuten: 1² unten bis 10² oben, daneben die Zehnerquadrate,
+   vierstelligen Quadratzahlen, gut zwei Minuten: 1² unten bis 10² oben, daneben die Zehnerquadrate,
    letzte Ziffern, dann „zwischen welchen Zehnerquadraten?“ – Logik in wurzelMotion.js).
    ====================================================================== */
 
@@ -171,8 +172,8 @@ function ketteZeichne(t) {
 /* ======================================================================
    SZENE 3 · Wurzel aus vierstelligen Quadratzahlen (seit 22.10.2026)
    Zeiten, Texte und Rechnung rein in src/wurzelMotion.js (Test tests/wurzelMotion.test.mjs).
-   Die Zeichnung ist nach dem Drehbuch (DREHBUCH, eine Minute) getaktet; wurzelZeichne rechnet die langsamere
-   Abspielzeit zuerst mit drehbuchZeit um. Größer = weiter oben: Liste 10² oben, 1² unten; Leiter ebenso.
+   Die Zeichnung ist nach dem Drehbuch (DREHBUCH, eine Minute) getaktet; die langsamere Abspielzeit rechnet der
+   Player mit lesePlan um (WURZEL_TEMPO: mind. 1,5 × Drehbuch, Lesezeit + 2,5 s je Schritt). Größer = weiter oben: Liste 10² oben, 1² unten; Leiter ebenso.
    1 Quadratzahlen 1² bis 10² · 2 daneben die Zehnerquadrate (dieselben Zahlen mit 00)
    3 letzte Ziffern: 1|81, 4|64, 9|49, 16|36 enden gleich (Klammern), 25 und 100 allein
    4 Folgerung: letzte Ziffer → Einerziffer der Wurzel · 5 Beispiel: die letzte Ziffer
@@ -208,8 +209,7 @@ const Pfeil = ({ x1, x2, y, farbe, breite = 2 }) => (
   <path d={`M${x1} ${y} H${x2} M${x2 - 5} ${y - 4.5} L${x2} ${y} L${x2 - 5} ${y + 4.5}`} fill="none" stroke={farbe} strokeWidth={breite} strokeLinecap="round" strokeLinejoin="round" />
 );
 
-function wurzelZeichne(tAbspiel, I) {
-  const t = drehbuchZeit(tAbspiel, I.zwei);
+function wurzelZeichne(t, I) {
   const Zt = DREHBUCH(I.zwei).s;
   const tE = Zt[Zt.length - 1];
   const [tZehner, tEnden, tFolge, tBsp, tLeiter] = [Zt[1], Zt[2], Zt[3], Zt[4], Zt[5]];
@@ -493,7 +493,13 @@ const spielKnopf = { width: 46, height: 46, borderRadius: 999, border: "none", c
 
 /* Auch für andere Werkzeuge nutzbar (z. B. Trigonometrie): szene = { dauer, hoehe, schritte: [{ von, text }], zeichne(t), beschreibung } */
 export function Player({ szene }) {
-  const { dauer, schritte, hoehe, zeichne, beschreibung } = szene;
+  /* Lesezeit (src/lesezeit.js): jeder Schritt bleibt mindestens so lange stehen, wie man zum Lesen seines Textes braucht.
+     Die Szene zeichnet weiter in ihrer eigenen Zeit; plan.zuDrehbuch rechnet die Abspielzeit um
+     (Bewegung höchstens 1,6-mal gestreckt, danach Standbild bis zum Ende des Schritts). */
+  const plan = useMemo(() => lesePlan(szene.schritte, szene.dauer, { puffer: szene.puffer ?? 1.5, faktor: szene.faktor ?? 1 }), [szene.schritte, szene.dauer, szene.puffer, szene.faktor]);
+  const { hoehe, beschreibung } = szene;
+  const { dauer, schritte } = plan;
+  const zeichne = (tt) => szene.zeichne(plan.zuDrehbuch(tt));
   const leise = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const [t, setT] = useState(0);
   const [spielt, setSpielt] = useState(!leise);
@@ -770,7 +776,7 @@ export const INFO = {
   kette: { titel: "Kettenregel als Verstärkerkette", unter: "Warum die innere Ableitung nie fehlen darf" },
   stamm: { titel: "Stammfunktion: Ableiten rückwärts", unter: "Warum durch den neuen Exponenten geteilt wird – und warum + C" },
   integral: { titel: "Fläche unter der Kurve und der Hauptsatz", unter: "Vom Streifen-Zählen zu F(b) − F(a)" },
-  wurzel: { titel: "Wurzel aus vierstelligen Zahlen", unter: "Knapp zwei Minuten: Quadratzahlen bis 10, Zehnerquadrate, letzte Ziffern" },
+  wurzel: { titel: "Wurzel aus vierstelligen Zahlen", unter: "Gut zwei Minuten: Quadratzahlen bis 10, Zehnerquadrate, letzte Ziffern" },
 };
 
 function ProduktSzene() {
@@ -796,7 +802,7 @@ function WurzelSzene() {
           </button>
         ))}
       </div>
-      <Player key={N} szene={{ dauer: wurzelZeiten(I.zwei).dauer, hoehe: 490, schritte: wurzelSchritte(I), zeichne: (t) => wurzelZeichne(t, I),
+      <Player key={N} szene={{ dauer: DREHBUCH(I.zwei).dauer, ...WURZEL_TEMPO, hoehe: 490, schritte: wurzelSchritte(I), zeichne: (t) => wurzelZeichne(t, I),
         beschreibung: wurzelBeschreibung(I) }} />
     </div>
   );

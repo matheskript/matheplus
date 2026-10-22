@@ -85,7 +85,7 @@ test("alle Szenen existieren und rendern zu jedem Zeitpunkt sauber", async () =>
       const texte = plan.abschnitte.filter((s) => s.text).map((s) => s.text);
       assert.ok(texte.length >= 1, `${id}/${a.szene}: kein Untertitel`);
       for (const t of texte) assert.ok(!/\d\s*\/\s*\d/.test(t), `${id}/${a.szene}: Bruch mit Schrägstrich im Untertitel: ${t}`);
-      assert.ok(plan.dauer >= 2500 && plan.dauer <= 26000, `${id}/${a.szene}: Dauer ${plan.dauer} ms (Norm: 8–25 s, Untertitel kürzen oder Abschnitte zusammenlegen)`);
+      assert.ok(plan.dauer >= 2500 && plan.dauer <= 35000, `${id}/${a.szene}: Dauer ${plan.dauer} ms (Norm: 10–35 s mit Lesezeit, Untertitel kürzen oder Abschnitte zusammenlegen)`);
       for (const t of texte) assert.ok(t.length <= 75, `${id}/${a.szene}: Untertitel länger als 75 Zeichen: ${t}`);
       for (const q of [0, 0.2, 0.4, 0.6, 0.8, 1]) {
         const t = plan.dauer * q, { Z, z } = fortschritt(plan, t);
