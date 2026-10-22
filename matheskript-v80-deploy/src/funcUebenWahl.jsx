@@ -91,6 +91,8 @@ export function UebenWahl({ schritt, nr, gesamt, frage, falsch = [], onWahl, inh
   const [lay, setLay] = useState(start);
   const gewaehlt = useRef(falsch.length);
   gewaehlt.current = falsch.length;
+  // Neu gemessen wird nur, wenn sich die Optionen wirklich ändern (nicht bei jedem neuen schritt-Objekt des Werkzeugs)
+  const signatur = schritt.optionen.map((o) => o.key).join("\u0001");
 
   useLayoutEffect(() => {
     const messen = () => {
@@ -109,7 +111,7 @@ export function UebenWahl({ schritt, nr, gesamt, frage, falsch = [], onWahl, inh
     if (huelle.current) ro.observe(huelle.current);
     if (mass.current) [...mass.current.children].forEach((el) => ro.observe(el));
     return () => ro.disconnect();
-  }, [schritt]);   // eslint-disable-line react-hooks/exhaustive-deps
+  }, [signatur]);   // eslint-disable-line react-hooks/exhaustive-deps
 
   const sichtbar = sichtbareOptionen(schritt, lay.anzahl);
   const buchstabe = (key) => BUCHSTABEN[Math.max(0, sichtbar.findIndex((o) => o.key === key))];
