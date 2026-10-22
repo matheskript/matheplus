@@ -205,7 +205,7 @@ const v_normalenform = {
       }
     }
     const PX = sub(X, P0), lPX = len(PX) || 1, e = mul(PX, 1 / lPX);
-    const nTip = add(P0, mul(N0, LN * uN));
+    const nTip = add(P0, N);                                                  // n⃗ hat immer dieselbe Länge – es wird eingeblendet, nie gestreckt
     /* Q steigt von der letzten Station senkrecht nach oben */
     const XE = X_VON(HOPS), Q = add(XE, mul(N0, HOEHE_Q * uA)), PQ = sub(Q, P0), prodQ = dot(N, PQ);
 
@@ -279,7 +279,7 @@ const v_normalenform = {
           </g>
         )}
         {/* n⃗ */}
-        <Pfeil3 von={P0} bis={nTip} u={uN > 0 ? 1 : 0} f={F.blau} b={3.2} />
+        <Pfeil3 von={P0} bis={nTip} u={1} o={klemm(uN * 1.4)} f={F.blau} b={3.2} />
         {uN > 0.6 && <VecTx x={pr(nTip)[0] + 8} y={pr(nTip)[1] + 2} text="n" g={14} f={F.blau} a="start" o={teil(uN, 0.6, 1)} />}
         {/* kleines Winkelzeichen „n⃗ senkrecht auf E“ während der Einführung */}
         <RechterWinkel3 p={P0} e1={N0} e2={mul(U, 1 / len(U))} g={0.42} f={F.blau} o={Math.min(teil(uN, 0.5, 1), 1 - uP)} />
@@ -307,6 +307,8 @@ const v_normalenform = {
    v_hnf – Hesse-Normalenform. Reihenfolge ist Absicht: Für die Gleichung (x⃗ − p⃗) · n⃗ = 0 ist die Länge von n⃗
    egal (jedes Vielfache ist ein Normalenvektor). Erst wenn man einen Punkt Q AUSSERHALB einsetzt, hängt der Wert
    von |n⃗| ab (9 mit n⃗, 18 mit 2n⃗) – DESHALB wird n⃗ auf Länge 1 gebracht: n⃗₀ macht den Wert zum Abstand.
+   Der Pfeil n⃗ bleibt dabei immer gleich (Wunsch vom 22.10.): kein Strecken, kein Schrumpfen – 2n⃗ und n⃗₀ stehen nur
+   in den Formeln; im Bild ist n⃗ einfach „der Normalenvektor, senkrecht auf E“ (Pille + rechter Winkel).
    Dieselbe Ebene; Q(−1 | 5 | 3) liegt 3 LE über E (Fußpunkt F(−2 | 3 | 1)); PQ⃗ = (1 | 1 | 3), n⃗ · PQ⃗ = 9, δ = 9/3 = 3.
    ============================================================ */
 const FUSS = inE(-1, 0);                                  // F(−2 | 3 | 1)
@@ -317,11 +319,11 @@ const v_hnf = {
   label: () => "Für die Normalenform ist die Länge des Normalenvektors egal. Setzt man aber einen Punkt außerhalb der Ebene ein, hängt der Wert von der Länge ab – deshalb wird der Normalenvektor auf Länge 1 gebracht: Dann ist das Skalarprodukt der Schatten des Verbindungsvektors, genau der Abstand, mit Vorzeichen für die Seite.",
   ablauf: () => [
     { k: "ebene", ms: 1300, text: "Dieselbe Ebene E mit n⃗ = (1 | 2 | 2): (x⃗ − p⃗) · n⃗ = 0." },
-    { k: "laenge", ms: 2800, text: "Die Länge von n⃗ ist dafür egal: auch 2n⃗ und ½n⃗ stehen senkrecht auf E." },
+    { k: "laenge", ms: 2800, text: "Auch k · n⃗ stünde senkrecht auf E – für die Gleichung ist die Länge egal." },
     { k: "punktQ", ms: 1500, text: "Jetzt ein Punkt Q, der NICHT in E liegt." },
     { k: "pq", ms: 1700, text: "PQ⃗ liegt nicht in E – das Skalarprodukt ist nicht 0. Aber was dann?" },
     { k: "wert", ms: 3200, text: "Mit n⃗ kommt 9 heraus, mit 2n⃗ schon 18 – so ist es noch kein Abstand." },
-    { k: "normieren", ms: 2100, text: "Deshalb jetzt: n⃗ durch seine Länge 3 teilen. n⃗₀ hat die Länge 1." },
+    { k: "normieren", ms: 2100, text: "Deshalb n⃗ durch seine Länge 3 teilen: n⃗₀ hat dieselbe Richtung, Länge 1." },
     { k: "hnf", ms: 1700, text: "Mit n⃗₀ heißt sie Hesse-Normalenform: (x⃗ − p⃗) · n⃗₀ = 0." },
     { k: "schatten", ms: 2300, text: "PQ⃗ · n⃗₀ ist der Schatten, den PQ⃗ auf die Richtung von n⃗₀ wirft." },
     { k: "lot", ms: 2300, text: "Der Schatten ist so lang wie das Lot von Q auf E: der Abstand." },
@@ -332,14 +334,10 @@ const v_hnf = {
   bild: ({ Z, z }) => {
     const uE = Z("ebene"), uLa = z("laenge"), uQ = Z("punktQ"), uPQ = Z("pq"), uW = Z("wert"), uNo = Z("normieren"), uH = Z("hnf");
     const uSch = Z("schatten"), uL = Z("lot"), uZ = Z("zahlen"), uD = z("durch"), uF = Z("fazit");
-    /* Länge von n⃗: in „laenge“ atmet sie 3 → 6 → 1,5 → 3; in „wert“ wächst sie auf 6 (2n⃗); in „normieren“ schrumpft sie auf 1 (n⃗₀) */
-    let k = 1;
-    if (uLa > 0 && uLa < 1) k = uLa < 0.5 ? 1 + Math.sin(Math.PI * uLa * 2) : 1 - 0.5 * Math.sin(Math.PI * (uLa - 0.5) * 2);
-    if (uW > 0) k = 1 + teil(uW, 0.45, 0.75);
-    const nLang = uNo > 0 ? mix(2 * LN, 1, uNo) : LN * k;
-    const nTip = add(P0, mul(N0, nLang));
+    /* n⃗ bleibt immer gleich lang (Länge 3) – 2n⃗ und n⃗₀ gibt es nur in den Formelzeilen */
+    const nTip = add(P0, N);
     const [xT, yT] = pr(nTip);
-    const nName = uNo > 0.5 ? "n" : nLang > 4.5 ? "2n" : "n";
+    const doppelt = teil(uW, 0.45, 0.75) > 0.5;                               // in „wert“: erst n⃗ · PQ⃗ = 9, dann 2n⃗ · PQ⃗ = 18
     /* Q: erst 3 LE über E; in „durch“ hinunter bis −1,5 LE und zurück auf +2 */
     let h = 3;
     if (uD > 0) { const w = sanft(uD < 0.6 ? uD / 0.6 : 1); h = mix(3, -1.5, w); if (uD > 0.72) h = mix(-1.5, 2, sanft(teil(uD, 0.72, 1))); }
@@ -409,7 +407,6 @@ const v_hnf = {
         </Kasten3>
       );
     } else if (uW > 0) {
-      const doppelt = k > 1.5;
       kasten = doppelt ? (
         <Kasten3 y={yK} h={32} f={F.goldHell} rand={F.gold}>
           <Zeile x={B / 2} y={yK + 21} g={13} teile={[
@@ -453,8 +450,9 @@ const v_hnf = {
     }
 
     const schattenO = Math.min(uSch, 1);
-    const laengePille = uNo > 0.5 ? "Länge 1" : `Länge ${dez(nLang)}`;
-    const pilleW = breite(laengePille, 10.5) + 16;                            // Pille rechts oberhalb der Spitze; passt sie nicht mehr, rechts unterhalb der Pfeilmitte
+    const nPille = "Normalenvektor, senkrecht auf E";
+    const pilleW = breite(nPille, 10.5) + 16;
+    const nPilleO = Math.min(teil(uE, 0.6, 1), 1 - teil(uQ, 0, 0.4));          // bis Q kommt (Q erscheint an derselben Stelle)
     return (
       <>
         <Ebene o={uE} />
@@ -486,10 +484,12 @@ const v_hnf = {
             <Punkt3 p={X_L} f={F.gold} label="X" dx={9} dy={-6} lf={F.goldDunkel} />
           </g>
         )}
-        {/* n⃗ (atmet, wächst auf 2n⃗, schrumpft auf n⃗₀) */}
+        {/* n⃗: immer derselbe Pfeil – der Normalenvektor, senkrecht auf E (rechter Winkel bis zum Schatten) */}
+        <RechterWinkel3 p={P0} e1={N0} e2={mul(U, 1 / len(U))} g={0.42} f={F.blau} o={Math.min(teil(uE, 0.5, 1), 1 - Math.max(oX, uSch))} />
         <Pfeil3 von={P0} bis={nTip} u={1} f={F.blau} b={3.2} o={uE} />
-        {uE > 0.5 && <VecTx x={xT > 318 ? xT - 26 : xT + 8} y={xT > 318 ? yT + 18 : yT + 3} text={nName} tief={uNo > 0.5 ? "0" : undefined} g={14} f={F.blau} a="start" o={teil(uE, 0.5, 1)} />}
-        <Pille x={xT + 12 + pilleW <= 356 ? xT + 12 + pilleW / 2 : (xP + xT) / 2 + 22 + pilleW / 2} y={xT + 12 + pilleW <= 356 ? yT - 20 : (yP + yT) / 2 + 14} text={laengePille} g={10.5} f={F.blauHell} tf={F.blau} o={Math.min(teil(uE, 0.6, 1), 1 - uH)} />
+        {uE > 0.5 && <VecTx x={xT > 318 ? xT - 26 : xT + 8} y={xT > 318 ? yT + 18 : yT + 3} text="n" g={14} f={F.blau} a="start" o={teil(uE, 0.5, 1)} />}
+        {/* über der Spitze, rechtsbündig am Bildrand (rechts neben der Spitze ist zu wenig Platz) */}
+        <Pille x={Math.min(xT + pilleW / 2 - 30, B - 6 - pilleW / 2)} y={yT - 34} text={nPille} g={10.5} f={F.blauHell} tf={F.blau} o={nPilleO} />
         {/* PQ⃗ */}
         <Pfeil3 von={P0} bis={Q} u={uPQ > 0 ? raus(klemm(uPQ * 1.5)) : 0} f={F.gold} b={2.8} />
         {uPQ > 0.5 && uSch <= 0.3 && <VecTx x={(xP + xQ) / 2 - 24} y={(yP + yQ) / 2 + 4} text="PQ" g={13} f={F.goldDunkel} o={teil(uPQ, 0.5, 1)} />}
