@@ -131,6 +131,8 @@ const GfsBayesSeite = lazyLaden(() => import("./funcGfsBayes.jsx").then((m) => (
 const BayesBild = lazyLaden(() => import("./funcGfsBayes.jsx").then((m) => ({ default: m.BayesBild })));
 const GfsPlatonischSeite = lazyLaden(() => import("./funcGfsPlatonisch.jsx").then((m) => ({ default: m.GfsPlatonischSeite })));
 const PlatonischBild = lazyLaden(() => import("./funcGfsPlatonisch.jsx").then((m) => ({ default: m.PlatonischBild })));
+const GfsExponentialSeite = lazyLaden(() => import("./funcGfsExponential.jsx").then((m) => ({ default: m.GfsExponentialSeite })));
+const ExponentialBild = lazyLaden(() => import("./funcGfsExponential.jsx").then((m) => ({ default: m.ExponentialBild })));
 const PotenzregelSeite = lazyLaden(() => import("./func22.jsx").then((m) => ({ default: m.PotenzregelSeite })));
 const EFunktionSeite = lazyLaden(() => import("./funcEFunktion.jsx").then((m) => ({ default: m.EFunktionSeite })));
 const AbiZentrumSeite = lazyLaden(() => import("./funcAbiZentrum.jsx").then((m) => ({ default: m.AbiZentrumSeite })));
@@ -1362,6 +1364,12 @@ export function Mathilda() {
           <GfsThemenKopf titel="Platonische Körper" chips={["Klasse 9", "Kap. VII", "5 Animationen"]} Bild={PlatonischBild}
             onZurueck={() => gehe({ ansicht: "gfs" })} />
           <GfsPlatonischSeite gehe={gehe} />
+        </>
+      ) : ansicht === "gfs-exponential" ? (
+        <>
+          <GfsThemenKopf titel="Die Exponentialverteilung" chips={["Kursstufe 2", "Kap. X", "5 Animationen"]} Bild={ExponentialBild}
+            onZurueck={() => gehe({ ansicht: "gfs" })} />
+          <GfsExponentialSeite gehe={gehe} />
         </>
       ) : ansicht === "potenzregel" ? (
         <>

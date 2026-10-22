@@ -84,6 +84,8 @@ export const THEMEN = [
   T("k2", "VIII", "Grundlagen der Wahrscheinlichkeitsrechnung", "Die geometrische Verteilung", "Wie lange dauert es bis zum ersten Treffer?", { id: "geometrisch" }),
   T("k2", "VIII", "Grundlagen der Wahrscheinlichkeitsrechnung", "Der Satz von Bayes", "Positiv getestet – wie wahrscheinlich ist man wirklich krank?", { id: "bayes", kurz: "Der Satz von Bayes", frage: "Positiv getestet – wie wahrscheinlich ist man wirklich krank?", ansicht: "gfs-bayes", videos: 0, animationen: 4 }),
   T("k2", "IX", "Testen mit der Binomialverteilung", "Der Chi-Quadrat-Test", "Ist ein Würfel fair? Viele Häufigkeiten auf einmal testen.", { id: "chiquadrat" }),
+  T("k2", "X", "Normalverteilung", "Die Exponentialverteilung", "Wartezeiten ohne Gedächtnis: Zerfall, Lebensdauer, Warteschlangen.",
+    { id: "exponential", kurz: "Exponentialverteilung", frage: "Warum ist ein Bauteil, das schon 1000 Stunden hält, wieder so gut wie neu?", ansicht: "gfs-exponential", videos: 0, animationen: 5 }),
   T("k2", "X", "Normalverteilung", "Der Satz von de Moivre-Laplace", "Warum die Binomialverteilung für große n zur Glockenkurve wird.", { id: "moivre", kurz: "de Moivre-Laplace" }),
 ];
 /* Themen einer Stufe ("8" … "k2"); eine Zahl (alte Aufrufe) gilt als Klasse */
