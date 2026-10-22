@@ -127,6 +127,7 @@ export const SEITEN_SAETZE = {
   "gfs-ziegen": { de: "das Ziegenproblem verstehen und für eine GFS aufbereiten", en: "understand the Monty Hall problem and turn it into a school presentation" },
   "gfs-bayes": { de: "den Satz von Bayes verstehen und für eine GFS aufbereiten", en: "understand Bayes’ theorem and turn it into a school presentation" },
   "gfs-platonisch": { de: "herausfinden, warum es genau fünf platonische Körper gibt, und daraus eine GFS machen", en: "find out why there are exactly five Platonic solids and turn it into a school presentation" },
+  "gfs-mischungen": { de: "Mischungsaufgaben und das Mischungskreuz verstehen und daraus eine GFS machen", en: "understand mixture problems and the alligation method and turn them into a school presentation" },
   "gfs-dose": { de: "die optimale Dose berechnen und für eine GFS aufbereiten", en: "calculate the optimal can and turn it into a school presentation" },
   kurse: { de: "Mathe mit Videokursen lernen", en: "learn maths with video courses" },
   penpaperkurs: { de: "Mathe mit Stift und Papier üben", en: "practise maths with pen and paper" },

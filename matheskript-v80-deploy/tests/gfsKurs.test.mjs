@@ -20,7 +20,7 @@ test("Jedes Thema hat Stufe, Klassen, Kapitel und Kurzbeschreibung; gebaute Them
       assert.ok(t.videos > 0 || t.animationen > 0, `${t.id}: weder Video noch Animation`);
     }
   }
-  assert.equal(themenZahl(), 5);   // Pascal, Dose, Ziegenproblem, Bayes, Platonische Körper
+  assert.equal(themenZahl(), 6);   // Pascal, Dose, Ziegenproblem, Bayes, Platonische Körper, Mischungen
 });
 
 test("Jede Stufe hat 5 bis 8 GFS-Themen", () => {

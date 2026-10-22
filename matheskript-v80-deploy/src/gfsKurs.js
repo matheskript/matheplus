@@ -46,7 +46,8 @@ export const THEMEN = [
   T("8", "IV", "Quadratische Funktionen", "Ketten, Brücken und Parabeln", "Hängt eine Kette wie eine Parabel? Bögen und Seile vergleichen.", { id: "ketten" }),
   T("8", "V", "Strahlensätze", "Perspektivisches Zeichnen", "Fluchtpunkte und Strahlensätze: So wirkt ein Bild räumlich.", { id: "perspektive" }),
   T("8", "VI", "Quadratische Gleichungen", "Der Satz von Vieta", "Summe und Produkt der Lösungen direkt aus der Gleichung ablesen.", { id: "vieta" }),
-  T("8", "VII", "Lineare Gleichungssysteme", "Mischungen", "Mischungsaufgaben mit Gleichungssystemen lösen.", { id: "mischungen" }),
+  T("8", "VII", "Lineare Gleichungssysteme", "Mischungen", "Mischungsaufgaben mit Gleichungssystemen lösen.",
+    { id: "mischungen", kurz: "Mischungen", frage: "Wie viel nimmt man von jeder Sorte – und warum funktioniert das Mischungskreuz?", ansicht: "gfs-mischungen", videos: 0, animationen: 5 }),
 
   /* Klasse 9 – Lambacher Schweizer 9 BW */
   T("9", "I", "Potenzen", "Besondere Zahlensummen", "Summen wie 1 + 2 + … + n geschickt berechnen und begründen.", { id: "zahlensummen" }),
