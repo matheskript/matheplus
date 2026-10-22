@@ -203,10 +203,17 @@ const x_zinseszins = {
   label: (p) => `${p.K} € mit ${p.p} % Zinseszins über ${p.n} Jahre`,
   ablauf: (p) => {
     let k = p.K;
+    const zinsen = [];
+    for (let i = 0; i < p.n; i++) { const z = (k * p.p) / 100; zinsen.push(z); k += z; }
+    /* Untertitel nur dort, wo man etwas erkennt: Jahr 1 (Zinsen auf das Startkapital), Jahr 2 (Zinsen auf Zinsen),
+       letztes Jahr (der Zuwachs ist größer geworden) – die Jahre dazwischen laufen ohne Text */
+    const text = (i, z) => i === 0 ? `Jahr 1: ${p.p} % von ${euro(p.K)} sind ${euro(z)} Zinsen.`
+      : i === 1 ? `Jahr 2: ${p.p} % vom neuen Kapital – die Zinsen bringen selbst Zinsen.`
+      : i === p.n - 1 ? `Jahr ${p.n}: schon ${euro(z)} Zinsen. Der Zuwachs wächst mit.` : undefined;
     return [
       { k: "start", ms: 900, text: `Startkapital ${euro(p.K)}.` },
-      ...Array.from({ length: p.n }, (_, i) => { const z = (k * p.p) / 100; k += z; return { k: `j${i}`, ms: p.n > 4 ? 750 : 1300, text: `Jahr ${i + 1}: ${p.p} % Zinsen = ${euro(z)} → ${euro(k)}` }; }),
-      { k: "ende", ms: 1300, text: `Die Zinsen wachsen mit: ${euro(p.K)} · ${de(1 + p.p / 100)}${HOCH[p.n] || "^" + p.n} ≈ ${euro(p.K * Math.pow(1 + p.p / 100, p.n))}` },
+      ...zinsen.map((z, i) => ({ k: `j${i}`, ms: i < 2 || i === p.n - 1 ? 1300 : 650, text: text(i, z) })),
+      { k: "ende", ms: 1300, text: `Jedes Jahr mal ${de(1 + p.p / 100)}: ${euro(p.K)} · ${de(1 + p.p / 100)}${HOCH[p.n] || "^" + p.n} ≈ ${euro(k)}` },
     ];
   },
   bild: ({ Z, p }) => {
@@ -228,6 +235,20 @@ const x_zinseszins = {
             </g>
           );
         })}
+        {/* Kern-Moment: die Zinsen des ersten und des letzten Jahres nebeneinander – der Granat-Streifen ist größer geworden */}
+        {p.n > 1 && (() => {
+          const u = Z("ende"); if (u <= 0) return null;
+          const z1 = ks[1] - ks[0], zn = ks[p.n] - ks[p.n - 1], hz1 = (z1 / max) * hmax, hzn = (zn / max) * hmax;
+          const x1 = 20 + (sw + gap), xn = 20 + p.n * (sw + gap);
+          return (
+            <g opacity={u}>
+              <rect x={x1 - 2} y={yb - (ks[1] / max) * hmax - 2} width={sw + 4} height={hz1 + 4} rx="4" fill="none" stroke={F.gold} strokeWidth="2" />
+              <rect x={xn - 2} y={yb - (ks[p.n] / max) * hmax - 2} width={sw + 4} height={hzn + 4} rx="4" fill="none" stroke={F.gold} strokeWidth="2" />
+              <Tx x={x1 + sw / 2} y={yb - (ks[1] / max) * hmax - 22} g={9.5} f={F.goldDunkel} w={800}>+{de(Math.round(z1))}</Tx>
+              <Tx x={xn - 5} y={yb - (ks[p.n] / max) * hmax + hzn / 2 + 3.5} g={9.5} f={F.goldDunkel} w={800} a="end">+{de(Math.round(zn))}</Tx>
+            </g>
+          );
+        })()}
         <g opacity={Z("ende")}>
           <rect x={B - 112} y={16} width={10} height={10} rx="2" fill={F.granat} />
           <Tx x={B - 96} y={25} g={10} f={F.grau} w={700} a="start">Zinsen des Jahres</Tx>
