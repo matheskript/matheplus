@@ -25,6 +25,17 @@ def neben(pg, sel, n):
     return len(r) == 2 and abs(r[0][1] - r[1][1]) < 2 and r[0][0] < r[1][0]
 
 
+
+GRUPPE_VON = {"gg": "geraden", "punktprobe": "geraden", "ge": "ebenen", "gewinkel": "ebenen", "skalarprodukt": "rechnen", "vektorwinkel": "rechnen", "linear": "rechnen"}
+def menue(p, eintrag):
+    """Eintrag des Vektor-Seitenmenüs öffnen; liegt er in einer anderen Gruppe, erst die Gruppe im Band wählen (seit 22.10.)"""
+    if p.locator(f"[data-vbm={eintrag}]:visible").count() == 0:
+        p.locator(f"[data-wb-gruppe={GRUPPE_VON[eintrag]}]").click()
+        p.wait_for_timeout(900)
+    p.locator(f"[data-vbm={eintrag}]:visible").first.click()
+    p.wait_for_timeout(500)
+
+
 with sync_playwright() as p:
     b = p.chromium.launch()
     for w in (360, 390, 1280):
@@ -40,7 +51,7 @@ with sync_playwright() as p:
             arbeitsflaeche = pg.locator("[data-arbeitsflaeche]").count() > 0   # Desktop-Zweig nach DESKTOP-STIL.md
             pruefe(arbeitsflaeche or pg.locator("[data-vek-seite]").count() == 1, f"{n}: Seitenrahmen fehlt")
             if s == "geraden-im-raum":
-                pg.locator("[data-vek-reiter=gg]").click()
+                menue(pg, 'gg')
                 pg.wait_for_timeout(300)
                 pruefe(neben(pg, "[data-vek-modus=gg] [data-vek-box]", 2), f"{n}: g und h nicht nebeneinander")
                 pg.locator("[data-vek-modus=gg] [data-vek-tipp=windschief]").click()
@@ -48,10 +59,10 @@ with sync_playwright() as p:
                 pruefe(pg.locator("[data-vek-modus=gg] [data-vek-ergebnis]").count() == 1, f"{n}: Ergebnis Gerade–Gerade fehlt")
                 pg.locator("[data-vek-modus=gg] [data-vek-fall=schneidend]").click()
                 pruefe(pg.locator("[data-vek-modus=gg] [data-vek-ergebnis]").count() == 0, f"{n}: Fallwahl setzt die Vermutung nicht zurück")
-                pg.locator("[data-vek-reiter=ge]").click()
+                menue(pg, 'ge')
                 pg.locator("[data-vek-modus=ge] [data-vek-tipp=enthalten]").click()
                 pruefe(pg.locator("[data-vek-modus=ge] [data-vek-ergebnis]").count() == 1, f"{n}: Ergebnis Gerade–Ebene fehlt")
-                pg.locator("[data-vek-reiter=probe]").click()
+                menue(pg, 'punktprobe')
                 pg.locator("[data-vek-modus=probe] [data-vek-tipp=auf]").click()
                 pruefe(pg.locator("[data-vek-modus=probe] [data-vek-ergebnis]").count() == 1, f"{n}: Ergebnis Punktprobe fehlt")
             if s == "ebene-vs-ebene" and not arbeitsflaeche:
@@ -66,8 +77,8 @@ with sync_playwright() as p:
                 pg.wait_for_timeout(200)
                 pruefe(pg.locator("[data-vek-ergebnis]").count() == 1, f"{n}: Ergebnis Punkt–Gerade fehlt")
             if s == "winkel":
-                for m in ("skalar", "winkel", "ge"):
-                    pg.locator(f"[data-vek-reiter={m}]").click()
+                for m in ("skalarprodukt", "vektorwinkel", "gewinkel"):   # Seitenmenü (vekNav)
+                    menue(pg, m)
                     pg.wait_for_timeout(150)
             ueber = pg.evaluate("document.documentElement.scrollWidth - document.documentElement.clientWidth")
             pruefe(ueber <= 1, f"{n}: Überbreite {ueber}px")

@@ -14,9 +14,9 @@ import { C } from "./base1.jsx";
 import { DrehKnoepfe, FARBE_ACHSE, GRUND_AUS, GrundebenenGitter, GrundebenenSchalter, ebenenPolygon, kamera } from "./func16.jsx";
 import { Bruch, Einzeilig, SpaltenVektor, VecName, Wurzel, ggT, kreuz, minus, skalar, strahlImWuerfel } from "./func19.jsx";
 
-import { springe } from "./sprung.js";
-import { BUEHNE, BUEHNE_SVG, FallWahl, Fusszeile, Legende, ModusReiter, RSchritt, Tafel, VF, VekArbeit, VekBild, VekSeite } from "./vekUi.jsx";
-import { FeinKarte, Werkzeugleiste, useDesktop } from "./arbeitsflaeche.jsx";
+import { useVekModus } from "./vekNav.js";
+import { BUEHNE, BUEHNE_SVG, Fusszeile, Legende, RSchritt, Tafel, VF, VekArbeit, VekBild, VekModusErsatz, VekSeite } from "./vekUi.jsx";
+import { Werkzeugleiste, useDesktop } from "./arbeitsflaeche.jsx";
 export const FA = C.see, FB = C.gruen, FE = "#8A6D00", FS = C.smaragd;
 
 /* ---------- Zufall ---------- */
@@ -570,22 +570,18 @@ const ARTEN = [
 ];
 
 export function VektorGenerator({ gehe }) {
-  const [art, setArt] = useState("addsub");
-  const [aufgabe, setAufgabe] = useState(() => neueAufgabe("addsub"));
+  /* Rechenart kommt aus dem Seitenmenü der Gruppe „Rechnen“ (vekNav.js) – der eigene Reiter ist seit 22.10. weg */
+  const [art, setArt] = useVekModus("vektorgenerator", "addsub");
+  const [aufgabe, setAufgabe] = useState(() => neueAufgabe(art));
   const [zaehler, setZaehler] = useState(1);
-  const wechsle = (id) => { setArt(id); setAufgabe(neueAufgabe(id)); setZaehler(1); };
+  const [fuer, setFuer] = useState(art);
+  if (fuer !== art) { setFuer(art); setAufgabe(neueAufgabe(art)); setZaehler(1); }
   const neu = () => { setAufgabe(neueAufgabe(art)); setZaehler((z) => z + 1); };
-  // Auswahl unten bei „Weitere Beispiele“: danach zur Rechnung hochscrollen
   const karteRef = useRef(null);
-  const wechsleUnten = (id) => { wechsle(id); requestAnimationFrame(() => karteRef.current && springe("bruch-beispiele", () => karteRef.current.scrollIntoView({ behavior: "smooth", block: "start" }))); };
-  const info = ARTEN.find((x) => x.id === art);
+  const info = ARTEN.find((x) => x.id === art) || ARTEN[0];
   const titel = art === "addsub" ? (aufgabe.op === "+" ? "Vektoraddition" : "Vektorsubtraktion") : info.titel || info.name;
   const desktop = useDesktop();
 
-  const reiter = (stapel) => (
-    <ModusReiter label="Rechenart" wert={ARTEN.find((x) => x.id === art && x.haupt) ? art : null} setWert={wechsle} stapel={stapel}
-      modi={ARTEN.filter((x) => x.haupt).map((x) => ({ id: x.id, name: stapel ? x.name : x.kurz, bild: x.bild }))} />
-  );
   const rechnungTafel = (stil) => (
     <Tafel stil={{ marginTop: 0, ...stil }} titel={titel} rechts={<span style={{ fontSize: 12.5, fontWeight: 600, color: C.grau, whiteSpace: "nowrap" }}>Beispiel {zaehler}</span>}>
       <p style={{ fontSize: 13.5, color: C.grau, lineHeight: 1.55, margin: "0 0 14px" }}>{info.info}</p>
@@ -602,12 +598,6 @@ export function VektorGenerator({ gehe }) {
       <Fusszeile neu={neu} neuText="Neues Beispiel" stil={{ marginTop: 8 }} />
     </Tafel>
   );
-  /* Weitere Beispiele – Kreuzprodukt und Abstände führen in ihre eigenen Werkzeuge */
-  const weitere = (
-    <FallWahl titel="Weitere Beispiele" wert={ARTEN.find((x) => x.id === art && !x.haupt) ? art : null}
-      setWert={(id) => { const x = ARTEN.find((y) => y.id === id); if (x.link) { if (gehe) gehe({ ansicht: x.link }); } else wechsleUnten(id); }}
-      optionen={ARTEN.filter((x) => !x.haupt).map((x) => [x.id, x.link ? (x.id === "kreuzprodukt" ? "Zum Kreuzprodukt" : "Zu den Abständen") : x.name, x.id === "skalarprodukt" ? "skalar" : x.id === "kreuzprodukt" ? "kreuz" : "punkt"])} />
-  );
   const seitenText = "Wähle eine Rechenart und lass dir so viele Beispiele zeigen, wie du willst – jedes mit vollständigem Rechenweg. Alle Koordinaten liegen zwischen −7 und 7.";
 
   /* ---------- Desktop: Rechenarten links untereinander, Rechnung rechts (kein Bild – die Rechnung ist das Bild) ---------- */
@@ -616,10 +606,7 @@ export function VektorGenerator({ gehe }) {
       <VekSeite titel="Rechnen mit Vektoren" text={seitenText}>
         <div data-vg="breit" ref={karteRef} style={{ scrollMarginTop: 80 }}>
           <VekArbeit
-            links={<>
-              <div data-vg-arten="">{reiter(true)}</div>
-              <FeinKarte>{weitere}</FeinKarte>
-            </>}
+            links={<VekModusErsatz ansicht="vektorgenerator" wert={art} setWert={setArt} label="Rechenart" />}
             rechts={rechnungTafel({ boxShadow: "none" })} />
         </div>
       </VekSeite>
@@ -628,14 +615,9 @@ export function VektorGenerator({ gehe }) {
 
   return (
     <VekSeite titel="Rechnen mit Vektoren" text={seitenText}>
-      {reiter(false)}
-
+      <VekModusErsatz ansicht="vektorgenerator" wert={art} setWert={setArt} label="Rechenart" />
       <div ref={karteRef} style={{ scrollMarginTop: 80 }}>
         {rechnungTafel()}
-      </div>
-
-      <div style={{ marginTop: 22 }}>
-        {weitere}
       </div>
     </VekSeite>
   );

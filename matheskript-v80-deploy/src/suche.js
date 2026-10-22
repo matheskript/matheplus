@@ -133,6 +133,7 @@ const WZ_WOERTER = {
   optimierung: "extremwertaufgabe extremwertproblem zielfunktion nebenbedingung maximum minimum schachtel fläche",
   integrale: "integral integrieren aufleiten stammfunktion flächenberechnung bestand hauptsatz bestimmtes integral unbestimmtes integral fläche zwischen graphen",
   vektorgenerator: "vektoren addition subtraktion skalarprodukt linearkombination vielfache betrag länge",
+  hesse: "hesse normalenform hessesche normalform hnf normalenvektor einheitsvektor normaleneinheitsvektor abstand punkt ebene vorzeichen seite der ebene",
   kreuzprodukt: "vektorprodukt normalenvektor senkrechter vektor fläche parallelogramm",
   winkel: "winkel zwischen vektoren skalarprodukt orthogonal senkrecht kosinus winkelberechnung",
   zweipunkte: "gerade aus zwei punkten geradengleichung parameterform richtungsvektor stützvektor",

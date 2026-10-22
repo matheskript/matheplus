@@ -31,10 +31,13 @@ export const KURSE = [
   { id: "funktionen-kennen", gruppe: "Analysis", titel: "Funktionen kennen", stufe: "", zeile: "Grundlagen, Sinus, Wachstum",
     werkzeuge: ["funktionen", "sinus", "wachstum"],
     namen: { funktionen: "Grundlagen", sinus: "Sinus", wachstum: "Wachstum" } },
-  { id: "vektoren-ober", gruppe: "Vektoren", titel: "Vektoren", stufe: "Oberstufe", zeile: "Rechnen, Geraden, Ebenen, Abstände",
-    werkzeuge: ["vektorgenerator", "kreuzprodukt", "winkel", "zweipunkte", "dreipunkte", "ebenen", "geraden", "ebenevsebene", "abstaende"],
-    namen: { vektorgenerator: "Rechnen", kreuzprodukt: "Kreuzprodukt", winkel: "Winkel", zweipunkte: "Zwei Punkte", dreipunkte: "Drei Punkte", ebenen: "Ebenen im Raum", geraden: "Lage", ebenevsebene: "Zwei Ebenen", abstaende: "Abstände" },
-    kurzNamen: { ebenen: "Ebenen", ebenevsebene: "E vs. E" } },
+  /* Vektoren (seit 22.10.): das Band zeigt nicht die neun Werkzeuge, sondern die vier Gruppen aus VEK_BEREICHE
+     (Rechnen · Geraden · Ebenen · Hesse-Normalenform); innerhalb einer Gruppe steht das Seitenmenü links (vekUi). */
+  { id: "vektoren-ober", gruppe: "Vektoren", titel: "Vektoren", stufe: "Oberstufe", zeile: "Rechnen, Geraden, Ebenen, Hesse-Normalenform",
+    werkzeuge: ["vektorgenerator", "winkel", "kreuzprodukt", "zweipunkte", "geraden", "dreipunkte", "ebenen", "ebenevsebene", "abstaende", "hesse"],
+    bereiche: "vek",
+    namen: { vektorgenerator: "Rechnen", kreuzprodukt: "Kreuzprodukt", winkel: "Winkel", zweipunkte: "Zwei Punkte", dreipunkte: "Drei Punkte", ebenen: "Ebenen im Raum", geraden: "Lage", ebenevsebene: "Zwei Ebenen", abstaende: "Abstände", hesse: "Hesse-Normalenform" },
+    kurzNamen: { ebenen: "Ebenen", ebenevsebene: "E vs. E", hesse: "HNF" } },
   { id: "stochastik-ober", gruppe: "Stochastik", titel: "Stochastik", stufe: "Oberstufe", zeile: "Bäume, Erwartungswert, Binomial, Tests",
     werkzeuge: ["kombinatorik", "vierfelder", "erwartungswert", "bernoulli", "hypothesentest", "normalverteilung"],
     namen: { kombinatorik: "Kombinatorik", erwartungswert: "Erwartungswert" } },
@@ -121,3 +124,55 @@ export function reiterFuer(k, aktivId) {
 
 /* Alle Ansichten, die zu einem Kurs gehören (für func10: Band statt großem Seitenkopf) */
 export const kursAnsichten = () => new Set(KURSE.flatMap((k) => k.werkzeuge.flatMap((id) => { const w = werkzeug(id); return w ? ansichtenVon(w) : []; })));
+
+/* ============================================================
+   VEKTOREN: vier Gruppen im Band, Seitenmenü je Gruppe (seit 22.10.)
+   Ein Eintrag = ein Werkzeug (ansicht) und ggf. ein Modus darin (modus).
+   Werkzeuge mit Modi (Rechnen mit Vektoren, Winkel, Geraden im Raum) lesen den Modus
+   über useVekModus (vekNav.js) – ihr eigener Reiter oben entfällt, das Menü übernimmt.
+   Geraden im Raum und Winkel verteilen ihre Modi auf zwei Gruppen
+   (Gerade – Ebene und der Schnittwinkel stehen bei den Ebenen).
+   ============================================================ */
+export const VEK_BEREICHE = [
+  { id: "rechnen", name: "Rechnen", kurz: "Rechnen", eintraege: [
+    { id: "addsub", name: "Addition und Subtraktion", kurz: "Addition", ansicht: "vektorgenerator", modus: "addsub", bild: "summe" },
+    { id: "vielfach", name: "Vielfache", kurz: "Vielfache", ansicht: "vektorgenerator", modus: "skalar", bild: "vielfaches" },
+    { id: "linear", name: "Linearkombination", kurz: "Linear", ansicht: "vektorgenerator", modus: "linear", bild: "linear" },
+    { id: "skalarprodukt", name: "Skalarprodukt", kurz: "Skalarprodukt", ansicht: "winkel", modus: "skalar", bild: "skalar" },
+    { id: "vektorwinkel", name: "Winkel zwischen Vektoren", kurz: "Winkel", ansicht: "winkel", modus: "winkel", bild: "vektorwinkel" },
+    { id: "kreuzprodukt", name: "Kreuzprodukt", kurz: "Kreuzprodukt", ansicht: "kreuzprodukt", bild: "kreuz" },
+  ] },
+  { id: "geraden", name: "Geraden", kurz: "Geraden", eintraege: [
+    { id: "zweipunkte", name: "Gerade durch zwei Punkte", kurz: "Zwei Punkte", ansicht: "zweipunkte", bild: "gerade" },
+    { id: "punktprobe", name: "Punktprobe", kurz: "Punktprobe", ansicht: "geraden", modus: "probe", bild: "auf" },
+    { id: "gg", name: "Gerade – Gerade", kurz: "g – h", ansicht: "geraden", modus: "gg", bild: "windschief" },
+  ] },
+  { id: "ebenen", name: "Ebenen", kurz: "Ebenen", eintraege: [
+    { id: "dreipunkte", name: "Ebene durch drei Punkte", kurz: "Drei Punkte", ansicht: "dreipunkte", bild: "punkt" },
+    { id: "ebenen", name: "Ebenen im Raum", kurz: "Ebenen im Raum", ansicht: "ebenen", bild: "ebene" },
+    { id: "ge", name: "Gerade – Ebene", kurz: "g – E", ansicht: "geraden", modus: "ge", bild: "ge-schneidend" },
+    { id: "ee", name: "Zwei Ebenen", kurz: "E₁ – E₂", ansicht: "ebenevsebene", bild: "ee-schnitt" },
+    { id: "gewinkel", name: "Schnittwinkel Gerade – Ebene", kurz: "Schnittwinkel", ansicht: "winkel", modus: "ge", bild: "ge-winkel" },
+    { id: "abstaende", name: "Abstände", kurz: "Abstände", ansicht: "abstaende", bild: "abstand" },
+  ] },
+  { id: "hesse", name: "Hesse-Normalenform", kurz: "HNF", eintraege: [
+    { id: "hesse", name: "Hesse-Normalenform", kurz: "HNF", ansicht: "hesse", bild: "lot" },
+  ] },
+];
+
+/* Standardmodus je Werkzeug mit Modi (erster Eintrag im Menü) */
+export const vekStandardModus = (ansicht) => {
+  for (const b of VEK_BEREICHE) for (const e of b.eintraege) if (e.ansicht === ansicht && e.modus) return e.modus;
+  return null;
+};
+
+/* Gruppe und Eintrag zu Ansicht + Modus. Ohne passenden Modus: erster Eintrag des Werkzeugs. */
+export function vekWo(ansicht, modus = null) {
+  let erst = null;
+  for (const b of VEK_BEREICHE) for (const e of b.eintraege) {
+    if (e.ansicht !== ansicht) continue;
+    if (!e.modus || e.modus === modus) return { bereich: b, eintrag: e };
+    if (!erst) erst = { bereich: b, eintrag: e };
+  }
+  return erst;
+}

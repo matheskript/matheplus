@@ -15,8 +15,9 @@ import { BEREICHE, ETIKETTEN, werkzeug, wo } from "./werkzeuge.js";
 import { FR } from "./funcRegistry.jsx";
 import { MS } from "./mathText.jsx";
 import { uebergabeHinweis, uebergabeSetzen, uebergabeZurueck } from "./uebergabe.js";
-import { KURSE, aktuellerKurs, kurs, kursMerken, meineKurse, reiterFuer, reiterKurz, reiterName, wahlUmschalten } from "./trainingsKurse.js";
+import { KURSE, VEK_BEREICHE, aktuellerKurs, kurs, kursMerken, meineKurse, reiterFuer, reiterKurz, reiterName, wahlUmschalten } from "./trainingsKurse.js";
 import { MitWurzeln } from "./wurzelZeichen.jsx";
+import { useVekStand, vekAktiv, vekEintragOeffnen } from "./vekNav.js";
 import { LERN } from "./base3.jsx";
 import { themaBereich } from "./meinTraining.js";
 import { THEMEN as TRAINING_THEMEN } from "./trainingDaten.js";
@@ -274,6 +275,7 @@ export function WerkzeugBand({ ansicht, gehe, testKnopf }) {
   const wurzel = useRef(null);
   const reiterRef = useRef(null);
   const [mehr, setMehr] = useState(false);   // Reiter laufen über den Rand → rechts weich ausblenden (Handy)
+  const vekStand = useVekStand();   // Vektoren: Gruppe hängt auch vom Modus ab (Geraden im Raum, Winkel)
   useEffect(() => { if (!auf) setBearbeiten(false); }, [auf]);
   useEffect(() => { setAuf(false); const k = aktuellerKurs(ansicht); setKursId(k ? k.id : null); }, [ansicht]);
   /* Aktiven Reiter waagerecht ins Bild holen (nur innerhalb der Reiterzeile, die Seite scrollt nicht) */
@@ -355,7 +357,19 @@ export function WerkzeugBand({ ansicht, gehe, testKnopf }) {
         @media (max-width:374px){.wb-tools-text{display:none}}`}</style>
       <div ref={wurzel} className="mx-auto wb-innen" style={{ position: "relative", height: H, padding: "0 8px 0 4px", display: "flex", alignItems: "center", gap: 6 }}>
         <div ref={reiterRef} className="wb-reiter" data-mehr={mehr ? "" : undefined} style={{ flex: "1 1 auto", minWidth: 0, display: "flex", alignItems: "stretch", height: "100%", overflowX: "auto" }}>
-          {reiter.map((id) => {
+          {/* Vektoren: Gruppen statt Werkzeuge (VEK_BEREICHE); ein Reiter öffnet den ersten Eintrag der Gruppe */}
+          {aktKurs && aktKurs.bereiche === "vek" && VEK_BEREICHE.map((b) => {
+            const akt = vekAktiv(vekStand.ansicht === ansicht ? vekStand : { ansicht, modus: null });
+            const an = Boolean(akt && akt.bereich.id === b.id);
+            return (
+              <button key={b.id} type="button" className="wb-tab" data-wb-gruppe={b.id} aria-current={an ? "page" : undefined} onClick={() => !an && vekEintragOeffnen(b.eintraege[0])} title={b.name}
+                style={{ position: "relative", flexShrink: 0, height: "100%", padding: "0 10px", border: "none", background: "none", fontFamily: "inherit", cursor: an ? "default" : "pointer",
+                  fontSize: 13, fontWeight: an ? 700 : 500, color: an ? C.seeTief : C.grau, whiteSpace: "nowrap", letterSpacing: "-0.005em" }}>
+                <span className="wb-lang">{b.name}</span><span className="wb-kurz">{b.kurz}</span>
+              </button>
+            );
+          })}
+          {!(aktKurs && aktKurs.bereiche === "vek") && reiter.map((id) => {
             const w = werkzeug(id);
             const an = w.id === wAktiv.id;
             return (

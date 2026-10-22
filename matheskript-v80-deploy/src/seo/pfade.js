@@ -23,6 +23,7 @@ export const SEO_PFADE = new Set([
   "geradengleichung",
   "gleichungen",
   "gleichungssysteme",
+  "hesse-normalenform",
   "hypothesentest",
   "integrale",
   "kathetensatz",

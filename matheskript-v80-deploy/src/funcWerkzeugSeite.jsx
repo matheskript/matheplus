@@ -14,6 +14,7 @@ import React from "react";
 import { lazyLaden, ChunkGrenze } from "./chunkSchutz.jsx";
 import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
+import { vekSeiteMelden, vekSeiteAbmelden } from "./vekNav.js";
 
 const GOLDSTRICH = { width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 };
 
@@ -53,6 +54,7 @@ export const WZ_SEITEN = {
   vektorgenerator: { titel: "Rechnen mit Vektoren", groesse: "clamp(28px, 8vw, 34px)", Komp: lazy(() => import("./func20.jsx"), "VektorGenerator") },
   zweipunkte: { titel: "Zwei Punkte – eine Gerade", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./func23.jsx"), "ZweiPunkteGerade") },
   dreipunkte: { titel: "Drei Punkte – eine Ebene", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./func23.jsx"), "DreiPunkteEbene") },
+  hesse: { titel: "Hesse-Normalenform", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcHesse.jsx"), "HesseNormalenform") },
   abstaende: { titel: "Abstände", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./func24.jsx"), "Abstaende") },
   geraden: { titel: "Geraden im Raum", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcGeraden.jsx"), "GeradenImRaum") },
   winkel: { titel: "Winkel und Skalarprodukt", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcGeraden.jsx"), "WinkelSkalarprodukt") },
@@ -117,6 +119,9 @@ export const istWzSeite = (ansicht) => Object.prototype.hasOwnProperty.call(WZ_S
 /* menue = das Sektionsmenü aus func10 (braucht dort den Zustand des Werkzeug-Menüs) */
 /* band = dünnes Werkzeug-Band (Werkzeuge eines Trainings-Kurses): ersetzt den großen Seitenkopf */
 export function WerkzeugSeite({ ansicht, gehe, menue, band = null, seite, setSeite }) {
+  /* Vektoren: Ansicht + gehe() für Band und Seitenmenü (vekNav.js); beim Verlassen abmelden */
+  vekSeiteMelden(ansicht, gehe);
+  React.useEffect(() => { vekSeiteMelden(ansicht, gehe); return () => vekSeiteAbmelden(ansicht); }, [ansicht, gehe]);
   const s = WZ_SEITEN[ansicht];
   if (!s) return null;
   const { Komp } = s;
