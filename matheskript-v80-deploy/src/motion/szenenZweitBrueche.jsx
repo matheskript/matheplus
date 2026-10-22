@@ -10,6 +10,7 @@ const ZW = ["null", "ein", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "
 const gross = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 const gw = (g, z, n) => `${g === 1 ? "ein Ganzes" : ZW[g] + " Ganze"} und ${bw(z, n)}`;
 const nennerPl = (n) => bw(2, n).replace(/^zwei /, "");   // „Fünftel“, „Drittel“ …
+const zahlwort2 = (n) => (n < ZW.length ? ZW[n] : String(n));
 
 /* Reihe aus Zahlen/Zeichen, { b: [z, n] } und { gm: [g, z, n] } – gestapelt, y = Höhe des Bruchstrichs */
 const bB = (z, n, g) => Math.max(String(z).length, String(n).length) * g * 0.62 + 6;
@@ -65,24 +66,23 @@ function sektor(cx, cy, r, a0, a1) {
 const b2_strahlDoppel = {
   h: 196,
   label: (p) => `${gross(nennerPl(p.n))} und ${nennerPl(p.n * p.k)} am Zahlenstrahl`,
+  /* Sehen: beide Strahlen eingeteilt · Verändern: erst oben, dann unten springen, dann beide im Gleichschritt
+     (ein Sprung oben = k Sprünge unten) · Erkennen: gleiche Stelle = gleicher Bruch, auch über 1 hinaus */
   ablauf: (p) => {
     const N = p.n * p.k, [a, b] = p.ziele, g = Math.floor(b / p.n), r = b % p.n;
     return [
-      { k: "strahlen", ms: 800, text: `Zwei Zahlenstrahlen von 0 bis ${p.bis}, genau übereinander.` },
-      { k: "oben", ms: 1100, text: `Oben: jede Einheit in ${p.n} gleiche Teile – ${nennerPl(p.n)}.` },
-      { k: "unten", ms: 1100, text: `Unten: jede Einheit in ${N} gleiche Teile – ${nennerPl(N)}.` },
+      { k: "strahlen", ms: 1600, text: `Oben ${nennerPl(p.n)}, unten ${nennerPl(N)} – auf derselben Strecke.` },
       { k: "a1", ms: 500 + a * 300, text: `${gross(bw(a, p.n))}: ${a} Schritte oben.` },
       { k: "a2", ms: 500 + a * p.k * 260, text: `${gross(bw(a * p.k, N))}: ${a * p.k} Schritte unten – genau dieselbe Stelle!` },
-      { k: "a3", ms: 1300, text: `Also: ${bw(a, p.n)} = ${bw(a * p.k, N)}.` },
-      { k: "b1", ms: 500 + b * 260, text: `${gross(bw(b, p.n))}: über die 1 hinaus – der Bruch ist größer als 1.` },
-      { k: "b2", ms: 500 + b * p.k * 170, text: `${gross(bw(b * p.k, N))} landen wieder an derselben Stelle.` },
-      { k: "ende", ms: 1600, text: `${gross(bw(b, p.n))} = ${bw(b * p.k, N)} = ${gw(g, r, p.n)}.` },
+      { k: "a3", ms: 1300, text: `Ein ${bw(1, p.n).replace(/^ein /, "")} sind ${bw(p.k, N)} – darum gleich.` },
+      { k: "b", ms: 600 + b * p.k * 170, text: `${gross(bw(b, p.n))} und ${bw(b * p.k, N)}: wieder dieselbe Stelle.` },
+      { k: "ende", ms: 1300, text: `Über 1 hinaus: ${bw(b, p.n)} = ${gw(g, r, p.n)}.` },
     ];
   },
   bild: ({ Z, z, p }) => {
     const n = p.n, N = n * p.k, [a, b] = p.ziele;
     const x = (v) => 30 + (v / p.bis) * 300, yo = 70, yu = 130;
-    const us = Z("strahlen"), uo = Z("oben"), uu = Z("unten");
+    const us0 = Z("strahlen"), us = teil(us0, 0, 0.4), uo = teil(us0, 0.3, 0.7), uu = teil(us0, 0.6, 1);
     const strahl = (y, teile, ut, farbe) => (
       <g>
         <g opacity={us}>
@@ -113,8 +113,9 @@ const b2_strahlDoppel = {
     };
     const sA1 = spruenge("a1", a, n, yo - 2, 12, z("a2"));
     const sA2 = spruenge("a2", a * p.k, N, yu - 2, 11, z("a3"));
-    const sB1 = spruenge("b1", b, n, yo - 2, 12, z("b2"));
-    const sB2 = spruenge("b2", b * p.k, N, yu - 2, 11, z("ende"));
+    /* im Gleichschritt: beide Punkte starten und landen zusammen */
+    const sB1 = spruenge("b", b, n, yo - 2, 12, z("ende"));
+    const sB2 = spruenge("b", b * p.k, N, yu - 2, 11, z("ende"));
     const punkt = (hops, nn, y, farbe) => hops > 0 && <circle cx={x(Math.min(hops, 1e9) / nn)} cy={y} r={5.5} fill={farbe} stroke={F.weiss} strokeWidth="1.5" />;
     const gleich = (v, u) => u > 0 && (
       <g opacity={u}>
@@ -133,7 +134,7 @@ const b2_strahlDoppel = {
         {strahl(yu, N, uu, F.blau)}
         {sA1.el}{sA2.el}{sB1.el}{sB2.el}
         {gleich(a / n, Z("a3"))}
-        {gleich(b / n, teil(z("b2"), 0.85, 1))}
+        {gleich(b / n, teil(z("b"), 0.85, 1))}
         {punkt(Math.min(sA1.hops, a), n, yo, F.granat)}
         {punkt(Math.min(sA2.hops, a * p.k), N, yu, F.blau)}
         {punkt(Math.min(sB1.hops, b), n, yo, F.granat)}
@@ -166,13 +167,12 @@ const b2_pizzaBuendeln = {
   ablauf: (p) => {
     const g = Math.floor(p.z / p.n), r = p.z % p.n, [G, Rz, Rn] = p.zurueck, S = G * Rn + Rz;
     return [
-      { k: "lose", ms: 1100, text: `${gross(bw(p.z, p.n))}: ${p.z} lose Pizzastücke.` },
-      { k: "buendeln", ms: 600 + p.z * 190, text: `Je ${p.n} ${nennerPl(p.n)} bündeln zu einer ganzen Pizza.` },
-      { k: "ergA", ms: 1600, text: `${g} ganze Pizzen, ${r} Stücke bleiben: ${bw(p.z, p.n)} = ${gw(g, r, p.n)}.` },
-      { k: "zeigeB", ms: 1100, text: `Umgekehrt: ${gw(G, Rz, Rn)}.` },
-      { k: "schneiden", ms: 1400, text: `Jede ganze Pizza in ${Rn} gleiche Stücke schneiden.` },
+      { k: "lose", ms: 1100, text: `${gross(bw(p.z, p.n))}: ${zahlwort2(p.z)} lose Pizzastücke.` },
+      { k: "buendeln", ms: 600 + p.z * 190, text: `Je ${zahlwort2(p.n)} ${nennerPl(p.n)} ergeben eine ganze Pizza.` },
+      { k: "ergA", ms: 1600, text: `${gross(zahlwort2(g))} ganze ${g === 1 ? "Pizza" : "Pizzen"}, ${bw(r, p.n)} bleiben übrig.` },
+      { k: "schneiden", ms: 1600, text: `Umgekehrt: Jede ganze Pizza in ${nennerPl(Rn)} schneiden.` },
       { k: "zaehlen", ms: 500 + S * 230, text: `Alle Stücke zählen: ${Array(G).fill(Rn).join(" + ")} + ${Rz} = ${S} ${nennerPl(Rn)}.` },
-      { k: "ergB", ms: 1700, text: `${gross(gw(G, Rz, Rn))} = ${bw(S, Rn)} – Ganze mal Nenner plus Zähler: ${G} · ${Rn} + ${Rz} = ${S}.` },
+      { k: "ergB", ms: 1500, text: `Ganze mal Nenner plus Zähler: ${G} · ${Rn} + ${Rz} = ${S}.` },
     ];
   },
   bild: ({ Z, z, p }) => {
@@ -180,7 +180,7 @@ const b2_pizzaBuendeln = {
     const [G, Rz, Rn] = p.zurueck, S = G * Rn + Rz;
     const R = 25, px = (j) => 46 + j * 66, ya = 50, yb = 158;
     const ul = Z("lose"), ub = z("buendeln"), ua = Z("ergA");
-    const uzb = Z("zeigeB"), us = Z("schneiden"), uz = z("zaehlen"), ue = Z("ergB");
+    const us0 = Z("schneiden"), uzb = teil(us0, 0, 0.3), us = teil(us0, 0.3, 1), uz = z("zaehlen"), ue = Z("ergB");
     /* Zeile A: lose Stücke → Pizzen */
     const xL = (k) => 20 + k * ((B - 54) / Math.max(1, p.z - 1));
     const stueckeA = Array.from({ length: p.z }, (_, k) => {

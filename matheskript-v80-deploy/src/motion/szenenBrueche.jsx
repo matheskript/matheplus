@@ -445,7 +445,7 @@ const b_vergleich = {
         <g key={i} opacity={staffel(ust, i, 2, 0.5)}>
           <SvgBruch x={fein ? 288 : 300} y={y + hh / 2 - 1} z={b[0]} n={b[1]} g={18} f={farbe} />
           {fein && <Tx x={308} y={y + hh / 2 + 7} g={18} f={F.tinte} o={uf}>=</Tx>}
-          {fein && <SvgBruch x={332} y={y + hh / 2 - 1} z={uz > 0 ? zEr : "?"} n={N} g={18} f={farbe} o={uf} />}
+          {fein && <SvgBruch x={332} y={y + hh / 2 - 1} z={zEr > 0 ? zEr : "?"} n={N} g={18} f={farbe} o={uf} />}
         </g>
       );
     };
@@ -479,8 +479,8 @@ const b_gemischt = {
   ablauf: (p) => {
     const g = Math.floor(p.z / p.n), r = p.z % p.n;
     return [
-      { k: "fuellen", ms: 600 + p.z * 110, text: `${gross(bw(p.z, p.n))}: Stück für Stück in Pizzen legen – ${p.n} Stücke machen eine ganze.` },
-      { k: "ganze", ms: 1500, text: `${g} ganze Pizzen sind voll, ${r} Stücke bleiben übrig: ${p.z} : ${p.n} = ${g} Rest ${r}.` },
+      { k: "fuellen", ms: 600 + p.z * 110, text: `${gross(bw(p.z, p.n))}: Stück für Stück in Pizzen, je ${p.n} füllen eine.` },
+      { k: "ganze", ms: 1500, text: `${g} Pizzen sind voll, ${r} Stücke bleiben: ${p.z} : ${p.n} = ${g} Rest ${r}.` },
       { k: "ergebnis", ms: 1400, text: `${gross(bw(p.z, p.n))} = ${gw(g, r, p.n)}.` },
       { k: "zurueck", ms: 1400, text: `Rückweg: ${g} · ${p.n} + ${r} = ${p.z} – Ganze mal Nenner plus Zähler.` },
     ];
@@ -518,11 +518,18 @@ const b_gemischt = {
    b_prozent – Raster mit n Feldern, z gefärbt; jedes Feld wird zerteilt → 100 Felder → Prozent
    p: { z: 7, n: 25, raster: [5, 5] }  (raster = grobe Spalten/Zeilen; 10 muss durch beide teilbar sein)
    ============================================================ */
+/* zurueck: true → umgekehrter Weg: 100 kleine Felder, P gefärbt (P %) → je k kleine Felder bündeln → z von n großen Feldern */
 const b_prozent = {
   h: 188,
-  label: (p) => `${gross(bw(p.z, p.n))} in Prozent`,
+  label: (p) => (p.zurueck ? `${p.z * (100 / p.n)} Prozent als Bruch` : `${gross(bw(p.z, p.n))} in Prozent`),
   ablauf: (p) => {
     const k = 100 / p.n, P = p.z * k;
+    if (p.zurueck) return [
+      { k: "raster", ms: 1300, text: `100 kleine Felder, ${P} davon gefärbt: ${P} Prozent.` },
+      { k: "teilen", ms: 1700, text: `Je ${k} kleine Felder bündeln: Es bleiben ${p.n} große Felder.` },
+      { k: "zaehlen", ms: 1300, text: `${gross(zahlwort(p.z))} von ${p.n} großen Feldern sind gefärbt.` },
+      { k: "prozent", ms: 1400, text: `${P} Prozent sind ${bw(p.z, p.n)} – gleiche Fläche, größere Stücke.` },
+    ];
     return [
       { k: "raster", ms: 1300, text: `${p.n} gleiche Felder – ${p.z} davon sind gefärbt: ${bw(p.z, p.n)}.` },
       { k: "teilen", ms: 1500, text: `Jedes Feld in ${k} kleine Felder teilen: Jetzt sind es 100 Felder.` },
@@ -535,13 +542,45 @@ const b_prozent = {
     const ur = z("raster"), ut = Z("teilen"), uz = Z("zaehlen"), up = Z("prozent");
     const gi = (i, j) => Math.floor(j / fy) * cs + Math.floor(i / fx);
     const x0 = 22, y0 = 22, s = 144;
-    const xc = 270, yr = 72, xa = xc - 40, xb = xc + 40;
-    return (
+    const zur = !!p.zurueck;
+    /* feine Linien: vorwärts wachsen sie beim Teilen, rückwärts verblassen sie beim Bündeln */
+    const fein = zur ? { u: klemm(ur * 3), o: 0.9 * (1 - 0.7 * ut) } : { u: ut, o: 0.9 };   // rückwärts bleiben sie blass sichtbar (Vorher)
+    /* grobe Linien (die n großen Felder) liegen dick darüber – so bleibt die Ausgangslage sichtbar */
+    const grobO = zur ? ut : klemm(ur * 3), grobF = zur ? F.gold : F.tinte;
+    const grob = [];
+    for (let i = 1; i < cs; i++) grob.push(<line key={`gv${i}`} x1={x0 + (i * s) / cs} y1={y0} x2={x0 + (i * s) / cs} y2={y0 + s} stroke={grobF} strokeWidth="2.4" opacity={grobO} />);
+    for (let j = 1; j < rs; j++) grob.push(<line key={`gh${j}`} x1={x0} y1={y0 + (j * s) / rs} x2={x0 + s} y2={y0 + (j * s) / rs} stroke={grobF} strokeWidth="2.4" opacity={grobO} />);
+    const raster = (
       <>
         <Raster x={x0} y={y0} w={s} h={s} sp={10} ze={10}
           zelle={(i, j) => { const g = gi(i, j); return g < p.z ? { f: F.granat, o: staffel(ur, g, p.z, 0.4) } : null; }}
-          linieV={(i) => (i % fx === 0 ? { u: klemm(ur * 3) } : { u: ut, o: 0.9 })}
-          linieH={(j) => (j % fy === 0 ? { u: klemm(ur * 3) } : { u: ut, o: 0.9 })} b={1.1} />
+          linieV={(i) => (i % fx === 0 ? (zur ? { u: 1, o: klemm(ur * 3) * (1 - ut) } : { u: klemm(ur * 3) }) : fein)}
+          linieH={(j) => (j % fy === 0 ? (zur ? { u: 1, o: klemm(ur * 3) * (1 - ut) } : { u: klemm(ur * 3) }) : fein)} b={1.1} />
+        {grob}
+      </>
+    );
+    if (zur) {
+      const xc = 270, yr = 116, xa = xc - 40, xb = xc + 40;
+      return (
+        <>
+          {raster}
+          <g opacity={klemm(ur * 2)}>
+            <rect x={xc - 42} y={24} width={84} height={30} rx="12" fill={F.granatTief} />
+            <Tx x={xc} y={45} g={19} f={F.goldHell} w={800}>{`${P} %`}</Tx>
+          </g>
+          <SvgBruch x={xa} y={yr - 1} z={P} n={100} g={19} o={teil(ut, 0, 0.4)} />
+          <Tx x={xc} y={yr + 7} g={19} o={uz}>=</Tx>
+          <SvgBruch x={xb} y={yr - 1} z={p.z} n={p.n} g={19} f={F.granat} o={uz} />
+          <Bogen xa={xa + 2} xb={xb - 2} y={88} hoch={13} u={uz} text={`: ${k}`} />
+          <Bogen xa={xa + 2} xb={xb - 2} y={146} hoch={-13} u={uz} text={`: ${k}`} />
+          <Puls x={x0 + s / 2} y={y0 + s / 2} u={ut} r={60} />
+        </>
+      );
+    }
+    const xc = 270, yr = 72, xa = xc - 40, xb = xc + 40;
+    return (
+      <>
+        {raster}
         <SvgBruch x={xa} y={yr - 1} z={p.z} n={p.n} g={19} o={klemm(ur * 2)} />
         <Tx x={xc} y={yr + 7} g={19} o={uz}>=</Tx>
         <SvgBruch x={xb} y={yr - 1} z={Math.round(uz * P)} n={100} g={19} f={F.granat} o={uz} />
@@ -570,7 +609,11 @@ const b_stellen = {
     return [
       { k: "tafel", ms: 1000, text: "Hinter dem Komma geht die Tafel weiter: Zehntel, Hundertstel, Tausendstel." },
       { k: "ziffern", ms: 400 + (int.length + dez.length) * 280, text: `Die Ziffern von ${p.zahl} kommen in ihre Spalten.` },
-      { k: "werte", ms: 600 + dez.length * 450, text: "Jede Ziffer zählt Teile ihrer Stelle: Zehntel, Hundertstel, Tausendstel." },
+      { k: "werte", ms: 600 + dez.length * 450, text: (() => {
+        const i = dez.search(/[1-9]/);
+        if (i > 0) return `${i === 1 ? "Die Null hält die Zehntel" : "Die Nullen halten die Stellen"} frei – so steht die ${dez[i]} bei den ${STELLE[i + 1]}n.`;
+        return "Jede Ziffer zählt Teile ihrer Stelle: Zehntel, Hundertstel, Tausendstel.";
+      })() },
       { k: "lesen", ms: 1500, text: `Man liest: ${dezLesen(p.zahl)}.` },
     ];
   },
@@ -598,6 +641,10 @@ const b_stellen = {
           );
         })}
         <Tx x={x0 + ni * cw + kw / 2} y={80} g={34} f={F.gold} w={800} o={ut}>,</Tx>
+        {/* Platzhalter-Nullen direkt hinter dem Komma: Goldrahmen, wenn die Werte zerfallen (der Kern-Moment) */}
+        {Array.from({ length: Math.max(0, dez.search(/[1-9]/)) }, (_, i) => (
+          <rect key={`pn${i}`} x={xs(ni + i) - cw / 2 + 1.5} y={40} width={cw - 3} height={52} rx="8" fill="none" stroke={F.gold} strokeWidth="2.6" opacity={teil(uw, 0, 0.3)} />
+        ))}
         {ziff.map((q, i) => {
           const u = staffel(z("ziffern"), i, ziff.length, 0.5), y = mix(56, 76, raus(u));
           return u > 0 ? <Tx key={i} x={xs(q.c)} y={y} g={28} f={q.e < 0 ? F.blau : F.tinte} w={800} o={klemm(u * 2)}>{q.d}</Tx> : null;
@@ -801,25 +848,27 @@ function division(a, b, max = 6) {
   }
   return { zeilen, per };
 }
+const STELLE = ["Ganze", "Zehntel", "Hundertstel", "Tausendstel", "Zehntausendstel", "Hunderttausendstel"];
 const b_teilen = {
   h: 182,
   label: (p) => `${p.a} : ${p.b} schriftlich`,
   ablauf: (p) => {
     const { zeilen, per } = division(p.a, p.b), n = zeilen.length;
     const ziffern = zeilen.slice(1).map((q) => q.q).join("");
+    /* Der Grund für die angehängte Null steht im Untertitel: Jeder Rest wird in die nächstkleinere Stelle umgetauscht */
     const ab = [{ k: "start", ms: 900, text: `${gross(bw(p.a, p.b))} heißt ${p.a} : ${p.b}.` }];
     zeilen.forEach((q, i) => {
-      let t = `${q.d} : ${p.b} = ${q.q}, Rest ${q.r}.`;
-      if (i === 0) t = `${p.a} : ${p.b} = ${q.q}, Rest ${q.r}. Komma setzen, eine Null anhängen.`;
-      else if (q.r === 0) t = `${q.d} : ${p.b} = ${q.q}, Rest 0 – die Division geht auf.`;
-      else if (per && i === n - 1) t = `${q.d} : ${p.b} = ${q.q}, Rest ${q.r} – diesen Rest hatten wir schon!`;
+      let t = `${q.d} ${STELLE[i]} : ${p.b} = ${q.q}, Rest ${q.r}.`;
+      if (i === 0) t = `${p.a} : ${p.b} = ${q.q}, Rest ${q.r} – das sind ${q.r * 10} Zehntel.`;
+      else if (q.r === 0) t = `${q.d} ${STELLE[i]} : ${p.b} = ${q.q}, Rest 0 – geht auf.`;
+      else if (per && i === n - 1) t = `${q.d} ${STELLE[i]} : ${p.b} = ${q.q}, Rest ${q.r} – den gab es schon!`;
       ab.push({ k: `r${i}`, ms: i === 0 ? 1500 : 1150, text: t });
     });
     if (per) {
       const pz = zeilen.slice(per.von, per.bis + 1).map((q) => q.q).join("");
-      ab.push({ k: "kreis", ms: 1300, text: `Gleicher Rest, gleiche Rechnung: Ab hier wiederholt sich alles.` });
-      ab.push({ k: "ende", ms: 1500, text: `Die ${pz} wiederholt sich immer wieder – sie bekommt den Periodenstrich.` });
-    } else ab.push({ k: "ende", ms: 1300, text: `${gross(bw(p.a, p.b))} = 0,${ziffern}` });
+      ab.push({ k: "kreis", ms: 1300, text: "Gleicher Rest – ab hier wiederholt sich alles." });
+      ab.push({ k: "ende", ms: 1500, text: `Die ${pz} kehrt immer wieder: Periodenstrich darüber.` });
+    } else ab.push({ k: "ende", ms: 1300, text: `${gross(bw(p.a, p.b))} = 0,${ziffern} – jede Ziffer ist eine Stelle.` });
     return ab;
   },
   bild: ({ Z, z, p }) => {
@@ -847,6 +896,7 @@ const b_teilen = {
           const ds = String(q.d);
           return (
             <g key={i} opacity={u}>
+              <Tx x={64} y={y - 1} g={9.5} f={F.grau} w={700} a="end">{STELLE[i]}</Tx>
               <text x={70} y={y} fontSize={15} fontWeight="700" style={{ fontFamily: "Montserrat, sans-serif" }} fill={F.tinte}>
                 <tspan fill={q.neu ? F.blau : F.tinte}>{q.neu ? ds.slice(0, -1) : ds}</tspan>{q.neu && <tspan fill={F.gold} fontWeight="800">0</tspan>}
                 <tspan>{` : ${p.b} = `}</tspan><tspan fill={F.granat} fontWeight="800">{q.q}</tspan>
@@ -898,7 +948,7 @@ const b_lupe = {
       { k: "oben", ms: 1000, text: `Beide Zahlen liegen zwischen ${l0} und ${l1}.` },
       { k: "lupe", ms: 1300, text: `Mit der Lupe: Zwischen ${l0} und ${l1} liegen die Hundertstel.` },
       { k: "punkt", ms: 1600, text: `${kl} liegt ganz links, ${gr} weiter rechts.` },
-      { k: "runden", ms: 1500, text: `Also ist ${kl} kleiner als ${gr} – die Zahl der Stellen sagt nichts über die Größe.` },
+      { k: "runden", ms: 1500, text: `${kl} ist kleiner als ${gr} – mehr Stellen heißt nicht größer.` },
     ];
   },
   bild: ({ Z, p }) => {
@@ -985,10 +1035,11 @@ const b_addStreifen = {
     const uz = Z("zeigen"), uf = glN ? 1 : Z("fein"), us = z("schieben"), ue = Z("ergebnis");
     const quelle = (bruch, y, farbe, i) => {
       const [zz, nn] = bruch, f = N / nn;
-      const geist = teil(us, 0, 0.2);
+      /* Wenn die Stücke losfliegen, bleibt ihr Platz hell gefärbt stehen – die Ausgangslage bleibt sichtbar */
+      const geist = teil(us, 0, 0.2), hell = farbe === F.granat ? F.granatHell : F.goldHell;
       return (
         <Raster key={i} x={x0} y={y} w={w} h={hh} sp={N} ze={1} o={staffel(uz, i, 2, 0.5)}
-          zelle={(c) => (c < zz * f ? { f: geist > 0 ? F.flaeche : farbe, o: 1 } : null)}
+          zelle={(c) => (c < zz * f ? { f: geist > 0 ? hell : farbe, o: 1 } : null)}
           linieV={(c) => (c % f === 0 ? { u: 1 } : { u: glN ? 1 : staffel(uf, (c % f) - 1, f - 1, 0.4) })} />
       );
     };
@@ -1154,11 +1205,11 @@ const b_kommaUnterKomma = {
   ablauf: (p) => {
     const s = schriftlich(p.a, p.b, p.op), res = s.rInt + (s.D ? "," + s.rDez : "");
     return [
-      { k: "zeigen", ms: 1300, text: "Nicht einfach rechtsbündig untereinanderschreiben – dann stehen die Stellen durcheinander." },
-      { k: "ausrichten", ms: 1300, text: "Komma unter Komma: Jetzt stehen Zehntel unter Zehnteln, Hundertstel unter Hundertsteln." },
-      { k: "nullen", ms: 1100, text: "Leere Stellen mit Nullen auffüllen – das ändert den Wert nicht." },
-      { k: "rechnen", ms: 400 + s.sp * 480, text: `Von rechts nach links Spalte für Spalte rechnen${s.uebertrag.some(Boolean) ? ", Übertrag beachten" : ""}.` },
-      { k: "fertig", ms: 1300, text: `${p.a} ${p.op} ${p.b} = ${res}` },
+      { k: "zeigen", ms: 1300, text: "Rechtsbündig untereinander? Dann stehen die Stellen durcheinander." },
+      { k: "ausrichten", ms: 1300, text: "Komma unter Komma: Jetzt steht Zehntel unter Zehntel, Einer unter Einer." },
+      { k: "nullen", ms: 1100, text: "Leere Stellen mit Nullen füllen – das ändert den Wert nicht." },
+      { k: "rechnen", ms: 400 + s.sp * 480, text: `Spalte für Spalte von rechts rechnen${s.uebertrag.some(Boolean) ? ", mit Übertrag" : ""}.` },
+      { k: "fertig", ms: 1300, text: `${p.a} ${p.op} ${p.b} = ${res} – das Komma bleibt in seiner Spalte.` },
     ];
   },
   bild: ({ Z, z, p }) => {
@@ -1268,7 +1319,7 @@ const b_malZahl = {
   h: 214,
   label: (p) => `${p.k} mal ${bw(p.z, p.n)}`,
   ablauf: (p) => [
-    { k: "zeigen", ms: 1100, text: `${p.k}-mal ${bw(p.z, p.n)}.` },
+    { k: "zeigen", ms: 1100, text: `${gross(zahlwort(p.k))}mal ${bw(p.z, p.n)}: ${p.k} gleiche Kopien.` },
     { k: "reihen", ms: 600 + p.k * 600, text: `Die Stücke aneinanderlegen: ${Array(p.k).fill(p.z).join(" + ")} = ${p.k * p.z} ${nennerWort(p.n)}.` },
     { k: "formel", ms: 1500, text: `Der Zähler wird mal ${p.k} genommen, der Nenner bleibt: ${bw(p.k * p.z, p.n)}.` },
   ],
@@ -1341,7 +1392,7 @@ const b_rechteckMal = {
     return [
       { k: "spalten", ms: 1400, text: `${gross(bw(...p.b))}: ${p.b[0]} von ${p.b[1]} Spalten.` },
       { k: "zeilen", ms: 1400, text: `Davon ${bw(...p.a)}: ${p.a[0]} von ${p.a[1]} Zeilen.` },
-      { k: "treffer", ms: 1600, text: `Doppelt gefärbt: ${p.a[0]} · ${p.b[0]} = ${Zz} Felder – von ${p.a[1]} · ${p.b[1]} = ${Nn} Feldern.` },
+      { k: "treffer", ms: 1600, text: `Doppelt gefärbt: ${p.a[0]} · ${p.b[0]} = ${Zz} ${Zz === 1 ? "Feld" : "Felder"} – von ${p.a[1]} · ${p.b[1]} = ${Nn} Feldern.` },
       { k: "formel", ms: 1500, text: `Zähler mal Zähler, Nenner mal Nenner: ${bw(Zz, Nn)}${g > 1 ? ` = ${bw(Zz / g, Nn / g)}` : ""}.` },
     ];
   },
@@ -1373,22 +1424,36 @@ const b_rechteckMal = {
    b_passtRein – a : (z/n): Wie oft passt der Bruch in a Ganze? Stücke zählen, dann Kehrbruch
    p: { a: 3, z: 1, n: 4 }  ·  { a: 6, z: 3, n: 4, ding: "Flaschen" }
    ============================================================ */
+/* Der Grund für den Kehrbruch steht im Bild: Zerschneiden = mal Nenner (blau), Bündeln = durch Zähler (gold);
+   im Kehrbruch steht der Nenner blau oben, der Zähler gold unten. */
 const b_passtRein = {
-  h: 196,
+  h: 206,
   label: (p) => `${p.a} geteilt durch ${bw(p.z, p.n)}`,
   ablauf: (p) => {
-    const q = (p.a * p.n) / p.z;
+    const q = (p.a * p.n) / p.z, N = p.a * p.n;
+    if (p.z === 1) return [
+      { k: "ganze", ms: 1000, text: `${p.a} Ganze – wie oft passt ${bw(1, p.n)} hinein?` },
+      { k: "schneiden", ms: 1300, text: `Jedes Ganze in ${nennerWort(p.n)} schneiden: ${p.a} · ${p.n} = ${N} ${nennerWort(p.n)}.` },
+      { k: "zaehlen", ms: 500 + q * 220, text: `Jedes ${nennerWort(p.n)} ist ein Stück: Es passt ${q}-mal hinein.` },
+      { k: "regel", ms: 1600, text: `Durch ${bw(1, p.n)} teilen ist dasselbe wie mal ${p.n}.` },
+    ];
     return [
-      { k: "ganze", ms: 1000, text: `${p.a} Ganze – wie oft passt ${bw(p.z, p.n)} hinein?` },
-      { k: "schneiden", ms: 1300, text: `Jedes Ganze in ${nennerWort(p.n)} schneiden: ${p.a} · ${p.n} = ${p.a * p.n} ${nennerWort(p.n)}.` },
-      { k: "zaehlen", ms: 500 + q * 220, text: p.z === 1 ? `Zählen: ${bw(1, p.n)} passt ${q}-mal hinein.` : `Immer ${p.z} ${nennerWort(p.n)} bilden ein Stück: ${q}-mal.` },
-      { k: "regel", ms: 1900, text: p.z === 1 ? `Durch ${bw(1, p.n)} teilen ist dasselbe wie mal ${p.n}: ${p.a} · ${p.n} = ${q}.` : `Durch ${bw(p.z, p.n)} teilen heißt: mit dem Kehrbruch ${bw(p.n, p.z)} malnehmen. Ergebnis ${q}.` },
+      { k: "ganze", ms: 1000, text: `${p.a} Ganze – wie oft passen ${bw(p.z, p.n)} hinein?` },
+      { k: "schneiden", ms: 1300, text: `In ${nennerWort(p.n)} schneiden heißt mal ${p.n}: ${N} ${nennerWort(p.n)}.` },
+      { k: "zaehlen", ms: 500 + q * 220, text: `Je ${zahlwort(p.z)} ${nennerWort(p.n)} bündeln heißt durch ${p.z}: ${q} Stücke.` },
+      { k: "regel", ms: 1700, text: `Mal ${p.n}, dann durch ${p.z} – genau das tut der Kehrbruch ${bw(p.n, p.z)}.` },
     ];
   },
   bild: ({ Z, z, p }) => {
     const { a, z: zz, n } = p, q = (a * n) / zz;
     const gap = 6, W = 316, bw0 = (W - (a - 1) * gap) / a, x0 = B / 2 - W / 2, y0 = 34, hh = 32, cw = bw0 / n;
     const ug = Z("ganze"), us = Z("schneiden"), uz = z("zaehlen"), ur = Z("regel");
+    /* Rechenzeile mit Kehrbruch in zwei Farben (Platzhalter in der Reihe, Bruch selbst von Hand) */
+    const gR = 19, yR = 172;
+    const teile = zz === 1
+      ? [String(a), ":", { b: [1, n] }, "=", String(a), "·", { t: String(n), f: F.blau }, "=", { t: String(q), f: F.granat }]
+      : [String(a), ":", { b: [zz, n] }, "=", String(a), "·", { b: [n, zz], o: 0 }, "=", { t: String(q), f: F.granat }];
+    const LR = lage(teile, gR), xK = B / 2 + LR.xs[6];
     const xStueck = (k) => { const g = Math.floor(k / n), i = k % n; return x0 + g * (bw0 + gap) + i * cw; };
     const F2 = [F.granat, F.gold];
     return (
@@ -1412,11 +1477,19 @@ const b_passtRein = {
             </g>
           );
         })}
+        {/* die beiden Handgriffe als Pillen: Zerschneiden (blau), Bündeln (gold) */}
+        <Pille x={zz === 1 ? B / 2 : B / 2 - 78} y={116} text={`· ${n}: ${a * n} ${nennerWort(n)}`} f={F.blauHell} tf={F.blau} o={teil(us, 0.3, 1)} />
+        {zz > 1 && <Pille x={B / 2 + 78} y={116} text={`: ${zz}: ${q} Stücke`} o={teil(uz, 0.7, 1)} />}
         <g opacity={ur} transform={`translate(0 ${(1 - ur) * 6})`}>
-          <rect x={B / 2 - 150} y={118} width={300} height={56} rx="16" fill={F.flaeche} />
-          <Reihe x={B / 2} y={146} g={19} teile={zz === 1
-            ? [String(a), ":", { b: [1, n] }, "=", String(a), "·", String(n), "=", { t: String(q), f: F.granat }]
-            : [String(a), ":", { b: [zz, n] }, "=", String(a), "·", { b: [n, zz], f: F.blau }, "=", { b: [a * n, zz] }, "=", { t: String(q), f: F.granat }]} />
+          <rect x={B / 2 - 150} y={yR - 28} width={300} height={56} rx="16" fill={F.flaeche} />
+          <Reihe x={B / 2} y={yR} g={gR} teile={teile} />
+          {zz > 1 && (
+            <g>
+              <Tx x={xK} y={yR - 5} g={gR} f={F.blau}>{n}</Tx>
+              <line x1={xK - bB(n, zz, gR) / 2} y1={yR} x2={xK + bB(n, zz, gR) / 2} y2={yR} stroke={F.tinte} strokeWidth="1.6" strokeLinecap="round" />
+              <Tx x={xK} y={yR + gR + 2} g={gR} f={F.goldDunkel}>{zz}</Tx>
+            </g>
+          )}
         </g>
       </>
     );
@@ -1435,7 +1508,11 @@ const b_kommaWandern = {
     const ab = [
       { k: "tafel", ms: 900, text: "Die Stellentafel – das Komma bleibt fest an seinem Platz." },
       { k: "ziffern", ms: 1000, text: `${p.zahl} kommt in die Tafel.` },
-      { k: "schieben", ms: 400 + p.s * 650, text: p.op === "·" ? `Mal ${10 ** p.s}: Jede Ziffer rückt ${p.s} Stellen nach links – zehnmal so viel wert je Stelle.` : `Durch ${10 ** p.s}: Jede Ziffer rückt ${p.s} Stellen nach rechts.` },
+      { k: "schieben", ms: 400 + p.s * 650, text: (() => {
+        const mal = p.op === "·", w = mal ? "mal" : "durch", z10 = de(10 ** p.s);
+        const zerlegt = p.s === 1 ? "" : p.s === 2 ? ` = ${w} 10 ${w} 10` : ` = ${p.s}-mal ${w} 10`;
+        return `${gross(w)} ${z10}${zerlegt}: Jede Ziffer rückt ${p.s === 1 ? "eine Stelle" : `${p.s} Stellen`} nach ${mal ? "links" : "rechts"}.`;
+      })() },
     ];
     if (erg.nullen.length) ab.push({ k: "nullen", ms: 1000, text: "Leere Stellen bis zum Komma mit Nullen füllen." });
     ab.push({ k: "fertig", ms: 1400, text: `${p.zahl} ${p.op} ${de(10 ** p.s)} = ${erg.text}. Kurz: Das Komma wandert ${p.s} Stellen nach ${p.op === "·" ? "rechts" : "links"}.` });
@@ -1508,12 +1585,14 @@ const b_dezMal = {
     const ai = ohneKomma(p.a), bi = ohneKomma(p.b), pr = ai * bi;
     const erg = de(Number((zahl(p.a) * zahl(p.b)).toFixed(nk)));
     const roh = rohErgebnis(pr, nk);
+    /* Der Grund fürs Stellenzählen: Zehntel mal Zehntel gibt Hundertstel usw. */
+    const sa = A.dez.length, sb = Bz.dez.length;
     return [
       { k: "zeigen", ms: 1000, text: `${p.a} · ${p.b} – erst einmal ohne Komma rechnen.` },
-      { k: "ohne", ms: 1400, text: `${ai} · ${bi} = ${pr}` },
-      { k: "zaehlen", ms: 1400, text: `Nachkommastellen zählen: ${A.dez.length} + ${Bz.dez.length} = ${nk}.` },
-      { k: "komma", ms: 500 + nk * 500, text: `Das Ergebnis bekommt ${nk} Nachkommastellen: Das Komma springt von rechts ${nk} Stellen nach links${roh.vorn ? " – vorne fehlen Ziffern, also Nullen davor" : ""}.` },
-      { k: "fertig", ms: 1500, text: `${p.a} · ${p.b} = ${erg}${p.ueberschlag ? `. Überschlag: ${p.ueberschlag} – passt.` : ""}` },
+      { k: "ohne", ms: 1400, text: `${p.a} sind ${ai} ${STELLE[sa]}, ${p.b} sind ${bi} ${STELLE[sb]}: ${ai} · ${bi} = ${pr}.` },
+      { k: "zaehlen", ms: 1400, text: `${STELLE[sa]} mal ${STELLE[sb]} gibt ${STELLE[nk]}: ${sa} + ${sb} = ${nk} Stellen.` },
+      { k: "komma", ms: 500 + nk * 500, text: `${pr} ${STELLE[nk]}: Das Komma springt ${nk} Stellen${roh.vorn ? ", vorne kommen Nullen dazu" : " nach links"}.` },
+      { k: "fertig", ms: 1500, text: `${p.a} · ${p.b} = ${erg}${p.ueberschlag ? `. Überschlag: ${p.ueberschlag} – passt.` : ` – also ${pr} ${STELLE[nk]}.`}` },
     ];
   },
   bild: ({ Z, z, p }) => {
@@ -1538,7 +1617,7 @@ const b_dezMal = {
             {dez.split("").map((c, i) => <tspan key={i} opacity={int.length + i < lz ? blass : 1}>{c}</tspan>)}
           </text>
           <path d={`M${xl + wInt + wK + 1} 54 v4 h${wD - 2} v-4`} fill="none" stroke={farbe} strokeWidth="1.8" opacity={uza} />
-          <Tx x={xl + wInt + wK + wD / 2} y={72} g={11} f={farbe} w={800} o={uza}>{`${dez.length} ${dez.length === 1 ? "Stelle" : "Stellen"}`}</Tx>
+          <Tx x={xl + wInt + wK + wD / 2} y={72} g={11} f={farbe} w={800} o={uza}>{STELLE[dez.length]}</Tx>
         </g>
       );
     };
@@ -1562,7 +1641,7 @@ const b_dezMal = {
           {Array.from({ length: Math.ceil(hop - 0.001) }, (_, j) => <Sprung key={j} xa={grenze(j)} xb={grenze(j + 1)} y={130} hoch={10} u={klemm(hop - j)} b={1.8} f={F.gold} />)}
           <Tx x={kx} y={ky} g={g} f={F.granat} w={800} o={uk > 0 ? 1 : 0}>,</Tx>
         </g>
-        <Pille x={xr0 + W / 2} y={182} text={`${nk} Nachkommastellen`} f={F.goldHell} o={uk > 0 ? teil(uk, 0, 0.3) * (1 - teil(uf, 0, 0.5)) : 0} />
+        <Pille x={xr0 + W / 2} y={182} text={`${STELLE[nk]}: ${nk} Stellen`} f={F.goldHell} o={uk > 0 ? teil(uk, 0, 0.3) * (1 - teil(uf, 0, 0.5)) : 0} />
         <g opacity={uf}>
           <Tx x={xr0 + W + 16} y={150} g={g} f={F.tinte} a="start">=</Tx>
           <rect x={xr0 + W + 34} y={128} width={breite(erg, g) + 20} height={32} rx="10" fill={F.granatTief} />
@@ -1591,8 +1670,8 @@ const b_dezTeilen = {
     const an = Number((zahl(p.a) * f).toFixed(6)), bn = Number((zahl(p.b) * f).toFixed(6)), q = Number((an / bn).toFixed(6));
     return [
       { k: "zeigen", ms: 1000, text: `${p.a} : ${p.b} – durch eine Dezimalzahl teilen.` },
-      { k: "schieben", ms: 500 + s * 650, text: `Das Komma bei beiden um ${s} ${s === 1 ? "Stelle" : "Stellen"} nach rechts – bis der Divisor eine ganze Zahl ist.` },
-      { k: "rechnen", ms: 1500, text: `${de(an)} : ${de(bn)} = ${de(q)} – beide wurden mal ${f} genommen, der Quotient bleibt gleich.` },
+      { k: "schieben", ms: 500 + s * 650, text: `Komma bei beiden ${s === 1 ? "eine Stelle" : `${s} Stellen`} nach rechts, bis der Divisor ganz ist.` },
+      { k: "rechnen", ms: 1500, text: `${de(an)} : ${de(bn)} = ${de(q)} – beide mal ${f}, der Quotient bleibt gleich.` },
       { k: "fertig", ms: 1200, text: `Also ${p.a} : ${p.b} = ${de(q)}.` },
     ];
   },
