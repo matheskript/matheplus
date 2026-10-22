@@ -1,21 +1,41 @@
-/* Wurzel-Motion (Kopfrechnen √10k, src/wurzelMotion.js): eine Minute, richtige Rechnung, Inhalt wie gewünscht */
+/* Wurzel-Motion (Kopfrechnen √10k, src/wurzelMotion.js): langsam genug zum Mitlesen, richtige Rechnung, Inhalt wie gewünscht */
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { WURZEL_DAUER, WURZEL_BEISPIELE, WURZEL_START, WURZEL_PAARE, PAAR_ZEIT, KANDIDATEN, FOLGERUNG, wurzelInfo, wurzelSchritte, wurzelZeiten } from "../src/wurzelMotion.js";
+import { DREHBUCH, LESEN, WURZEL_BEISPIELE, WURZEL_START, WURZEL_PAARE, PAAR_ZEIT, KANDIDATEN, FOLGERUNG, drehbuchZeit, wurzelInfo, wurzelSchritte, wurzelZeiten } from "../src/wurzelMotion.js";
 
-test("Die Motion dauert eine Minute – mit einem und mit zwei Kandidaten", () => {
-  assert.equal(WURZEL_DAUER, 60);
-  for (const zwei of [false, true]) {
-    const { s, dauer } = wurzelZeiten(zwei);
-    assert.equal(dauer, 60);
-    assert.equal(s[0], 0);
-    for (let i = 1; i < s.length; i++) assert.ok(s[i] - s[i - 1] >= 5, `Schritt ${i + 1} zu kurz (${s[i] - s[i - 1]} s)`);
-    assert.ok(dauer - s[s.length - 1] >= 5, "Ergebnis steht mindestens 5 s");
+test("Jeder Schritt lässt Zeit zum Mitlesen: Lesezeit + 2,5 s, mindestens 1,5-mal das Drehbuch", () => {
+  for (const N of WURZEL_BEISPIELE) {
+    const I = wurzelInfo(N), { s, dauer } = wurzelZeiten(I.zwei), a = DREHBUCH(I.zwei);
+    const ende = [...s.slice(1), dauer], aEnde = [...a.s.slice(1), a.dauer];
+    assert.equal(s.length, a.s.length);
+    wurzelSchritte(I).forEach((x, i) => {
+      const d = ende[i] - s[i];
+      assert.ok(d >= LESEN(x.text) + 2.5 - 0.01, `${N}, Schritt ${i + 1}: ${d} s für ${x.text.length} Zeichen`);
+      assert.ok(d >= 1.5 * (aEnde[i] - a.s[i]) - 0.01, `${N}, Schritt ${i + 1}: schneller als 1,5 × Drehbuch`);
+    });
+    assert.ok(dauer <= 120, `${N}: länger als zwei Minuten`);
   }
-  /* die sechs Endziffern-Paare passen in Schritt 3 */
-  const { s } = wurzelZeiten(false);
+});
+
+test("Abspielzeit → Drehbuch: Schrittgrenzen fallen zusammen, monoton, Ende = Ende", () => {
+  for (const zwei of [false, true]) {
+    const n = wurzelZeiten(zwei), a = DREHBUCH(zwei);
+    n.s.forEach((v, i) => assert.ok(Math.abs(drehbuchZeit(v, zwei) - a.s[i]) < 1e-9));
+    assert.equal(drehbuchZeit(n.dauer, zwei), a.dauer);
+    let alt = -1;
+    for (let t = 0; t <= n.dauer; t += 0.25) { const d = drehbuchZeit(t, zwei); assert.ok(d >= alt); alt = d; }
+  }
+  /* die sechs Endziffern-Paare passen in Schritt 3 des Drehbuchs */
+  const { s } = DREHBUCH(false);
   assert.ok(s[2] + PAAR_ZEIT[PAAR_ZEIT.length - 1] + 1.5 < s[3]);
+});
+
+test("Reihenfolge: 10² oben, 1² unten; Zehnerquadrat-Leiter ebenso", () => {
+  const q = readFileSync(new URL("../src/funcErklaeranimation.jsx", import.meta.url), "utf8");
+  assert.match(q, /const LY = \(i\) => RY\(9 - i\)/);
+  assert.match(q, /const leiterY = \(s\) => 194 \+ \(4 - s\) \* 36/);
+  assert.match(q, /const t = drehbuchZeit\(tAbspiel, I\.zwei\)/);
 });
 
 test("Startbeispiel 3025 = 55²: zwischen 2500 und 3600, Endziffer 5 nur von 5", () => {
@@ -69,8 +89,8 @@ test("Texte: alle Beispiele vollständig, Reihenfolge wie gewünscht, keine Gend
   }
 });
 
-test("Kopfrechnen √10k zeigt die Szene, der Film-Eintrag nennt eine Minute", () => {
+test("Kopfrechnen √10k zeigt die Szene, der Film-Eintrag nennt die Dauer", () => {
   assert.match(readFileSync(new URL("../src/func14.jsx", import.meta.url), "utf8"), /modus === "wurzel10k" && <ErklaerAnimation art="wurzel"/);
-  assert.match(readFileSync(new URL("../src/trainingszentrum.js", import.meta.url), "utf8"), /wurzel: \{[^}]*dauer: 60/);
+  assert.match(readFileSync(new URL("../src/trainingszentrum.js", import.meta.url), "utf8"), /wurzel: \{[^}]*dauer: 103/);
   assert.match(readFileSync(new URL("../src/funcErklaeranimation.jsx", import.meta.url), "utf8"), /useState\(WURZEL_START\)/);
 });

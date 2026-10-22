@@ -24,7 +24,7 @@ export const FILME = {
   kette: { titel: "Kettenregel als Verstärkerkette", zeile: "Warum die innere Ableitung nie fehlen darf", dauer: 26 },
   stamm: { titel: "Stammfunktion: Ableiten rückwärts", zeile: "Warum durch den neuen Exponenten geteilt wird – und warum + C", dauer: 26 },
   integral: { titel: "Fläche unter der Kurve", zeile: "Vom Streifen-Zählen zu F(b) − F(a)", dauer: 25 },
-  wurzel: { titel: "Wurzel aus vierstelligen Zahlen", zeile: "Quadratzahlen bis 10, Zehnerquadrate, letzte Ziffern – Wurzeln bis 10 000 im Kopf", dauer: 60 },
+  wurzel: { titel: "Wurzel aus vierstelligen Zahlen", zeile: "Quadratzahlen bis 10, Zehnerquadrate, letzte Ziffern – Wurzeln bis 10 000 im Kopf", dauer: 103 },
   mathilda: { titel: "Mathilda-Modus", zeile: "Blanko statt Karo, schwarzer Stift, ein Schritt pro Zeile – dann das Foto", dauer: 28 },
 };
 

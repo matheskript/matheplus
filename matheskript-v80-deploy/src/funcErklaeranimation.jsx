@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useId } from "react";
 import { C } from "./base1.jsx";
 import { zw } from "./ui2.jsx";
-import { ENDEN, FOLGERUNG, PAAR_ZEIT, WURZEL_BEISPIELE, WURZEL_PAARE, WURZEL_START, gz, wurzelBeschreibung, wurzelInfo, wurzelSchritte, wurzelZeiten } from "./wurzelMotion.js";
+import { DREHBUCH, ENDEN, FOLGERUNG, PAAR_ZEIT, WURZEL_BEISPIELE, WURZEL_PAARE, WURZEL_START, drehbuchZeit, gz, wurzelBeschreibung, wurzelInfo, wurzelSchritte, wurzelZeiten } from "./wurzelMotion.js";
 
 /* ======================================================================
    ERKLÄRANIMATION
@@ -13,7 +13,7 @@ import { ENDEN, FOLGERUNG, PAAR_ZEIT, WURZEL_BEISPIELE, WURZEL_PAARE, WURZEL_STA
    Szenen: "produkt" (Produktregel am Rechteck), "kette" (Kettenregel als
    Verstärkerkette), "stamm" (Stammfunktion: Ableiten rückwärts), "integral"
    (bestimmtes Integral: Streifen und Hauptsatz), "wurzel" (Wurzel aus
-   vierstelligen Quadratzahlen, eine Minute: 1² bis 10², daneben die Zehnerquadrate,
+   vierstelligen Quadratzahlen, knapp zwei Minuten: 1² unten bis 10² oben, daneben die Zehnerquadrate,
    letzte Ziffern, dann „zwischen welchen Zehnerquadraten?“ – Logik in wurzelMotion.js).
    ====================================================================== */
 
@@ -169,8 +169,10 @@ function ketteZeichne(t) {
 }
 
 /* ======================================================================
-   SZENE 3 · Wurzel aus vierstelligen Quadratzahlen (eine Minute, seit 22.10.2026)
+   SZENE 3 · Wurzel aus vierstelligen Quadratzahlen (seit 22.10.2026)
    Zeiten, Texte und Rechnung rein in src/wurzelMotion.js (Test tests/wurzelMotion.test.mjs).
+   Die Zeichnung ist nach dem Drehbuch (DREHBUCH, eine Minute) getaktet; wurzelZeichne rechnet die langsamere
+   Abspielzeit zuerst mit drehbuchZeit um. Größer = weiter oben: Liste 10² oben, 1² unten; Leiter ebenso.
    1 Quadratzahlen 1² bis 10² · 2 daneben die Zehnerquadrate (dieselben Zahlen mit 00)
    3 letzte Ziffern: 1|81, 4|64, 9|49, 16|36 enden gleich (Klammern), 25 und 100 allein
    4 Folgerung: letzte Ziffer → Einerziffer der Wurzel · 5 Beispiel: die letzte Ziffer
@@ -180,7 +182,8 @@ function ketteZeichne(t) {
 const SP = " ";
 const ZEHN = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const mische = (a, b, p) => a + (b - a) * p;
-const RY = (i) => 46 + i * 36; // Oberkante der Zeile i in der Liste 1² bis 10²
+const RY = (i) => 46 + i * 36; // Oberkante der i-ten Zeile von oben
+const LY = (i) => RY(9 - i);    // Oberkante der Zeile für (i + 1)²: 1² ganz unten, 10² ganz oben
 const RH = 30;
 
 /* Zahl mit hervorgehobener letzter Ziffer: Grundtext + Goldziffer darüber (gleiche Laufweite) */
@@ -205,8 +208,9 @@ const Pfeil = ({ x1, x2, y, farbe, breite = 2 }) => (
   <path d={`M${x1} ${y} H${x2} M${x2 - 5} ${y - 4.5} L${x2} ${y} L${x2 - 5} ${y + 4.5}`} fill="none" stroke={farbe} strokeWidth={breite} strokeLinecap="round" strokeLinejoin="round" />
 );
 
-function wurzelZeichne(t, I) {
-  const Zt = wurzelZeiten(I.zwei).s;
+function wurzelZeichne(tAbspiel, I) {
+  const t = drehbuchZeit(tAbspiel, I.zwei);
+  const Zt = DREHBUCH(I.zwei).s;
   const tE = Zt[Zt.length - 1];
   const [tZehner, tEnden, tFolge, tBsp, tLeiter] = [Zt[1], Zt[2], Zt[3], Zt[4], Zt[5]];
   const tNaeher = I.zwei ? Zt[6] : null;
@@ -266,7 +270,7 @@ function wurzelZeichne(t, I) {
 
   /* Leiter: z − 1, z, die Zahl, z + 1, z + 2 */
   const LEITER = [I.z - 1, I.z, "N", I.z + 1, I.z + 2];
-  const leiterY = (s) => 194 + s * 36;
+  const leiterY = (s) => 194 + (4 - s) * 36;   // größere Zehnerquadrate oben, wie in der Liste
   const naeherZeile = I.kleiner ? 1 : 3;
   const einerText = I.zwei ? `${I.kand[0]}|${I.kand[1]}` : String(I.kand[0]);
 
@@ -281,7 +285,7 @@ function wurzelZeichne(t, I) {
 
         {/* Klammern: n² und (10 − n)² enden gleich */}
         {WURZEL_PAARE.slice(0, 4).map((p, k) => {
-          const ya = RY(p.zeilen[0]) + RH / 2, yb = RY(p.zeilen[1]) + RH / 2;
+          const y1 = LY(p.zeilen[0]) + RH / 2, y2 = LY(p.zeilen[1]) + RH / 2, ya = Math.min(y1, y2), yb = Math.max(y1, y2);
           const xr = LX - 4, xl = 16 + k * 9;
           const d = `M${xr} ${ya} H${xl + 6} Q${xl} ${ya} ${xl} ${ya + 6} V${yb - 6} Q${xl} ${yb} ${xl + 6} ${yb} H${xr}`;
           return (
@@ -293,7 +297,7 @@ function wurzelZeichne(t, I) {
         })}
         {/* 25 und 100 stehen allein */}
         {[4, 5].map((k) => {
-          const y = RY(WURZEL_PAARE[k].zeilen[0]) + RH / 2;
+          const y = LY(WURZEL_PAARE[k].zeilen[0]) + RH / 2;
           return (
             <g key={k} opacity={endenAn * fertig[k]}>
               <circle cx={LX - 10} cy={y} r={3.5 + 2 * aktiv[k]} fill={C.gold} />
@@ -306,7 +310,7 @@ function wurzelZeichne(t, I) {
         {ZEHN.map((n, i) => {
           const ein = lauf(t, 0.5 + i * 0.45, 1.1 + i * 0.45);
           const hi = zeileAktiv(i);
-          const y = RY(i);
+          const y = LY(i);
           return (
             <g key={n}>
               <g opacity={ein}>
@@ -766,7 +770,7 @@ export const INFO = {
   kette: { titel: "Kettenregel als Verstärkerkette", unter: "Warum die innere Ableitung nie fehlen darf" },
   stamm: { titel: "Stammfunktion: Ableiten rückwärts", unter: "Warum durch den neuen Exponenten geteilt wird – und warum + C" },
   integral: { titel: "Fläche unter der Kurve und der Hauptsatz", unter: "Vom Streifen-Zählen zu F(b) − F(a)" },
-  wurzel: { titel: "Wurzel aus vierstelligen Zahlen", unter: "Eine Minute: Quadratzahlen bis 10, Zehnerquadrate, letzte Ziffern" },
+  wurzel: { titel: "Wurzel aus vierstelligen Zahlen", unter: "Knapp zwei Minuten: Quadratzahlen bis 10, Zehnerquadrate, letzte Ziffern" },
 };
 
 function ProduktSzene() {

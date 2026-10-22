@@ -1,19 +1,18 @@
 /* ======================================================================
    Wurzel aus vierstelligen Quadratzahlen – Logik und Texte der Motion (22.10.2026)
    Die Zeichnung steht in funcErklaeranimation.jsx (Szene „wurzel“, Kopfrechnen √10k).
-   Ablauf, eine Minute:
-   1 Quadratzahlen 1² bis 10²
+   Ablauf (gut 1:40 bzw. knapp 2 Minuten – seit 22.10. mittags so langsam, dass man jeden Satz mitlesen kann):
+   1 Quadratzahlen 1² bis 10², von unten nach oben: 1² unten, 10² oben (größer = weiter oben)
    2 daneben die Zehnerquadrate 10² bis 100²: dieselben Zahlen mit zwei Nullen
    3 letzte Ziffern: 1|81, 4|64, 9|49, 16|36 enden gleich, 25 und 100 allein
    4 Folgerung: letzte Ziffer der Quadratzahl → Einerziffer der Wurzel
    5 Beispiel: die letzte Ziffer
-   6 zwischen welchen Zehnerquadraten liegt die Zahl? → Zehnerziffer
+   6 zwischen welchen Zehnerquadraten liegt die Zahl? (Leiter, größere oben) → Zehnerziffer
    7 (nur bei zwei Kandidaten) näher am unteren oder oberen Zehnerquadrat?
    8 Ergebnis mit Probe
    Test: tests/wurzelMotion.test.mjs
    ====================================================================== */
 
-export const WURZEL_DAUER = 60;
 export const WURZEL_BEISPIELE = [3025, 1296, 5329, 7569, 9604];
 export const WURZEL_START = 3025;
 
@@ -52,19 +51,35 @@ export function wurzelInfo(N) {
   return { N, n, ende, kand, kandKlein, vorne, z, unten, oben, zwei, abU, abO, kleiner, gewaehlt, kandZahlen: kand.map((k) => 10 * z + k) };
 }
 
-/* Anfangszeiten der Schritte; beide Fassungen dauern genau eine Minute */
+/* Drehbuch: die ursprünglichen Zeiten (eine Minute), nach denen die Zeichnung in funcErklaeranimation.jsx getaktet ist.
+   Abgespielt wird langsamer (wurzelZeiten): jeder Schritt dauert mindestens 1,5-mal so lang wie im Drehbuch und
+   mindestens so lang, wie man zum Lesen seines Textes braucht (1 s + 52 ms je Zeichen, wie die Motion-Norm) plus 2,5 s
+   zum Nachdenken. drehbuchZeit rechnet die Abspielzeit schrittweise linear auf das Drehbuch um – so bleiben Bild und
+   Text im selben Takt, alles läuft gleichmäßig ruhiger. */
+export const DREHBUCH = (zwei) => (zwei
+  ? { s: [0, 7.5, 15.5, 30, 37, 42.5, 48.5, 54], dauer: 60 }
+  : { s: [0, 7.5, 15.5, 30, 38, 44, 52], dauer: 60 });
 export const wurzelZeiten = (zwei) => (zwei
-  ? { s: [0, 7.5, 15.5, 30, 37, 42.5, 48.5, 54], dauer: WURZEL_DAUER }
-  : { s: [0, 7.5, 15.5, 30, 38, 44, 52], dauer: WURZEL_DAUER });
+  ? { s: [0, 14, 27.5, 49.5, 69, 78.5, 93.5, 104.5], dauer: 115 }
+  : { s: [0, 14, 27.5, 49.5, 69, 78, 91], dauer: 103 });
+export const LESEN = (text) => 1 + 0.052 * String(text).length;   // Sekunden zum Lesen eines Schritttextes
+export function drehbuchZeit(t, zwei) {
+  const a = DREHBUCH(zwei), n = wurzelZeiten(zwei);
+  const aE = [...a.s.slice(1), a.dauer], nE = [...n.s.slice(1), n.dauer];
+  let i = 0;
+  while (i < n.s.length - 1 && t >= n.s[i + 1]) i++;
+  const u = Math.max(0, Math.min(1, (t - n.s[i]) / (nE[i] - n.s[i])));
+  return a.s[i] + u * (aE[i] - a.s[i]);
+}
 
-/* Zeitpunkte der sechs Endziffern-Paare in Schritt 3 (relativ zum Schrittbeginn) */
+/* Zeitpunkte der sechs Endziffern-Paare in Schritt 3 (relativ zum Schrittbeginn, Drehbuch-Zeit) */
 export const PAAR_ZEIT = [1.5, 3.7, 5.9, 8.1, 10.3, 12.1];
 
 export function wurzelSchritte(I) {
   const [a, b] = I.kandKlein;
   const [k0, k1] = I.kandZahlen;
   const F = FOLGERUNG;
-  const t1 = `Zuerst die Quadratzahlen von 1 bis 10: 1, 4, 9, 16, 25, 36, 49, 64, 81 und 100. Diese zehn Zahlen solltest du auswendig können – mehr brauchst du für alle Wurzeln bis 10${NB}000 nicht.`;
+  const t1 = `Zuerst die Quadratzahlen von 1 bis 10, von unten nach oben: 1, 4, 9, 16, 25, 36, 49, 64, 81 und 100. Diese zehn Zahlen solltest du auswendig können – mehr brauchst du für alle Wurzeln bis 10${NB}000 nicht.`;
   const t2 = "Daneben die Quadratzahlen der Zehnerzahlen: 10², 20², 30² bis 100². Es sind genau dieselben Zahlen, nur mit zwei Nullen dran – denn (10 · n)² = n² · 100, zum Beispiel 70² = 7² · 100 = 4900.";
   const t3 = "Jetzt die letzten Ziffern: 1 und 81 enden beide auf 1, 4 und 64 auf 4, 9 und 49 auf 9, 16 und 36 auf 6. Nur 25 endet auf 5 und nur 100 auf 0. Die Paare liegen spiegelbildlich um die 5: n² und (10 − n)² enden immer gleich.";
   const t4 = `Das sagt dir direkt, worauf die Wurzel einer vierstelligen Quadratzahl endet. Die Zehner der Wurzel ändern die letzte Ziffer nicht: ${F.wurzel}² = ${F.quadrat} endet wie ${F.einer}² = ${F.einer * F.einer}. Endet die Quadratzahl auf 9, endet ihre Wurzel auf 3 oder 7; endet sie auf 5, dann nur auf 5. Auf 2, 3, 7 oder 8 endet nie eine Quadratzahl.`;
@@ -81,5 +96,5 @@ export function wurzelSchritte(I) {
 }
 
 export function wurzelBeschreibung(I) {
-  return `Animation, eine Minute: Wurzel aus ${I.N}. Die Quadratzahlen von 1 bis 10, daneben die Zehnerquadrate mit zwei Nullen, dann die letzten Ziffern (1 und 81, 4 und 64, 9 und 49, 16 und 36 enden gleich, 25 und 100 allein). Die letzte Ziffer von ${I.N} liefert die Einerziffer, die Lage zwischen ${gz(I.unten)} und ${gz(I.oben)} die Zehnerziffer. Ergebnis ${I.gewaehlt}.`;
+  return `Animation, ${Math.round(wurzelZeiten(I.zwei).dauer)} Sekunden: Wurzel aus ${I.N}. Die Quadratzahlen von 1 bis 10 (1 unten, 10 oben), daneben die Zehnerquadrate mit zwei Nullen, dann die letzten Ziffern (1 und 81, 4 und 64, 9 und 49, 16 und 36 enden gleich, 25 und 100 allein). Die letzte Ziffer von ${I.N} liefert die Einerziffer, die Lage zwischen ${gz(I.unten)} und ${gz(I.oben)} die Zehnerziffer. Ergebnis ${I.gewaehlt}.`;
 }
