@@ -46,7 +46,7 @@ const umformung = {
               {i > 0 && <Tx x={14} y={y} g={g} f={F.grau} w={700}>=</Tx>}
               {k >= 0 && <rect x={xm - 4} y={y - g * 0.95} width={(wm + 8) * um} height={g * 1.35} rx="7" fill={F.goldHell} />}
               {letzte && <rect x={x0 - 6} y={y - g * 0.95} width={breite(t, g) + 12} height={g * 1.35} rx="7" fill="none" stroke={F.granat} strokeWidth="2" opacity={teil(u, 0.4, 1)} />}
-              <text x={x0} y={y} fontSize={g} fontWeight="800" style={{ fontFamily: "Montserrat, sans-serif" }} fill={letzte ? F.granat : F.tinte}>
+              <text x={x0} y={y} fontSize={g} fontWeight="800" style={{ fontFamily: "Montserrat, sans-serif", whiteSpace: "pre" }} fill={letzte ? F.granat : F.tinte}>
                 <tspan>{vor}</tspan><tspan fill={k >= 0 && um > 0.3 ? F.granat : undefined}>{mit}</tspan><tspan>{nach}</tspan>
               </text>
               {z.n && <Pille x={B - 12 - (breite(z.n, 11) + 16)} y={y - 5} a="start" text={z.n} o={teil(um || u, 0.2, 1)} />}
@@ -70,7 +70,7 @@ const roemisch = {
   ablauf: (p) => {
     const g = roemGruppen(p.zahl), sub = g.some((x) => x.z.length > 1);
     return [
-      { k: "legende", ms: 900, text: "I = 1, V = 5, X = 10, L = 50, C = 100, D = 500, M = 1000" },
+      { k: "legende", ms: 900, text: "Die Römer hatten sieben Zeichen, jedes mit einem festen Wert." },
       { k: "zeichen", ms: 300 + g.length * 260, text: `So schreibt man ${de(p.zahl)} römisch.` },
       { k: "werte", ms: 400 + g.length * 320, text: sub ? "Steht ein kleineres Zeichen links vom größeren, wird es abgezogen." : "Jedes Zeichen hat seinen Wert – von groß nach klein." },
       { k: "summe", ms: 1500, text: `Alles addieren: ${g.map((x) => de(x.w)).join(" + ")} = ${de(p.zahl)}` },
@@ -213,6 +213,7 @@ const stellentafel = {
               <rect x={x + 1.5} y={22} width={w - 3} height={22} rx="6" fill={ug > 0 ? grund(stelle) : F.flaeche} />
               <Tx x={x + w / 2} y={37.5} g={11} f={ug > 0.3 ? farbe(stelle) : F.grau} w={800}>{KOPF[stelle]}</Tx>
               <rect x={x + 1.5} y={48} width={w - 3} height={52} rx="8" fill={F.weiss} stroke={F.linie} strokeWidth="1.3" />
+              {i > 0 && <Tx x={x} y={14} g={8.5} f={F.goldDunkel} w={800}>← ·10</Tx>}
             </g>
           );
         })}
@@ -309,9 +310,9 @@ const zahlenlupe = {
   ablauf: (p) => [
     { k: "strahl", ms: 900, text: "Auf dem Zahlenstrahl liegt die größere Zahl weiter rechts." },
     { k: "grob", ms: 1500, text: "Grob eingetragen – drei Zahlen liegen fast übereinander." },
-    { k: "lupe", ms: 1300, text: "Mit der Lupe: genauer hinsehen." },
-    { k: "fein", ms: 1500, text: "Jetzt sieht man die Reihenfolge." },
-    { k: "ergebnis", ms: 1300, text: [...p.zahlen].sort((a, b) => a - b).map((v) => de(v)).join(" < ") },
+    { k: "lupe", ms: 1300, text: `Die Lupe zeigt nur ${de(p.lupe[0])} bis ${de(p.lupe[1])} – viel feiner eingeteilt.` },
+    { k: "fein", ms: 1500, text: "Jetzt liegen sie deutlich auseinander – die kleinste ganz links." },
+    { k: "ergebnis", ms: 1300, text: "Von links nach rechts: " + [...p.zahlen].sort((a, b) => a - b).map((v) => de(v)).join(" < ") },
   ],
   bild: ({ Z, z, p }) => {
     const x = achse({ von: p.von, bis: p.bis, x0: 24, x1: B - 30 });
@@ -370,8 +371,8 @@ const runden = {
     return [
       { k: "nachbarn", ms: 1100, text: `${de(p.zahl)} liegt zwischen ${de(unten)} und ${de(unten + p.stelle)}.` },
       { k: "zahl", ms: 1000 },
-      { k: "mitte", ms: 1200, text: `Die Mitte ist ${de(mitte)}. Rechts neben der Rundungsstelle steht ${ziffer}.` },
-      { k: "rund", ms: 1300, text: `${ziffer} ${auf ? "≥ 5 → aufrunden" : "≤ 4 → abrunden"}: ${de(p.zahl)} ≈ ${de(auf ? unten + p.stelle : unten)}` },
+      { k: "mitte", ms: 1600, text: `Die Ziffer rechts der Rundungsstelle ist ${ziffer}: ${auf ? "hinter" : "vor"} der Mitte ${de(mitte)}.` },
+      { k: "rund", ms: 1300, text: `Näher an ${de(auf ? unten + p.stelle : unten)} – also ${auf ? "aufrunden" : "abrunden"}: ${de(p.zahl)} ≈ ${de(auf ? unten + p.stelle : unten)}` },
     ];
   },
   bild: ({ Z, p }) => {
@@ -379,25 +380,36 @@ const runden = {
     const ziel = auf ? oben : unten;
     const x = achse({ von: unten, bis: oben, x0: 40, x1: B - 40 });
     const un = Z("nachbarn"), uz = Z("zahl", federnd), um = Z("mitte"), ur = Z("rund");
-    const s = de(p.zahl), roh = String(p.zahl), zpos = roh.length - String(p.stelle).length;
+    const s = de(p.zahl), roh = String(p.zahl), zpos = roh.length - String(p.stelle).length, ziffer = Math.floor((p.zahl % p.stelle) / (p.stelle / 10));
     /* Index der n-ten Ziffer in der formatierten Zahl (Tausenderpunkte überspringen) */
     const idx = (n) => { let k = -1; for (let i = 0; i < s.length; i++) { if (/\d/.test(s[i])) k++; if (k === n) return i; } return -1; };
     const pos = idx(zpos), rechts = idx(zpos + 1);
     return (
       <>
+        {/* zwei Hälften: 0–4 abrunden, 5–9 aufrunden; jeder Strich trägt die Ziffer rechts der Rundungsstelle */}
+        <g opacity={um}>
+          <rect x={x(unten)} y={101} width={x(mitte) - x(unten)} height={18} fill={F.blauHell} opacity={0.75} />
+          <rect x={x(mitte)} y={101} width={x(oben) - x(mitte)} height={18} fill={F.granatHell} opacity={0.75} />
+          <Tx x={(x(unten) + x(mitte)) / 2 - 18} y={152} g={10.5} f={F.blau} w={800}>abrunden</Tx>
+          <Tx x={(x(mitte) + x(oben)) / 2 + 18} y={152} g={10.5} f={F.granat} w={800}>aufrunden</Tx>
+          {Array.from({ length: 10 }, (_, d) => {
+            const xx = (x(unten + (d * p.stelle) / 10) + x(unten + ((d + 1) * p.stelle) / 10)) / 2, ist = d === ziffer;
+            return <Tx key={d} x={xx} y={95} g={ist ? 13 : 9.5} f={ist ? F.goldDunkel : d < 5 ? F.blau : F.granat} w={800}>{d}</Tx>;
+          })}
+        </g>
         <Skala von={unten} bis={oben} schritt={p.stelle / 10} y={110} x={x} u={un} jede={10} />
         <g opacity={um}>
-          <line x1={x(mitte)} y1={92} x2={x(mitte)} y2={128} stroke={F.blau} strokeWidth="2" strokeDasharray="4 3" />
-          <Tx x={x(mitte)} y={146} g={11} f={F.blau} w={800}>Mitte {de(mitte)}</Tx>
+          <line x1={x(mitte)} y1={92} x2={x(mitte)} y2={128} stroke={F.tinte} strokeWidth="2" strokeDasharray="4 3" />
+          <Tx x={x(mitte)} y={152} g={11} f={F.tinte} w={800}>Mitte {de(mitte)}</Tx>
         </g>
         <g opacity={klemm(uz)}>
           <circle cx={x(p.zahl)} cy={110} r={6.5} fill={F.granat} stroke={F.weiss} strokeWidth="2" transform={`translate(0 ${(1 - uz) * -30})`} />
         </g>
-        {ur > 0 && <Sprung xa={x(p.zahl)} xb={x(ziel)} y={104} hoch={30} u={ur} f={F.gold} />}
+        {ur > 0 && <Sprung xa={x(p.zahl)} xb={x(ziel)} y={117} hoch={-22} u={ur} f={F.gold} />}
         {ur > 0.9 && <circle cx={x(ziel)} cy={110} r={7} fill={F.gold} stroke={F.weiss} strokeWidth="2" />}
         <g opacity={teil(un, 0.3, 1)}>
           <text x={B / 2} y={40} textAnchor="middle" fontSize="24" fontWeight="800" style={{ fontFamily: "Montserrat, sans-serif" }} fill={F.tinte}>
-            {s.split("").map((c, i) => <tspan key={i} fill={i === pos && um > 0 ? F.granat : i === rechts && um > 0 ? F.blau : undefined}
+            {s.split("").map((c, i) => <tspan key={i} fill={i === pos && um > 0 ? F.granat : i === rechts && um > 0 ? F.goldDunkel : undefined}
               textDecoration={i === pos && um > 0 ? "underline" : undefined}>{c}</tspan>)}
             <tspan fill={F.grau} fontSize="16" dx="8">≈</tspan>
             <tspan fill={F.granat} dx="8" opacity={ur}>{de(ziel)}</tspan>
@@ -405,7 +417,7 @@ const runden = {
           <Tx x={B / 2} y={62} g={10.5} f={F.grau} w={700}>auf {STELLE_NAME[p.stelle]} runden</Tx>
         </g>
         <g opacity={ur}>
-          <Pille x={B / 2} y={182} text={auf ? "aufrunden: 5, 6, 7, 8, 9" : "abrunden: 0, 1, 2, 3, 4"} f={F.granatHell} tf={F.granat} g={11.5} />
+          <Pille x={B / 2} y={184} text={auf ? "aufrunden: 5, 6, 7, 8, 9" : "abrunden: 0, 1, 2, 3, 4"} f={auf ? F.granatHell : F.blauHell} tf={auf ? F.granat : F.blau} g={11.5} />
         </g>
       </>
     );
@@ -423,8 +435,14 @@ const rechenstrich = {
     let w = p.start;
     return [
       { k: "start", ms: 1000, text: p.starttext || `Start bei ${de(p.start)}.` },
-      ...p.spruenge.map((s, i) => { w += s; return { k: `j${i}`, ms: 1300, text: `${s > 0 ? "+" : "−"} ${de(Math.abs(s))} → ${de(w)}` }; }),
-      { k: "ende", ms: 1000, text: `${minus(p.aufgabe)} = ${de(w)}` },
+      ...p.spruenge.map((s, i) => {
+        w += s;
+        const vor = p.spruenge[i - 1];
+        const text = s > 0 ? `Erst ${de(s)} dazu – eine glatte Zahl, das geht leicht: ${de(w)}.`
+          : vor > 0 ? `Das waren ${de(-s)} zu viel – also ${de(-s)} zurück: ${de(w)}.` : `${de(-s)} zurück: ${de(w)}.`;
+        return { k: `j${i}`, ms: 1300, text };
+      }),
+      { k: "ende", ms: 1000, text: `Zwei leichte Sprünge statt eines schweren: ${minus(p.aufgabe)} = ${de(w)}` },
     ];
   },
   bild: ({ Z, p }) => {
@@ -435,9 +453,11 @@ const rechenstrich = {
     const lo = Math.min(...vis), hi = Math.max(...vis);
     const xv = (i) => 36 + ((vis[i] - lo) / (hi - lo || 1)) * (B - 72);
     const x = (v) => xv(pts.indexOf(v));
-    const y = 100, ue = Z("ende");
+    const y = 108, ue = Z("ende"), summe = p.spruenge.reduce((a, b) => a + b, 0);
+    const plan = `${de(summe)} = ` + p.spruenge.map((s, i) => (i ? `${s < 0 ? "−" : "+"} ${de(Math.abs(s))}` : de(s))).join(" ");
     return (
       <>
+        <Pille x={B / 2} y={22} text={plan} f={F.goldHell} tf={F.goldDunkel} g={13} o={teil(Z("start"), 0.3, 1)} />
         <Strich x1={12} y1={y} x2={B - 12} y2={y} u={Z("start")} b={2} />
         {pts.map((v, i) => {
           const u = i === 0 ? Z("start") : Z(`j${i - 1}`);
@@ -470,8 +490,8 @@ const malfeld = {
   label: (p) => `${p.a} · ${p.b} = ${p.a * p.b} als Punktefeld`,
   ablauf: (p) => [
     ...Array.from({ length: p.a }, (_, i) => ({ k: `r${i}`, ms: 520, text: i === 0 ? `Eine Reihe mit ${p.b} Punkten …` : `${i + 1} Reihen mit je ${p.b} Punkten` })),
-    { k: "mal", ms: 1100, text: `${p.a} · ${p.b} = ${p.a * p.b}` },
-    { k: "teilen", ms: 1500, text: `Umgekehrt: ${p.a * p.b} Punkte in Reihen zu ${p.b} → ${p.a * p.b} : ${p.b} = ${p.a}` },
+    { k: "mal", ms: 1100, text: `${p.a} Reihen zu je ${p.b} sind ${p.a * p.b} Punkte: ${p.a} · ${p.b} = ${p.a * p.b}` },
+    { k: "teilen", ms: 1500, text: `Rückwärts: ${p.a * p.b} Punkte in Reihen zu ${p.b} ergeben ${p.a} Reihen.` },
   ],
   bild: ({ Z, p }) => {
     const d = Math.min(28, (B - 120) / p.b, 120 / p.a), x0 = (B - d * p.b) / 2 + d / 2, y0 = 34;
@@ -509,36 +529,44 @@ const malfeld = {
    ============================================================ */
 const distributiv = {
   h: 200,
-  label: (p) => `${p.a} · ${p.gross - p.klein} mit dem Distributivgesetz`,
+  label: (p) => `${p.a} · ${p.gross - p.klein} = ${p.a} · ${p.gross} − ${p.a} · ${p.klein} = ${de(p.a * (p.gross - p.klein))}`,
   ablauf: (p) => [
     { k: "feld", ms: 1300, text: `${p.a} · ${p.gross - p.klein} ist ein Rechteck: ${p.a} hoch, ${p.gross - p.klein} breit.` },
     { k: "voll", ms: 1300, text: `Leichter: das volle Rechteck ${p.a} · ${p.gross} = ${de(p.a * p.gross)} …` },
-    { k: "weg", ms: 1400, text: `… minus den schmalen Streifen ${p.a} · ${p.klein} = ${p.a * p.klein}.` },
-    { k: "ergebnis", ms: 1200, text: `${p.a} · ${p.gross - p.klein} = ${de(p.a * p.gross)} − ${p.a * p.klein} = ${de(p.a * (p.gross - p.klein))}` },
+    { k: "weg", ms: 1600, text: `… dann den schmalen Streifen ${p.a} · ${p.klein} = ${p.a * p.klein} wieder wegnehmen.` },
+    { k: "ergebnis", ms: 1200, text: `Bleibt ${de(p.a * p.gross)} − ${p.a * p.klein} = ${de(p.a * (p.gross - p.klein))} – genau ${p.a} · ${p.gross - p.klein}.` },
   ],
   bild: ({ Z, p }) => {
-    const W = 236, Hh = 74, x0 = 42, y0 = 46, ws = Math.max(12, (p.klein / p.gross) * W);
+    const W = 236, Hh = 74, x0 = 42, y0 = 46, ws = Math.max(12, (p.klein / p.gross) * W), wg = W - ws;
     const uf = Z("feld"), uv = Z("voll"), uw = Z("weg"), ue = Z("ergebnis");
+    const dx = uw * 26, dy = uw * -8;
     return (
       <>
-        <rect x={x0} y={y0} width={(W - ws) * uf} height={Hh} rx="4" fill={F.goldHell} stroke={F.gold} strokeWidth="1.6" />
+        <rect x={x0} y={y0} width={wg * uf} height={Hh} rx="4" fill={F.goldHell} stroke={F.gold} strokeWidth="1.6" />
+        {/* volles Rechteck (gestrichelt) mit oberem Maß */}
         <g opacity={uv}>
           <rect x={x0} y={y0} width={W} height={Hh} rx="4" fill="none" stroke={F.granat} strokeWidth="2" strokeDasharray="6 4" />
-          <Tx x={x0 + W / 2} y={y0 - 10} g={12} f={F.granat} w={800}>{p.gross}</Tx>
+          <path d={`M${x0} ${y0 - 8} v-6 h${W} v6`} fill="none" stroke={F.granat} strokeWidth="1.6" />
+          <Tx x={x0 + W / 2} y={y0 - 18} g={12} f={F.granat} w={800}>{p.gross}</Tx>
         </g>
-        <g opacity={uw} transform={`translate(${uw * 18} ${uw * -6})`}>
-          <rect x={x0 + W - ws} y={y0} width={ws} height={Hh} rx="3" fill={F.rosa} stroke={F.granat} strokeWidth="1.6" />
-          <Tx x={x0 + W - ws / 2} y={y0 + Hh + 16} g={11} f={F.granat} w={800}>{p.klein}</Tx>
-          <Tx x={x0 + W + 12} y={y0 + Hh / 2 + 4} g={11} f={F.granat} w={800} a="start">−{p.a * p.klein}</Tx>
+        {/* der Streifen: erst an seinem Platz, dann wird er herausgezogen */}
+        <g opacity={uv} transform={`translate(${dx} ${dy})`}>
+          <rect x={x0 + wg} y={y0} width={ws} height={Hh} rx="3" fill={F.rosa} stroke={uw > 0 && uw < 1 ? F.gold : F.granat} strokeWidth={uw > 0 && uw < 1 ? 2.6 : 1.6} />
+          <Tx x={x0 + W + 10} y={y0 + Hh / 2 - 4} g={11} f={F.granat} w={800} a="start" opacity={teil(uw, 0.5, 1)}>{`${p.a} · ${p.klein}`}</Tx>
+          <Tx x={x0 + W + 10} y={y0 + Hh / 2 + 11} g={11} f={F.granat} w={800} a="start" opacity={teil(uw, 0.5, 1)}>{`= ${p.a * p.klein}`}</Tx>
         </g>
+        <Puls x={x0 + wg + ws / 2 + 26} y={y0 + Hh / 2 - 8} u={teil(uw, 0.5, 1)} r={18} f={F.gold} />
+        {/* Maße unten und links */}
         <g opacity={uf}>
           <Tx x={x0 - 10} y={y0 + Hh / 2 + 5} g={13} f={F.tinte} w={800} a="end">{p.a}</Tx>
-          <Tx x={x0 + (W - ws) / 2} y={y0 + Hh / 2 + 6} g={15} f={F.goldDunkel} w={800} opacity={uv > 0.5 ? 0 : 1}>{p.gross - p.klein}</Tx>
-          <Tx x={x0 + (W - ws) / 2} y={y0 + Hh / 2 + 6} g={15} f={F.goldDunkel} w={800} opacity={teil(uv, 0.5, 1)}>{de(p.a * p.gross)}</Tx>
+          <Tx x={x0 + wg / 2} y={y0 + Hh + 18} g={12} f={F.goldDunkel} w={800}>{p.gross - p.klein}</Tx>
         </g>
-        <g opacity={ue}>
-          <Pille x={B / 2} y={182} text={`${p.a} · ${p.gross - p.klein} = ${de(p.a * p.gross)} − ${p.a * p.klein} = ${de(p.a * (p.gross - p.klein))}`} f={F.granatTief} tf={F.goldHell} g={12.5} />
-        </g>
+        <Tx x={x0 + wg + ws / 2 + dx} y={y0 + Hh + 18 + dy} g={11} f={F.granat} w={800} opacity={uv}>{p.klein}</Tx>
+        {/* Inhalt der Fläche */}
+        <Tx x={x0 + wg / 2} y={y0 + Hh / 2 + 6} g={15} f={F.goldDunkel} w={800} opacity={uf * (1 - teil(uv, 0, 0.5))}>{`${p.a} · ${p.gross - p.klein} = ?`}</Tx>
+        <Tx x={x0 + wg / 2} y={y0 + Hh / 2 + 6} g={15} f={F.goldDunkel} w={800} opacity={teil(uv, 0.5, 1) * (1 - teil(ue, 0, 0.5))}>{`${p.a} · ${p.gross} = ${de(p.a * p.gross)}`}</Tx>
+        <Tx x={x0 + wg / 2} y={y0 + Hh / 2 + 6} g={18} f={F.granat} w={800} opacity={teil(ue, 0.5, 1)}>{de(p.a * (p.gross - p.klein))}</Tx>
+        <Pille x={B / 2} y={182} text={`${p.a} · ${p.gross - p.klein} = ${p.a} · ${p.gross} − ${p.a} · ${p.klein} = ${de(p.a * (p.gross - p.klein))}`} f={F.granatTief} tf={F.goldHell} g={12} o={ue} />
       </>
     );
   },
@@ -555,7 +583,7 @@ const quadrat = {
     { k: "seite", ms: 900, text: `Ein Quadrat mit der Seite ${p.n}.` },
     { k: "fuellen", ms: 400 + p.n * 300, text: `${p.n} Reihen mit je ${p.n} Kästchen.` },
     { k: "potenz", ms: 1300, text: `${p.n} · ${p.n} = ${p.n}² = ${p.n * p.n}. Der Exponent 2 zählt die Faktoren.` },
-    { k: "reihe", ms: 1300, text: "Quadratzahlen: 1, 4, 9, 16, 25, 36, 49, 64, 81, 100 …" },
+    { k: "reihe", ms: 1300, text: "Jede Quadratzahl ist so ein Quadrat: 1, 4, 9, 16, 25 … 100." },
   ],
   bild: ({ Z, z, p }) => {
     const n = p.n, d = Math.min(24, 130 / n), x0 = 40, y0 = 30;

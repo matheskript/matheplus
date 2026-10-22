@@ -35,7 +35,9 @@ const schriftlich = {
   ablauf: (p) => [
     { k: "auf", ms: 1000, text: "Stelle unter Stelle schreiben: Einer unter Einer." },
     ...schrittePlusMinus(p).map((s, i) => ({ k: `s${i}`, ms: 1250, text: s.text })),
-    { k: "ende", ms: 1100, text: `Ergebnis: ${de(p.art === "plus" ? p.a + p.b : p.a - p.b)}` },
+    { k: "ende", ms: 1100, text: p.art === "plus"
+      ? `Ergebnis ${de(p.a + p.b)} – der Überschlag ${de(Math.round(p.a / 100) * 100 + Math.round(p.b / 100) * 100)} passt.`
+      : `Ergebnis ${de(p.a - p.b)}. Probe: ${de(p.a - p.b)} + ${de(p.b)} = ${de(p.a)}` },
   ],
   bild: ({ Z, z, p }) => {
     const st = schrittePlusMinus(p), n = Math.max(String(p.a).length, String(p.b).length, st.length) + 1;
@@ -48,6 +50,7 @@ const schriftlich = {
       <>
         {akt >= 0 && <rect x={xc(akt) - cw / 2 + 2} y={22} width={cw - 4} height={130} rx="8" fill={F.goldHell} />}
         <g opacity={ua}>
+          {Array.from({ length: n - 1 }, (_, i) => <Tx key={`k${i}`} x={xc(i)} y={15} g={9.5} f={F.grau} w={800}>{["E", "Z", "H", "T", "ZT", "HT"][i]}</Tx>)}
           {zeile(p.a, 50)}
           {zeile(p.b, 84)}
           <Tx x={xc(n - 1) - 4} y={84} g={23} f={F.granat} w={800}>{p.art === "plus" ? "+" : "−"}</Tx>
@@ -58,6 +61,11 @@ const schriftlich = {
           return (
             <g key={i}>
               {s.ue > 0 && <Tx x={xc(i + 1)} y={101} g={11.5} f={F.granat} w={800} opacity={teil(u, 0.55, 0.9)}>1</Tx>}
+              {/* der volle Zehner wandert als Übertrag eine Spalte nach links */}
+              {s.ue > 0 && u > 0.3 && u < 1 && (
+                <path d={`M${xc(i) - 6} 126 Q ${xc(i) - cw * 0.7} 118 ${xc(i + 1) + 5} 104`} fill="none" stroke={F.gold} strokeWidth="2.2" strokeLinecap="round"
+                  strokeDasharray="40" strokeDashoffset={40 * (1 - teil(u, 0.3, 0.6))} opacity={1 - teil(u, 0.85, 1)} />
+              )}
               <Tx x={xc(i)} y={140 + (1 - raus(teil(u, 0.3, 0.8))) * -10} g={23} f={F.granat} w={800} opacity={teil(u, 0.3, 0.7)}>{s.ziffer}</Tx>
             </g>
           );
@@ -82,8 +90,13 @@ const schriftlichMal = {
     const bz = ziffern(p.b);
     return [
       { k: "auf", ms: 900, text: `${de(p.a)} · ${p.b}: Ziffer für Ziffer von ${p.b} malnehmen.` },
-      ...bz.map((d, i) => ({ k: `t${i}`, ms: 1400, text: `${de(p.a)} · ${d} = ${de(p.a * d)}` + (i < bz.length - 1 ? ` – steht unter der ${d}, also ${bz.length - 1 - i === 1 ? "Zehner" : "Hunderter"}` : "") })),
-      { k: "summe", ms: 1500, text: `Teilprodukte addieren: ${de(p.a * p.b)}` },
+      ...bz.map((d, i) => {
+        const st = bz.length - 1 - i;
+        return { k: `t${i}`, ms: 1600, text: st > 0
+          ? `${de(p.a)} · ${d} = ${de(p.a * d)}. Die ${d} meint ${d}${"0".repeat(st)}: ${st === 1 ? "eine Stelle" : `${st} Stellen`} nach links.`
+          : `${de(p.a)} · ${d} = ${de(p.a * d)}, die Einer stehen ganz rechts.` };
+      }),
+      { k: "summe", ms: 1500, text: `Die Teilprodukte addieren: ${de(p.a * p.b)}.` },
     ];
   },
   bild: ({ Z, p }) => {
@@ -109,6 +122,13 @@ const schriftlichMal = {
             <g key={i}>
               {u > 0 && u < 1 && <rect x={xc(col) - cw / 2 + 1} y={22} width={cw - 2} height={26} rx="6" fill={F.goldHell} />}
               {zeile(t.zahl, t.endCol, 80 + i * 30, i % 2 ? F.blau : F.goldDunkel, teil(u, 0.2, 1))}
+              {/* die weggelassenen Nullen: darum rückt die Zeile nach links */}
+              {Array.from({ length: ende - t.endCol }, (_, k) => (
+                <g key={`n${k}`} opacity={teil(u, 0.6, 0.9)}>
+                  <rect x={xc(t.endCol + 1 + k) - cw / 2 + 2} y={80 + i * 30 - 19} width={cw - 4} height={25} rx="6" fill="none" stroke={F.gold} strokeWidth="2" strokeDasharray="3 2" />
+                  <Tx x={xc(t.endCol + 1 + k)} y={80 + i * 30} g={21} f={F.gold} w={800}>0</Tx>
+                </g>
+              ))}
               {u > 0 && <Tx x={xc(col)} y={40} g={21} f={F.granat} w={800} opacity={u < 1 ? 1 : 0}>{bzs[i]}</Tx>}
             </g>
           );
@@ -213,9 +233,9 @@ const teilerbogen = {
   ablauf: (p) => {
     const t = teilerVon(p.n), paare = Math.ceil(t.length / 2);
     return [
-      { k: "zahl", ms: 700, text: `Alle Teiler von ${p.n} finden – immer paarweise.` },
-      ...Array.from({ length: paare }, (_, i) => ({ k: `p${i}`, ms: 850, text: t[i] === p.n / t[i] ? `${t[i]} · ${t[i]} = ${p.n}` : `${t[i]} · ${p.n / t[i]} = ${p.n}` })),
-      { k: "treffen", ms: 1200, text: "Die Paare treffen sich in der Mitte – fertig." },
+      { k: "zahl", ms: 700, text: `Teiler von ${p.n} suchen – immer als Paar.` },
+      ...Array.from({ length: paare }, (_, i) => ({ k: `p${i}`, ms: 850, text: t[i] === p.n / t[i] ? `${t[i]} · ${t[i]} = ${p.n} – ein Teiler ohne Partner.` : `${t[i]} · ${p.n / t[i]} = ${p.n}: ein Paar` })),
+      { k: "treffen", ms: 1200, text: "Die Paare treffen sich – mehr gibt es nicht." },
       { k: "menge", ms: 1200, text: `${p.n} hat ${t.length} Teiler.` },
     ];
   },
@@ -250,89 +270,132 @@ const teilerbogen = {
 };
 
 /* ============================================================
-   punktrechtecke – n Punkte ordnen sich zu Rechtecken um; jede Seitenlänge ist ein Teiler
+   punktrechtecke – n Punkte ordnen sich zu Rechtecken um; jede Reihenlänge, die aufgeht, ist ein Teiler.
+   Dann ein Versuch, der nicht aufgeht (kleinster Nicht-Teiler): die letzte Reihe bleibt unvollständig.
+   Unten sammeln sich alle Versuche als kleine Bilder.
    p: { n: 12 }
    ============================================================ */
+const nichtTeiler = (n) => { for (let k = 2; k < n; k++) if (n % k) return k; return null; };
 const punktrechtecke = {
-  h: 190,
-  label: (p) => `${p.n} Punkte als Rechtecke`,
+  h: 210,
+  label: (p) => `${p.n} Punkte als Rechtecke: Teiler ${teilerVon(p.n).join(", ")}`,
   ablauf: (p) => {
-    const r = teilerVon(p.n).filter((d) => d * d <= p.n);
+    const r = teilerVon(p.n).filter((d) => d * d <= p.n), k = nichtTeiler(p.n);
     return [
-      ...r.map((d, i) => ({ k: `l${i}`, ms: i ? 1300 : 900, text: `${d} Reihe${d > 1 ? "n" : ""} mit je ${p.n / d} Punkten: ${d} · ${p.n / d} = ${p.n}` })),
-      { k: "ende", ms: 1200, text: `Teiler von ${p.n}: ${teilerVon(p.n).join(", ")}` },
+      ...r.map((d, i) => ({ k: `l${i}`, ms: i ? 1400 : 1000, text: d === 1
+        ? `${p.n} Punkte in einer Reihe: 1 · ${p.n}. Also sind 1 und ${p.n} Teiler.`
+        : `${d} Reihen zu je ${p.n / d} – das Rechteck geht auf: ${d} und ${p.n / d} sind Teiler.` })),
+      ...(k ? [{ k: "probe", ms: 2200, text: `Reihen zu ${k}? ${Math.floor(p.n / k)} volle Reihen, dann bleiben ${p.n % k} übrig – eine Lücke!` }] : []),
+      { k: "ende", ms: 1400, text: k ? `${k} ist kein Teiler. Teiler von ${p.n}: ${teilerVon(p.n).join(", ")}` : `Teiler von ${p.n}: ${teilerVon(p.n).join(", ")}` },
     ];
   },
   bild: ({ Z, p }) => {
-    const r = teilerVon(p.n).filter((d) => d * d <= p.n);
-    const lage = (d, k) => { const sp = p.n / d, gx = Math.min(24, (B - 60) / sp); return { x: B / 2 - ((sp - 1) * gx) / 2 + (k % sp) * gx, y: 82 - ((d - 1) * 22) / 2 + Math.floor(k / sp) * 22 }; };
+    const n = p.n, r = teilerVon(n).filter((d) => d * d <= n), k = nichtTeiler(n);
+    /* Anordnung: sp Punkte je Reihe */
+    const formen = [...r.map((d) => n / d), ...(k ? [k] : [])];
+    const lage = (sp, i, g, cx, cy) => { const zeilen = Math.ceil(n / sp); return { x: cx - ((sp - 1) * g) / 2 + (i % sp) * g, y: cy - ((zeilen - 1) * g) / 2 + Math.floor(i / sp) * g }; };
+    const schritte = [...r.map((_, i) => `l${i}`), ...(k ? ["probe"] : [])];
     let akt = 0, u = 1;
-    r.forEach((_, i) => { if (Z(`l${i}`) > 0) { akt = i; u = Z(`l${i}`); } });
-    const von = akt > 0 ? r[akt - 1] : r[0], nach = r[akt];
+    schritte.forEach((s, i) => { if (Z(s) > 0) { akt = i; u = Z(s); } });
+    const von = formen[Math.max(0, akt - 1)], nach = formen[akt];
+    const G = (sp) => Math.min(22, (B - 60) / Math.max(1, sp - 1)), CY = 56;
+    const up = k ? Z("probe") : 0, ue = Z("ende");
+    /* kleine Bilder unten */
+    const slots = formen.length, sw = (B - 20) / slots;
     return (
       <>
-        {Array.from({ length: p.n }, (_, k) => {
-          const a = lage(von, k), b = lage(nach, k), uu = akt === 0 ? 1 : u;
-          return <circle key={k} cx={mix(a.x, b.x, uu)} cy={mix(a.y, b.y, uu)} r={akt === 0 ? 8 * raus(staffel(Z("l0"), k, p.n, 0.7)) : 8} fill={Math.floor(k / (p.n / nach)) % 2 ? F.granat : F.gold} />;
+        {Array.from({ length: n }, (_, i) => {
+          const a = lage(von, i, G(von), B / 2, CY), b = lage(nach, i, G(nach), B / 2, CY), uu = akt === 0 ? 1 : u;
+          const reihe = Math.floor(i / nach);
+          const rr = akt === 0 ? 8 * raus(staffel(Z("l0"), i, n, 0.7)) : 8;
+          return <circle key={i} cx={mix(a.x, b.x, uu)} cy={mix(a.y, b.y, uu)} r={rr} fill={reihe % 2 ? F.granat : F.gold} />;
         })}
-        <Tx x={B / 2} y={150} g={16} f={F.tinte} w={800}>{`${nach} · ${p.n / nach} = ${p.n}`}</Tx>
-        <g opacity={Z("ende")}>
-          <Pille x={B / 2} y={178} text={`Teiler: ${teilerVon(p.n).join(", ")}`} f={F.granatHell} tf={F.granat} />
-        </g>
+        {/* die Lücke beim Nicht-Teiler */}
+        {k && up > 0 && Array.from({ length: (k - (n % k)) % k }, (_, j) => {
+          const b = lage(k, n + j, G(k), B / 2, CY);
+          return <circle key={`l${j}`} cx={b.x} cy={b.y} r={8} fill="none" stroke={F.gold} strokeWidth="2.2" strokeDasharray="3 3" opacity={teil(up, 0.6, 0.9)} />;
+        })}
+        {k && <Puls x={lage(k, n, G(k), B / 2, CY).x + ((k - (n % k) - 1) * G(k)) / 2} y={lage(k, n, G(k), B / 2, CY).y} u={teil(up, 0.65, 1)} r={22} f={F.gold} />}
+        {formen.map((sp, j) => {
+          const s = schritte[j], us = teil(Z(s), 0.85, 1), ok = !(k && j === formen.length - 1);
+          const cx = 10 + sw * j + sw / 2, g = Math.min(6.5, (sw - 14) / Math.max(1, sp - 1));
+          return (
+            <g key={`t${j}`} opacity={us}>
+              <rect x={cx - sw / 2 + 4} y={132} width={sw - 8} height={58} rx="9" fill={ok ? F.flaeche : F.goldHell} />
+              {Array.from({ length: n }, (_, i) => { const q = lage(sp, i, g, cx, 154); return <circle key={i} cx={q.x} cy={q.y} r={2.3} fill={ok ? F.tinte : F.goldDunkel} />; })}
+              <Tx x={cx} y={184} g={10.5} f={ok ? F.tinte : F.goldDunkel} w={800}>{ok ? `${n / sp} · ${sp}` : `Reihen zu ${sp} ✗`}</Tx>
+            </g>
+          );
+        })}
+        <Pille x={B / 2} y={119} text={`Teiler von ${n}: ${teilerVon(n).join(", ")}`} f={F.granatTief} tf={F.goldHell} g={12} o={ue} />
       </>
     );
   },
 };
 
 /* ============================================================
-   quersumme – Teilbarkeitsregeln: Endziffer, Endstellen, Quersumme
+   quersumme – warum die Quersummenregel stimmt: jeder Tausender ist 999 + 1, jeder Hunderter 99 + 1,
+   jeder Zehner 9 + 1. Die Neunerpäckchen sind immer durch 9 (und 3) teilbar, übrig bleiben die Ziffern.
    p: { zahl: 7236 }
    ============================================================ */
+const STELLE_KURZ = ["E", "Z", "H", "T", "ZT", "HT"];
+const STELLE_LANG = ["Einer", "Zehner", "Hunderter", "Tausender", "Zehntausender", "Hunderttausender"];
 const quersumme = {
-  h: 210,
-  label: (p) => `Teilbarkeit von ${p.zahl}`,
+  h: 214,
+  label: (p) => `Quersummenregel für ${de(p.zahl)}`,
   ablauf: (p) => {
-    const z = ziffern(p.zahl), qs = z.reduce((s, d) => s + d, 0), end = p.zahl % 10, end2 = p.zahl % 100;
-    const ja = (t) => p.zahl % t === 0;
+    const z = ziffern(p.zahl), m = z.length, qs = z.reduce((s, d) => s + d, 0);
+    const teil9 = qs % 9 === 0, teil3 = qs % 3 === 0;
     return [
-      { k: "zahl", ms: 700, text: `Durch welche Zahlen ist ${de(p.zahl)} teilbar?` },
-      { k: "end", ms: 1300, text: `Endziffer ${end}: durch 2 ${ja(2) ? "ja" : "nein"}, durch 5 ${ja(5) ? "ja" : "nein"}.` },
-      { k: "end2", ms: 1300, text: `Letzte zwei Ziffern ${String(end2).padStart(2, "0")}: durch 4 ${ja(4) ? "ja" : "nein"}.` },
-      { k: "qs", ms: 1700, text: `Quersumme ${z.join(" + ")} = ${qs}: durch 3 ${ja(3) ? "ja" : "nein"}, durch 9 ${ja(9) ? "ja" : "nein"}.` },
-      { k: "sechs", ms: 1200, text: `Durch 6 heißt: durch 2 und durch 3 → ${ja(6) ? "ja" : "nein"}.` },
+      { k: "zahl", ms: 1200, text: `${de(p.zahl)} = ${z.map((d, i) => `${d} ${STELLE_LANG[m - 1 - i]}`).join(", ")}.` },
+      { k: "neuner", ms: 2600, text: "Jeder Tausender ist 999 + 1, jeder Hunderter 99 + 1, jeder Zehner 9 + 1." },
+      { k: "weg", ms: 1600, text: "999, 99 und 9 sind immer durch 9 teilbar – die stören nie." },
+      { k: "rest", ms: 1800, text: `Übrig bleiben die Ziffern selbst: ${z.join(" + ")} = ${qs}, die Quersumme.` },
+      { k: "urteil", ms: 1500, text: teil9 ? `${qs} ist durch 9 teilbar – also auch ${de(p.zahl)}. Bei 3 genauso.`
+        : teil3 ? `${qs} ist durch 3 teilbar, aber nicht durch 9 – genauso ${de(p.zahl)}.` : `${qs} ist weder durch 3 noch durch 9 teilbar – ${de(p.zahl)} auch nicht.` },
     ];
   },
   bild: ({ Z, p }) => {
-    const z = ziffern(p.zahl), n = z.length, qs = z.reduce((s, d) => s + d, 0);
-    const cw = 34, x0 = B / 2 - ((n - 1) * cw) / 2;
-    const ue = Z("end"), ue2 = Z("end2"), uq = Z("qs"), u6 = Z("sechs");
-    const regeln = [[2, ue], [3, uq], [4, ue2], [5, ue], [6, u6], [9, uq]];
-    const hervor = (i) => (i === n - 1 && ue > 0 && ue2 === 0) || (i >= n - 2 && ue2 > 0 && uq === 0);
+    const z = ziffern(p.zahl), m = z.length, qs = z.reduce((s, d) => s + d, 0);
+    const sp = Math.min(72, 280 / m), cx = (i) => B / 2 - 28 + (i - (m - 1) / 2) * sp;
+    const uz = Z("zahl"), un = Z("neuner"), uw = Z("weg"), ur = Z("rest"), uu = Z("urteil");
+    const yA = 70, yR = 124;
     return (
       <>
-        {z.map((d, i) => (
-          <g key={i} opacity={Z("zahl")}>
-            <rect x={x0 + i * cw - 15} y={18} width={30} height={40} rx="9" fill={hervor(i) ? F.goldHell : F.flaeche} stroke={hervor(i) ? F.gold : "none"} strokeWidth="2" />
-            <Tx x={x0 + i * cw} y={47} g={26} f={F.tinte} w={800}>{d}</Tx>
-          </g>
-        ))}
         {z.map((d, i) => {
-          const u = staffel(uq, i, n, 0.6), xz = 40 + i * 44;
-          return u > 0 && (
-            <g key={`q${i}`}>
-              <Tx x={mix(x0 + i * cw, xz, raus(u))} y={mix(47, 100, raus(u))} g={mix(26, 18, u)} f={F.blau} w={800}>{d}</Tx>
-              {i < n - 1 && <Tx x={xz + 22} y={100} g={16} f={F.grau} w={700} opacity={u}>+</Tx>}
+          const st = m - 1 - i, x = cx(i), nn = "9".repeat(st);
+          const ua = staffel(uz, i, m, 0.5), fall = raus(teil(un, 0.45, 1));
+          return (
+            <g key={i}>
+              <Tx x={x} y={14} g={9.5} f={F.grau} w={800}>{STELLE_KURZ[st]}</Tx>
+              <rect x={x - 17} y={20} width={34} height={40} rx="9" fill={F.flaeche} />
+              <Tx x={x} y={49} g={26} f={F.tinte} w={800}>{d}</Tx>
+              {st > 0 && (
+                <>
+                  <Tx x={x} y={yA} g={13} f={F.tinte} w={800} o={ua * (1 - teil(un, 0, 0.3))}>{`${d} · ${de(10 ** st)}`}</Tx>
+                  <Tx x={x} y={yA} g={13} f={F.blau} w={800} o={teil(un, 0.25, 0.5) * (1 - 0.55 * uw)}>{`${d} · ${nn}`}</Tx>
+                </>
+              )}
+              {/* der Rest jedes Päckchens ist die Ziffer selbst – sie fällt nach unten */}
+              <Tx x={x} y={mix(st > 0 ? yA + 18 : yA, yR, fall)} g={st > 0 ? mix(13, 20, fall) : mix(13, 20, fall)} f={st > 0 || un > 0.45 ? F.goldDunkel : F.tinte} w={800}
+                o={st > 0 ? teil(un, 0.35, 0.55) : ua}>{st > 0 ? `+ ${d}` .replace("+ ", fall > 0.9 ? "" : "+ ") : d}</Tx>
+              {i < m - 1 && <Tx x={x + sp / 2} y={yR} g={16} f={F.grau} w={700} o={teil(ur, 0, 0.4)}>+</Tx>}
             </g>
           );
         })}
-        {uq > 0.7 && <Pille x={40 + (n - 1) * 44 + 24} y={100} a="start" text={`= ${qs}`} g={15} f={F.blauHell} tf={F.blau} o={teil(uq, 0.7, 1)} />}
-        {regeln.map(([t, u], i) => {
-          const ok = p.zahl % t === 0, x = 34 + i * 58;
+        <g opacity={uw}>
+          <line x1={cx(0) - 30} y1={yA + 9} x2={cx(m - 2) + 30} y2={yA + 9} stroke={F.blau} strokeWidth="2" strokeLinecap="round" />
+          <Tx x={(cx(0) + cx(m - 2)) / 2} y={yA + 24} g={10.5} f={F.blau} w={800}>Neunerpäckchen: immer durch 9 teilbar</Tx>
+        </g>
+        <rect x={cx(0) - 24} y={yR - 22} width={cx(m - 1) - cx(0) + 48} height={32} rx="11" fill="none" stroke={F.gold} strokeWidth="2.2" opacity={teil(ur, 0.2, 0.5)} />
+        <Pille x={cx(m - 1) + 30} y={yR} a="start" text={`= ${qs}`} g={16} f={F.gold} tf={F.tinte} o={teil(ur, 0.4, 0.8)} />
+        <Puls x={cx(m - 1) + 54} y={yR - 6} u={teil(ur, 0.5, 1)} r={22} f={F.gold} />
+        {[9, 3].map((t, j) => {
+          const ok = p.zahl % t === 0, x = B / 2 + (j ? 74 : -74);
           return (
-            <g key={t} opacity={0.25 + 0.75 * u}>
-              <rect x={x - 25} y={140} width={50} height={46} rx="12" fill={u > 0.5 ? (ok ? F.gruenHell : F.flaeche) : F.weiss} stroke={u > 0.5 ? (ok ? F.gruen : F.hell) : F.linie} strokeWidth="1.6" />
-              <Tx x={x} y={159} g={10} f={F.grau} w={700}>durch</Tx>
-              <Tx x={x} y={178} g={15} f={u > 0.5 ? (ok ? F.gruen : F.grau) : F.hell} w={800}>{t} {u > 0.5 ? (ok ? "✓" : "✗") : ""}</Tx>
+            <g key={t} opacity={staffel(uu, j, 2, 0.5)}>
+              <rect x={x - 66} y={164} width={132} height={36} rx="12" fill={ok ? F.gruenHell : F.flaeche} stroke={ok ? F.gruen : F.hell} strokeWidth="1.6" />
+              <Tx x={x} y={187} g={13} f={ok ? F.gruen : F.grau} w={800}>{`durch ${t} ${ok ? "✓" : "✗"}`}</Tx>
             </g>
           );
         })}
@@ -357,7 +420,7 @@ const faktorbaum = {
     const k = primKette(p.zahl);
     return [
       { k: "start", ms: 700, text: `${p.zahl} zerlegen: durch die kleinste passende Primzahl teilen.` },
-      ...k.map((s, i) => ({ k: `s${i}`, ms: 950, text: `${i ? k[i - 1].rest : p.zahl} : ${s.p} = ${s.rest}` + (i === k.length - 1 ? ` – ${s.rest} ist eine Primzahl.` : "") })),
+      ...k.map((s, i) => ({ k: `s${i}`, ms: 950, text: `Durch ${s.p}: ${i ? k[i - 1].rest : p.zahl} : ${s.p} = ${s.rest}` + (i === k.length - 1 ? ` – ${s.rest} ist eine Primzahl.` : "") })),
       { k: "ende", ms: 1500, text: "Alle Primfaktoren einsammeln und Gleiche als Potenz schreiben." },
     ];
   },
@@ -414,9 +477,9 @@ const kgv = {
   ablauf: (p) => {
     const k = (p.a * p.b) / ggT(p.a, p.b);
     return [
-      { k: "strahl", ms: 800, text: `Vielfache von ${p.a} (oben) und von ${p.b} (unten).` },
-      { k: "a", ms: 400 + (k / p.a) * 450, text: `${p.a}, ${2 * p.a}, ${3 * p.a}, …` },
-      { k: "b", ms: 400 + (k / p.b) * 450, text: `${p.b}, ${2 * p.b}, ${3 * p.b}, …` },
+      { k: "strahl", ms: 800, text: `Zwei Takte auf einem Zahlenstrahl: ${p.a} und ${p.b}.` },
+      { k: "a", ms: 400 + (k / p.a) * 450, text: `Oben die Vielfachen von ${p.a}: ${p.a}, ${2 * p.a}, ${3 * p.a}, …` },
+      { k: "b", ms: 400 + (k / p.b) * 450, text: `Unten die Vielfachen von ${p.b}: ${p.b}, ${2 * p.b}, ${3 * p.b}, …` },
       { k: "treffen", ms: 1500, text: p.text || `Das erste gemeinsame Vielfache: kgV(${p.a}, ${p.b}) = ${k}` },
     ];
   },

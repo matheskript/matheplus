@@ -17,7 +17,8 @@ const meeresspiegel = {
     { k: "meer", ms: 1000, text: "Der Meeresspiegel ist die Null." },
     { k: "moewe", ms: 1300, text: `Eine Möwe fliegt ${p.oben} m über dem Meer: ${vzp(p.oben)} m.` },
     { k: "taucher", ms: 1900, text: `Ein Taucher sinkt ${-p.unten} m unter den Meeresspiegel: ${vz(p.unten)} m.` },
-    { k: "abstand", ms: 1700, text: `Von ${vz(p.unten)} m bis ${vzp(p.oben)} m: ${-p.unten} m + ${p.oben} m = ${p.oben - p.unten} m` },
+    { k: "abstand", ms: 2400, text: `Von ${vz(p.unten)} m bis ${vzp(p.oben)} m: ${-p.unten} m bis zur Null, dann ${p.oben} m darüber.` },
+    { k: "summe", ms: 1200, text: `Zusammen ${p.oben - p.unten} m – beide Teile zählen.` },
   ],
   bild: ({ Z, p }) => {
     const ytop = 24, ybot = 200, y = (v) => ybot - ((v + 40) / 80) * (ybot - ytop), xa = 150, xm = 240;
@@ -68,13 +69,17 @@ const meeresspiegel = {
         )}
         {ua > 0 && (
           <g>
-            <line x1={196} y1={y(0)} x2={196} y2={mix(y(0), y(p.oben), teil(ua, 0, 0.5))} stroke={F.gold} strokeWidth="4" strokeLinecap="round" />
-            <line x1={196} y1={y(0)} x2={196} y2={mix(y(0), y(p.unten), teil(ua, 0, 0.5))} stroke={F.goldDunkel} strokeWidth="4" strokeLinecap="round" />
-            <line x1={190} y1={y(p.oben)} x2={202} y2={y(p.oben)} stroke={F.goldDunkel} strokeWidth="2" opacity={teil(ua, 0.4, 0.6)} />
-            <line x1={190} y1={y(p.unten)} x2={202} y2={y(p.unten)} stroke={F.goldDunkel} strokeWidth="2" opacity={teil(ua, 0.4, 0.6)} />
-            <Pille x={196} y={y(p.oben / 2) + 4} text={`${p.oben - p.unten} m`} f={F.gold} tf={F.tinte} g={12} o={teil(ua, 0.6, 1)} />
+            {/* erst unten bis zur Null, dann oben weiter */}
+            <line x1={196} y1={y(p.unten)} x2={196} y2={mix(y(p.unten), y(0), teil(ua, 0, 0.45))} stroke={F.goldDunkel} strokeWidth="4" strokeLinecap="round" />
+            {ua > 0.5 && <line x1={196} y1={y(0)} x2={196} y2={mix(y(0), y(p.oben), teil(ua, 0.5, 0.95))} stroke={F.gold} strokeWidth="4" strokeLinecap="round" />}
+            <line x1={190} y1={y(p.unten)} x2={202} y2={y(p.unten)} stroke={F.goldDunkel} strokeWidth="2" />
+            <line x1={190} y1={y(p.oben)} x2={202} y2={y(p.oben)} stroke={F.goldDunkel} strokeWidth="2" opacity={teil(ua, 0.9, 1)} />
+            <Tx x={190} y={y(p.unten / 2) + 4} g={11.5} f={F.goldDunkel} w={800} a="end" opacity={teil(ua, 0.3, 0.5)}>{`${-p.unten} m`}</Tx>
+            <Tx x={190} y={y(p.oben / 2) + 4} g={11.5} f={F.goldDunkel} w={800} a="end" opacity={teil(ua, 0.8, 1)}>{`${p.oben} m`}</Tx>
+            <Puls x={196} y={y(0)} u={teil(ua, 0.4, 0.8)} r={16} f={F.gold} />
           </g>
         )}
+        <Pille x={250} y={214} text={`${-p.unten} m + ${p.oben} m = ${p.oben - p.unten} m`} f={F.gold} tf={F.tinte} g={12} o={Z("summe")} />
       </>
     );
   },
@@ -151,11 +156,11 @@ const vorzeichenMuster = {
   h: 226,
   label: (p) => `Muster: ${p.a} · ${kl(p.bis)} = ${vz(p.a * p.bis)} und ${kl(-p.a)} · ${kl(p.bis)} = ${vz(p.a * -p.bis)}`,
   ablauf: (p) => [
-    { k: "links", ms: 1700, text: `Der zweite Faktor wird immer um 1 kleiner – das Ergebnis immer um ${p.a} kleiner.` },
+    { k: "links", ms: 1700, text: `Der zweite Faktor wird um 1 kleiner – das Ergebnis jedes Mal um ${p.a}.` },
     { k: "linksNeg", ms: 1700, text: `Das Muster läuft über null weiter: ${p.a} · (−1) = −${p.a}` },
     { k: "rechts", ms: 1700, text: `Bei ${kl(-p.a)} wird das Ergebnis immer um ${p.a} größer.` },
     { k: "rechtsNeg", ms: 1800, text: `Weiter über null: ${kl(-p.a)} · (−1) = ${p.a}. Minus mal minus ist plus.` },
-    { k: "regel", ms: 1200, text: "Gleiche Vorzeichen → plus, verschiedene Vorzeichen → minus." },
+    { k: "regel", ms: 1200, text: "Gleiche Vorzeichen ergeben plus, verschiedene ergeben minus." },
   ],
   bild: ({ Z, z, p }) => {
     const fakt = []; for (let b = p.von; b >= p.bis; b--) fakt.push(b);
@@ -186,12 +191,11 @@ const vorzeichenMuster = {
         <line x1={14} y1={yn} x2={B - 14} y2={yn} stroke={F.hell} strokeWidth="1.2" strokeDasharray="4 4" opacity={Z("linksNeg")} />
         {spalte(p.a, 86, Z("links"), Z("linksNeg"), `−${p.a}`)}
         {spalte(-p.a, 266, Z("rechts"), Z("rechtsNeg"), `+${p.a}`)}
-        <g opacity={ur}>
-          <rect x={14} y={176} width={B - 28} height={40} rx="12" fill={F.granatTief} />
-          <Tx x={86} y={193} g={11.5} f={F.goldHell} w={800}>plus · minus = minus</Tx>
-          <Tx x={266} y={193} g={11.5} f={F.goldHell} w={800}>minus · minus = plus</Tx>
-          <Tx x={B / 2} y={208} g={10.5} f={F.gold} w={700}>Das Muster entscheidet das Vorzeichen.</Tx>
-        </g>
+        {/* Kern-Moment: das Muster springt über null ins Plus */}
+        <rect x={266 - 72} y={y0 + nPos * dy - 16} width={144} height={23} rx="8" fill="none" stroke={F.gold} strokeWidth="2.4" opacity={teil(Z("rechtsNeg"), 0, 0.3)} />
+        <Puls x={266 + 40} y={y0 + nPos * dy - 5} u={teil(Z("rechtsNeg"), 0.05, 0.6)} r={18} f={F.gold} />
+        <Pille x={86} y={204} text="plus · minus = minus" f={F.blauHell} tf={F.blau} g={11.5} o={ur} />
+        <Pille x={266} y={204} text="minus · minus = plus" f={F.granatTief} tf={F.goldHell} g={11.5} o={ur} />
       </>
     );
   },
@@ -208,7 +212,7 @@ const skalaAblesen = {
     const t = p.teile || 10, [a, b, k] = p.reihen[0], s = (b - a) / t;
     return [
       { k: "strahlen", ms: 1100, text: "Drei Zahlenstrahlen, jeder mit gleich vielen Abschnitten." },
-      { k: "schritt", ms: 1900, text: `Erst die Einteilung: von ${de(a)} bis ${de(b)} sind es ${de(b - a)}, in ${t} Abschnitten. Ein Strich = ${de(s)}.` },
+      { k: "schritt", ms: 1900, text: `Erst die Einteilung: ${de(b - a)} auf ${t} Abschnitte, also 1 Strich = ${de(s)}.` },
       { k: "ablesen", ms: 2000, text: `Dann abzählen: ${k} Striche · ${de(s)} = ${de(k * s)}` },
       { k: "fazit", ms: 1400, text: "Gleiche Stelle – andere Zahl. Die Einteilung entscheidet." },
     ];

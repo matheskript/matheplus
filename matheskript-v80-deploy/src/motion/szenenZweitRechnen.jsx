@@ -17,14 +17,12 @@ const flaechenMal = {
   label: (p) => `${p.a} · ${p.b} als Rechteck in Teilflächen`,
   ablauf: (p) => {
     const A = stellenTeile(p.a), Bt = stellenTeile(p.b);
-    const zellen = Bt.flatMap((y) => A.map((x) => [x, y]));
     const reihe = (j) => (Bt.length === 2 ? (j ? "Untere Reihe" : "Obere Reihe") : `Reihe ${j + 1}`);
     return [
       { k: "auf", ms: 1000, text: `${de(p.a)} · ${p.b} als Rechteck: ${de(p.a)} breit, ${p.b} hoch.` },
-      { k: "zer", ms: 1300, text: `Zerlegen: ${A.map((v) => de(v)).join(" + ")} und ${Bt.join(" + ")}.` },
-      ...zellen.map(([x, y], i) => ({ k: `c${i}`, ms: 850, text: `${de(x)} · ${y} = ${de(x * y)}` })),
-      ...Bt.map((y, j) => ({ k: `r${j}`, ms: 1200, text: `${reihe(j)}: ${de(p.a)} · ${y} = ${de(p.a * y)}` })),
-      { k: "summe", ms: 1500, text: `Alles zusammen: ${Bt.map((y) => de(p.a * y)).join(" + ")} = ${de(p.a * p.b)}` },
+      { k: "zer", ms: 1300, text: `Beide Seiten nach Stellen zerlegen: ${A.map((v) => de(v)).join(" + ")} und ${Bt.join(" + ")}.` },
+      ...Bt.map((y, j) => ({ k: `r${j}`, ms: 400 + A.length * 700, text: `${reihe(j)}: ${A.map((x) => de(x * y)).join(" + ")} = ${de(p.a * y)}` })),
+      { k: "summe", ms: 1500, text: `Die Reihen sind die Teilprodukte: zusammen ${de(p.a * p.b)}.` },
     ];
   },
   bild: ({ Z, z, p }) => {
@@ -44,7 +42,7 @@ const flaechenMal = {
         <Tx x={x0 - 8} y={y0 + H / 2 + 5} g={14} f={F.tinte} w={800} a="end" o={ua * (1 - uz)}>{p.b}</Tx>
         {/* Zellen */}
         {Bt.map((yv, j) => A.map((xv, i) => {
-          const k = j * A.length + i, u = Z(`c${k}`), akt = z(`c${k}`) > 0 && z(`c${k}`) < 1;
+          const k = j * A.length + i, ur = z(`r${j}`), u = raus(staffel(teil(ur, 0, 0.7), i, A.length, 0.3)), akt = u > 0 && u < 1;
           const w = bw[i], h = bh[j], wert = de(xv * yv), g = Math.min(13, (w - 6) / (String(wert).length * 0.66), h * 0.5);
           return (
             <g key={k}>
@@ -61,7 +59,7 @@ const flaechenMal = {
         {Bt.map((v, j) => <Tx key={`b${j}`} x={x0 - 8} y={ys[j] + bh[j] / 2 + 5} g={13} f={F.tinte} w={800} a="end" o={uz}>{v}</Tx>)}
         {/* Reihensummen */}
         {Bt.map((v, j) => {
-          const u = Z(`r${j}`);
+          const u = teil(z(`r${j}`), 0.7, 1);
           return (
             <g key={`s${j}`} opacity={u}>
               {u < 1 && <rect x={x0} y={ys[j]} width={W} height={bh[j]} rx="3" fill="none" stroke={F.granat} strokeWidth="2.4" />}
@@ -165,18 +163,16 @@ const endstellen = {
     const n = p.zahl, r2 = n % 100, h = n - r2, r1 = n % 10, h1 = n - r1, ja = (t) => (n % t === 0 ? "ja" : "nein");
     return [
       { k: "zahl", ms: 900, text: `Durch 4? Durch 2, 5, 10? Dafür reicht das Ende von ${de(n)}.` },
-      { k: "s4", ms: 1400, text: `${de(n)} = ${de(h)} + ${r2} – die Hunderter abspalten.` },
-      { k: "h4", ms: 1500, text: `100 = 4 · 25, also ist ${de(h)} sicher durch 4 teilbar.` },
+      { k: "s4", ms: 2600, text: `${de(n)} = ${de(h)} + ${r2}. Volle Hunderter sind durch 4 teilbar: 100 = 4 · 25.` },
       { k: "c4", ms: 1400, text: r2 % 4 === 0 ? `Bleibt ${r2}: ${r2} : 4 = ${r2 / 4}, also ist ${de(n)} durch 4 teilbar.` : `Bleibt ${r2}: nicht durch 4 teilbar, also ${de(n)} auch nicht.` },
-      { k: "s10", ms: 1400, text: `${de(n)} = ${de(h1)} + ${r1} – die Zehner abspalten.` },
-      { k: "h10", ms: 1500, text: `10 = 2 · 5, also ist ${de(h1)} durch 2, 5 und 10 teilbar.` },
+      { k: "s10", ms: 2600, text: `${de(n)} = ${de(h1)} + ${r1}. Volle Zehner sind durch 2, 5, 10 teilbar.` },
       { k: "c10", ms: 1500, text: `Bleibt ${r1}: durch 2 ${ja(2)}, durch 5 ${ja(5)}, durch 10 ${ja(10)}.` },
     ];
   },
   bild: ({ Z, z, p }) => {
     const n = p.zahl, d = String(n).split(""), m = d.length, r2 = n % 100, h = n - r2, r1 = n % 10, h1 = n - r1;
     const cw = 34, x0 = B / 2 - ((m - 1) * cw) / 2;
-    const u4 = Z("s4"), uh4 = Z("h4"), uc4 = Z("c4"), u10 = Z("s10"), uh10 = Z("h10"), uc10 = Z("c10");
+    const u4 = teil(Z("s4"), 0, 0.45), uh4 = teil(Z("s4"), 0.5, 1), uc4 = Z("c4"), u10 = teil(Z("s10"), 0, 0.45), uh10 = teil(Z("s10"), 0.5, 1), uc10 = Z("c10");
     const xl = 92, xr = 268, ok4 = r2 % 4 === 0;
     return (
       <>
@@ -240,28 +236,28 @@ const primLeiter = {
   ablauf: (p) => {
     const st = leiterSchritte(p.zahl), pl = potenzListe(st), anz = pl.map(([, e]) => e + 1), T = anz.reduce((a, b) => a * b, 1);
     return [
-      { k: "start", ms: 900, text: `${p.zahl} zerlegen: immer durch die kleinste Primzahl teilen, die passt.` },
-      ...st.map((s, i) => ({ k: `s${i}`, ms: 900, text: `${s.z} : ${s.p} = ${s.z / s.p}` + (i === st.length - 1 ? " – fertig." : "") })),
+      { k: "teilen", ms: 600 + st.length * 650, text: `${p.zahl} immer durch die kleinste Primzahl teilen, die passt – bis 1 bleibt.` },
       { k: "sammeln", ms: 1400, text: `Rechts stehen die Primfaktoren: ${p.zahl} = ${pl.map(potText).join(" · ")}` },
-      ...pl.map((pe, j) => ({ k: `t${j}`, ms: 1200, text: `Aus ${potText(pe)}: ${oderListe(auswahl(pe))} – ${pe[1] + 1} Möglichkeiten.` })),
-      { k: "anzahl", ms: 1600, text: `${anz.join(" · ")} = ${T} – so viele Teiler hat ${p.zahl}.` },
+      ...pl.map((pe, j) => ({ k: `t${j}`, ms: 1200, text: `${j ? "Aus" : "Ein Teiler nimmt aus"} ${potText(pe)}: ${oderListe(auswahl(pe))} – ${pe[1] + 1} Wahlen.` })),
+      { k: "anzahl", ms: 1600, text: `${anz.join(" · ")} = ${T} Kombinationen – so viele Teiler hat ${p.zahl}.` },
     ];
   },
   bild: ({ Z, p }) => {
     const st = leiterSchritte(p.zahl), pl = potenzListe(st), anz = pl.map(([, e]) => e + 1), T = anz.reduce((a, b) => a * b, 1);
     const reihen = st.length + 1, dy = Math.min(26, 140 / (reihen - 1)), yr = (i) => 38 + i * dy, yl = yr(reihen - 1);
     const XL = 106, us = Z("sammeln"), ua = Z("anzahl");
-    const sichtZahl = (i) => (i === 0 ? Z("start") : teil(Z(`s${i - 1}`), 0.45, 1));
+    const S = (i) => raus(staffel(Z("teilen"), i, st.length, 0.15));
+    const sichtZahl = (i) => (i === 0 ? teil(Z("teilen"), 0, 0.1) : teil(S(i - 1), 0.45, 1));
     return (
       <>
-        <Strich x1={XL + 8} y1={20} x2={XL + 8} y2={yl + 8} u={Z("start")} f={F.tinte} b={1.8} />
+        <Strich x1={XL + 8} y1={20} x2={XL + 8} y2={yl + 8} u={teil(Z("teilen"), 0, 0.2)} f={F.tinte} b={1.8} />
         {us > 0 && <rect x={XL + 13} y={20} width={30} height={yl - 20 - dy + 14} rx="7" fill={F.goldHell} opacity={us} />}
         {Array.from({ length: reihen }, (_, i) => {
           const w = i < st.length ? st[i].z : 1;
           return (
             <g key={i}>
               <Tx x={XL} y={yr(i) + 5} g={14} f={i === reihen - 1 ? F.grau : F.tinte} w={800} a="end" o={sichtZahl(i)}>{w}</Tx>
-              {i < st.length && <Tx x={XL + 28} y={yr(i) + 5} g={14} f={F.goldDunkel} w={800} o={teil(Z(`s${i}`), 0, 0.45)}>{st[i].p}</Tx>}
+              {i < st.length && <Tx x={XL + 28} y={yr(i) + 5} g={14} f={F.goldDunkel} w={800} o={teil(S(i), 0, 0.45)}>{st[i].p}</Tx>}
             </g>
           );
         })}
