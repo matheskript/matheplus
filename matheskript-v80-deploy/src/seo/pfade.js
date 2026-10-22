@@ -36,7 +36,6 @@ export const SEO_PFADE = new Set([
   "kurvendiskussion",
   "mengenlogik",
   "negative-zahlen",
-  "normalenform",
   "normalverteilung",
   "optimierung",
   "parabeln",

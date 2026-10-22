@@ -170,7 +170,7 @@ export const MC_WERKZEUG_QUELLEN = {
   lernpfad: { quelle: "link", titel: "Lernpfad „Abi komplett“", zeile: "Standortcheck und Wochenplan", zeichen: "→", ziel: { ansicht: "lernpfad" } },
   penpaper: { quelle: "link", titel: "Pen & Paper", zeile: "Neun Lektionen für saubere Rechenwege", zeichen: "✎", ziel: { ansicht: "penpaperkurs" } },
   diffkurs: { quelle: "link", titel: "Kurs Differentialrechnung", zeile: "Schulbuch lesen und trainieren", zeichen: "f′", ziel: { ansicht: "diffkurs" } },
-  vekkurs: { quelle: "link", titel: "Kurs Vektoren, Geraden und Ebenen", zeile: "Schulbuch lesen und trainieren", zeichen: "a+b", ziel: { ansicht: "vekkurs" } },
+  vekkurs: { quelle: "link", titel: "Kurs Vektoren, Geraden und Ebenen", zeile: "Schulbuch lesen und trainieren", zeichen: "a⃗", ziel: { ansicht: "vekkurs" } },
   abiketten: { quelle: "link", titel: "Abi-Ketten", zeile: "Analysis, Geometrie, Stochastik unter Zeit", zeichen: "⛓", ziel: { ansicht: "abiketten" } },
   abisaetze: { quelle: "link", titel: "Abi-Sätze", zeile: "Teil A und B wie im echten Abi", zeichen: "A·B", ziel: { ansicht: "abisaetze" } },
   probeabitur: { quelle: "link", titel: "Probeabitur", zeile: "Einmal alles unter echten Bedingungen", zeichen: "Abi", ziel: { ansicht: "abitur" } },

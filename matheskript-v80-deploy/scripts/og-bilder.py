@@ -14,7 +14,7 @@ os.makedirs(AUS, exist_ok=True)
 daten = json.loads(subprocess.check_output(["node", "--input-type=module", "-e", """
 import { SEO_SEITEN, HUB_SEITEN, HUBS, seoText } from './src/seo/index.js'; import { WERKZEUGE } from './src/werkzeuge.js';
 const w = SEO_SEITEN().map((s) => ({ pfad: s.pfad, zeichen: WERKZEUGE[s.id].zeichen, name: WERKZEUGE[s.id].name, zeile: WERKZEUGE[s.id].zeile, titel: seoText(s.id).titel }));
-const h = HUB_SEITEN().map((x) => ({ pfad: x.pfad || 'start', zeichen: x.id === 'start' ? '∫' : x.id === 'vision' ? '1,0' : x.id === 'analysis' ? 'f′' : x.id === 'vektoren' ? 'a+b' : x.id === 'stochastik' ? 'B' : '✎', name: HUBS[x.id].h1, zeile: HUBS[x.id].beschreibung.split(':')[0], titel: HUBS[x.id].titel }));
+const h = HUB_SEITEN().map((x) => ({ pfad: x.pfad || 'start', zeichen: x.id === 'start' ? '∫' : x.id === 'vision' ? '1,0' : x.id === 'analysis' ? 'f′' : x.id === 'vektoren' ? 'a⃗' : x.id === 'stochastik' ? 'B' : '✎', name: HUBS[x.id].h1, zeile: HUBS[x.id].beschreibung.split(':')[0], titel: HUBS[x.id].titel }));
 console.log(JSON.stringify([...w, ...h]));
 """], cwd=WURZEL).decode())
 

@@ -1,8 +1,5 @@
 """Browser-Test Desktop-Stil, Gruppe Vektoren (Bausteine aus vekUi.jsx): Ebenen-Visualizer, Rechnen mit Vektoren,
 Zwei/Drei Punkte, Abstände, Geraden im Raum, Winkel und Skalarprodukt, Kreuzprodukt.
-Seit 22.10. stehen Zwei Punkte, Geraden im Raum (Hub „Geraden“) und Drei Punkte, Ebenen im Raum (Hub „Ebenen“, funcVekHub.jsx)
-rechts neben einem Menü: die Arbeitsfläche ist dann die des Hubs, das Werkzeug selbst zeigt seinen Handy-Zweig (SchmalKontext) –
-seine Grafik darf dort skalieren.
 Prüft je Breite: Desktop-Zweig nur ab 840 px, zwei Spalten (Bild rechts neben den Einstellungen, oben bündig),
 Grafiken in echten Pixeln (viewBox-Breite = dargestellte Breite), keine Überbreite, keine Fehler.
 Am Desktop zusätzlich Bedienung: Regler, Modus-Wechsel, „Neue Aufgabe“, Prüfen. Siehe README.md."""
@@ -15,12 +12,12 @@ bekannt = lambda t: "ERR_TUNNEL" in t or "net::ERR" in t or "Failed to load reso
 
 # Pfad, Desktop-Kennung, Selektor der linken Spalte (erste Karte)
 SEITEN = [
-    ("/ebenen", "[data-vek-hub=ebenen]", "[data-vek-hub-menue]"),
+    ("/ebenen", "[data-ebenen=breit]", "[data-ebenen=breit] [data-vek-box]"),
     ("/vektorrechnen", "[data-vg=breit]", "[data-vg-arten]"),
-    ("/zwei-punkte", "[data-vek-hub=geraden]", "[data-vek-hub-menue]"),
-    ("/drei-punkte", "[data-vek-hub=ebenen]", "[data-vek-hub-menue]"),
+    ("/zwei-punkte", "[data-zp=breit]", "[data-zp-punkte]"),
+    ("/drei-punkte", "[data-dp=breit]", "[data-dp-punkte]"),
     ("/abstaende", "[data-abst=breit]", "[data-abst-objekt=von]"),
-    ("/geraden-im-raum", "[data-vek-hub=geraden]", "[data-vek-hub-menue]"),
+    ("/geraden-im-raum", "[data-ger-breit=probe]", "[data-ger-breit=probe] [data-vek-box]"),
     ("/winkel", "[data-ger-breit=skalar]", "[data-ger-breit=skalar] [data-vek-box]"),
     ("/kreuzprodukt", "[data-kp=breit]", "[data-kp-vektoren]"),
     ("/ebene-vs-ebene", "[data-eve=breit]", "[data-eve-karte='₁']"),
@@ -83,26 +80,23 @@ with sync_playwright() as pw:
         for pfad, kennung, links in SEITEN:
             n = f"{w} {pfad}"
             p = oeffne(ctx, pfad, w)
-            # Hub-Kennungen gibt es auch am Handy (Menü über der Übung); dort entscheidet die fehlende Arbeitsfläche
-            pruefe(p.locator(kennung).count() == (1 if desktop or "hub" in kennung else 0), f"{n}: falsches Layout (Desktop erwartet: {desktop})")
+            pruefe(p.locator(kennung).count() == (1 if desktop else 0), f"{n}: falsches Layout (Desktop erwartet: {desktop})")
             if not desktop:
                 pruefe(p.locator("[data-arbeitsflaeche]").count() == 0, f"{n}: Arbeitsfläche am Handy")
             ueberbreite(p, n)
             if desktop:
                 zwei_spalten(p, n, links)
-                if "hub" not in kennung:
-                    echte_pixel(p, n)
+                echte_pixel(p, n)
             p.close()
 
         if desktop:
             # Bedienung am Desktop
             p = oeffne(ctx, "/ebenen", w)
-            pruefe(p.locator("[data-vek-hub-uebung=raum]").count() == 1, f"{w} ebenen: Hub zeigt nicht „Ebenen im Raum“")
             p.get_by_role("button", name="a erhöhen", exact=True).click()
-            pruefe(p.get_by_text("n = (4 | 2 | 1)").count() >= 1, f"{w} ebenen: Regler a wirkt nicht")
+            pruefe(p.get_by_text("4x₁ + 2x₂ + x₃ = 6").count() >= 1, f"{w} ebenen: Regler a wirkt nicht")
             p.get_by_role("button", name="Würfel").click()
             p.locator("[data-vek-fall='∥ x₃-Achse']").click()
-            pruefe(p.get_by_text("n = (1 | 1 | 0)").count() >= 1, f"{w} ebenen: Beispiel wirkt nicht")
+            pruefe(p.get_by_text("x₁ + x₂ = 4").count() >= 1, f"{w} ebenen: Beispiel wirkt nicht")
             ueberbreite(p, f"{w} ebenen Beispiel")
             p.close()
 
@@ -114,13 +108,9 @@ with sync_playwright() as pw:
             p.close()
 
             p = oeffne(ctx, "/drei-punkte", w)
-            pruefe(p.locator("[data-vek-hub-uebung=dreipunkte]").count() == 1, f"{w} drei-punkte: Hub zeigt nicht „Drei Punkte“")
-            p.locator("[aria-controls=dp-weg-C]").click()
-            pruefe(p.locator("#dp-weg-C").is_visible(), f"{w} drei-punkte: Weg C klappt nicht auf")
-            p.locator("[data-vek-hub-menue] [data-vek-reiter=raum]").click()
-            p.wait_for_timeout(1500)
-            pruefe(p.locator("[data-vek-hub-uebung=raum]").count() == 1, f"{w} drei-punkte: Wechsel zu „Ebenen im Raum“ im Hub fehlt")
-            ueberbreite(p, f"{w} drei-punkte Hub")
+            p.locator("[data-vek-fall=C]").click()
+            pruefe(p.get_by_text("Rechenweg mit Stützpunkt C").count() == 1, f"{w} drei-punkte: Weg wechselt nicht")
+            pruefe(p.locator("[data-dp-weg=C]").count() == 1, f"{w} drei-punkte: Rechenweg C fehlt")
             p.close()
 
             p = oeffne(ctx, "/abstaende", w)
@@ -137,16 +127,15 @@ with sync_playwright() as pw:
 
             p = oeffne(ctx, "/geraden-im-raum", w)
             for tab in ["gg", "ge", "probe"]:
-                p.locator(f"[data-vek-hub-menue] [data-vek-reiter={tab}]").click()
-                p.wait_for_timeout(400)
-                box = p.locator(f"[data-vek-modus={tab}]")
+                p.locator(f"[data-vek-reiter={tab}]").click()
+                box = p.locator(f"[data-ger-breit={tab}]")
                 pruefe(box.is_visible(), f"{w} geraden: Modus {tab} nicht sichtbar")
                 if tab == "gg":
-                    pruefe(box.locator("[data-vek-fall=windschief]").count() == 1, f"{w} geraden gg: Übungsfall fehlt")
+                    pruefe(box.locator("[data-raum3=breit] [data-vek-fall=windschief]").count() == 1, f"{w} geraden gg: Übungsfall nicht in der Werkzeugleiste")
                 box.locator("[data-vek-tipp]").first.click()
-                pruefe(box.locator("[data-vek-ergebnis]").count() == 1, f"{w} geraden {tab}: Rechnung fehlt nach Vermutung")
-                box.locator("[data-vek-neu]").first.click()
-                pruefe(box.locator("[data-vek-ergebnis]").count() == 0, f"{w} geraden {tab}: Neue Aufgabe setzt nicht zurück")
+                pruefe(box.locator("[data-ger-rechnung] [data-vek-ergebnis]").count() == 1, f"{w} geraden {tab}: Rechnung fehlt nach Vermutung")
+                box.locator("[data-vek-neu]").click()
+                pruefe(box.locator("[data-ger-rechnung]").count() == 0, f"{w} geraden {tab}: Neue Aufgabe setzt nicht zurück")
                 ueberbreite(p, f"{w} geraden {tab}")
             p.close()
 
@@ -172,8 +161,7 @@ with sync_playwright() as pw:
             p.close()
 
             p = oeffne(ctx, "/zwei-punkte", w)
-            pruefe(p.locator("[data-vek-hub-uebung=zweipunkte]").count() == 1, f"{w} zwei-punkte: Hub zeigt nicht „Zwei Punkte“")
-            pruefe(p.locator("[aria-controls^=zp-weg-]").count() == 2, f"{w} zwei-punkte: beide Wege fehlen")
+            pruefe(p.locator("[data-zp-weg]").count() == 2, f"{w} zwei-punkte: beide Wege fehlen")
             p.locator("[data-vek-neu]").first.click()
             ueberbreite(p, f"{w} zwei-punkte neu")
             p.close()

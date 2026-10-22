@@ -483,26 +483,13 @@ const GERADEN_MODI = [
   { id: "ge", name: ["Gerade – Ebene", "Line – plane"], bild: "ge-schneidend" },
 ];
 
-/* Reiter-Daten für den Hub „Geraden“ (funcVekHub.jsx): id = modus-Prop */
-export const GERADEN_MODUS_LISTE = GERADEN_MODI.map((m) => ({ id: m.id, name: m.name[0], bild: m.bild }));
-
-const GERADEN_TITEL = {
-  probe: ["Punktprobe", "Point test"],
-  gg: ["Lage zweier Geraden", "Two lines"],
-  ge: ["Gerade und Ebene", "Line and plane"],
-};
-
-/* modus (optional, vom Hub): steuert die Übung von außen; dann ohne eigene Reiter und mit dem Titel der Übung */
-export function GeradenImRaum({ modus: modusAussen }) {
-  const [modusInnen, setModus] = useState("probe");
-  const gesteuert = !!modusAussen;
-  const modus = gesteuert ? modusAussen : modusInnen;
-  const titel = gesteuert ? zw(...GERADEN_TITEL[modus]) : zw("Geraden im Raum", "Lines in space");
+export function GeradenImRaum() {
+  const [modus, setModus] = useState("probe");
   return (
-    <VekSeite titel={titel}
+    <VekSeite titel={zw("Geraden im Raum", "Lines in space")}
       text={zw("Erst vermuten, dann rechnen: Liegt ein Punkt auf der Geraden, wie liegen zwei Geraden – und wie eine Gerade zur Ebene?", "Guess first, then calculate: is a point on the line, how do two lines lie – and a line relative to a plane?")}>
-      {!gesteuert && <ModusReiter label={zw("Geraden-Übungen", "Line exercises")} wert={modus} setWert={setModus}
-        modi={GERADEN_MODI.map((m) => ({ id: m.id, name: zw(m.name[0], m.name[1]), bild: m.bild }))} />}
+      <ModusReiter label={zw("Geraden-Übungen", "Line exercises")} wert={modus} setWert={setModus}
+        modi={GERADEN_MODI.map((m) => ({ id: m.id, name: zw(m.name[0], m.name[1]), bild: m.bild }))} />
       <div style={{ display: modus === "probe" ? "block" : "none" }}><Punktprobe /></div>
       <div style={{ display: modus === "gg" ? "block" : "none" }}><GeradeVsGerade /></div>
       <div style={{ display: modus === "ge" ? "block" : "none" }}><GeradeVsEbene /></div>

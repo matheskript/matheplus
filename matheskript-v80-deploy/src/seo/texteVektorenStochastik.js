@@ -14,12 +14,12 @@ export const TEXTE_VEKTOREN_STOCHASTIK = {
 
   vektorgenerator: {
     titel: "Vektoren Rechner: Addition, Skalarprodukt mit Rechenweg",
-    beschreibung: "Vektoren addieren, subtrahieren, mit Zahlen multiplizieren, Linearkombination, Skalar- und Kreuzprodukt – unbegrenzt neue Beispiele, jedes mit Rechenweg.",
+    beschreibung: "Vektoren addieren, subtrahieren, mit Zahlen multiplizieren, Linearkombination und Skalarprodukt – unbegrenzt neue Beispiele, jedes mit Rechenweg.",
     kurz: "Du wählst eine Rechenart und bekommst so viele Beispiele, wie du willst – jedes mit vollständigem Rechenweg.",
     text: [
       "Vektorrechnung beginnt mit wenigen Regeln: Vektoren werden komponentenweise addiert und subtrahiert, eine Zahl vor dem Vektor wird mit jeder Komponente multipliziert, und das Skalarprodukt fasst alles zu einer einzigen Zahl zusammen. Die Regeln sind einfach – Fehler entstehen bei Vorzeichen, Klammern und beim Verwechseln von Vektor und Zahl.",
-      "Hier wählst du eine Rechenart: Vektoraddition und -subtraktion, Skalarmultiplikation, Linearkombination k · a + j · b, Skalarprodukt oder Kreuzprodukt. Mit „Neues Beispiel“ erzeugst du beliebig viele Aufgaben, alle Koordinaten liegen zwischen −7 und 7. Jede Rechnung steht Schritt für Schritt da: einsetzen, ausmultiplizieren, komponentenweise zusammenfassen. Beim Skalarprodukt sagt dir das Werkzeug zusätzlich, ob die Vektoren senkrecht stehen und ob der Winkel spitz oder stumpf ist.",
-      "Am meisten lernst du, wenn du jedes Beispiel erst auf Papier rechnest und dann vergleichst. Beim Kreuzprodukt zeigt die Probe, dass das Ergebnis auf beiden Vektoren senkrecht steht. Eigene Vektoren gibst du im Kreuzprodukt-Rechner ein; die Abstände haben ein eigenes Werkzeug, zu dem du von hier direkt weiterkommst. Der Stoff gehört zur analytischen Geometrie der Kursstufe in Baden-Württemberg.",
+      "Hier wählst du eine Rechenart: Vektoraddition und -subtraktion, Skalarmultiplikation, Linearkombination k · a + j · b oder Skalarprodukt. Mit „Neues Beispiel“ erzeugst du beliebig viele Aufgaben, alle Koordinaten liegen zwischen −7 und 7. Jede Rechnung steht Schritt für Schritt da: einsetzen, ausmultiplizieren, komponentenweise zusammenfassen. Beim Skalarprodukt sagt dir das Werkzeug zusätzlich, ob die Vektoren senkrecht stehen und ob der Winkel spitz oder stumpf ist.",
+      "Am meisten lernst du, wenn du jedes Beispiel erst auf Papier rechnest und dann vergleichst. Kreuzprodukt und Abstände haben eigene Werkzeuge, zu denen du von hier direkt weiterkommst. Der Stoff gehört zur analytischen Geometrie der Kursstufe in Baden-Württemberg.",
     ],
     faq: [
       { f: "Wie addiert man zwei Vektoren?", a: "Komponentenweise: erste Komponente plus erste, zweite plus zweite, dritte plus dritte. Bei der Subtraktion genauso mit Minus." },
@@ -151,22 +151,6 @@ export const TEXTE_VEKTOREN_STOCHASTIK = {
       { f: "Wie berechnet man die Schnittgerade zweier Ebenen?", a: "Eine Möglichkeit: Richtungsvektor u = n₁ × n₂ bilden, dann einen gemeinsamen Punkt suchen, indem man eine Koordinate 0 setzt und das restliche Gleichungssystem löst. Alternativ löst man das System mit einem Parameter." },
       { f: "Wie berechnet man den Schnittwinkel zweier Ebenen?", a: "Über die Normalenvektoren: cos α = |n₁ · n₂| / (|n₁| · |n₂|). Der Betrag im Zähler sorgt dafür, dass der spitze Winkel zwischen 0° und 90° herauskommt." },
       { f: "Kann mein Kind damit eigene Aufgaben aus dem Unterricht nachrechnen?", a: "Ja, beide Ebenengleichungen lassen sich frei einstellen. Ihr Kind sieht dann Lage, Schnittgerade und Schnittwinkel und kann die eigene Rechnung Schritt für Schritt vergleichen." },
-    ],
-  },
-
-  hesse: {
-    titel: "Normalenform und Hessesche Normalenform verstehen",
-    beschreibung: "Normalenvektor, Normalenform (x − a) · n = 0 und Hessesche Normalenform mit 3D-Bild: warum die Gleichung die Ebene beschreibt und den Abstand liefert.",
-    kurz: "Drei Teile mit 3D-Bild: Normalenvektor, Normalenform und Hessesche Normalenform – mit Übungen zu Normalenvektor, Koordinatenform, Punktprobe und Abstand.",
-    text: [
-      "Die Hessesche Normalenform ist für viele Schüler eine Formel, die man auswendig lernt: durch die Länge des Normalenvektors teilen, Punkt einsetzen, Betrag nehmen. Diese Seite zeigt, warum das funktioniert. Der Gedanke dahinter ist einfach: Ein Normalenvektor n steht senkrecht auf der Ebene, also auf jedem Vektor, der in ihr liegt. Nimmt man einen festen Punkt A der Ebene, dann liegt für jeden anderen Punkt X der Ebene der Verbindungsvektor x − a in der Ebene – und sein Skalarprodukt mit n ist 0. Genau das sagt die Normalenform (x − a) · n = 0.",
-      "In drei Teilen baust du das selbst auf. Teil 1 zeigt den Normalenvektor und wie du ihn aus der Koordinatenform abliest. In Teil 2 schiebst du einen Punkt X mit zwei Reglern durch eine Ebene und hebst ihn mit einem dritten Regler heraus: Das 3D-Bild rechnet das Skalarprodukt live mit und du siehst, dass es genau dann 0 ist, wenn X in der Ebene liegt. Daraus entsteht in einem Schritt die Koordinatenform. Teil 3 teilt durch |n|: Jetzt ist derselbe Wert die Länge des Lots, also der Abstand des Punktes zur Ebene, mit Vorzeichen für die Seite.",
-      "Zu jedem Teil gibt es Übungen mit sofortiger Prüfung und vollständigem Rechenweg: Normalenvektor ablesen, d bestimmen, Punktprobe mit der Normalenform, Länge von n berechnen und den Abstand mit der HNF. Die Zahlen sind so gewählt, dass |n| und der Abstand ganze Zahlen sind – du rechnest auf Papier, die Seite vergleicht. Der Stoff gehört zur analytischen Geometrie der Kursstufe (Abitur Baden-Württemberg).",
-    ],
-    faq: [
-      { f: "Was ist der Unterschied zwischen Normalenform und Hessescher Normalenform?", a: "Beide beschreiben dieselbe Ebene mit einem Normalenvektor. In der Hesseschen Normalenform hat der Normalenvektor die Länge 1; dadurch liefert die linke Seite für jeden Punkt direkt seinen Abstand zur Ebene." },
-      { f: "Wie berechne ich den Abstand eines Punktes zu einer Ebene mit der HNF?", a: "Koordinatenform aufstellen, durch die Länge des Normalenvektors teilen, den Punkt einsetzen und den Betrag nehmen: d(P, E) = |n₁p₁ + n₂p₂ + n₃p₃ − d| / |n|." },
-      { f: "Hilft die Seite meinem Kind beim Verstehen oder nur beim Rechnen?", a: "Vor allem beim Verstehen: Das drehbare 3D-Bild zeigt, warum das Skalarprodukt genau in der Ebene 0 wird und warum derselbe Wert nach dem Teilen durch |n| der Abstand ist. Die Übungen danach prüfen, ob Ihr Kind das Verfahren selbst sicher anwenden kann." },
     ],
   },
 

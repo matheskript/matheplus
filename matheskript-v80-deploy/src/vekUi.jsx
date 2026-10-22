@@ -30,7 +30,7 @@
 import React from "react";
 import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
-import { Arbeitsflaeche, BildKarte, useBreite, useSchmal } from "./arbeitsflaeche.jsx";
+import { Arbeitsflaeche, BildKarte, useBreite } from "./arbeitsflaeche.jsx";
 
 const zw = (de, en) => (englisch() ? en : de);
 
@@ -114,10 +114,6 @@ function bildInhalt(art, f1, f2) {
     case "punkt": return <g>{L(14, 15, 30, 15, `${f1}55`, 1.2)}{L(22, 7, 22, 23, `${f1}55`, 1.2)}{Punkt(22, 15, f1, 4.6)}</g>;
     case "gerade": return <g>{L(5, 25, 39, 5, f1)}</g>;
     case "ebene": return Ebene(f1);
-    /* Hubs „Geraden“ und „Ebenen“ (22.10.): Gerade aus zwei Punkten, Ebene aus drei Punkten, Ebene mit Normalenvektor */
-    case "zweipunkte": return <g>{L(5, 25, 39, 5, VF.drei)}{Punkt(13, 20.3, f1, 3.8)}{Punkt(31, 9.7, f2, 3.8)}</g>;
-    case "dreipunkte": return <g>{Ebene(VF.drei)}{Punkt(11, 22, f1, 3.6)}{Punkt(31, 22, f2, 3.6)}{Punkt(28, 13, VF.drei, 3.6)}</g>;
-    case "normale": return <g>{Ebene(f1)}{Pfeil(22, 18.5, 22, 3, VF.drei)}{Punkt(22, 18.5, f1, 2.6)}</g>;
     case "kreuz": return <g>{Pfeil(10, 24, 38, 24, f1)}{Pfeil(10, 24, 22, 13, f2)}{Pfeil(10, 24, 10, 3, VF.drei)}</g>;
     case "summe": return <g>{Pfeil(5, 25, 20, 9, f1)}{Pfeil(20, 9, 39, 14, f2)}{Pfeil(5, 25, 39, 14, VF.drei)}</g>;
     case "linear": return <g><path d="M5 26 L19 8 L39 13 L25 31" fill="none" stroke={C.linie} strokeWidth="1.2" strokeDasharray="2.5 2.5" />{Pfeil(5, 26, 19, 8, f1)}{Pfeil(5, 26, 25, 31, f2)}{Pfeil(5, 26, 38, 13.5, VF.drei)}</g>;
@@ -146,21 +142,6 @@ const Wuerfel = ({ groesse = 18 }) => (
 /* ---------- Seite ---------- */
 
 export function VekSeite({ titel, text, children, oben = 28 }) {
-  const schmal = useSchmal();
-  /* Im Hub (rechte Spalte neben dem Menü): kein eigener Seitenrahmen, Titel als Zwischenüberschrift */
-  if (schmal) {
-    return (
-      <div data-vek-seite="schmal" style={{ minWidth: 0 }}>
-        {(titel || text) && (
-          <div style={{ marginBottom: 16 }}>
-            {titel && <h2 style={{ fontSize: 21, fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.2, color: C.tinte, margin: "0 0 6px" }}>{titel}</h2>}
-            {text && <p style={{ color: C.grau, fontSize: 14, lineHeight: 1.6, margin: 0, maxWidth: 540 }}>{text}</p>}
-          </div>
-        )}
-        {children}
-      </div>
-    );
-  }
   return (
     <div className="mx-auto px-6 pb-16" data-vek-seite="" style={{ maxWidth: 620, paddingTop: oben }}>
       {/* Titel in einem div: die Desktop-Regel in index.css (… > div) rückt ihn dann genauso ein wie die Boxen */}
@@ -179,13 +160,9 @@ export function VekSeite({ titel, text, children, oben = 28 }) {
 
 /* modi: [{ id, name, bild }] */
 /* stapel (nur Desktop, linke Spalte): Reiter untereinander, Bildzeichen links neben dem Namen */
-/* spalten: Zahl der Spalten am Handy (sonst eine je Modus); "auto" = so viele 96-px-Kacheln, wie nebeneinander passen (ab 5 Modi) */
-export function ModusReiter({ modi, wert, setWert, label, stapel = false, spalten }) {
-  const raster = stapel ? "minmax(0, 1fr)"
-    : spalten === "auto" ? "repeat(auto-fill, minmax(min(100%, 96px), 1fr))"
-    : `repeat(${spalten || modi.length}, minmax(0, 1fr))`;
+export function ModusReiter({ modi, wert, setWert, label, stapel = false }) {
   return (
-    <div role="tablist" aria-label={label} style={{ display: "grid", gridTemplateColumns: raster, gap: 8, marginBottom: stapel ? 0 : 18 }}>
+    <div role="tablist" aria-label={label} style={{ display: "grid", gridTemplateColumns: stapel ? "minmax(0, 1fr)" : `repeat(${modi.length}, minmax(0, 1fr))`, gap: 8, marginBottom: stapel ? 0 : 18 }}>
       {modi.map((m) => {
         const an = wert === m.id;
         return (

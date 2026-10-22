@@ -16,17 +16,6 @@
    ============================================================ */
 import { WERKZEUGE, ansichtenVon, werkzeug } from "./werkzeuge.js";
 
-/* Reiter des Vektoren-Bands: ein Reiter = ein Werkzeug oder ein Bündel (Hub mit linkem Menü, funcVekHub.jsx) */
-export const VEKTOREN_REITER = [
-  { id: "rechnen", name: "Rechnen", werkzeuge: ["vektorgenerator", "kreuzprodukt"] },
-  { id: "geraden", name: "Geraden", werkzeuge: ["zweipunkte", "geraden"] },
-  { id: "ebenen", name: "Ebenen", werkzeuge: ["dreipunkte", "ebenen"] },
-  { id: "winkel", name: "Winkel", werkzeuge: ["winkel"] },
-  { id: "ebenevsebene", name: "Zwei Ebenen", kurz: "E vs. E", werkzeuge: ["ebenevsebene"] },
-  { id: "abstaende", name: "Abstände", werkzeuge: ["abstaende"] },
-  { id: "hesse", name: "Normalenform", kurz: "HNF", werkzeuge: ["hesse"] },
-];
-
 export const KURSE = [
   /* Jedes der 60 Werkzeuge gehört zu mindestens einem Bereich – seit 21.10. hat jedes Werkzeug das Band (ein Kopf für alle).
      Im Band heißen diese Gruppen „Bereiche“ (Panel: „Deine Bereiche“); „Kurs“ ist nur noch das, was eine Lack-Kachel hat.
@@ -42,12 +31,10 @@ export const KURSE = [
   { id: "funktionen-kennen", gruppe: "Analysis", titel: "Funktionen kennen", stufe: "", zeile: "Grundlagen, Sinus, Wachstum",
     werkzeuge: ["funktionen", "sinus", "wachstum"],
     namen: { funktionen: "Grundlagen", sinus: "Sinus", wachstum: "Wachstum" } },
-  /* Vektoren (seit 22.10.): sieben Reiter in der Reihenfolge des Stoffs – Rechnen (mit Skalar- und Kreuzprodukt),
-     Geraden (Zwei Punkte, Punktprobe, Lage), Ebenen (Drei Punkte, Ebenen im Raum), dann Winkel, Zwei Ebenen, Abstände
-     und zum Schluss die Normalenform (Hesse). Ein Reiter kann mehrere Werkzeuge bündeln (reiter[].werkzeuge):
-     der Reiter bleibt aktiv, solange eines seiner Werkzeuge offen ist; werkzeuge = alle gebündelten Werkzeuge. */
-  { id: "vektoren-ober", gruppe: "Vektoren", titel: "Vektoren", stufe: "Oberstufe", zeile: "Rechnen, Geraden, Ebenen, Abstände, Normalenform",
-    reiter: VEKTOREN_REITER, werkzeuge: VEKTOREN_REITER.flatMap((r) => r.werkzeuge) },
+  { id: "vektoren-ober", gruppe: "Vektoren", titel: "Vektoren", stufe: "Oberstufe", zeile: "Rechnen, Geraden, Ebenen, Abstände",
+    werkzeuge: ["vektorgenerator", "kreuzprodukt", "winkel", "zweipunkte", "dreipunkte", "ebenen", "geraden", "ebenevsebene", "abstaende"],
+    namen: { vektorgenerator: "Rechnen", kreuzprodukt: "Kreuzprodukt", winkel: "Winkel", zweipunkte: "Zwei Punkte", dreipunkte: "Drei Punkte", ebenen: "Ebenen im Raum", geraden: "Lage", ebenevsebene: "Zwei Ebenen", abstaende: "Abstände" },
+    kurzNamen: { ebenen: "Ebenen", ebenevsebene: "E vs. E" } },
   { id: "stochastik-ober", gruppe: "Stochastik", titel: "Stochastik", stufe: "Oberstufe", zeile: "Bäume, Erwartungswert, Binomial, Tests",
     werkzeuge: ["kombinatorik", "vierfelder", "erwartungswert", "bernoulli", "hypothesentest", "normalverteilung"],
     namen: { kombinatorik: "Kombinatorik", erwartungswert: "Erwartungswert" } },
@@ -130,22 +117,6 @@ export function aktuellerKurs(ansicht, stand = lies()) {
 export function reiterFuer(k, aktivId) {
   const ids = k.werkzeuge.filter((id) => WERKZEUGE[id]);
   return aktivId && !ids.includes(aktivId) && WERKZEUGE[aktivId] ? [...ids, aktivId] : ids;
-}
-
-/* Reiter des Bands als Gruppen: [{ id, name, kurz, werkzeuge, an, oeffnen }].
-   Kurse ohne eigene Reiter-Liste: ein Reiter je Werkzeug (wie reiterFuer); ein fremdes aktives Werkzeug steht am Ende.
-   an = eines der gebündelten Werkzeuge ist offen; oeffnen = Werkzeug, das ein Klick öffnet (das erste des Bündels). */
-export function bandReiter(k, aktivId) {
-  const gruppen = k.reiter
-    ? k.reiter.map((r) => ({ ...r, werkzeuge: r.werkzeuge.filter((id) => WERKZEUGE[id]) })).filter((r) => r.werkzeuge.length)
-    : reiterFuer(k, aktivId).map((id) => ({ id, werkzeuge: [id] }));
-  if (k.reiter && aktivId && WERKZEUGE[aktivId] && !gruppen.some((r) => r.werkzeuge.includes(aktivId))) gruppen.push({ id: aktivId, werkzeuge: [aktivId] });
-  return gruppen.map((r) => {
-    const w = WERKZEUGE[r.werkzeuge[0]];
-    const an = !!aktivId && r.werkzeuge.includes(aktivId);
-    return { id: r.id, werkzeuge: r.werkzeuge, an, oeffnen: an ? aktivId : r.werkzeuge[0],
-      name: r.name || reiterName(k, r.id, w), kurz: r.kurz || r.name || reiterKurz(k, r.id, w) };
-  });
 }
 
 /* Alle Ansichten, die zu einem Kurs gehören (für func10: Band statt großem Seitenkopf) */

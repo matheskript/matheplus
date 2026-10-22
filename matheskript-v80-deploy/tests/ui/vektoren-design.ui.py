@@ -38,7 +38,7 @@ with sync_playwright() as p:
             pg.wait_for_timeout(1500)
             n = f"{s}@{w}"
             arbeitsflaeche = pg.locator("[data-arbeitsflaeche]").count() > 0   # Desktop-Zweig nach DESKTOP-STIL.md
-            pruefe(arbeitsflaeche or pg.locator("[data-vek-seite]:not([data-vek-seite=schmal])").count() == 1, f"{n}: Seitenrahmen fehlt")
+            pruefe(arbeitsflaeche or pg.locator("[data-vek-seite]").count() == 1, f"{n}: Seitenrahmen fehlt")
             if s == "geraden-im-raum":
                 pg.locator("[data-vek-reiter=gg]").click()
                 pg.wait_for_timeout(300)

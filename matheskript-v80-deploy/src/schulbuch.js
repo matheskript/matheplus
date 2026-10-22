@@ -115,7 +115,7 @@ export const THEMEN = {
   ksFkt: { titel: "Funktionen und ihre Graphen", zeile: "Transformationen, Asymptoten, trigonometrische Funktionen, Scharen", hilfen: [w("funktionen"), w("scharen"), w("kurvendiskussion"), w("sinus"), FS_FKT] },
   ksLgs: { titel: "Lineare Gleichungssysteme", zeile: "Gauß-Verfahren, Lösungsmengen, Funktionen bestimmen", hilfen: [w("lgs"), w("steckbrief"), KURS_VEK, FS_TERME] },
   ksGeraden: { titel: "Geraden und Ebenen", zeile: "Vektoren, Parameter- und Koordinatenform, Lagebeziehungen", hilfen: [w("vektorgenerator"), w("zweipunkte"), w("dreipunkte"), w("ebenen"), w("geraden"), w("ebenevsebene"), w("kreuzprodukt"), KURS_VEK, FS_VEK] },
-  ksAbstand: { titel: "Abstände und Winkel", zeile: "HNF, Abstand Punkt–Gerade, windschiefe Geraden, Schnittwinkel", hilfen: [w("abstaende"), w("hesse"), w("winkel"), w("kreuzprodukt"), KURS_VEK, FS_VEK] },
+  ksAbstand: { titel: "Abstände und Winkel", zeile: "HNF, Abstand Punkt–Gerade, windschiefe Geraden, Schnittwinkel", hilfen: [w("abstaende"), w("winkel"), w("kreuzprodukt"), KURS_VEK, FS_VEK] },
   ksWkt: { titel: "Grundlagen der Wahrscheinlichkeitsrechnung", zeile: "Kombinatorik, bedingte Wahrscheinlichkeit, Bernoulli, Binomialverteilung", hilfen: [w("textaufgaben"), w("kombinatorik"), w("vierfelder"), w("erwartungswert"), w("bernoulli"), FS_STO] },
   ksTest: { titel: "Testen mit der Binomialverteilung", zeile: "Ein- und zweiseitiger Hypothesentest, Fehler 1. und 2. Art", hilfen: [w("hypothesentest"), w("bernoulli"), FS_STO] },
   ksNormal: { titel: "Normalverteilung", zeile: "Glockenfunktion, Sigma-Regeln, stetige Zufallsgrößen", hilfen: [w("normalverteilung"), w("bernoulli"), w("hypothesentest"), FS_STO] },

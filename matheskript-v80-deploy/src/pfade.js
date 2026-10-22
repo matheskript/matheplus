@@ -41,7 +41,6 @@ export const WZ_SLUG = {
   dreipunkte: "drei-punkte",
   geraden: "geraden-im-raum",
   ebenevsebene: "ebene-vs-ebene",
-  hesse: "normalenform",
   vierfelder: "vierfeldertafel",
 };
 

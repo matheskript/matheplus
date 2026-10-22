@@ -47,16 +47,14 @@ const lazy = (lader, name) => lazyLaden(() => lader().then((m) => ({ default: m[
 
 /* Ansicht → { titel, groesse, rund, Komp } */
 export const WZ_SEITEN = {
-  /* Hubs (22.10.): Zwei Punkte + Geraden im Raum → Hub „Geraden“, Drei Punkte + Ebenen im Raum → Hub „Ebenen“ (funcVekHub.jsx) */
-  ebenen: { titel: "Ebenen im Raum", groesse: "clamp(28px, 8vw, 34px)", Komp: lazy(() => import("./funcVekHub.jsx"), "EbenenHub") },
+  ebenen: { titel: "Ebenen im Raum", groesse: "clamp(28px, 8vw, 34px)", Komp: lazy(() => import("./func16.jsx"), "EbenenVisualizer") },
   ebenevsebene: { titel: "Zwei Ebenen", groesse: "clamp(28px, 8vw, 34px)", Komp: lazy(() => import("./func19.jsx"), "EbeneVsEbene") },
   kreuzprodukt: { titel: "Kreuzprodukt", groesse: "clamp(28px, 8vw, 34px)", Komp: lazy(() => import("./func19.jsx"), "KreuzproduktRechner") },
   vektorgenerator: { titel: "Rechnen mit Vektoren", groesse: "clamp(28px, 8vw, 34px)", Komp: lazy(() => import("./func20.jsx"), "VektorGenerator") },
-  zweipunkte: { titel: "Zwei Punkte – eine Gerade", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcVekHub.jsx"), "GeradenHub") },
-  dreipunkte: { titel: "Drei Punkte – eine Ebene", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcVekHub.jsx"), "EbenenHub") },
+  zweipunkte: { titel: "Zwei Punkte – eine Gerade", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./func23.jsx"), "ZweiPunkteGerade") },
+  dreipunkte: { titel: "Drei Punkte – eine Ebene", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./func23.jsx"), "DreiPunkteEbene") },
   abstaende: { titel: "Abstände", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./func24.jsx"), "Abstaende") },
-  hesse: { titel: "Normalenform und Hesse", groesse: "clamp(24px, 7vw, 34px)", Komp: lazy(() => import("./funcHesse.jsx"), "HesseNormalenform") },
-  geraden: { titel: "Geraden im Raum", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcVekHub.jsx"), "GeradenHub") },
+  geraden: { titel: "Geraden im Raum", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcGeraden.jsx"), "GeradenImRaum") },
   winkel: { titel: "Winkel und Skalarprodukt", groesse: "clamp(26px, 7.6vw, 34px)", Komp: lazy(() => import("./funcGeraden.jsx"), "WinkelSkalarprodukt") },
   vektoren: { titel: "Vektoren", groesse: "clamp(28px, 8vw, 34px)", Komp: lazy(() => import("./func16.jsx"), "VektorenZentrum") },
   bernoulli: { titel: "Bernoulli-Kette", groesse: "clamp(28px, 8vw, 34px)", Komp: lazy(() => import("./func17.jsx"), "BernoulliBingo") },
