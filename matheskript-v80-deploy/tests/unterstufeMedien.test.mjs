@@ -24,6 +24,20 @@ test("jede Lerneinheit hat mindestens eine Animation, keine fremden Schlüssel",
   }
 });
 
+/* Motion-Norm (src/motion/NORM.md): jede Animation beantwortet eine Frage und endet mit einem Kernsatz */
+test("jede Animation hat eine Frage (≤ 70 Zeichen, mit ?) und einen Kernsatz (≤ 130 Zeichen)", () => {
+  const eigene = Object.entries(ANIM_WERKZEUGE).flatMap(([w, l]) => l.filter((a) => !a.aus).map((a) => ["werkzeug:" + w, a]));
+  const alle = [...Object.entries(ANIMATIONEN).flatMap(([id, l]) => l.map((a) => [id, a])), ...eigene];
+  for (const [id, a] of alle) {
+    const wo = `${id}/${a.szene} (${a.titel})`;
+    assert.equal(typeof a.frage, "string", `${wo}: frage fehlt`);
+    assert.ok(a.frage.trim().endsWith("?") && a.frage.length <= 70, `${wo}: frage endet nicht mit ? oder ist länger als 70 Zeichen: ${a.frage}`);
+    assert.equal(typeof a.kern, "string", `${wo}: kern fehlt`);
+    assert.ok(a.kern.length >= 20 && a.kern.length <= 130, `${wo}: kern kürzer als 20 oder länger als 130 Zeichen: ${a.kern}`);
+    assert.ok(!/\d\s*\/\s*\d/.test(a.frage + a.kern), `${wo}: Bruch mit Schrägstrich in Frage/Kern`);
+  }
+});
+
 test("jede Lerneinheit hat mindestens zwei Animationen mit verschiedenen Szenen", () => {
   for (const e of UNTERSTUFE_EINHEITEN) {
     const l = animationenFuer(e.id);
@@ -71,7 +85,8 @@ test("alle Szenen existieren und rendern zu jedem Zeitpunkt sauber", async () =>
       const texte = plan.abschnitte.filter((s) => s.text).map((s) => s.text);
       assert.ok(texte.length >= 1, `${id}/${a.szene}: kein Untertitel`);
       for (const t of texte) assert.ok(!/\d\s*\/\s*\d/.test(t), `${id}/${a.szene}: Bruch mit Schrägstrich im Untertitel: ${t}`);
-      assert.ok(plan.dauer >= 2500 && plan.dauer <= 30000, `${id}/${a.szene}: Dauer ${plan.dauer} ms`);
+      assert.ok(plan.dauer >= 2500 && plan.dauer <= 26000, `${id}/${a.szene}: Dauer ${plan.dauer} ms (Norm: 8–25 s, Untertitel kürzen oder Abschnitte zusammenlegen)`);
+      for (const t of texte) assert.ok(t.length <= 75, `${id}/${a.szene}: Untertitel länger als 75 Zeichen: ${t}`);
       for (const q of [0, 0.2, 0.4, 0.6, 0.8, 1]) {
         const t = plan.dauer * q, { Z, z } = fortschritt(plan, t);
         const svg = renderToStaticMarkup(React.createElement("svg", { viewBox: `0 0 ${B} ${S.h}` }, S.bild({ Z, z, p: a.p || {}, t })));

@@ -7,7 +7,7 @@
    Szenen: src/motion/szenen*.jsx (Vertrag in src/motion/kern.jsx), Zuordnung je Lerneinheit: src/unterstufeMedien.js.
    ============================================================ */
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { B, F, zeitplan, fortschritt, untertitel } from "./motion/kern.jsx";
+import { B, F, NACHLAUF, zeitplan, fortschritt, untertitel } from "./motion/kern.jsx";
 import { SZENEN_ZAHLEN } from "./motion/szenenZahlen.jsx";
 import { SZENEN_GEOMETRIE } from "./motion/szenenGeometrie.jsx";
 import { SZENEN_BRUECHE } from "./motion/szenenBrueche.jsx";
@@ -34,6 +34,12 @@ const STIL = `
   .usm-mitte{flex:1;min-width:0}
   .usm-titel{margin:0;font-size:11px;font-weight:800;letter-spacing:0.09em;text-transform:uppercase;color:#7A0032;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .usm-text{margin:2px 0 0;font-size:13.5px;line-height:1.45;font-weight:600;color:${F.tinte};min-height:1.45em}
+  .usm-frage{color:#7A0032}
+  .usm-frage::before{content:"?";display:inline-block;width:1.3em;height:1.3em;margin-right:6px;border-radius:999px;background:#7A0032;color:#FFD66B;font-size:11px;line-height:1.3em;text-align:center;font-weight:800;vertical-align:1px}
+  .usm-kern{margin:8px 0 0;padding:8px 11px;border-radius:12px;background:#FFF1C7;border:1px solid #E2B53C;color:#3A0019;font-size:13.5px;line-height:1.45;font-weight:700;animation:usm-auf .35s ease}
+  .usm-kern b{display:block;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:#8A6400;margin:0 0 2px}
+  @keyframes usm-auf{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion: reduce){.usm-kern{animation:none}}
   .usm-leiste{-webkit-appearance:none;appearance:none;width:100%;height:4px;margin:7px 0 0;border-radius:4px;cursor:pointer;
     background:linear-gradient(90deg,#E2B53C 0%,#E2B53C var(--usm-u,0%),#EADCE3 var(--usm-u,0%),#EADCE3 100%)}
   .usm-leiste::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:999px;background:#7A0032;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.3)}
@@ -60,6 +66,8 @@ const STIL = `
   .usm-vektoren .usm-fuss{border-top-color:#E3E8F2}
   .usm-vektoren .usm-knopf{background:linear-gradient(150deg,#0B2A5C 0%,#004D98 100%);color:#FFD66B;box-shadow:0 6px 14px -8px rgba(0,77,152,0.7)}
   .usm-vektoren .usm-titel{color:#004D98}
+  .usm-vektoren .usm-frage{color:#004D98}
+  .usm-vektoren .usm-frage::before{background:#004D98}
   .usm-vektoren .usm-leiste{background:linear-gradient(90deg,#E2B53C 0%,#E2B53C var(--usm-u,0%),#E3E8F2 var(--usm-u,0%),#E3E8F2 100%)}
   .usm-vektoren .usm-leiste::-webkit-slider-thumb{background:#004D98}
   .usm-vektoren .usm-leiste::-moz-range-thumb{background:#004D98}
@@ -88,8 +96,10 @@ const Icon = ({ art }) => (
 );
 
 /* thema: "vektoren" färbt den Abspieler blau (Oberstufe); kapitel: [{ k, name }] – Sprungmarken auf Abschnitte des Ablaufs;
-   tempo: Abspielgeschwindigkeit (0,5 = halb so schnell, die Szene selbst bleibt unverändert) */
-export function Motion({ szene, p = {}, titel, thema, kapitel, tempo = 1 }) {
+   tempo: Abspielgeschwindigkeit (0,5 = halb so schnell, die Szene selbst bleibt unverändert)
+   frage: die Frage, die die Animation beantwortet – steht vor dem ersten Abspielen unter dem Standbild
+   kern:  der Kernsatz (die eine Einsicht) – erscheint in der Ruhe am Ende und bleibt im Standbild stehen */
+export function Motion({ szene, p = {}, titel, thema, kapitel, tempo = 1, frage, kern }) {
   React.useInsertionEffect(stilSetzen, []);
   const S = SZENEN[szene];
   const plan = useMemo(() => (S ? zeitplan(S.ablauf(p)) : null), [S, p]);
@@ -141,6 +151,11 @@ export function Motion({ szene, p = {}, titel, thema, kapitel, tempo = 1 }) {
   };
   const { Z, z } = fortschritt(plan, t);
   const text = untertitel(plan, t);
+  /* Vor dem ersten Abspielen: die Frage; in der Ruhe am Ende (und im Standbild danach): der Kernsatz */
+  const vorher = !lief && !gestartet.current;
+  const schluss = t >= dauer - NACHLAUF - 1;
+  const zeigeFrage = !!frage && vorher;
+  const zeigeKern = !!kern && ((schluss && !vorher) || reduziert());
   const proz = `${((t / dauer) * 100).toFixed(1)}%`;
   const springe = (k) => { const a = plan.abschnitte.find((x) => x.k === k); if (!a) return; gestartet.current = true; setT(a.start); setLaeuft(true); };
   const aktuellesKapitel = kapitel && [...kapitel].reverse().find((kp) => { const a = plan.abschnitte.find((x) => x.k === kp.k); return a && a.start <= t + 1; });
@@ -155,7 +170,8 @@ export function Motion({ szene, p = {}, titel, thema, kapitel, tempo = 1 }) {
         </button>
         <div className="usm-mitte">
           {titel && <p className="usm-titel">{titel}</p>}
-          <p className="usm-text" aria-live="polite">{mitPfeilen(text)}</p>
+          <p className={`usm-text${zeigeFrage ? " usm-frage" : ""}`} aria-live="polite" data-usm-text={zeigeFrage ? "frage" : "text"}>{zeigeFrage ? frage : mitPfeilen(text)}</p>
+          {zeigeKern && <p className="usm-kern" data-usm-kern=""><b>Das Wichtigste</b>{mitPfeilen(kern)}</p>}
           <input type="range" className="usm-leiste" min="0" max={Math.round(dauer)} step="10" value={Math.round(t)} aria-label="Animation spulen"
             style={{ "--usm-u": proz }} onChange={(e) => { gestartet.current = true; setLaeuft(false); setT(Number(e.target.value)); }} />
           {kapitel && kapitel.length > 0 && (

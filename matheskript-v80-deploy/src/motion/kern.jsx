@@ -66,10 +66,17 @@ export const de = (n, stellen) => {
 };
 
 /* ---------- Ablauf → Zeiten ---------- */
-export const NACHLAUF = 900;   // ms Ruhe am Ende
+export const NACHLAUF = 1600;   // ms Ruhe am Ende (Schlussbild + Kernsatz lesen)
+/* Lesezeit eines Untertitels: ein Fünftklässler liest etwa 3 Zeichen je 170 ms, dazu Anlauf.
+   Ein Abschnitt mit Text dauert nie kürzer als seine Lesezeit – die Bewegung darin wird dann
+   entsprechend gedehnt (Z/z laufen weiter von 0 bis 1). So ist kein Satz schneller weg, als man ihn lesen kann. */
+export const lesedauer = (text) => (text ? 1000 + 52 * String(text).length : 0);
 export function zeitplan(ablauf) {
   let s = 0;
-  const abschnitte = ablauf.map((a) => { const o = { ...a, start: s, ende: s + a.ms }; s += a.ms; return o; });
+  const abschnitte = ablauf.map((a) => {
+    const ms = Math.max(a.ms || 0, lesedauer(a.text));
+    const o = { ...a, ms, start: s, ende: s + ms }; s += ms; return o;
+  });
   return { abschnitte, dauer: s + NACHLAUF };
 }
 export function fortschritt(plan, t) {
