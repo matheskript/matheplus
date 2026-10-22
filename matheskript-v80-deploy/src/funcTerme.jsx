@@ -9,28 +9,32 @@
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useStateGebucht } from "./buchung.jsx";
 import { C } from "./base1.jsx";
 import { M } from "./func3.jsx";
-import { parse, kompiliere, hatX, hatBox, alsTex } from "./func12.jsx";
+import { parse, kompiliere, hatX, hatBox } from "./func12.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { Auswahl, GrosserKnopf, KleinerLink, Rueck, TextFeld, hilfeKontext, hinweis, kicker, zw } from "./ui2.jsx";
 import { qLies, qNum } from "./rechnen2.js";
 import { neuAusklammern, neuBinomisch, neuBruch, neuPotenz, neuTerme } from "./termgen.js";
 import { useDesktop } from "./arbeitsflaeche.jsx";
 import { useKarte } from "./funcZahlenDesktop.jsx";
+import { TermFeldMittel } from "./funcTermFeldMittel.jsx";
 
 const loesungBox = { background: C.sand, borderRadius: 14, padding: "10px 14px", marginTop: 10 };
 const zeile = { display: "flex", alignItems: "center", gap: 6, fontSize: 17, lineHeight: 1.9, whiteSpace: "nowrap", overflowX: "auto", color: C.tinte };
 
 /* ---------- Eingabe lesen ---------- */
 const normal = (t) => String(t).replace(/[−–]/g, "-").replace(/[·×]/g, "*").replace(/²/g, "^2").replace(/³/g, "^3").replace(/:/g, "/").replace(/,/g, ".");
-export function leseTerm(text) {
+export function leseTerm(text, { feld = false } = {}) {
   if (!text.trim()) return { fehler: zw("Bitte einen Term eintippen.", "Please type a term.") };
   const n = parse(normal(text));
-  if (!n || hatBox(n)) return { fehler: zw("Das lässt sich nicht lesen. Nutze Klammern, * (oder ·) fürs Malnehmen, / für Brüche und ^ für Potenzen.", "I can’t read that. Use brackets, * for multiplication, / for fractions and ^ for powers.") };
-  if (!hatX(n)) return { fehler: zw("Der Term soll x enthalten.", "The term should contain x.") };
+  if (!n || hatBox(n)) return { fehler: feld
+    ? zw("Das lässt sich noch nicht lesen. Fehlt nach einem Rechenzeichen etwas, oder steht eine Klammer allein?", "I can’t read that yet. Is something missing after an operator, or is a bracket on its own?")
+    : zw("Das lässt sich nicht lesen. Nutze Klammern, * (oder ·) fürs Malnehmen, / für Brüche und ^ für Potenzen.", "I can’t read that. Use brackets, * for multiplication, / for fractions and ^ for powers.") };
+  // Ohne x ist erlaubt: „Terme vereinfachen“ kann eine Zahl ergeben (z. B. (x + 2)(x + 5) − x(x + 7) = 10)
+  if (!feld && !hatX(n)) return { fehler: zw("Der Term soll x enthalten.", "The term should contain x.") };
   return { n, f: kompiliere(n) };
 }
 
@@ -133,7 +137,8 @@ function Aufgabe({ au, neu, titel, kopf, platzhalter, hilfeText, einleitung }) {
   const [stufe, setStufe] = useState(0);                // Index des aktuellen Vorschritts, danach Eingabe
   const [wahl, setWahl] = useState("");
   const [liste, setListe] = useState("");
-  const [eing, setEing] = useState("");
+  const [leer, setLeer] = useState(true);   // Termeingabe Mittelstufe (funcTermFeldMittel.jsx) statt Textfeld
+  const feld = useRef(null);
   const [rueck, setRueck] = useStateGebucht(null);
   const [vers, setVers] = useState(0);
   const [zeigen, setZeigen] = useState(false);
@@ -156,7 +161,10 @@ function Aufgabe({ au, neu, titel, kopf, platzhalter, hilfeText, einleitung }) {
     setRueck({ art: "schlecht", text: `${zw("Noch nicht.", "Not yet.")} ${stufenHinweis(v.hinweise, n)}` });
   };
   const pruefen = () => {
-    const t = leseTerm(eing);
+    const e = feld.current?.lesen();
+    if (!e || e.leer) { setRueck({ art: "warn", text: zw("Bitte einen Term eintippen.", "Please type a term.") }); return; }
+    if (e.fehler) { setRueck({ art: "warn", text: e.fehler }); return; }
+    const t = leseTerm(e.text, { feld: true });
     if (t.fehler) { setRueck({ art: "warn", text: t.fehler }); return; }
     const r = pruefeForm(au, t.n, t.f);
     if (r.ok) { setRueck({ art: "gut", text: zw("Richtig – gleichwertig und in der verlangten Form.", "Correct – equivalent and in the required form.") }); setErledigt(true); return; }
@@ -166,8 +174,6 @@ function Aufgabe({ au, neu, titel, kopf, platzhalter, hilfeText, einleitung }) {
     const mitProbe = n >= 2 ? ` ${zw("Probe bei x =", "Check at x =")} ${probe}: ${zw("Aufgabenterm", "given term")} ${rd(au.ref(probe))}, ${zw("dein Term", "your term")} ${rd(t.f(probe))}.` : "";
     setRueck({ art: "schlecht", text: `${zw("Noch nicht gleichwertig.", "Not equivalent yet.")} ${stufenHinweis(au.hinweise, n)}${mitProbe}` });
   };
-  let gelesen = "";
-  if (eing.trim()) { const t = parse(normal(eing)); if (t && !hatBox(t)) { try { gelesen = alsTex(t); } catch { gelesen = ""; } } }
 
   const hilfe = hilfeKontext({
     id: `terme-${au.id}`, aufgabe: hilfeText,
@@ -210,16 +216,16 @@ function Aufgabe({ au, neu, titel, kopf, platzhalter, hilfeText, einleitung }) {
       {!imVor && (
         <div>
           <p style={{ fontSize: 13, fontWeight: 700, color: C.grau, margin: "12px 0 6px" }}>{vor.length + 1}. {zw("Dein Ergebnis", "Your result")}</p>
-          <TextFeld wert={eing} setWert={(x) => { setEing(x); setRueck(null); setErledigt(false); }} label={zw("Dein Term", "Your term")} platzhalter={platzhalter} onEnter={pruefen} />
-          {gelesen && <div style={{ ...zeile, fontSize: 15, color: C.grau, marginTop: 4 }}><span>{zw("Gelesen als:", "Read as:")}</span> <M t={gelesen} /></div>}
-          <GrosserKnopf onClick={pruefen} disabled={!eing.trim()}>{zw("Prüfen", "Check")}</GrosserKnopf>
+          <TermFeldMittel ref={feld} label={zw("Dein Term", "Your term")} platzhalter={platzhalter} onOk={pruefen}
+            onAenderung={({ leer: l }) => { setLeer(l); setRueck(null); setErledigt(false); }} />
+          <GrosserKnopf onClick={pruefen} disabled={leer}>{zw("Prüfen", "Check")}</GrosserKnopf>
           {rueck && <Rueck art={rueck.art}>{rueck.text}</Rueck>}
         </div>
       )}
       {!zeigen
         ? <KleinerLink onClick={() => setZeigen(true)}>{zw("Lösung zeigen", "Show solution")}</KleinerLink>
         : (
-          <div style={loesungBox}>
+          <div style={loesungBox} data-terme-loesung={au.zielTex ?? au.loesung[au.loesung.length - 1]}>
             {au.loesung.map((z, i) => <div key={i} style={zeile}>{i > 0 && <span>=</span>}<M t={z} /></div>)}
             {au.ausschluss && <p style={{ fontSize: 13, color: C.grau, margin: "4px 0 0" }}>{zw("Gilt für", "Valid for")} x ≠ {au.ausschluss.map((z) => String(z).replace("-", "−")).join("; ")}</p>}
           </div>
@@ -250,7 +256,7 @@ function BinomischKarte() {
       <Aufgabe key={au.id} au={au} neu={() => setAu(neuBinomisch(rich))} titel={zw("Binomische Formeln", "Binomial formulas")}
         einleitung={ausm ? zw("Erkenne die Formel und multipliziere aus.", "Recognise the formula and expand.") : zw("Erkenne die Formel und schreibe den Term als Produkt.", "Recognise the formula and write the term as a product.")}
         kopf={ausm ? zw("Multipliziere aus und fasse zusammen:", "Expand and collect:") : zw("Schreibe als Produkt (Klammern):", "Write as a product (brackets):")}
-        platzhalter={ausm ? "x^2 + 6x + 9" : "(x+3)^2"} hilfeText="binomische Formeln ausmultiplizieren faktorisieren" />
+        platzhalter={ausm ? "x² + 6x + 9" : "(x + 3)²"} hilfeText="binomische Formeln ausmultiplizieren faktorisieren" />
     </div>
   );
 }
@@ -275,16 +281,16 @@ export function TermeUndPotenzgesetze() {
       </div>
       <div style={{ display: modus === "terme" ? "block" : "none" }}>
         <Kopie erzeuger={neuTerme} titel={zw("Terme vereinfachen", "Simplify terms")} einleitung={zw("Klammern auflösen und gleichartige Terme zusammenfassen.", "Expand brackets and collect like terms.")}
-          kopf={zw("Vereinfache so weit wie möglich:", "Simplify as far as possible:")} platzhalter="-2x + 2" hilfeText="Terme vereinfachen Klammern auflösen zusammenfassen" />
+          kopf={zw("Vereinfache so weit wie möglich:", "Simplify as far as possible:")} platzhalter="−2x + 2" hilfeText="Terme vereinfachen Klammern auflösen zusammenfassen" />
       </div>
       <div style={{ display: modus === "klammer" ? "block" : "none" }}>
         <Kopie erzeuger={neuAusklammern} titel={zw("Ausklammern", "Factor out")} einleitung={zw("Den größten gemeinsamen Faktor vor eine Klammer ziehen.", "Pull the greatest common factor in front of a bracket.")}
-          kopf={zw("Klammere so viel wie möglich aus:", "Factor out as much as possible:")} platzhalter="3x(x+2)" hilfeText="ausklammern gemeinsamer Faktor" />
+          kopf={zw("Klammere so viel wie möglich aus:", "Factor out as much as possible:")} platzhalter="3x(x + 2)" hilfeText="ausklammern gemeinsamer Faktor" />
       </div>
       <div style={{ display: modus === "binom" ? "block" : "none" }}><BinomischKarte /></div>
       <div style={{ display: modus === "potenz" ? "block" : "none" }}>
         <Kopie erzeuger={neuPotenz} titel={zw("Potenzgesetze", "Power laws")} einleitung={zw("Wähle das passende Gesetz und fasse zu einer Potenz zusammen.", "Pick the matching law and combine into one power.")}
-          kopf={zw("Fasse zusammen:", "Combine:")} platzhalter="x^9" hilfeText="Potenzgesetze Exponenten addieren subtrahieren" />
+          kopf={zw("Fasse zusammen:", "Combine:")} platzhalter="x⁹" hilfeText="Potenzgesetze Exponenten addieren subtrahieren" />
       </div>
       <div style={{ display: modus === "bruch" ? "block" : "none" }}>
         <Kopie erzeuger={neuBruch} titel={zw("Bruchterme", "Rational terms")} einleitung={zw("Erst die verbotenen Werte, dann kürzen – nur Faktoren, nie Summanden.", "First the forbidden values, then cancel – factors only, never summands.")}
