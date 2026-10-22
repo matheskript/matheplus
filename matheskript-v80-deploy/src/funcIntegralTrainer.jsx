@@ -60,7 +60,7 @@ function Rechenzeile({ z }) {
 }
 
 /* ---------- Eingaben ---------- */
-function ZahlEingabe({ label, wert, setWert, onOk, status, anzahl, werte, setWerte }) {
+function ZahlEingabe({ label, ueber, wert, setWert, onOk, status, anzahl, werte, setWerte }) {
   const rahmen = status === "falsch" ? C.signal : C.linie;
   const feld = { height: 48, borderRadius: 12, border: `1.5px solid ${rahmen}`, padding: "0 10px", fontSize: 17, fontWeight: 700, fontFamily: "inherit", color: C.tinte, background: C.weiss, minWidth: 0, boxSizing: "border-box" };
   const ok = (
@@ -84,9 +84,14 @@ function ZahlEingabe({ label, wert, setWert, onOk, status, anzahl, werte, setWer
   return (
     <div className="it-zahlreihe">
       <span className="it-zahllabel"><M t={label} /></span>
-      <MatheFeld modus="formel" value={wert} aria-label={label} placeholder="Ergebnis" autoCapitalize="off" autoCorrect="off" spellCheck="false"
-        onChange={(e) => setWert(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") onOk(); }} style={{ ...feld, flex: "1 1 120px", maxWidth: 220 }} />
-      {ok}
+      <span className="it-zahlbox">
+        {ueber && <span className="it-zahlueber"><M t={ueber} /></span>}
+        <span className="it-zahlbox-zeile">
+          <MatheFeld modus="formel" value={wert} aria-label={ueber || label} placeholder="Ergebnis" autoCapitalize="off" autoCorrect="off" spellCheck="false"
+            onChange={(e) => setWert(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") onOk(); }} style={{ ...feld, flex: "1 1 110px", maxWidth: 220 }} />
+          {ok}
+        </span>
+      </span>
     </div>
   );
 }
@@ -140,7 +145,7 @@ function Schritt({ nr, s, zustand, st, training, offen, setOffen, aendern, pruef
         )}
         {training && aktiv && (s.art === "zahl" || s.art === "zahlen") && (
           <div style={{ marginTop: 10 }}>
-            <ZahlEingabe label={labelTex} wert={st.text} setWert={(t) => aendern({ text: t, status: null, hinweis: "" })} onOk={pruefen} status={status}
+            <ZahlEingabe label={labelTex} ueber={s.ueber} wert={st.text} setWert={(t) => aendern({ text: t, status: null, hinweis: "" })} onOk={pruefen} status={status}
               anzahl={s.art === "zahlen" ? s.anzahl : 0} werte={st.werte} setWerte={(w) => aendern({ werte: w, status: null, hinweis: "" })} />
             {st.versuche > 0 && <button type="button" className="it-loesung klein" onClick={zeigen}>Lösung zeigen</button>}
           </div>
@@ -549,7 +554,11 @@ const IT_CSS = `
 .it-hinweis[data-gut="ja"]{background:#EEF8F2;color:${C.smaragd};border-color:#CFE8DA}
 .it-loesung{width:100%;height:44px;margin-bottom:10px;border-radius:14px;border:1.5px solid ${C.linie};cursor:pointer;font-family:inherit;font-size:14.5px;font-weight:600;color:${C.see};background:#fff}
 .it-loesung.klein{width:auto;height:36px;padding:0 14px;margin:8px 0 0;font-size:13.5px}
-.it-zahlreihe{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.it-zahlreihe{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap}
+.it-zahlreihe>.it-zahllabel{min-height:48px;display:flex;align-items:center}
+.it-zahlbox{display:flex;flex-direction:column;gap:4px;flex:1 1 170px;min-width:0}
+.it-zahlbox-zeile{display:flex;align-items:center;gap:10px}
+.it-zahlueber{font-size:14px;font-weight:700;color:${C.see};padding-left:4px;white-space:nowrap}
 .it-zahllabel{font-size:17px;font-weight:700;color:${C.tinte};white-space:nowrap}
 .it-zahlen{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap}
 .it-zahlfeld{display:flex;flex-direction:column;gap:2px;flex:1 1 72px;max-width:110px;font-size:14px;font-weight:700;color:${C.tinte}}

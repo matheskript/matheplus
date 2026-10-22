@@ -608,7 +608,7 @@ function bestimmtSchritte({ FTex, FText, FbSt, FaSt, Fb, Fa, FbTex, FaTex, I, IT
       pruefen: zahlPruefer(Fa, FaTex, [{ wert: fa, art: "f", hinweis: "Das ist f(a) – eingesetzt wird in die Stammfunktion F, nicht in f." }]),
     },
     {
-      id: "I", titel: "Hauptsatz: F(b) − F(a)", frage: "Hauptsatz: $\\int_{a}^{b} f(x)\\,dx = F(b) − F(a)$.", label: "Integral =", art: "zahl",
+      id: "I", titel: "Hauptsatz einsetzen", frage: "Hauptsatz: $\\int_{a}^{b} f(x)\\,dx = F(b) − F(a)$.", label: `${intTex(aTex, bTex, inner)} =`, ueber: `F(${bTex}) − F(${aTex})`, art: "zahl",
       zeilen: [z([intTex(aTex, bTex, inner), `= \\left[${FTex}\\right]_{${aTex}}^{${bTex}}`]), z(IZeile, notizI)],
       antwortTex: ITex.replace(/^≈ /, ""), soll: I, fokus: "I",
       pruefen: zahlPruefer(I, ITex, [
