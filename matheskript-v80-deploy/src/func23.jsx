@@ -8,7 +8,7 @@
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useStateGebucht } from "./buchung.jsx";
 import { WeiterKnopf, WeiterMit } from "./funcWerkzeuge.jsx";
 import { C } from "./base1.jsx";
@@ -17,6 +17,7 @@ import { FA, FB, FE, FS, Gl, Name, Raum3, Schritt, Vek, k, koordText, n } from "
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { AufklappZeichen } from "./aufklappen.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
+import { SprachGruppe, SprachKnopf } from "./funcSprache.jsx";
 import { FallWahl, HauptKnopf, ObjektBox, ObjektReihe, Tafel, VF, VekArbeit, VekSeite, WuerfelKnopf } from "./vekUi.jsx";
 import { ErgebnisReihe, FeinKarte, useDesktop } from "./arbeitsflaeche.jsx";
 
@@ -129,13 +130,14 @@ export function Feld({ wert, setWert, label, farbe = C.see, breite = 40, schmal 
 export function EbenenZeile({ name, w, setze, farbe = C.see, textFarbe, labelVor = "", style }) {
   const lab = (b) => (labelVor ? `${labelVor} ${b}` : b);
   return (
-    <div style={{ display: "flex", flexWrap: "nowrap", alignItems: "center", gap: 3, fontSize: "clamp(12px, 3.9vw, 16px)", fontWeight: 800, whiteSpace: "nowrap", color: textFarbe || farbe, ...style }}>
+    <SprachGruppe block abstand={6} groesse={30} farbe={farbe} titel="Ebene sprechen (a, b, c, d)"
+      stil={{ flexWrap: "nowrap", gap: 3, fontSize: "clamp(12px, 3.9vw, 16px)", fontWeight: 800, whiteSpace: "nowrap", color: textFarbe || farbe, ...style }}>
       <span>{name}:</span>
       <Feld wert={w[0]} setWert={setze(0)} label={lab("a")} farbe={farbe} schmal /><span>x₁ +</span>
       <Feld wert={w[1]} setWert={setze(1)} label={lab("b")} farbe={farbe} schmal /><span>x₂ +</span>
       <Feld wert={w[2]} setWert={setze(2)} label={lab("c")} farbe={farbe} schmal /><span>x₃ =</span>
       <Feld wert={w[3]} setWert={setze(3)} label={lab("d")} farbe={farbe} breite={48} schmal />
-    </div>
+    </SprachGruppe>
   );
 }
 
@@ -143,7 +145,7 @@ export function EbenenZeile({ name, w, setze, farbe = C.see, textFarbe, labelVor
 export function PunktEingabe({ name, farbe, werte, setWerte }) {
   const setze = (i) => (v) => { const w = [...werte]; w[i] = v; setWerte(w); };
   return (
-    <div style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 17, fontWeight: 800, color: farbe }}>
+    <SprachGruppe farbe={farbe} titel={`Punkt ${name} sprechen`} stil={{ gap: 4, fontSize: 17, fontWeight: 800, color: farbe }}>
       <span style={{ marginRight: 2 }}>{name}(</span>
       {[0, 1, 2].map((i) => (
         <React.Fragment key={i}>
@@ -152,7 +154,7 @@ export function PunktEingabe({ name, farbe, werte, setWerte }) {
         </React.Fragment>
       ))}
       <span>)</span>
-    </div>
+    </SprachGruppe>
   );
 }
 
@@ -160,19 +162,23 @@ export function PunktEingabe({ name, farbe, werte, setWerte }) {
 export function PunktBox({ name, farbe, werte, setWerte, art = "Punkt" }) {
   const setze = (i) => (v) => { const w = [...werte]; w[i] = v; setWerte(w); };
   const text = farbe === VF.zwei || farbe === C.gruen ? VF.zweiText : farbe;
+  const gruppe = useRef(null);
+  /* Mikrofon im Kopf der Box (die Zeile mit den drei Feldern ist am Handy zu schmal dafür); Gruppe = die ganze Box */
   return (
-    <ObjektBox farbe={farbe} name={name} art={art}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 3, fontSize: 18, fontWeight: 700, color: C.hellgrau }}>
-        <span>(</span>
-        {[0, 1, 2].map((i) => (
-          <React.Fragment key={i}>
-            {i > 0 && <span style={{ fontWeight: 400 }}>|</span>}
-            <Feld wert={werte[i]} setWert={setze(i)} label={`${name} Koordinate x${i + 1}`} farbe={text} breite={40} />
-          </React.Fragment>
-        ))}
-        <span>)</span>
-      </div>
-    </ObjektBox>
+    <div ref={gruppe} data-sprach-gruppe style={{ display: "contents" }}>
+      <ObjektBox farbe={farbe} name={name} art={art} rechts={<SprachKnopf gruppe={() => gruppe.current} groesse={28} farbe={text} titel={`Punkt ${name} sprechen`} />}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 3, fontSize: 18, fontWeight: 700, color: C.hellgrau }}>
+          <span>(</span>
+          {[0, 1, 2].map((i) => (
+            <React.Fragment key={i}>
+              {i > 0 && <span style={{ fontWeight: 400 }}>|</span>}
+              <Feld wert={werte[i]} setWert={setze(i)} label={`${name} Koordinate x${i + 1}`} farbe={text} breite={40} />
+            </React.Fragment>
+          ))}
+          <span>)</span>
+        </div>
+      </ObjektBox>
+    </div>
   );
 }
 
@@ -180,12 +186,12 @@ export function PunktBox({ name, farbe, werte, setWerte, art = "Punkt" }) {
 export function VektorFeld({ name, farbe, werte, setWerte }) {
   const setze = (i) => (v) => { const w = [...werte]; w[i] = v; setWerte(w); };
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 16, fontWeight: 800 }}>
+    <SprachGruppe farbe={farbe} titel="Vektor sprechen" abstand={6} stil={{ fontSize: 16, fontWeight: 800 }}>
       {name}
       <span style={{ display: "inline-flex", flexDirection: "column", gap: 3, padding: "2px 4px", borderLeft: `1.8px solid ${farbe}`, borderRight: `1.8px solid ${farbe}`, borderRadius: 8 }}>
         {[0, 1, 2].map((i) => <Feld key={i} wert={werte[i]} setWert={setze(i)} label={`${name} Komponente ${i + 1}`} farbe={farbe} breite={44} />)}
       </span>
-    </span>
+    </SprachGruppe>
   );
 }
 

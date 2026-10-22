@@ -11,6 +11,7 @@ import { MS } from "./mathText.jsx";
 export { MS };
 import { pNum, qTex } from "./rechnen2.js";
 import { MatheFeld } from "./matheTastatur.jsx";
+import { SprachGruppe } from "./funcSprache.jsx";
 
 const EN = englisch();
 export const zw = (de, en) => (EN ? en : de);
@@ -23,12 +24,14 @@ export const zeileStil = { display: "flex", alignItems: "center", gap: 6, fontSi
 /* Eingabefeld für ganze Zahlen, Brüche (7/3) und Dezimalzahlen (2,5) */
 export function ZahlFeld({ wert, setWert, label, breite = 92, platzhalter = "", onEnter, farbe = C.see }) {
   return (
+    <SprachGruppe farbe={farbe} titel={`${label}: Zahl sprechen`} abstand={6} groesse={34}>
     <MatheFeld modus="bruch" value={wert} aria-label={label} placeholder={platzhalter}
       onChange={(e) => setWert(e.target.value.replace(/[^0-9\-−,./ ]/g, "").slice(0, 14))}
       onFocus={(e) => e.target.select()}
       onKeyDown={(e) => { if (e.key === "Enter" && onEnter) onEnter(); }}
       style={{ width: breite, height: 42, textAlign: "center", fontSize: 16, fontWeight: 700, fontFamily: "inherit", color: farbe, boxSizing: "border-box",
         border: `1.5px solid ${farbe}66`, borderRadius: 11, background: `${farbe}0D`, outline: "none" }} />
+    </SprachGruppe>
   );
 }
 

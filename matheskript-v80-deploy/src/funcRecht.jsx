@@ -224,6 +224,7 @@ const KURZ = [
   "Mathilda (KI) nutzt du nur, wenn du vorher zustimmst. Deine Fragen und Fotos gehen dafür an die Firma Anthropic. Fotos speichern wir nicht.",
   "Wir zeigen keine Werbung, verkaufen keine Daten und setzen keine Tracking- oder Analysedienste ein.",
   "Videos von YouTube laden erst, wenn du auf „Video laden“ tippst.",
+  "Das Mikrofon für die Spracheingabe geht erst an, wenn du es erlaubst – die Erkennung macht dein Browser (Google oder Apple).",
   "Du kannst jederzeit alle Daten aus deinem Konto herunterladen oder dein Konto komplett löschen.",
 ];
 
@@ -293,6 +294,10 @@ const DATENSCHUTZ = [
     "Kursvideos betten wir über Bunny Stream ein (BunnyWay d.o.o., Cesta komandanta Staneta 4A, 1215 Medvode, Slowenien, EU). Einige Erklärvideos stammen von YouTube (Google Ireland Limited, Irland); wir nutzen dafür den erweiterten Datenschutzmodus (youtube-nocookie.com).",
     "Beide laden erst, wenn Sie auf „Video laden“ tippen. Erst dann werden IP-Adresse und technische Daten an den Anbieter übertragen; bei YouTube können Daten auch an Google LLC in die USA gelangen. Rechtsgrundlage ist Ihre Einwilligung (Art. 6 Abs. 1 lit. a DSGVO, § 25 Abs. 1 TDDDG). Wenn Sie „immer laden“ wählen, merkt sich Ihr Gerät das; Sie können es unten widerrufen.",
   ]],
+  ["Spracheingabe", [
+    "Zahlen und Vektoren können Sie in einigen Übungen sprechen statt tippen (Mikrofon-Knopf). Die Spracherkennung übernimmt Ihr Browser: Chrome und Android übertragen das Gesprochene an Google (Google Ireland Limited, Irland; Daten können in die USA gelangen), Safari und iPhone an Apple (Apple Distribution International Ltd., Irland). Wir selbst erhalten keine Aufnahme, nur den erkannten Text im Eingabefeld.",
+    "Das Mikrofon wird erst nach Ihrer Freigabe eingeschaltet und nur, solange Sie den Knopf gedrückt haben bzw. bis die Aufnahme endet. Rechtsgrundlage ist Ihre Einwilligung (Art. 6 Abs. 1 lit. a DSGVO, § 25 Abs. 1 TDDDG). Wenn Sie „Auf diesem Gerät merken“ wählen, fragt die Seite nicht mehr; Sie können das unten widerrufen. Firefox bietet keine Spracherkennung – dort gibt es den Knopf nicht.",
+  ]],
   ["Feedback", [
     "Über den Feedback-Knopf können Sie uns eine Sprach- oder Textnachricht schicken. Gespeichert werden die Nachricht, die Seite, auf der Sie waren, Sprache, Bildschirmgröße, Gerätetyp und – wenn angemeldet – Ihre Konto-Kennung. Wir nutzen das ausschließlich, um die App zu verbessern. Rechtsgrundlage ist Ihre Einwilligung (Art. 6 Abs. 1 lit. a DSGVO), die Sie vor dem Senden erteilen. Feedback löschen wir nach der Auswertung, spätestens nach zwölf Monaten.",
   ]],
@@ -328,7 +333,7 @@ function DeineEinstellungen({ gehe }) {
             style={{ background: "none", border: "none", padding: 0, color: C.signal, textDecoration: "underline", fontFamily: "inherit", fontSize: 14, cursor: "pointer" }}>Zustimmung widerrufen</button>
         </>
       ) : <P>Keine Zustimmung erteilt. Mathilda fragt dich, bevor sie das erste Mal etwas sendet.</P>}
-      <H3>Videos anderer Anbieter</H3>
+      <H3>Videos anderer Anbieter und Spracheingabe</H3>
       <MedienEinstellungen />
       <H3>Konto</H3>
       <P style={{ marginBottom: 6 }}>Datenexport, Konto löschen und Eltern-Zustimmung findest du in deinem Konto.</P>

@@ -20,6 +20,7 @@ import { FA, FB, FE, Gl, Name, Raum3, Schritt, Vek, k, koordText, n, neueAufgabe
 import { EbenenZeile, Feld, Knopf, Meldung, PunktEingabe, VektorFeld, leseVektor } from "./func23.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
+import { SprachGruppe } from "./funcSprache.jsx";
 import { Bild, Ergebnis, HauptKnopf, ModusReiter, ObjektBox, ObjektReihe, Tafel, VF, VekArbeit, VekSeite } from "./vekUi.jsx";
 import { FeinKarte, useDesktop } from "./arbeitsflaeche.jsx";
 
@@ -555,7 +556,7 @@ function LotUeben({ art }) {
       {ansatz && ansatz !== "ok" && <Meldung art="schlecht">Das führt nicht zum Lot: Das Lot steht senkrecht auf {art === "pg" ? "der Richtung der Geraden" : "der Ebene, also parallel zum Normalenvektor n"}.</Meldung>}
       {ansatz === "ok" && <Meldung art="gut">Richtig gewählt – damit lässt sich der Lotfußpunkt bestimmen.</Meldung>}
       <LotKopf nr={2}>Lotfußpunkt bestimmen</LotKopf>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4, fontSize: 17, fontWeight: 800, margin: "10px 0 14px" }}>
+      <SprachGruppe block farbe={C.see} titel="Lotfußpunkt sprechen" stil={{ justifyContent: "center", gap: 4, fontSize: 17, fontWeight: 800, margin: "10px 0 14px" }}>
         <span>F(</span>
         {[0, 1, 2].map((i) => (
           <React.Fragment key={i}>
@@ -567,14 +568,14 @@ function LotUeben({ art }) {
           </React.Fragment>
         ))}
         <span>)</span>
-      </div>
+      </SprachGruppe>
       <LotKopf nr={3}>Länge des Lots (Abstand, gerundet)</LotKopf>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+      <SprachGruppe block farbe={C.see} titel="Abstand sprechen" stil={{ gap: 8, marginBottom: 14 }}>
         <span style={{ fontSize: 16, fontWeight: 800 }}>d =</span>
         <MatheFeld modus="zahl" value={laengeW} aria-label="Länge des Lots" placeholder="z. B. 3,46"
           onChange={(e) => { setLaengeW(e.target.value.replace(/[^0-9,./−-]/g, "").slice(0, 8)); setErg(null); }}
           style={{ width: 96, height: 36, textAlign: "center", fontSize: 15, fontWeight: 800, fontFamily: "inherit", color: C.see, border: `1.5px solid ${C.see}55`, borderRadius: 9, background: `${C.see}0D`, outline: "none" }} />
-      </div>
+      </SprachGruppe>
       {erg && <Meldung art={erg.art}>{erg.text}</Meldung>}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: erg ? 14 : 0 }}>
         <HauptKnopf onClick={pruefen}>Prüfen</HauptKnopf>

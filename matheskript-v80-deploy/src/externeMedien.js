@@ -9,6 +9,9 @@ export const MEDIEN_SCHLUESSEL = "matheplus-externe-medien";
 export const DIENSTE = {
   youtube: { name: "YouTube", firma: "Google Ireland Limited (Irland); Daten können in die USA gelangen", art: "Video" },
   bunny: { name: "Bunny Stream", firma: "BunnyWay d.o.o. (Slowenien, EU)", art: "Kursvideo" },
+  /* Spracheingabe für Zahlenfelder (funcSprache.jsx): die Erkennung macht der Browser selbst */
+  sprache: { name: "Spracheingabe", firma: "bei Chrome und Android über Google, bei Safari und iPhone über Apple", art: "Spracherkennung",
+    einstellung: "Spracheingabe (Mikrofon) ohne Nachfrage erlauben" },
 };
 
 const RAM = {};

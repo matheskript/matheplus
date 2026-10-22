@@ -15,6 +15,7 @@ import { uebergabeErledigt, uebergabeLesen } from "./uebergabe.js";
 import { C } from "./base1.jsx";
 import { DrehKnoepfe, FARBE_ACHSE, GRUND_AUS, GrundebenenGitter, GrundebenenSchalter, ebenenPolygon, ebenenText, kamera } from "./func16.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
+import { SprachGruppe } from "./funcSprache.jsx";
 import { wAdd, wGanz, wIstNull, wIstRational, wLies, wMul, wNegativ, wNum, wSub, wText, wZ } from "./wzahl.js";
 import { WurzelZeichen } from "./wurzelZeichen.jsx";
 import { Arbeitsflaeche, BildKarte, ErgebnisReihe, FeinKarte, Werkzeugleiste, chipStil, feinKarte, hinweisStil, titelStil, toenKarte, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
@@ -618,7 +619,8 @@ function VektorEingabe({ name, farbe, werte, setWerte, ohneKopf = false }) {
           <VecName t={name} idx="" farbe={farbe} /><span>=</span>
         </div>
       )}
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 30px) 7px minmax(0, 1fr) 7px minmax(0, 30px)", gridTemplateRows: "repeat(3, 36px)", rowGap: 4, columnGap: 3, alignItems: "center" }}>
+      <SprachGruppe block farbe={farbe} titel={`Vektor ${name} sprechen`} abstand={6} groesse={32} stil={{ alignItems: "center" }}>
+      <div style={{ flex: 1, minWidth: 0, display: "grid", gridTemplateColumns: "minmax(0, 30px) 7px minmax(0, 1fr) 7px minmax(0, 30px)", gridTemplateRows: "repeat(3, 36px)", rowGap: 4, columnGap: 3, alignItems: "center" }}>
         {werte.map((w, i) => knopf(i, -1, 1))}
         {klammer(true)}
         {werte.map((w, i) => <KpFeld key={i} name={name} nr={i + 1} farbe={farbe} wert={w} meldeFehler={(f) => setFehler((alt) => (alt[i] === f ? alt : alt.map((x, k) => (k === i ? f : x))))}
@@ -626,6 +628,7 @@ function VektorEingabe({ name, farbe, werte, setWerte, ohneKopf = false }) {
         {klammer(false)}
         {werte.map((w, i) => knopf(i, 1, 5))}
       </div>
+      </SprachGruppe>
       {fehler.some(Boolean) && <p role="alert" style={{ fontSize: 11.5, lineHeight: 1.35, color: C.signal, fontWeight: 600, margin: "6px 0 0", textAlign: "center" }}>Das kann ich so nicht lesen – probiere 2, 1/2, 0,5 oder √5 (bis 100).</p>}
     </div>
   );

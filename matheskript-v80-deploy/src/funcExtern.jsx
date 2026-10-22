@@ -48,7 +48,7 @@ export function MedienEinstellungen() {
       {Object.entries(DIENSTE).map(([id, d]) => (
         <label key={id} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14.5, color: C.tinte, cursor: "pointer" }}>
           <input type="checkbox" checked={!!an[id]} onChange={(e) => dienstSetzen(id, e.target.checked)} style={{ width: 18, height: 18, accentColor: C.see }} />
-          {d.name}-Videos automatisch laden
+          {d.einstellung || `${d.name}-Videos automatisch laden`}
         </label>
       ))}
     </div>

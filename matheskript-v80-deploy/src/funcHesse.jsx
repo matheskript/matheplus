@@ -23,6 +23,7 @@ import { useStateGebucht } from "./buchung.jsx";
 import { IchHaengeFest } from "./funcHilfe.jsx";
 import { WeiterKnopf, WeiterMit } from "./funcWerkzeuge.jsx";
 import { MatheFeld } from "./matheTastatur.jsx";
+import { SprachGruppe } from "./funcSprache.jsx";
 import { MS } from "./mathText.jsx";
 import { FeinKarte, Werkzeugleiste, useDesktop } from "./arbeitsflaeche.jsx";
 import {
@@ -581,11 +582,11 @@ function EingabeZeile({ links, wert, setWert, modus, zustand, label, platzhalter
   return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "6px 0", borderBottom: `1px solid ${C.linie}` }}>
       <span style={{ fontSize: 15, fontWeight: 700, color: C.tinte, minWidth: 0 }}><M t={links} /></span>
-      <span style={{ display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+      <SprachGruppe abstand={6} groesse={32} farbe={BLAU} titel={`${label}: Zahl sprechen`} stil={{ flexShrink: 0 }}>
         <MatheFeld modus={modus} value={wert} aria-label={label} placeholder={platzhalter}
           onChange={(ev) => setWert(ev.target.value.slice(0, 9))} style={FELD_STIL(zustand)} />
         <span aria-hidden="true" style={{ width: 16, fontWeight: 800, color: zustand === true ? SM : C.signal }}>{zustand === true ? "✓" : zustand === false ? "✗" : ""}</span>
-      </span>
+      </SprachGruppe>
     </div>
   );
 }

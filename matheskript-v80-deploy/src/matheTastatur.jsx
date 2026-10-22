@@ -5,6 +5,8 @@ import {
   BUCHSTABEN_DE, BUCHSTABEN_EN, DESKTOP_TASTATUR_AB, FORMEL_FUNKTION, FORMEL_HAUPT, TRIG_TASTEN, Z, einfuegen, loeschen, tastaturPlatz, zahlenTasten, zeigeAutomatisch,
 } from "./matheTastaturLogik.js";
 import { setzeWinkelModus, winkelAbo, winkelModus } from "./winkelModus.js";
+import { setzeFeldWert } from "./feldWert.js";
+import { SprachKnopf } from "./funcSprache.jsx";
 
 import { springe } from "./sprung.js";
 /* ======================================================================
@@ -39,12 +41,8 @@ const grobZeiger = () => {
   } catch (e) { return false; }
 };
 
-/* Wert eines Eingabefelds so setzen, dass React sein onChange auslöst (alle vorhandenen Filter und Zähler laufen weiter) */
-function setzeNativ(el, wert) {
-  const proto = typeof HTMLTextAreaElement !== "undefined" && el instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
-  Object.getOwnPropertyDescriptor(proto, "value").set.call(el, wert);
-  el.dispatchEvent(new Event("input", { bubbles: true }));
-}
+/* Wert eines Eingabefelds so setzen, dass React sein onChange auslöst (feldWert.js – auch die Spracheingabe nutzt das) */
+const setzeNativ = setzeFeldWert;
 function bearbeite(el, f) {
   const w = el.value, von = el.selectionStart ?? w.length, bis = el.selectionEnd ?? von;
   const r = f(w, von, bis);
@@ -253,7 +251,13 @@ export function TastenFeld({ ziel, modus, onOk, onZu, schmal }) {
               ))}
             </div>
           </>
-        ) : zahlModus ? <span style={{ flex: 1, fontSize: 12.5, fontWeight: 600, color: C.grau, paddingLeft: 6 }}>{en ? "Enter a number" : "Zahl eingeben"}</span>
+        ) : zahlModus ? (
+          <>
+            <span style={{ flex: 1, fontSize: 12.5, fontWeight: 600, color: C.grau, paddingLeft: 6 }}>{en ? "Enter a number" : "Zahl eingeben"}</span>
+            {/* Spracheingabe (22.10.): füllt das aktive Feld und – in einer Gruppe – die folgenden Felder */}
+            {!en && <SprachKnopf ziel={ziel} groesse={34} titel="Zahl sprechen" />}
+          </>
+        )
           : [tab("haupt", "123"), tab("funk", "f(x)"), tab("abc", "abc")]}
         {onZu && (
           <button type="button" aria-label={en ? "Close keypad" : "Tastatur schließen"} onMouseDown={(e) => e.preventDefault()} onClick={onZu}
