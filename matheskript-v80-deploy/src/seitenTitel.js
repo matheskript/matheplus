@@ -12,6 +12,7 @@ export const SEITEN_TITEL = {
   start: "Mathe kann jeder verstehen",
   landingpage: "Mathetalent ist ein Mythos",
   vision: "Vision: Eine Generation, die Mathe versteht",
+  feedback: "Feedback: Diese Seite ist eine Baustelle",
   blog: "Mathe-Blog",
   trainingszentrum: "Trainingszentrum",
   meintraining: "Mein Mathe-Training",

@@ -20,10 +20,10 @@ import { sb } from "./konto.js";
 import { sprache } from "./i18n.js";
 import { FEEDBACK_OEFFNEN } from "./willkommen.js";
 
-const MAX_SEKUNDEN = 120;
-const MIN_SEKUNDEN = 2;
-const MAX_ZEICHEN = 2000;   // Text-Feedback: so viel erlaubt auch die Datenbank
-const MIN_ZEICHEN = 3;
+export const MAX_SEKUNDEN = 120;
+export const MIN_SEKUNDEN = 2;
+export const MAX_ZEICHEN = 2000;   // Text-Feedback: so viel erlaubt auch die Datenbank
+export const MIN_ZEICHEN = 3;
 const BUCKET = "feedback";
 
 /* ---------- Welche Seite ist gerade offen? ---------- */
@@ -68,7 +68,18 @@ export function SprechblaseIcon({ groesse = 20, farbe = "currentColor" }) {
   );
 }
 
-function TextIcon({ groesse = 20, farbe = "currentColor" }) {
+export function StiftIcon({ groesse = 20, farbe = "currentColor" }) {
+  return (
+    <svg width={groesse} height={groesse} viewBox="0 0 24 24" fill="none" stroke={farbe} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3z" />
+      <path d="M13.5 8.5l2 2" />
+    </svg>
+  );
+}
+
+export { MikroIcon };
+
+export function TextIcon({ groesse = 20, farbe = "currentColor" }) {
   return (
     <svg width={groesse} height={groesse} viewBox="0 0 24 24" fill="none" stroke={farbe} strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
       <path d="M4 7h16M4 12h16M4 17h10" />
@@ -76,22 +87,14 @@ function TextIcon({ groesse = 20, farbe = "currentColor" }) {
   );
 }
 
-/* ---------- Der Knopf mit Auswahl, Text-Fenster und Aufnahmefenster ---------- */
-export function FeedbackKnopf({ aktuell }) {
-  const [offen, setOffen] = useState(false);
-  const [phase, setPhase] = useState("ruhe");       // ruhe | aufnahme | fertig | sendet | gesendet
+/* ---------- Sprachaufnahme als Hook (Knopf unten und Feedback-Seite nutzen dieselbe Technik) ----------
+   phase: ruhe | aufnahme | fertig | sendet | gesendet (sendet/gesendet setzt der Aufrufer über setPhase).
+   Rückgabe: aufnehmen(), stoppen(), zuruecksetzen(), sek, audioUrl, blob() und die Meldung bei Fehlern. */
+export function useSprachaufnahme() {
+  const [phase, setPhase] = useState("ruhe");
   const [sek, setSek] = useState(0);
-  const [zustimmung, setZustimmung] = useState(false);
-  const [meldung, setMeldung] = useState("");
-  const [seite, setSeite] = useState({ name: "", ueberschrift: "" });
   const [audioUrl, setAudioUrl] = useState(null);
-  const [menue, setMenue] = useState(false);               // Auswahl Text / Voice
-  const [textOffen, setTextOffen] = useState(false);
-  const [text, setText] = useState("");
-  const [textPhase, setTextPhase] = useState("ruhe");      // ruhe | sendet | gesendet
-  const [textZustimmung, setTextZustimmung] = useState(false);
-  const [textMeldung, setTextMeldung] = useState("");
-
+  const [meldung, setMeldung] = useState("");
   const rec = useRef(null);
   const strom = useRef(null);
   const stuecke = useRef([]);
@@ -114,66 +117,11 @@ export function FeedbackKnopf({ aktuell }) {
     blobRef.current = null; stuecke.current = [];
     setAudioUrl(null); setSek(0); setMeldung(""); setPhase("ruhe");
   };
-  const oeffnen = () => { setSeite(seitenInfo(aktuell)); setOffen(true); };
-  const schliessen = () => { zuruecksetzen(); setOffen(false); };
 
-  /* Auswahl „Text senden“ / „Voice senden“ und das Text-Fenster */
-  const aktuellRef = useRef(aktuell);
-  aktuellRef.current = aktuell;
-  const menueAuf = () => { setSeite(seitenInfo(aktuellRef.current)); setMenue(true); };
-  const sprachePanel = () => { setMenue(false); oeffnen(); };
-  const textStarten = () => { setMenue(false); setTextMeldung(""); setTextPhase("ruhe"); setTextOffen(true); };
-  const textSchliessen = () => { setTextOffen(false); setText(""); setTextZustimmung(false); setTextMeldung(""); setTextPhase("ruhe"); };
-
-  /* Die Willkommensseite öffnet die Auswahl über ein Ereignis */
-  useEffect(() => {
-    const auf = () => menueAuf();
-    window.addEventListener(FEEDBACK_OEFFNEN, auf);
-    return () => window.removeEventListener(FEEDBACK_OEFFNEN, auf);
-  }, []);
-
-  useEffect(() => {
-    if (!menue && !textOffen) return;
-    const taste = (e) => { if (e.key === "Escape") { if (textOffen) textSchliessen(); else setMenue(false); } };
-    window.addEventListener("keydown", taste);
-    return () => window.removeEventListener("keydown", taste);
-  }, [menue, textOffen]);
-
-  const textSenden = async () => {
-    const t = text.trim();
-    if (t.length < MIN_ZEICHEN) { setTextMeldung("Schreib bitte ein paar Worte, dann kannst du senden."); return; }
-    if (!textZustimmung) { setTextMeldung("Bitte setze zuerst den Haken bei der Einwilligung."); return; }
-    if (!sb) { setTextMeldung("Senden ist in dieser Vorschau noch nicht eingerichtet (Demo-Modus)."); return; }
-    setTextMeldung(""); setTextPhase("sendet");
-    try {
-      const { ziel, klasse, kurs, bereich, trainer, land, kompetenz, foto } = aktuell;
-      const eintrag = await sb.from("feedback").insert({
-        seite: seite.name,
-        ansicht: aktuell.ansicht,
-        ueberschrift: seite.ueberschrift || null,
-        details: JSON.parse(JSON.stringify({ ziel, klasse, kurs, bereich, trainer, land, kompetenz, foto })),
-        nachricht: t.slice(0, MAX_ZEICHEN),
-        sprache: sprache(),
-        viewport: `${window.innerWidth}x${window.innerHeight}`,
-        geraet: String(navigator.userAgent || "").slice(0, 200),
-      });
-      if (eintrag.error) throw eintrag.error;
-      setText(""); setTextPhase("gesendet");
-    } catch (e) {
-      setTextPhase("ruhe");
-      setTextMeldung("Das Senden hat nicht geklappt. Bitte versuche es gleich noch einmal.");
-    }
+  const stoppen = () => {
+    clearInterval(takt.current);
+    try { if (rec.current && rec.current.state !== "inactive") rec.current.stop(); } catch (e) { /* egal */ }
   };
-
-  useEffect(() => {
-    if (!offen) return;
-    const taste = (e) => { if (e.key === "Escape") schliessen(); };
-    window.addEventListener("keydown", taste);
-    return () => window.removeEventListener("keydown", taste);
-  }, [offen]);
-
-  /* Wechselt die Seite bei offenem Fenster, folgt die Seitenangabe mit. */
-  useEffect(() => { if (offen && phase !== "gesendet") setSeite(seitenInfo(aktuell)); }, [aktuell.ansicht, aktuell.ziel, aktuell.klasse, aktuell.foto]);
 
   const aufnehmen = async () => {
     setMeldung("");
@@ -215,24 +163,115 @@ export function FeedbackKnopf({ aktuell }) {
     }
   };
 
-  const stoppen = () => {
-    clearInterval(takt.current);
-    try { if (rec.current && rec.current.state !== "inactive") rec.current.stop(); } catch (e) { /* egal */ }
+  const gesendet = () => { blobRef.current = null; setAudioUrl(null); setPhase("gesendet"); };
+
+  return { phase, setPhase, sek, audioUrl, meldung, setMeldung, aufnehmen, stoppen, zuruecksetzen, gesendet, blob: () => blobRef.current };
+}
+
+/* Aufnahme in den privaten Speicher laden; liefert den Pfad für die Tabellenzeile (wirft bei Fehler). */
+export async function audioHochladen(blob) {
+  const art = (blob.type || "audio/webm").split(";")[0];
+  const endung = art.includes("mp4") ? "m4a" : art.includes("ogg") ? "ogg" : "webm";
+  const pfad = `${new Date().toISOString().slice(0, 10)}/${neueId()}.${endung}`;
+  const hoch = await sb.storage.from(BUCKET).upload(pfad, blob, { contentType: art, upsert: false });
+  if (hoch.error) throw hoch.error;
+  return pfad;
+}
+
+/* Gerät und Fenster, wie sie an jeder Feedback-Zeile hängen */
+export const geraetDaten = () => ({
+  sprache: sprache(),
+  viewport: `${window.innerWidth}x${window.innerHeight}`,
+  geraet: String(navigator.userAgent || "").slice(0, 200),
+});
+
+/* ---------- Der Knopf mit Auswahl, Text-Fenster und Aufnahmefenster ---------- */
+export function FeedbackKnopf({ aktuell, gehe }) {
+  const [offen, setOffen] = useState(false);
+  const [zustimmung, setZustimmung] = useState(false);
+  const [seite, setSeite] = useState({ name: "", ueberschrift: "" });
+  const [menue, setMenue] = useState(false);               // Auswahl Text / Voice
+  const [textOffen, setTextOffen] = useState(false);
+  const [text, setText] = useState("");
+  const [textPhase, setTextPhase] = useState("ruhe");      // ruhe | sendet | gesendet
+  const [textZustimmung, setTextZustimmung] = useState(false);
+  const [textMeldung, setTextMeldung] = useState("");
+  const aufnahme = useSprachaufnahme();
+  const { phase, setPhase, sek, audioUrl, meldung, setMeldung, aufnehmen, stoppen, zuruecksetzen } = aufnahme;
+
+  const oeffnen = () => { setSeite(seitenInfo(aktuell)); setOffen(true); };
+  const schliessen = () => { zuruecksetzen(); setOffen(false); };
+
+  /* Auswahl „Text senden“ / „Voice senden“ / „Feedback-Seite“ und das Text-Fenster */
+  const aktuellRef = useRef(aktuell);
+  aktuellRef.current = aktuell;
+  const menueAuf = () => { setSeite(seitenInfo(aktuellRef.current)); setMenue(true); };
+  const sprachePanel = () => { setMenue(false); oeffnen(); };
+  const textStarten = () => { setMenue(false); setTextMeldung(""); setTextPhase("ruhe"); setTextOffen(true); };
+  const textSchliessen = () => { setTextOffen(false); setText(""); setTextZustimmung(false); setTextMeldung(""); setTextPhase("ruhe"); };
+  const zurSeite = () => {
+    setMenue(false);
+    if (typeof gehe === "function") gehe({ ansicht: "feedback" });
+    else window.location.assign("/feedback");
   };
 
+  /* Die Willkommensseite öffnet die Auswahl über ein Ereignis */
+  useEffect(() => {
+    const auf = () => menueAuf();
+    window.addEventListener(FEEDBACK_OEFFNEN, auf);
+    return () => window.removeEventListener(FEEDBACK_OEFFNEN, auf);
+  }, []);
+
+  useEffect(() => {
+    if (!menue && !textOffen) return;
+    const taste = (e) => { if (e.key === "Escape") { if (textOffen) textSchliessen(); else setMenue(false); } };
+    window.addEventListener("keydown", taste);
+    return () => window.removeEventListener("keydown", taste);
+  }, [menue, textOffen]);
+
+  const textSenden = async () => {
+    const t = text.trim();
+    if (t.length < MIN_ZEICHEN) { setTextMeldung("Schreib bitte ein paar Worte, dann kannst du senden."); return; }
+    if (!textZustimmung) { setTextMeldung("Bitte setze zuerst den Haken bei der Einwilligung."); return; }
+    if (!sb) { setTextMeldung("Senden ist in dieser Vorschau noch nicht eingerichtet (Demo-Modus)."); return; }
+    setTextMeldung(""); setTextPhase("sendet");
+    try {
+      const { ziel, klasse, kurs, bereich, trainer, land, kompetenz, foto } = aktuell;
+      const eintrag = await sb.from("feedback").insert({
+        seite: seite.name,
+        ansicht: aktuell.ansicht,
+        ueberschrift: seite.ueberschrift || null,
+        details: JSON.parse(JSON.stringify({ ziel, klasse, kurs, bereich, trainer, land, kompetenz, foto })),
+        nachricht: t.slice(0, MAX_ZEICHEN),
+        ...geraetDaten(),
+      });
+      if (eintrag.error) throw eintrag.error;
+      setText(""); setTextPhase("gesendet");
+    } catch (e) {
+      setTextPhase("ruhe");
+      setTextMeldung("Das Senden hat nicht geklappt. Bitte versuche es gleich noch einmal.");
+    }
+  };
+
+  useEffect(() => {
+    if (!offen) return;
+    const taste = (e) => { if (e.key === "Escape") schliessen(); };
+    window.addEventListener("keydown", taste);
+    return () => window.removeEventListener("keydown", taste);
+  }, [offen]);
+
+  /* Wechselt die Seite bei offenem Fenster, folgt die Seitenangabe mit. */
+  useEffect(() => { if (offen && phase !== "gesendet") setSeite(seitenInfo(aktuell)); }, [aktuell.ansicht, aktuell.ziel, aktuell.klasse, aktuell.foto]);
+
   const senden = async () => {
-    const blob = blobRef.current;
+    const blob = aufnahme.blob();
     if (!blob) return;
     if (sek < MIN_SEKUNDEN) { setMeldung("Die Nachricht ist sehr kurz. Nimm sie bitte noch einmal auf."); return; }
     if (!zustimmung) { setMeldung("Bitte setze zuerst den Haken bei der Einwilligung."); return; }
     if (!sb) { setMeldung("Senden ist in dieser Vorschau noch nicht eingerichtet (Demo-Modus)."); return; }
     setMeldung(""); setPhase("sendet");
     try {
-      const art = (blob.type || "audio/webm").split(";")[0];
-      const endung = art.includes("mp4") ? "m4a" : art.includes("ogg") ? "ogg" : "webm";
-      const pfad = `${new Date().toISOString().slice(0, 10)}/${neueId()}.${endung}`;
-      const hoch = await sb.storage.from(BUCKET).upload(pfad, blob, { contentType: art, upsert: false });
-      if (hoch.error) throw hoch.error;
+      const pfad = await audioHochladen(blob);
       const { ziel, klasse, kurs, bereich, trainer, land, kompetenz, foto } = aktuell;
       const eintrag = await sb.from("feedback").insert({
         seite: seite.name,
@@ -241,13 +280,10 @@ export function FeedbackKnopf({ aktuell }) {
         details: JSON.parse(JSON.stringify({ ziel, klasse, kurs, bereich, trainer, land, kompetenz, foto })),
         audio_pfad: pfad,
         dauer_s: Math.round(sek),
-        sprache: sprache(),
-        viewport: `${window.innerWidth}x${window.innerHeight}`,
-        geraet: String(navigator.userAgent || "").slice(0, 200),
+        ...geraetDaten(),
       });
       if (eintrag.error) throw eintrag.error;
-      blobRef.current = null; setAudioUrl(null);
-      setPhase("gesendet");
+      aufnahme.gesendet();
     } catch (e) {
       setPhase("fertig");
       setMeldung("Das Senden hat nicht geklappt. Bitte versuche es gleich noch einmal.");
@@ -388,6 +424,12 @@ export function FeedbackKnopf({ aktuell }) {
                 <span className="fb-wahl-ico"><MikroIcon groesse={18} farbe={C.flaggold} /></span>
                 <span><b>Voice senden</b><small>Sprich einfach drauflos.</small></span>
               </button>
+              {aktuell.ansicht !== "feedback" && (
+                <button type="button" className="fb-wahl fb-wahl-seite" onClick={zurSeite} data-feedback-seite-link>
+                  <span className="fb-wahl-ico"><StiftIcon groesse={18} farbe={C.flaggold} /></span>
+                  <span><b>Ausführlich auf der Feedback-Seite</b><small>Was ist gut, was unklar, was fehlt – Schritt für Schritt.</small></span>
+                </button>
+              )}
             </div>
           </div>
         </>

@@ -159,7 +159,7 @@ export const KEIN_TEILEN = [
   "lehrkraefte", "lehrerblatt", "plan", "wiederholen", "profil", "profil2", "einstufung",
   "bericht", "messung", "auswertung", "konto", "impressum", "datenschutz", "einwilligung", "agb", "widerruf",
   "entwurf-start", "entwurf-checken", "entwurf-pakete", "entwurf-werkzeuge", "entwurf-vorher", "entwurf-biro",
-  "dokumente", "blog", "vision",
+  "dokumente", "blog", "vision", "feedback",
   "kanal",   // Kanal-Landingpages (/poster …): Werbeseiten, eigene Eltern-Weiche statt Teilen-Knopf
 ];
 

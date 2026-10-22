@@ -115,6 +115,7 @@ export const SPRUENGE = {
   "start-anker":            { an: true,  art: "anker", wo: "Startseite: Band unter der Kopfleiste (Heute · Lernen · Mathilda · Kurse · Entdecken) springt zum Abschnitt; „Zur Vision“ und „Alle Kurse“ sind Seitenwechsel" },
   "start-gast":             { an: true,  art: "anker", wo: "Story-Startseite für Besucher ohne Konto (funcStartGast.jsx): „Kostenlos starten“ springt zur Start-Karte, „Wie es funktioniert“ zum Problem-Abschnitt, feste Handy-Leiste ebenso" },
   "vision-kapitel":         { an: true,  art: "anker", wo: "Vision-Seite (/vision): Kapitelübersicht unter der Bühne, Kapitel-Leiste links (ab 1360 px), „Die Vision lesen“ und die drei Schritt-Karten springen zum Abschnitt" },
+  "feedback-kapitel":       { an: true,  art: "anker", wo: "Feedback-Seite (/feedback): Kapitelübersicht unter der Bühne, „Feedback geben“ (Bühne, Schluss, Handy-Leiste), die vier Fragen-Karten und „Als Elternteil“ springen zum Formular" },
 
   /* ---------------- Im Blick halten ---------------- */
   "tastatur":                { an: true,  art: "halten", wo: "Mathe-Tastatur: aktives Feld bleibt über der Bildschirmtastatur" },

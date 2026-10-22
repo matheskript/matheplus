@@ -68,6 +68,7 @@ export const SEITEN = [
   { pfad: "lehrkraefte/arbeitsblatt", ansicht: "lehrerblatt", alias: ["arbeitsblatt-generator", "lehrer-arbeitsblatt", "lehrer/arbeitsblatt", "arbeitsblaetter"] },
   { pfad: "blog", ansicht: "blog", alias: ["mathe-blog", "beitraege"] },
   { pfad: "vision", ansicht: "vision", alias: ["unsere-vision", "die-vision"] },
+  { pfad: "feedback", ansicht: "feedback", alias: ["rueckmeldung", "testphase", "baustelle"] },
 
   /* Mein Weg */
   { pfad: "lernlandkarte", ansicht: "karte", alias: ["karte", "landkarte"] },

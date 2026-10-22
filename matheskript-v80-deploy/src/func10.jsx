@@ -76,6 +76,8 @@ const DokumenteSeite = lazyLaden(() => import("./funcDokumente.jsx").then((m) =>
 const BlogSeite = lazyLaden(() => import("./funcBlog.jsx").then((m) => ({ default: m.BlogSeite })));
 /* Vision (öffentlich): /vision – Menüpunkt „Vision“ im Besuchermenü, endet mit den Angeboten (Pen & Paper zuerst) */
 const VisionSeite = lazyLaden(() => import("./funcVision.jsx").then((m) => ({ default: m.VisionSeite })));
+/* Feedback (Testphase): /feedback – eigene Seite wie die Vision, Baustelle + Formular (Text/Voice), Daten in feedback.js */
+const FeedbackSeite = lazyLaden(() => import("./funcFeedbackSeite.jsx").then((m) => ({ default: m.FeedbackSeite })));
 const KurseSeite = lazyLaden(() => import("./funcKurseSeite.jsx").then((m) => ({ default: m.KurseSeite })));
 const EntdeckenSeite = lazyLaden(() => import("./funcEntdecken.jsx").then((m) => ({ default: m.EntdeckenSeite })));
 const PenPaperKursSeite = lazyLaden(() => import("./funcPenPaperKurs.jsx").then((m) => ({ default: m.PenPaperKursSeite })));
@@ -1127,6 +1129,8 @@ export function Mathilda() {
         <KurseSeite gehe={gehe} />
       ) : ansicht === "vision" ? (
         <VisionSeite gehe={gehe} />
+      ) : ansicht === "feedback" ? (
+        <FeedbackSeite gehe={gehe} />
       ) : ansicht === "challenge" ? (
         <>
           <SeitenKopf titel="Klassen-Challenge" groesse="clamp(26px, 7.6vw, 31px)" rund>
@@ -1698,7 +1702,7 @@ export function Mathilda() {
       {!istEntwurf(ansicht) && (
         <div className={"fuss-paar" + (teilenInfo(ansicht) ? " zwei" : "")}>
           <TeilenKnopf ansicht={ansicht} pfad={pfadFuer(adressZustand) || "/"} />
-          <FeedbackKnopf aktuell={{
+          <FeedbackKnopf gehe={gehe} aktuell={{
             ansicht,
             ziel: ansicht === "training" ? trainZiel : ansicht === "ki" ? genZiel : undefined,
             klasse: ansicht === "klasse" ? klasseAktiv : undefined,
