@@ -19,7 +19,7 @@ import { SprachGruppe } from "./funcSprache.jsx";
 import { wAdd, wGanz, wIstNull, wIstRational, wLies, wMul, wNegativ, wNum, wSub, wText, wZ } from "./wzahl.js";
 import { WurzelZeichen } from "./wurzelZeichen.jsx";
 import { Arbeitsflaeche, BildKarte, ErgebnisReihe, FeinKarte, Werkzeugleiste, chipStil, feinKarte, hinweisStil, titelStil, toenKarte, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
-import { BUEHNE, Bild, Ergebnis, FallWahl, ObjektBox, ObjektReihe, RSchritt, Rechenweg, ReglerSpalten, Tafel, VekArbeit, VekBild, VekSeite, farbSatz } from "./vekUi.jsx";
+import { BUEHNE, BuehneKlappe, Bild, Ergebnis, FallWahl, ObjektBox, ObjektReihe, RSchritt, Rechenweg, ReglerSpalten, Tafel, VekArbeit, VekBild, VekSeite, farbSatz } from "./vekUi.jsx";
 
 const FARBE_E1 = C.see;
 const FARBE_E2 = C.gruen;
@@ -505,8 +505,7 @@ export function EbeneVsEbene() {
         <FallWahl titel="Beispiele" wert={beispielAn ? beispielAn.name : null} setWert={(name) => { const x = BEISPIELE.find((y) => y.name === name); setK1(x.k1); setK2(x.k2); }}
           optionen={BEISPIELE.map((x) => [x.name, x.name])} />
       </div>
-      <div style={{ ...BUEHNE, overflow: "hidden" }}>{schaubild}</div>
-      <div style={{ marginTop: 8 }}><GrundebenenSchalter an={grund} setAn={setGrund} /></div>
+      <BuehneKlappe stil={{ overflow: "hidden" }} darunter={<div style={{ marginTop: 8 }}><GrundebenenSchalter an={grund} setAn={setGrund} /></div>}>{schaubild}</BuehneKlappe>
 
       <Tafel titel="Lage der Ebenen">
         <Ergebnis art={info.art === "keine" ? "warn" : "gut"} titel="Lage" bild={lageBild ? <Bild art={lageBild} breite={44} farbe={FARBE_E1} farbe2={FARBE_E2} /> : null} zusatz={lageZusatz}>

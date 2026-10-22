@@ -417,6 +417,68 @@ export function Hinweis({ art = "info", children }) {
 export const BUEHNE = { position: "relative", background: "radial-gradient(120% 90% at 50% 40%, #FFFFFF 0%, #F6F8FC 100%)", border: `1px solid ${C.linie}`, borderRadius: 18 };
 export const BUEHNE_SVG = { width: "100%", maxWidth: 560, margin: "0 auto", display: "block", touchAction: "none", cursor: "grab" };
 
+/* ---------- Bild einklappen (Handy-Zweige) ----------
+   Oben die Eingabe, unten die Rechnung, dazwischen das 3D-Bild: oben rechts im Bild ein goldener Knopf
+   „Einklappen“, eingeklappt bleibt eine schmale Leiste mit „Bild zeigen“. Der Zustand gilt für alle
+   Vektor-Bilder gemeinsam und bleibt in der Sitzung (auch nach „Neue Aufgabe“, wenn das Bild neu entsteht). */
+const BILD_ZU_SCHLUESSEL = "mm-vek-bild-zu";
+const bildZuHoerer = new Set();
+function bildZuLesen() { try { return sessionStorage.getItem(BILD_ZU_SCHLUESSEL) === "1"; } catch { return false; } }
+function bildZuSetzen(zu) {
+  try { zu ? sessionStorage.setItem(BILD_ZU_SCHLUESSEL, "1") : sessionStorage.removeItem(BILD_ZU_SCHLUESSEL); } catch { /* ohne Speicher nur hier */ }
+  bildZuHoerer.forEach((f) => f(zu));
+}
+function useBildZu() {
+  const [zu, setZu] = React.useState(bildZuLesen);
+  React.useEffect(() => { bildZuHoerer.add(setZu); return () => bildZuHoerer.delete(setZu); }, []);
+  return [zu, bildZuSetzen];
+}
+
+const KLAPP_PFEIL = (auf) => (
+  <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" style={{ transform: auf ? "rotate(180deg)" : "none", flexShrink: 0 }}>
+    <path d="M3.5 10 L8 5.5 L12.5 10" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+const KLAPP_KNOPF = {
+  display: "inline-flex", alignItems: "center", gap: 6, height: 32, padding: "0 12px 0 10px", borderRadius: 999,
+  border: `1.5px solid ${C.seeTief}`, background: C.flaggold, color: C.seeTief, fontSize: 12.5, fontWeight: 800,
+  fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap", touchAction: "manipulation",
+  boxShadow: "0 0 0 3px rgba(255,255,255,0.95), 0 6px 14px -4px rgba(185,138,0,0.7)",
+};
+
+/* children: Bild (mit Drehknöpfen usw.) · darunter: Schalter, die nur zum Bild gehören (Grundebenen …) */
+export function BuehneKlappe({ children, darunter, stil, name = zw("3D-Bild", "3D view") }) {
+  const [zu, setZu] = useBildZu();
+  if (zu) {
+    return (
+      <div data-vek-bild-zu="" style={{ ...BUEHNE, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "8px 8px 8px 14px" }}>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 700, color: C.grau, minWidth: 0 }}>
+          <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" style={{ flexShrink: 0 }}>
+            <path d="M10 2.5 L17 6.3 V13.7 L10 17.5 L3 13.7 V6.3 Z M3 6.3 L10 10 L17 6.3 M10 10 V17.5" fill="none" stroke={C.see} strokeWidth="1.5" strokeLinejoin="round" />
+          </svg>
+          {zw(`${name} eingeklappt`, `${name} collapsed`)}
+        </span>
+        <button type="button" data-vek-bild-auf="" onClick={() => setZu(false)} aria-expanded="false" style={KLAPP_KNOPF}>
+          {KLAPP_PFEIL(true)}{zw("Bild zeigen", "Show")}
+        </button>
+      </div>
+    );
+  }
+  return (
+    <>
+      <div style={{ ...BUEHNE, ...stil }}>
+        {children}
+        <button type="button" data-vek-bild-klappe="" onClick={() => setZu(true)} aria-expanded="true"
+          aria-label={zw(`${name} einklappen`, `Collapse ${name}`)} title={zw("Bild einklappen", "Collapse")}
+          style={{ ...KLAPP_KNOPF, position: "absolute", top: 8, right: 8, zIndex: 3 }}>
+          {KLAPP_PFEIL(false)}{zw("Einklappen", "Collapse")}
+        </button>
+      </div>
+      {darunter}
+    </>
+  );
+}
+
 /* eintraege: [{ text, farbe, art: "linie" | "punkt" | "flaeche" }] */
 export function Legende({ eintraege, stil }) {
   return (

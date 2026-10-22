@@ -15,7 +15,7 @@ import { DrehKnoepfe, FARBE_ACHSE, GRUND_AUS, GrundebenenGitter, GrundebenenScha
 import { Bruch, Einzeilig, SpaltenVektor, VecName, Wurzel, ggT, kreuz, minus, skalar, strahlImWuerfel } from "./func19.jsx";
 
 import { useVekModus } from "./vekNav.js";
-import { BUEHNE, BUEHNE_SVG, Fusszeile, Legende, RSchritt, Tafel, VF, VekArbeit, VekBild, VekModusErsatz, VekSeite } from "./vekUi.jsx";
+import { BUEHNE, BUEHNE_SVG, BuehneKlappe, Fusszeile, Legende, RSchritt, Tafel, VF, VekArbeit, VekBild, VekModusErsatz, VekSeite } from "./vekUi.jsx";
 import { Werkzeugleiste, useDesktop } from "./arbeitsflaeche.jsx";
 export const FA = C.see, FB = C.gruen, FE = "#8A6D00", FS = C.smaragd;
 
@@ -206,7 +206,7 @@ function Raum3Bild({ punkte, gerade, gerade2, lot, ebene, ebene2, lot2, legende,
 
   return (
     <div data-vek-raum={breit ? undefined : ""}>
-    <div style={breit ? { position: "relative" } : BUEHNE}>
+    <RaumRahmen breit={breit} darunter={<div style={{ marginTop: 8 }}><GrundebenenSchalter an={grund} setAn={setGrund} /></div>}>
       <svg viewBox={`0 0 ${W} ${H}`} style={breit ? { ...BUEHNE_SVG, maxWidth: "none" } : BUEHNE_SVG}
         onPointerDown={start} onPointerMove={bewege} onPointerUp={ende} onPointerLeave={ende}>
         <defs>
@@ -256,10 +256,15 @@ function Raum3Bild({ punkte, gerade, gerade2, lot, ebene, ebene2, lot2, legende,
       </svg>
       {legende && <Legende eintraege={legende} stil={{ position: "absolute", left: 10, top: 10, maxWidth: "calc(50% - 30px)", pointerEvents: "none" }} />}
       <DrehKnoepfe setPhi={setPhi} setTheta={setTheta} zuruecksetzen={() => { setPhi(0.62); setTheta(0.42); }} />
-    </div>
-      {!breit && <div style={{ marginTop: 8 }}><GrundebenenSchalter an={grund} setAn={setGrund} /></div>}
+    </RaumRahmen>
     </div>
   );
+}
+
+/* Desktop-Bild ohne Rahmen; Handy: Bühne zum Einklappen (BuehneKlappe), Grundebenen darunter klappen mit */
+function RaumRahmen({ breit, darunter, children }) {
+  if (breit) return <div style={{ position: "relative" }}>{children}</div>;
+  return <BuehneKlappe darunter={darunter}>{children}</BuehneKlappe>;
 }
 
 /* ---------- Die einzelnen Rechnungen ---------- */

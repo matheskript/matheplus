@@ -28,7 +28,7 @@ import { SprachGruppe } from "./funcSprache.jsx";
 import { MS } from "./mathText.jsx";
 import { FeinKarte, Werkzeugleiste, useDesktop } from "./arbeitsflaeche.jsx";
 import {
-  BUEHNE, BUEHNE_SVG, Bild, Ergebnis, FallWahl, Fusszeile, HauptKnopf, Hinweis, Legende, ModusReiter, ObjektBox, ObjektReihe,
+  BUEHNE, BUEHNE_SVG, BuehneKlappe, Bild, Ergebnis, FallWahl, Fusszeile, HauptKnopf, Hinweis, Legende, ModusReiter, ObjektBox, ObjektReihe,
   RSchritt, Rechenweg, ReglerSpalten, Tafel, TippKacheln, VF, VekArbeit, VekBild, VekSeite,
 } from "./vekUi.jsx";
 import {
@@ -211,7 +211,7 @@ function BildFlaeche({ desktop, render, werkzeuge }) {
       </>
     );
   }
-  return <div style={BUEHNE}>{render(360, 320)}</div>;
+  return <BuehneKlappe>{render(360, 320)}</BuehneKlappe>;
 }
 
 /* Anordnung: Desktop = links | Bild, darunter volle Breite · Handy = alles untereinander */

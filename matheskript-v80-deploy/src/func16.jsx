@@ -15,7 +15,7 @@ import { WeiterKnopf, WeiterMit, ZentrumListe } from "./funcWerkzeuge.jsx";
 import { C } from "./base1.jsx";
 import { GesperrteKurse } from "./func1.jsx";
 import { M } from "./func3.jsx";
-import { BUEHNE, BUEHNE_SVG, FallWahl, ObjektBox, ReglerSpalten, Tafel, VekArbeit, VekBild, VekSeite, farbSatz } from "./vekUi.jsx";
+import { BUEHNE, BUEHNE_SVG, BuehneKlappe, FallWahl, ObjektBox, ReglerSpalten, Tafel, VekArbeit, VekBild, VekSeite, farbSatz } from "./vekUi.jsx";
 import { FeinKarte, Werkzeugleiste, useDesktop } from "./arbeitsflaeche.jsx";
 
 /* ---------- Zahlen und Brüche ---------- */
@@ -666,13 +666,13 @@ export function EbenenVisualizer() {
       </ObjektBox>
       <div style={{ margin: "12px 0" }}>{beispielWahl("Beispiele")}</div>
 
-      <div style={BUEHNE}>{bild(360, 320)}</div>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10 }}>
-        {anzeigen(true)}
-        <GrundebenenSchalter an={grund} setAn={setGrund} />
-        {ansichten(true)}
-      </div>
+      <BuehneKlappe darunter={
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10 }}>
+          {anzeigen(true)}
+          <GrundebenenSchalter an={grund} setAn={setGrund} />
+          {ansichten(true)}
+        </div>
+      }>{bild(360, 320)}</BuehneKlappe>
 
       <Tafel titel="Eigenschaften der Ebene">
         <Eigenschaften a={a} b={b} c={c} d={d} />
