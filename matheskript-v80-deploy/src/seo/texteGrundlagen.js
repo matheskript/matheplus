@@ -129,7 +129,7 @@ export const TEXTE_GRUNDLAGEN = {
     kurz: "Du stellst a, b, c und d so ein, dass dein Sinusgraph genau auf dem Zielgraphen liegt.",
     text: [
       "Die allgemeine Sinusfunktion f(x) = a · sin(b · (x − c)) + d hat vier Parameter, und jeder verändert den Graphen auf eine eigene Art: a streckt nach oben und unten, b staucht in x-Richtung, c verschiebt nach links oder rechts, d hebt die Mittellinie. Schwer wird es, wenn du sie aus einem Graphen ablesen sollst.",
-      "Im Modus „Aufgabe lösen“ ist ein goldener Zielgraph vorgegeben. Du veränderst a, b, c und d mit Plus und Minus, bis dein Graph genau darauf liegt. Die App erkennt den Treffer sofort. Die Verschiebung c kannst du wahlweise als Vielfaches von π einstellen. Kommst du nicht weiter, zeigt dir „Lösung zeigen“ eine mögliche Lösung. Im Modus „Frei erkunden“ probierst du ohne Ziel aus, was jeder Parameter bewirkt.",
+      "Im Modus „Trainieren“ ist ein goldener Zielgraph vorgegeben. Du veränderst a, b, c und d mit Plus und Minus, bis dein Graph genau darauf liegt. Die App erkennt den Treffer sofort. Die Verschiebung c kannst du wahlweise als Vielfaches von π einstellen. Kommst du nicht weiter, zeigt dir „Lösung zeigen“ eine mögliche Lösung. Im Modus „Entdecken“ probierst du ohne Ziel aus, was jeder Parameter bewirkt.",
       "Zu deiner Funktion siehst du Amplitude, Periode und Ableitung mit Kettenregel. Die Nullstellen werden im Bereich −2π ≤ x ≤ 2π berechnet. Auf Wunsch blendest du f′ als zweiten Graphen ein.",
     ],
     faq: [

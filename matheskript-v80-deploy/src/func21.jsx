@@ -383,7 +383,7 @@ export function Sinusfunktion({ gehe, ansicht = "sinus" }) {
   const modusLeiste = (
       <div style={{ display: "flex", gap: 6, marginBottom: 12, background: C.weiss, borderRadius: 14, padding: 5, ...(desktop ? { border: `1px solid ${C.linie}` } : { boxShadow: "0 2px 12px rgba(15,26,51,0.06)" }) }}>
         {[["aufgabe", "Trainieren"], ["frei", "Entdecken"]].map(([id, t]) => (
-          <button key={id} onClick={() => { setModus(id); setLoesung(false); }}
+          <button key={id} data-modus-reiter={id === "frei" ? "entdecken" : id} onClick={() => { setModus(id); setLoesung(false); }}
             style={{ flex: 1, height: 40, borderRadius: 10, border: "none", fontFamily: "inherit", cursor: "pointer", fontSize: 14, fontWeight: 700,
               background: modus === id ? `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)` : "transparent",
               color: modus === id ? C.weiss : C.see }}>{t}</button>

@@ -114,6 +114,9 @@ with sync_playwright() as p:
             for ansicht in ("kreis", "koerper", "kongruenz", "strahlensaetze"):
                 wo = f"{sprache}/{breite}/{ansicht}"
                 page.goto(BASE + ansicht); page.wait_for_timeout(1200)
+                # Werkzeuge öffnen seit „Aufgabe zuerst“ (21.10.) im Übungsmodus – die Animation steht in Entdecken
+                if page.locator("[data-geo-anim]:visible").count() == 0 and page.locator("[data-modus-reiter='entdecken']").count():
+                    page.locator("[data-modus-reiter='entdecken']").first.click(); page.wait_for_timeout(400)
                 anim = page.locator("[data-geo-anim]:visible")
                 pruefe(anim.count() == 1, f"{wo}: Animation fehlt")
                 for wert in (0.0, 0.15, 0.35, 0.5, 0.65, 0.8, 1.0):

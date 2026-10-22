@@ -184,7 +184,7 @@ export function ModusLeiste({ modi, modus, setModus, label }) {
       {modi.map(([id, text]) => {
         const an = modus === id;
         return (
-          <button key={id} type="button" role="tab" aria-selected={an} onClick={() => setModus(id)}
+          <button key={id} type="button" role="tab" aria-selected={an} data-modus-reiter={id} onClick={() => setModus(id)}
             style={{ minHeight: 44, padding: "6px 6px", borderRadius: 999, fontFamily: "inherit", cursor: "pointer", fontSize: 13.5, fontWeight: 700, lineHeight: 1.25, textAlign: "center", hyphens: "manual", overflowWrap: "break-word",
               border: `1.5px solid ${an ? C.see : C.linie}`, background: an ? C.see : C.weiss, color: an ? C.weiss : C.see }}>{text}</button>
         );

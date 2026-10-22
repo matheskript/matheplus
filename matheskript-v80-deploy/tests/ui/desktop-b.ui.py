@@ -88,9 +88,10 @@ with sync_playwright() as pw:
         p.get_by_role("button", name="c als Vielfaches von π", exact=True).click()
         p.get_by_role("button", name="c erhöhen", exact=True).click()
         p.get_by_role("button", name="Lösung zeigen", exact=True).click()
-        pruefe(p.get_by_text("Eine mögliche Lösung").count() == 1, f"{n}: Lösung zeigen wirkt nicht")
+        pruefe(p.get_by_text("Eine mögliche Lösung", exact=True).count() == 1,  # exact: der SEO-Text darunter enthält „… eine mögliche Lösung“
+             f"{n}: Lösung zeigen wirkt nicht")
         p.get_by_role("button", name="🎲 Neue Aufgabe", exact=True).click()
-        p.get_by_role("button", name="Frei erkunden", exact=True).click()
+        p.locator("[data-modus-reiter='entdecken']").first.click()  # früher „Frei erkunden“, seit Umbau C „Entdecken“
         pruefe(p.get_by_role("button", name="🎲 Neue Aufgabe", exact=True).count() == 0, f"{n}: Modus-Wechsel wirkt nicht")
         ueberbreite(p, n + " frei")
         foto(p, f"sinus-{w}")
@@ -156,6 +157,9 @@ with sync_playwright() as pw:
         # ---------- Funktionen: Grundlagen (Labore in allen Kapiteln) ----------
         n = f"{w} funktionen"
         p = seite(ctx, "/funktionen", w)
+        # seit „Aufgabe zuerst“ (21.10.) öffnet das Werkzeug im Übungsmodus; Kapitel und Labore stehen in Entdecken
+        if p.locator("[data-kapitel]:visible").count() == 0:
+            p.locator("[data-modus-reiter='entdecken']").first.click(); p.wait_for_timeout(400)
         for kid in ["begriff", "potenz", "wurzel", "umkehr", "verkettung", "dw"]:
             p.locator(f"[data-kapitel={kid}]").click()
             p.wait_for_timeout(400)

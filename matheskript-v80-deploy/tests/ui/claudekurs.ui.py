@@ -1,6 +1,6 @@
 """Browser-Test: Kurse „Mathe lernen mit Claude“ (ab 18, /mathe-lernen-mit-claude) und
 „Mathe lernen mit Gemini“ (ab 16, /mathe-lernen-mit-gemini).
-Prüft bei 360, 390 und 1280 px: beide Startseiten-Kacheln, Übersicht mit zehn Lektionen, Schwesterkurs-Knopf,
+Prüft bei 360, 390 und 1280 px: die Kachel auf „Alle Kurse“, Übersicht mit zehn Lektionen, Schwesterkurs-Knopf,
 jede Lektion mit Film (Player läuft, Schritt springen), Prompts kopieren, Beispiel-Chat je Kurs
 (Claude aus dem Buch Ableitungen, Gemini eigene Aufgaben), KI-Name eingesetzt, Zugangs-Schritte je Kurs,
 Auftrag abhaken, Lektion abhaken, „Nächste Lektion“, Fortschritt – ohne Überbreite und ohne Konsolenfehler.
@@ -27,10 +27,10 @@ with sync_playwright() as p:
         def breite_ok(wo):
             sw = page.evaluate("document.documentElement.scrollWidth"); pruefe(sw <= breite, f"{breite}: Überbreite bei {wo}: {sw}")
 
-        # Startseite: zwei Kacheln
-        page.goto(BASE); page.wait_for_timeout(1200)
+        # Seite „Alle Kurse“ (/kurse): die große Kachel steht seit der Startseite in sieben Blöcken (21.10.) nur noch dort
+        page.goto(BASE + "kurse"); page.wait_for_timeout(1200)
         pruefe(page.locator("[data-claudekurs-kachel=ki]").count() == 1, f"{breite}: Kachel „Mathe mit KI lernen“ fehlt")
-        pruefe(page.locator("[data-claudekurs-kachel=claude], [data-claudekurs-kachel=gemini]").count() == 0, f"{breite}: alte Einzelkacheln noch auf der Startseite")
+        pruefe(page.locator("[data-claudekurs-kachel=claude], [data-claudekurs-kachel=gemini]").count() == 0, f"{breite}: alte Einzelkacheln noch auf der Kursseite")
         page.locator("[data-claudekurs-kachel=ki]").scroll_into_view_if_needed(); page.screenshot(path=f"{AUS}/{breite}-kacheln.png")
         page.locator("[data-claudekurs-kachel=ki]").click(); page.wait_for_timeout(1200)
 

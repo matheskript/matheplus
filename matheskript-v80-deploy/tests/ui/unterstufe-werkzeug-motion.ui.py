@@ -1,4 +1,5 @@
 """Browser-Test: Animationen in den 13 Unterstufen-Werkzeugen (Entdecken, oben „So geht’s“ mit Chip-Wahl).
+Die Werkzeuge öffnen im Übungsmodus; der Test wechselt über [data-modus-reiter='entdecken'] (ModusLeiste, ui3.jsx).
 Je Werkzeug bei 390 und 1280 px: Auswahl da (Zahl der Chips = Zahl der Animationen), erste Animation startet von selbst,
 jeder Chip zeigt seine Animation, keine Seitenfehler, keine Überbreite. Auf Englisch: keine Animationen.
   npm run build && npx vite preview --port 4173 &   →   python3 -u tests/ui/unterstufe-werkzeug-motion.ui.py
@@ -29,7 +30,10 @@ with sync_playwright() as p:
         page.evaluate("localStorage.clear(); localStorage.setItem('mm-start-app','1'); localStorage.setItem('mm-onboarding-v1', JSON.stringify({uebersprungen:true}));")
         for w, n in anzahl.items():
             wo = f"{breite}/{w}"
-            page.goto(BASE + w); page.wait_for_selector("[data-usm-auswahl]", timeout=15000); page.wait_for_timeout(300)
+            page.goto(BASE + w); page.wait_for_selector("[data-usm-auswahl]", state="attached", timeout=15000)
+            # Werkzeuge öffnen seit dem Umbau „Aufgabe zuerst“ (21.10.) im Übungsmodus – die Animationen stehen in Entdecken
+            if not page.locator("[data-usm-auswahl]").is_visible(): page.locator("[data-modus-reiter='entdecken']").first.click()
+            page.wait_for_selector("[data-usm-auswahl]", timeout=15000); page.wait_for_timeout(300)
             a = page.locator("[data-usm-auswahl]")
             pruefe(a.get_attribute("data-usm-auswahl") == str(n), f"{wo}: {a.get_attribute('data-usm-auswahl')} statt {n} Animationen")
             pruefe(page.locator("[data-usm-chip]").count() == n, f"{wo}: {page.locator('[data-usm-chip]').count()} Chips statt {n}")
