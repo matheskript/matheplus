@@ -4,7 +4,7 @@
    Messbericht …) in den Startchunk ziehen.
    ====================================================================== */
 import { KOMP, LERN, tagSchluessel } from "./base3.jsx";
-import { lernAendern } from "./func6.jsx";
+import { lernAendern } from "./lernStand.js";
 import { FR } from "./funcRegistry.jsx";
 
 export function tagVon(offset) { const d = new Date(); d.setDate(d.getDate() + offset); return d; }

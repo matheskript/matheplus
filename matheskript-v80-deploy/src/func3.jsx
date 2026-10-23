@@ -9,7 +9,8 @@ import { FR } from "./funcRegistry.jsx";
 import { PLATZ, WEG_TYPEN, gleichZahl, istLeer } from "./base2.jsx";
 import { kiKopf, kiAntwort } from "./base4.jsx";
 import { ErklaerVideo, jsonLesen, parseZahl } from "./func1.jsx";
-import { LoesungsWeg } from "./func6.jsx";
+import { lazyLaden } from "./chunkSchutz.jsx";
+const LoesungsWeg = lazyLaden(() => import("./func6.jsx").then((m) => ({ default: m.LoesungsWeg })));   // großer Editor, lädt beim Öffnen (Startchunk)
 import { merken } from "./merken.js";
 import { termAlsTex } from "./termTex.js";
 import { MatheFeld } from "./matheTastatur.jsx";
@@ -1988,8 +1989,10 @@ export function RechenwegEditor({ onZurueck }) {
       </div>
 
       {grossOffen && (
-        <LoesungsWeg titelTex={auf.tex} aufgabeText={typ.aufgabe(auf)} typ={typ} auf={auf}
-          onSchliessen={() => setGrossOffen(false)} />
+        <React.Suspense fallback={null}>
+          <LoesungsWeg titelTex={auf.tex} aufgabeText={typ.aufgabe(auf)} typ={typ} auf={auf}
+            onSchliessen={() => setGrossOffen(false)} />
+        </React.Suspense>
       )}
 
       {/* Sokratische Hilfe zum nächsten offenen Schritt */}

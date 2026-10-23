@@ -25,7 +25,6 @@ import { englisch, tr } from "./i18n.js";
 import { useKonto, abmelden, testkontoStarten } from "./konto.js";
 import { SuchBox } from "./funcSuche.jsx";
 import { MathildaName } from "./mathildaName.jsx";
-import { MathildaBild } from "./funcMathildaBild.jsx";
 import { ETIKETTEN } from "./werkzeuge.js";
 import {
   GOLD_VERLAUF, BLAU_VERLAUF, NACHT_VERLAUF, Ikon, TRAINING_IKON, KI_IKON, KONTO_IKON, Pfeil, GoldPlus, zeichenGroesse, Bald, istAktuell,
@@ -34,6 +33,7 @@ import {
 import { EVENT_START_MODUS, START_MODI, startModus, startModusSetzen } from "./startModus.js";
 import { DESKTOP_MENUE_AB } from "./hauptmenue.js";
 import { lazyLaden } from "./chunkSchutz.jsx";
+const MathildaBild = lazyLaden(() => import("./funcMathildaBild.jsx").then((m) => ({ default: m.MathildaBild })));   // Bild im Menü, lädt beim Öffnen (Startchunk)
 const DesktopMenue = lazyLaden(() => import("./funcHauptmenueDesktop.jsx").then((m) => ({ default: m.DesktopMenue })));   // nur ab 900 px, lädt beim Öffnen
 import {
   LEISTE, KI_MENUE, TRAINING, KURSE, BALD_KURSE, WEITERE_ANGEBOTE, STUFEN, STUFE_SCHLUESSEL, istStufe, FORMELN, NACHSCHLAGEN,
@@ -580,7 +580,7 @@ export function HauptMenue({ gehe, ansicht, foto, seite, offen, setOffen }) {
             {/* 2 · Mathilda */}
             <section className="hm-mathilda" data-hm-mathilda aria-label="Mathilda AI">
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12, position: "relative" }}>
-                <span className="hm-avatar"><MathildaBild groesse={96} style={{ display: "block", marginLeft: -22, marginTop: -30 }} /></span>
+                <span className="hm-avatar"><React.Suspense fallback={<span style={{ display: "block", width: 96, height: 96, marginLeft: -22, marginTop: -30 }} />}><MathildaBild groesse={96} style={{ display: "block", marginLeft: -22, marginTop: -30 }} /></React.Suspense></span>
                 <span className="hm-online" aria-hidden="true" />
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <span style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>

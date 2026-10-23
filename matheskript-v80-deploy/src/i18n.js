@@ -1,5 +1,5 @@
-import { kdText } from "./kdEnglisch.js";
-import { MINDSET_EN } from "./i18n/mindsetEn.js";
+/* Englische Zusatzdaten (Kurvendiskussion, Mindset) laden nur bei Englisch in spracheStarten (Startchunk, 23.10.) */
+let kdText = (s) => s;
 /* ======================================================================
    SPRACHE: Deutsch (Original) oder Englisch.
    Die App ist auf Deutsch geschrieben. Im englischen Modus wird das
@@ -46,7 +46,7 @@ function musterBauen(liste) {
 
 /* Ergänzungen, die im Wörterbuch fehlen */
 const ZUSATZ = {
-  ...MINDSET_EN,
+  /* + MINDSET_EN (i18n/mindsetEn.js), in spracheStarten ergänzt – die Einträge hier haben Vorrang */
   /* Startseite, Bühne (21.10.) */
   "Mathe sichtbar machen": "Make maths visible",
   /* ☰-Hauptmenü (funcHauptmenue.jsx) */
@@ -651,7 +651,9 @@ export async function spracheStarten() {
   document.documentElement.lang = lang;
   if (lang !== "en") return;
   try {
-    const d = (await import("./i18n/en.json")).default;
+    const [d, kd, mind] = await Promise.all([import("./i18n/en.json").then((m) => m.default), import("./kdEnglisch.js"), import("./i18n/mindsetEn.js")]);
+    kdText = kd.kdText;
+    for (const [k, v] of Object.entries(mind.MINDSET_EN)) if (!(k in ZUSATZ)) ZUSATZ[k] = v;
     EXAKT = new Map(Object.entries(d.exakt));
     MUSTER = musterBauen(d.muster);
     if (document.body) beobachten();

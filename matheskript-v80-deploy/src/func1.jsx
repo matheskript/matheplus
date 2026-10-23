@@ -5,7 +5,7 @@ import { MODUL_KATALOG } from "./base2.jsx";
 import { aktiv } from "./base3.jsx";
 import { kiKopf, kiAntwort } from "./base4.jsx";
 import { LernModul, M, RechenwegEditor } from "./func3.jsx";
-import { naechsteLektion, videoAnzahl } from "./func15.jsx";
+import { naechsteLektion, videoAnzahl } from "./videoStand.js";   // leicht – func15/base5 erst mit dem Player
 import { AufklappZeichen } from "./aufklappen.jsx";
 import { buchen } from "./buchung.jsx";
 import { hilfeKontext } from "./ui2.jsx";

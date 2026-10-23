@@ -1,7 +1,7 @@
 /* Wächter für den Startchunk (Trainingstools G, 21.10.2026): Diese Module dürfen von main.jsx aus nicht
    statisch erreichbar sein – sie laden über lazyLaden() erst mit ihrer Ansicht. Wer einen neuen statischen
    Import einbaut, der eines davon mitzieht, sieht hier die Kette. Messen: npx vite build → dist/assets/index-*.js
-   (Stand 21.10.: 1,5 MB / 482 kB gzip; vorher 3,4 MB / 1,4 MB gzip). */
+   (Stand 23.10.: 1,28 MB / 396 kB gzip; 21.10.: 1,5 MB / 482 kB; vorher 3,4 MB / 1,4 MB). */
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -37,6 +37,11 @@ const NICHT_IM_START = [
   "funcHauptmenueDesktop.jsx", "funcStartseite.jsx", "funcRecht.jsx", "funcArbeitsmenue.jsx", "kanalSeiten.js",
   "unterstufeDaten.js", "unterstufeDaten5.js", "unterstufeDaten6.js", "funcWettbewerbe.jsx", "deutschlandKarte.js",
   "funcDiffqTrainer.jsx", "diffqKern.js", "formelEngine.js", "regelwerkKern.js",
+  /* Schnitt 23.10. (482 → 396 kB gzip): Suchindex beim ersten Fokus, Lernstand-Komponenten und großer Editor mit
+     ihrer Ansicht (Speicherschicht in lernStand.js), Videokurse über videoLeicht.js, Mathilda-Gedächtnis beim
+     Analysieren, Menübild, GFS-Kopf, Stadion-Farben und englische Zusatzdaten nur bei Bedarf */
+  "suche.js", "fsLeicht.js", "func6.jsx", "func15.jsx", "base5.jsx", "mathildaKontext.js", "lernpfade.js",
+  "funcMathildaBild.jsx", "funcGfsThemenKopf.jsx", "stadionGold.js", "kdEnglisch.js", "i18n/mindsetEn.js",
 ];
 
 test("Startchunk: große Ansichten sind von main.jsx nicht statisch erreichbar (lazyLaden)", () => {
@@ -47,5 +52,5 @@ test("Startchunk: große Ansichten sind von main.jsx nicht statisch erreichbar (
 
 test("Startchunk: der statische Graph bleibt klein", () => {
   const n = Object.keys(statischerGraph()).length;
-  assert.ok(n <= 125, `${n} Module statisch von main.jsx erreichbar (Stand 21.10.: 109)`);
+  assert.ok(n <= 125, `${n} Module statisch von main.jsx erreichbar (Stand 23.10.: 103)`);
 });

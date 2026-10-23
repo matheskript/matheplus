@@ -1,7 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { C } from "./base1.jsx";
 import { englisch } from "./i18n.js";
-import { suche } from "./suche.js";
+/* Der Suchindex (suche.js + fsLeicht.js, ~100 kB) lädt erst, wenn jemand die Suche anfasst (Startchunk, 23.10.) */
+let sucheModul = null, sucheLaden = null;
+export const sucheVorladen = () => {
+  if (!sucheLaden) sucheLaden = import("./suche.js").then((m) => (sucheModul = m)).catch((e) => { sucheLaden = null; throw e; });
+  return sucheLaden;
+};
 
 import { springe } from "./sprung.js";
 /* ======================================================================
@@ -175,7 +180,15 @@ export function SuchBox({ gehe, einzeilig, buehne }) {
   const feld = useRef(null);
   const ergebnisRef = useRef(null);
 
-  const erg = useMemo(() => (abfrage ? suche(abfrage.text, { erzwingen: abfrage.erzwingen }) : { art: "leer" }), [abfrage]);
+  const [geladen, setGeladen] = useState(() => !!sucheModul);
+  useEffect(() => {
+    if (!abfrage || sucheModul) return undefined;
+    let aktiv = true;
+    sucheVorladen().then(() => { if (aktiv) setGeladen(true); }, () => {});
+    return () => { aktiv = false; };
+  }, [abfrage]);
+  const bereit = geladen || !!sucheModul;
+  const erg = useMemo(() => (abfrage && sucheModul ? sucheModul.suche(abfrage.text, { erzwingen: abfrage.erzwingen }) : { art: "leer" }), [abfrage, bereit]);
   const auf = erg.art !== "leer";
 
   const absenden = (text, erzwingen = false) => {
@@ -189,12 +202,12 @@ export function SuchBox({ gehe, einzeilig, buehne }) {
 
   /* Nach jeder neuen Antwort in Sicht holen (die Box wächst nach unten) */
   useEffect(() => {
-    if (!abfrage || !ergebnisRef.current) return;
+    if (!abfrage || !bereit || !ergebnisRef.current) return;
     const id = setTimeout(() => {
       try { springe("suche-ergebnis", () => ergebnisRef.current.scrollIntoView({ block: "nearest", behavior: "smooth" })); } catch (e) { /* alte Browser */ }
     }, 120);
     return () => clearTimeout(id);
-  }, [abfrage]);
+  }, [abfrage, bereit]);
 
   /* Startseite: nur die Pille (Lupe = Suchen), ohne Überschrift; Treffer als weißes Blatt darunter */
   if (buehne) return (
@@ -202,7 +215,7 @@ export function SuchBox({ gehe, einzeilig, buehne }) {
       <style>{CSS}</style>
       <form onSubmit={(ev) => { ev.preventDefault(); absenden(eingabe); }} className="such-buehne-feld">
         <button type="submit" className="such-buehne-knopf" aria-label={L("Suchen", "Search")}><Lupe groesse={20} farbe="currentColor" /></button>
-        <input ref={feld} type="search" value={eingabe} onChange={(ev) => setEingabe(ev.target.value)}
+        <input ref={feld} type="search" value={eingabe} onChange={(ev) => setEingabe(ev.target.value)} onFocus={() => { sucheVorladen().catch(() => {}); }}
           onKeyDown={(ev) => { if (ev.key === "Escape") leeren(); }}
           placeholder={L("Was möchtest du lernen?", "What would you like to learn?")}
           aria-label={L("Was möchtest du lernen oder wobei brauchst du Hilfe?", "What would you like to learn or what do you need help with?")}
@@ -227,7 +240,7 @@ export function SuchBox({ gehe, einzeilig, buehne }) {
         <h2 style={{ margin: einzeilig ? 0 : "0 0 8px 2px", flex: einzeilig ? "0 0 auto" : undefined, fontSize: 15, fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 1.3, color: C.tinte, whiteSpace: "nowrap" }}>{L("Was möchtest du lernen?", "What would you like to learn?")}</h2>
         <form onSubmit={(ev) => { ev.preventDefault(); absenden(eingabe); }} className="such-eingabe"
           style={{ ...(einzeilig ? { flex: "1 1 220px", minWidth: 0 } : {}), display: "flex", alignItems: "center", gap: 4, background: C.sand, border: `1.5px solid ${C.linie}`, borderRadius: 12, padding: "2px 2px 2px 12px", transition: "border-color .15s ease, box-shadow .15s ease" }}>
-          <input ref={feld} type="search" value={eingabe} onChange={(ev) => setEingabe(ev.target.value)}
+          <input ref={feld} type="search" value={eingabe} onChange={(ev) => setEingabe(ev.target.value)} onFocus={() => { sucheVorladen().catch(() => {}); }}
             onKeyDown={(ev) => { if (ev.key === "Escape") leeren(); }}
             placeholder={L("z. B. Kettenregel, Brüche …", "e.g. chain rule, fractions …")}
             aria-label={L("Was möchtest du lernen oder wobei brauchst du Hilfe?", "What would you like to learn or what do you need help with?")}

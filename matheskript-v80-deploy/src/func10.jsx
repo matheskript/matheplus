@@ -26,7 +26,11 @@ const Klausur = lazyLaden(() => import("./func4.jsx").then((m) => ({ default: m.
 const Kurvendiskussion = lazyLaden(() => import("./func4.jsx").then((m) => ({ default: m.Kurvendiskussion })));
 const Fortschritt = lazyLaden(() => import("./func5.jsx").then((m) => ({ default: m.Fortschritt })));
 const Kopfrechnen = lazyLaden(() => import("./func5.jsx").then((m) => ({ default: m.Kopfrechnen })));
-import { Einstufung, Lernlandkarte, Liniennetz, Profil, lernLaden, lernLeer, lernSnapshot, lernVomKonto, useLern } from "./func6.jsx";
+import { lernLaden, lernLeer, lernSnapshot, lernVomKonto, useLern } from "./lernStand.js";
+/* Einstufung, Lernlandkarte und Profil laden mit ihrer Ansicht (func6.jsx nicht im Startchunk, 23.10.) */
+const Einstufung = lazyLaden(() => import("./func6.jsx").then((m) => ({ default: m.Einstufung })));
+const Lernlandkarte = lazyLaden(() => import("./func6.jsx").then((m) => ({ default: m.Lernlandkarte })));
+const Profil = lazyLaden(() => import("./func6.jsx").then((m) => ({ default: m.Profil })));
 import { syncStarten } from "./lernSync.js";
 import { entdeckenSyncStarten } from "./entdeckenSync.js";
 import { penpaperSyncStarten } from "./penpaperSync.js";
@@ -39,7 +43,6 @@ const SoArbeitetMathilda = lazyLaden(() => import("./funcMathildaSeite.jsx").the
 import { kameraWunschSetzen } from "./kameraWunsch.js";
 import { uebenWunschLesen, uebenWunschSetzen, uebenWunschVerwerfen } from "./uebenWunsch.js";
 const BlattScanner = lazyLaden(() => import("./funcBlattScanner.jsx").then((m) => ({ default: m.BlattScanner })));
-import { mathildaSystem } from "./mathildaKontext.js";
 const Operatoren = lazyLaden(() => import("./func7.jsx").then((m) => ({ default: m.Operatoren })));
 const Wiederholen = lazyLaden(() => import("./func7.jsx").then((m) => ({ default: m.Wiederholen })));
 const Messbericht = lazyLaden(() => import("./func8.jsx").then((m) => ({ default: m.Messbericht })));
@@ -175,7 +178,10 @@ import { linkAusUrlMerken as masterclassLinkMerken, autoEinloesen as masterclass
 import { englisch, spracheWechseln } from "./i18n.js";
 
 import { springe, springeZuId } from "./sprung.js";
-import { GfsThemenKopf, DosenBild, PascalBild } from "./funcGfsThemenKopf.jsx";
+/* GFS-Themenkopf und seine Bilder laden mit der Themenseite (Startchunk, 23.10.) */
+const GfsThemenKopf = lazyLaden(() => import("./funcGfsThemenKopf.jsx").then((m) => ({ default: m.GfsThemenKopf })));
+const DosenBild = lazyLaden(() => import("./funcGfsThemenKopf.jsx").then((m) => ({ default: m.DosenBild })));
+const PascalBild = lazyLaden(() => import("./funcGfsThemenKopf.jsx").then((m) => ({ default: m.PascalBild })));
 // Menü-Button im Header: vorübergehend aus (true = wieder einblenden)
 const ZEIGE_MENUE = false;
 
@@ -474,6 +480,7 @@ export function Mathilda() {
     try { zaehler = parseInt(localStorage.getItem(ANALYSE_ZAEHLER) || "0", 10) || 0; } catch (e) { /* privat */ }
     const prompt = blattPrompt({ stiftHinweis: (zaehler + 1) % 3 === 0 });
     try {
+      const { mathildaSystem } = await import("./mathildaKontext.js");   // Gedächtnis-Text erst beim Analysieren laden (Startchunk)
       const res = await fetch(API_URL, {
         method: "POST",
         headers: kiKopf(),

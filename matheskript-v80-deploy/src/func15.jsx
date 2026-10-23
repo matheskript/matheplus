@@ -15,24 +15,10 @@ import { C } from "./base1.jsx";
 import { BUNNY_LIBRARY, VIDEOKURSE } from "./base5.jsx";
 
 import { springe } from "./sprung.js";
-const schluessel = (kursId) => `mm-videokurs-${kursId}`;
-
-function ladeErledigt(kursId) {
-  try { return JSON.parse(localStorage.getItem(schluessel(kursId)) || "[]"); } catch { return []; }
-}
+import { videoSchluessel as schluessel, ladeErledigt, videoAnzahl, naechsteLektion } from "./videoStand.js";
+export { videoAnzahl, naechsteLektion };   // alte Importe aus func15 funktionieren weiter
 function speichereErledigt(kursId, liste) {
   try { localStorage.setItem(schluessel(kursId), JSON.stringify(liste)); } catch { /* optional */ }
-}
-
-export const videoAnzahl = (kursId) => (VIDEOKURSE[kursId] ? VIDEOKURSE[kursId].lektionen.length : 0);
-
-/* Index der nächsten noch nicht erledigten Lektion (oder 0). */
-export function naechsteLektion(kursId) {
-  const vk = VIDEOKURSE[kursId];
-  if (!vk) return 0;
-  const erledigt = ladeErledigt(kursId);
-  const i = vk.lektionen.findIndex((l) => !erledigt.includes(l.id));
-  return i < 0 ? 0 : i;
 }
 
 function Fortschrittsbalken({ anteil, hell }) {

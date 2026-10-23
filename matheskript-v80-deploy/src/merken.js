@@ -6,7 +6,7 @@
 import { FR } from "./funcRegistry.jsx";
 import { PROTOKOLL } from "./base2.jsx";
 import { LERN } from "./base3.jsx";
-import { lernAusUebung, lernSpeichern } from "./func6.jsx";
+import { lernAusUebung, lernSpeichern } from "./lernStand.js";
 import { aktivitaetMelden } from "./lernMelden.js";
 
 export function merken(eintrag) {
