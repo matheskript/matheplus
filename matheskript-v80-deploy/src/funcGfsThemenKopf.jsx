@@ -8,6 +8,8 @@
      PascalBild  – Zeilen 0 bis 7, ungerade Zahlen gold (Sierpiński-Muster)
    ============================================================ */
 import React from "react";
+/* Knopf „GFS wählen“ lazy: gfsKurs.js (Themenliste) soll nicht in den Startchunk */
+const GfsWahl = React.lazy(() => import("./funcGfsWahl.jsx").then((m) => ({ default: m.GfsWahl })));
 import { C } from "./base1.jsx";
 
 const STIL = `
@@ -17,7 +19,9 @@ const STIL = `
       linear-gradient(155deg,${C.nachtschwarz} 0%,#15130B 60%,#2A2109 100%)}
   .gtk::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(118deg,rgba(255,246,214,0.10) 0%,transparent 38%)}
   .gtk-innen{position:relative;padding-top:16px;padding-bottom:12px;display:grid;grid-template-columns:minmax(0,1fr);row-gap:0}
-  .gtk-zurueck{justify-self:start;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px 0 10px;border-radius:999px;cursor:pointer;font-family:inherit;
+  .gtk-oben{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:36px}
+  .gtk-wahl-platz{flex:none;width:142px;height:36px;border-radius:999px;background:rgba(237,187,0,0.18)}
+  .gtk-zurueck{justify-self:start;flex:none;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px 0 10px;border-radius:999px;cursor:pointer;font-family:inherit;
     font-size:12.5px;font-weight:700;color:rgba(255,255,255,0.88);background:rgba(255,255,255,0.08);border:1px solid rgba(237,187,0,0.32)}
   .gtk-zurueck:focus-visible{outline:3px solid ${C.flaggold};outline-offset:2px}
   .gtk-titel{margin:14px 0 0;font-size:clamp(30px,8.6vw,40px);font-weight:800;letter-spacing:-0.035em;line-height:1.04;text-wrap:balance;color:${C.weiss}}
@@ -39,8 +43,9 @@ const STIL = `
   @media (prefers-reduced-motion:reduce){.gtk-auf,.gtk-glimmen{animation:none}}
 `;
 
-/* chips = ["Kursstufe 1", "Kap. I", "6 Animationen"]; Bild = Komponente; farben = { schein, schein2 } */
-export function GfsThemenKopf({ titel, chips = [], Bild, farben = {}, onZurueck }) {
+/* chips = ["Kursstufe 1", "Kap. I", "6 Animationen"]; Bild = Komponente; farben = { schein, schein2 }
+   gehe + ansicht: oben rechts der Knopf „GFS wählen“ (Klasse → Thema), ansicht = diese Themenseite */
+export function GfsThemenKopf({ titel, chips = [], Bild, farben = {}, onZurueck, gehe, ansicht }) {
   const vars = { ...(farben.schein ? { "--gtk-schein": farben.schein } : {}), ...(farben.schein2 ? { "--gtk-schein2": farben.schein2 } : {}) };
   return (
     <div className="gtk kopfblock" style={vars}>
@@ -48,12 +53,19 @@ export function GfsThemenKopf({ titel, chips = [], Bild, farben = {}, onZurueck 
       {/* mx-auto px-6 + maxWidth 620: dieselbe Spalte wie der Seiteninhalt (func10 weitet sie am Desktop auf) */}
       <div className="mx-auto px-6 gtk-innen" style={{ maxWidth: 620 }}>
         <div className="gtk-text">
-          {onZurueck && (
-            <button type="button" className="gtk-zurueck" onClick={onZurueck} aria-label="Zurück zum GFS-Training">
-              <svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8H4M7.5 4l-4 4 4 4" stroke="currentColor" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
-              GFS-Training
-            </button>
-          )}
+          <div className="gtk-oben">
+            {onZurueck ? (
+              <button type="button" className="gtk-zurueck" onClick={onZurueck} aria-label="Zurück zum GFS-Training">
+                <svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8H4M7.5 4l-4 4 4 4" stroke="currentColor" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                GFS-Training
+              </button>
+            ) : <span />}
+            {gehe && (
+              <React.Suspense fallback={<span className="gtk-wahl-platz" aria-hidden="true" />}>
+                <GfsWahl gehe={gehe} ansicht={ansicht} />
+              </React.Suspense>
+            )}
+          </div>
           <h1 className="gtk-titel">{titel}</h1>
           {chips.length > 0 && <ul className="gtk-chips" aria-label="Thema auf einen Blick">{chips.map((c) => <li key={c}>{c}</li>)}</ul>}
         </div>

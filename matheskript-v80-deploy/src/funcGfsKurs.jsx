@@ -1,5 +1,7 @@
 /* ============================================================
    GFS-TRAINING (ansicht "gfs", Pfad /gfs-trainer)
+   Ganz oben im Kopf: Knopf „GFS wählen“ (funcGfsWahl.jsx) – Klasse → Thema → Themenseite,
+   derselbe Knopf steht im Kopf jeder Themenseite.
    Aufbau wie die Kurse Differentialrechnung und Vektoren:
      1. Dein Thema: Knopf „Klasse wählen“ rechts neben der Überschrift →
         darunter klappt das Themenfenster der Stufe auf (5–8 GFS-Themen aus
@@ -19,6 +21,7 @@ import { STUFEN, stufeVon, stufeAusKlasse, stufenText, THEMEN, themenFuer, LEITF
 import { LACKSCHWARZ } from "./kursFarben.js";
 import { MotivBuehne } from "./funcKursMotive.jsx";
 import { KursKopf, FortschrittKarte, KapitelKopf, IconVideo, IconAufgabe, IconUhr } from "./funcKursKopf.jsx";
+import { GfsWahl } from "./funcGfsWahl.jsx";
 
 const K = { nacht: C.nachtschwarz, dunkel: C.golddunkel, gold: C.flaggold, goldWarm: C.goldWarm, hell: "#FFF6D6", weiss: C.weiss, text: "#A67C00" };
 
@@ -36,9 +39,10 @@ const standSchreiben = (s) => { try { localStorage.setItem(SPEICHER, JSON.string
 const schrittFertig = (s, stand) => s.check.every((_, i) => stand.haken[`${s.id}-${i}`]);
 
 /* ---------- Kopf ---------- */
-export function GfsKursKopf() {
+/* oben = Knopf „GFS wählen“ (Klasse → Thema), steht auch im Kopf jeder Themenseite */
+export function GfsKursKopf({ oben } = {}) {
   return (
-    <KursKopf farben={LACKSCHWARZ} Motiv={MotivBuehne} id="ks-gfs" titel="GFS-Training"
+    <KursKopf farben={LACKSCHWARZ} Motiv={MotivBuehne} id="ks-gfs" titel="GFS-Training" oben={oben}
       zeile="Dein Thema aus dem Lambacher Schweizer finden – und in sieben Schritten lernen, wie eine GFS gelingt."
       chips={[
         { icon: <IconAufgabe />, text: `${LEITFADEN.length} Schritte` },
@@ -310,7 +314,9 @@ export function GfsKursSeite({ gehe }) {
 
   return (
     <>
-      <GfsKursKopf />
+      <GfsKursKopf oben={<GfsWahl gehe={gehe} stufe={stand.stufe}
+        onStufe={(id) => { setFensterZu(false); setzen({ stufe: id }); }}
+        onThema={(t) => setzen({ stufe: t.stufe, thema: t.id })} />} />
       <div className="mx-auto px-4 pb-16" style={{ maxWidth: 760 }}>
         <FortschrittKarte farben={LACKSCHWARZ} zahl={fertigZahl} gesamt={LEITFADEN.length} einheit="Schritte" einheitDativ="Schritten"
           zusatz={thema ? <>Dein Thema: <b style={{ color: K.weiss }}>{thema.kurz}</b> ({stufenText(thema)})</> : "Noch kein Thema gewählt – bei „Dein Thema“ die Klasse wählen."}

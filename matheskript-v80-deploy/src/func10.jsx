@@ -1342,49 +1342,49 @@ export function Mathilda() {
       ) : ansicht === "gfs-pascal" ? (
         <>
           <GfsThemenKopf titel="Pascal’sches Dreieck" chips={["Klasse 10", "Kap. V", "Video + Beweis"]} Bild={PascalBild}
-            farben={{ schein2: "rgba(165,0,68,0.34)" }} onZurueck={() => gehe({ ansicht: "gfs" })} />
+            farben={{ schein2: "rgba(165,0,68,0.34)" }} onZurueck={() => gehe({ ansicht: "gfs" })} gehe={gehe} ansicht="gfs-pascal" />
           <GfsPascalSeite gehe={gehe} />
         </>
       ) : ansicht === "gfs-dose" ? (
         <>
           <GfsThemenKopf titel="Die optimale Dose" chips={["Kursstufe 1", "Kap. I", "6 Animationen"]} Bild={DosenBild}
-            onZurueck={() => gehe({ ansicht: "gfs" })} />
+            onZurueck={() => gehe({ ansicht: "gfs" })} gehe={gehe} ansicht="gfs-dose" />
           <GfsDoseSeite gehe={gehe} />
         </>
       ) : ansicht === "gfs-ziegen" ? (
         <>
           <GfsThemenKopf titel="Das Ziegenproblem" chips={["Klasse 9", "Kap. VI", "5 Animationen"]} Bild={ZiegenBild}
-            onZurueck={() => gehe({ ansicht: "gfs" })} />
+            onZurueck={() => gehe({ ansicht: "gfs" })} gehe={gehe} ansicht="gfs-ziegen" />
           <GfsZiegenSeite gehe={gehe} />
         </>
       ) : ansicht === "gfs-bayes" ? (
         <>
           <GfsThemenKopf titel="Der Satz von Bayes" chips={["Kursstufe 2", "Kap. VIII", "4 Animationen"]} Bild={BayesBild}
-            onZurueck={() => gehe({ ansicht: "gfs" })} />
+            onZurueck={() => gehe({ ansicht: "gfs" })} gehe={gehe} ansicht="gfs-bayes" />
           <GfsBayesSeite gehe={gehe} />
         </>
       ) : ansicht === "gfs-platonisch" ? (
         <>
           <GfsThemenKopf titel="Platonische Körper" chips={["Klasse 9", "Kap. VII", "5 Animationen"]} Bild={PlatonischBild}
-            onZurueck={() => gehe({ ansicht: "gfs" })} />
+            onZurueck={() => gehe({ ansicht: "gfs" })} gehe={gehe} ansicht="gfs-platonisch" />
           <GfsPlatonischSeite gehe={gehe} />
         </>
       ) : ansicht === "gfs-mischungen" ? (
         <>
           <GfsThemenKopf titel="Mischungen" chips={["Klasse 8", "Kap. VII", "5 Animationen"]} Bild={MischungenBild}
-            onZurueck={() => gehe({ ansicht: "gfs" })} />
+            onZurueck={() => gehe({ ansicht: "gfs" })} gehe={gehe} ansicht="gfs-mischungen" />
           <GfsMischungenSeite gehe={gehe} />
         </>
       ) : ansicht === "gfs-tangenten" ? (
         <>
           <GfsThemenKopf titel="Tangentenprobleme" chips={["Kursstufe 1", "Kap. I", "5 Animationen"]} Bild={TangentenBild}
-            onZurueck={() => gehe({ ansicht: "gfs" })} />
+            onZurueck={() => gehe({ ansicht: "gfs" })} gehe={gehe} ansicht="gfs-tangenten" />
           <GfsTangentenSeite gehe={gehe} />
         </>
       ) : ansicht === "gfs-exponential" ? (
         <>
           <GfsThemenKopf titel="Die Exponentialverteilung" chips={["Kursstufe 2", "Kap. X", "5 Animationen"]} Bild={ExponentialBild}
-            onZurueck={() => gehe({ ansicht: "gfs" })} />
+            onZurueck={() => gehe({ ansicht: "gfs" })} gehe={gehe} ansicht="gfs-exponential" />
           <GfsExponentialSeite gehe={gehe} />
         </>
       ) : ansicht === "potenzregel" ? (

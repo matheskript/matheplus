@@ -30,6 +30,8 @@ const STIL = `
   .ks-chips svg{width:13px;height:13px;flex:none}
   .ks-motiv{grid-column:2;grid-row:2;width:calc(100% + 30px);height:auto;margin:6px -22px -2px 0;align-self:end;justify-self:end;overflow:visible}
   .ks-kopf-flach .ks-kopf-innen{padding-bottom:26px}
+  .ks-oben{position:relative;z-index:2;display:flex;justify-content:flex-end;padding-top:16px}
+  .ks-mit-oben .ks-kopf-innen{padding-top:12px}
   .ks-kopf-kompakt .ks-kopf-innen{padding-top:22px;padding-bottom:20px;grid-template-columns:minmax(0,1fr)}
   .ks-kopf-kompakt .ks-titel{font-size:clamp(22px,6vw,28px)}
   .ks-kopf-kompakt .ks-zeile{margin-top:6px;font-size:14px}
@@ -107,6 +109,7 @@ const STIL = `
   .ks-modul-ok .ks-haken{border-color:transparent;background:var(--ks-fertig);color:var(--ks-fertigtext)}
   @media (min-width:840px){.ks-kopf-innen{grid-template-columns:minmax(0,1fr) 34%;grid-template-rows:auto auto;padding-top:44px;padding-bottom:58px;column-gap:24px}
     .ks-titel{grid-column:1;font-size:44px}.ks-kopf-kompakt .ks-kopf-innen{padding-top:26px;padding-bottom:22px}.ks-kopf-kompakt .ks-titel{font-size:30px}.ks-motiv{grid-row:1 / span 2;width:calc(100% + 28px);max-width:300px;margin:0 -16px -4px 0}.ks-zeile{font-size:16px;margin-top:14px}
+    .ks-oben{padding-top:22px}.ks-mit-oben .ks-kopf-innen{padding-top:18px}
     .ks-fortschritt{padding:22px 22px 20px}.ks-fortschritt-kopf{gap:20px}.ks-ring{width:80px;height:80px}.ks-ring-zahl{font-size:21px}.ks-fortschritt-stand{font-size:18px}}
   @media (prefers-reduced-motion:reduce){.ks-weiter,.ks-weiter svg,.ks-modul,.ks-medaille{transition:none}.ks-weiter:hover,.ks-modul:hover{transform:none}}
 `;
@@ -157,8 +160,9 @@ const Chevron = () => (
 /* ---------- Kopf ---------- */
 /* chips = [{ icon, text }, …] – die Fakten des Kurses (Module, Kapitel, Lesen und Trainieren …) */
 /* kompakt = in der Modulansicht: nur Titel und Zeile, ohne Chips und Motiv. flach = ohne Fortschrittskarte darunter */
-/* aktion = { text, label, icon, onClick }: Knopf oben rechts neben dem Titel. einzeilig = Zeile nie umbrechen. buendig = Kurve mit Radius 36 (konzentrische Karten) */
-export function KursKopf({ farben, Motiv, id, titel, zeile, chips = [], kompakt, flach, kennung, aktion, einzeilig, buendig }) {
+/* aktion = { text, label, icon, onClick }: Knopf oben rechts neben dem Titel. einzeilig = Zeile nie umbrechen. buendig = Kurve mit Radius 36 (konzentrische Karten)
+   oben = Element in einer eigenen Zeile über dem Titel, rechtsbündig (z. B. „GFS wählen“ im GFS-Training) */
+export function KursKopf({ farben, Motiv, id, titel, zeile, chips = [], kompakt, flach, kennung, aktion, einzeilig, buendig, oben }) {
   React.useInsertionEffect(stilSetzen, []);
   const zeileRef = React.useRef(null);
   /* einzeilig: Schrift schrittweise verkleinern (bis 11 px), bis die Zeile passt; Auslassungspunkte nur als letzte Rettung */
@@ -176,7 +180,8 @@ export function KursKopf({ farben, Motiv, id, titel, zeile, chips = [], kompakt,
     return () => ro.disconnect();
   }, [einzeilig, zeile]);
   return (
-    <div className={`ks-kopf${kompakt ? " ks-kopf-kompakt" : ""}${flach ? " ks-kopf-flach" : ""}${buendig ? " ks-kopf-buendig" : ""}${aktion ? " ks-mit-aktion" : ""}`} style={kursVars(farben)} {...kennung}>
+    <div className={`ks-kopf${kompakt ? " ks-kopf-kompakt" : ""}${flach ? " ks-kopf-flach" : ""}${buendig ? " ks-kopf-buendig" : ""}${aktion ? " ks-mit-aktion" : ""}${oben ? " ks-mit-oben" : ""}`} style={kursVars(farben)} {...kennung}>
+      {oben && <div className="mx-auto px-6 ks-oben" style={{ maxWidth: 620 }}>{oben}</div>}
       <div className="mx-auto px-6 ks-kopf-innen" style={{ maxWidth: 620 }}>
         {aktion ? (
           <div className="ks-titelzeile">
