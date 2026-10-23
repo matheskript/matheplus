@@ -135,6 +135,8 @@ const GfsMischungenSeite = lazyLaden(() => import("./funcGfsMischungen.jsx").the
 const MischungenBild = lazyLaden(() => import("./funcGfsMischungen.jsx").then((m) => ({ default: m.MischungenBild })));
 const GfsTangentenSeite = lazyLaden(() => import("./funcGfsTangenten.jsx").then((m) => ({ default: m.GfsTangentenSeite })));
 const TangentenBild = lazyLaden(() => import("./funcGfsTangenten.jsx").then((m) => ({ default: m.TangentenBild })));
+const GfsExponentialSeite = lazyLaden(() => import("./funcGfsExponential.jsx").then((m) => ({ default: m.GfsExponentialSeite })));
+const ExponentialBild = lazyLaden(() => import("./funcGfsExponential.jsx").then((m) => ({ default: m.ExponentialBild })));
 const PotenzregelSeite = lazyLaden(() => import("./func22.jsx").then((m) => ({ default: m.PotenzregelSeite })));
 const EFunktionSeite = lazyLaden(() => import("./funcEFunktion.jsx").then((m) => ({ default: m.EFunktionSeite })));
 const AbiZentrumSeite = lazyLaden(() => import("./funcAbiZentrum.jsx").then((m) => ({ default: m.AbiZentrumSeite })));
@@ -1372,11 +1374,18 @@ export function Mathilda() {
           <GfsThemenKopf titel="Mischungen" chips={["Klasse 8", "Kap. VII", "5 Animationen"]} Bild={MischungenBild}
             onZurueck={() => gehe({ ansicht: "gfs" })} />
           <GfsMischungenSeite gehe={gehe} />
+        </>
       ) : ansicht === "gfs-tangenten" ? (
         <>
           <GfsThemenKopf titel="Tangentenprobleme" chips={["Kursstufe 1", "Kap. I", "5 Animationen"]} Bild={TangentenBild}
             onZurueck={() => gehe({ ansicht: "gfs" })} />
           <GfsTangentenSeite gehe={gehe} />
+        </>
+      ) : ansicht === "gfs-exponential" ? (
+        <>
+          <GfsThemenKopf titel="Die Exponentialverteilung" chips={["Kursstufe 2", "Kap. X", "5 Animationen"]} Bild={ExponentialBild}
+            onZurueck={() => gehe({ ansicht: "gfs" })} />
+          <GfsExponentialSeite gehe={gehe} />
         </>
       ) : ansicht === "potenzregel" ? (
         <>
