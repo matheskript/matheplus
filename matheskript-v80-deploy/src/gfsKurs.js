@@ -73,6 +73,8 @@ export const THEMEN = [
   T("k1", "I", "Grundlagen der Differenzialrechnung", "Stetigkeit", "Ohne Absetzen zeichnen – und warum Sprünge Ableitungen verhindern.", { id: "stetigkeit" }),
   T("k1", "II", "Exponential- und Logarithmusfunktionen", "Beschränktes Wachstum", "Wachstum mit Obergrenze: Abkühlen, Sättigen, Annähern.", { id: "beschraenkt" }),
   T("k1", "II", "Exponential- und Logarithmusfunktionen", "Ausbreitung eines Virus modellieren", "Infektionszahlen mit Wachstumsmodellen beschreiben.", { id: "virus", kurz: "Virus-Ausbreitung" }),
+  T("k1", "III", "Integralrechnung", "Die Keplersche Fassregel", "Mit drei Messwerten Flächen und Fassvolumen schätzen – oft sogar exakt.",
+    { id: "fassregel", kurz: "Keplersche Fassregel", frage: "Wie schätzt man ein Integral mit nur drei Funktionswerten – und warum ist das oft exakt?", ansicht: "gfs-fassregel", videos: 0, animationen: 5 }),
   T("k1", "III", "Integralrechnung", "Partielle Integration", "Die Produktregel rückwärts: Integrale von Produkten berechnen.", { id: "partiell" }),
   T("k1", "V", "Lineare Gleichungssysteme", "Kubische Splines", "Kurven aus Polynomstücken glatt zusammensetzen.", { id: "splines" }),
   T("k1", "VI", "Geraden und Ebenen", "Kugeln", "Kugelgleichung, Tangentialebenen und Schnitte mit Geraden.", { id: "kugeln" }),
