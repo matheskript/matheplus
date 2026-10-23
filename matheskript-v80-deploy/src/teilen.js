@@ -131,6 +131,7 @@ export const SEITEN_SAETZE = {
   "gfs-exponential": { de: "die Exponentialverteilung verstehen und für eine GFS aufbereiten", en: "understand the exponential distribution and turn it into a school presentation" },
   "gfs-dose": { de: "die optimale Dose berechnen und für eine GFS aufbereiten", en: "calculate the optimal can and turn it into a school presentation" },
   "gfs-tangenten": { de: "Tangentenprobleme verstehen und für eine GFS aufbereiten", en: "understand tangent problems and turn them into a school presentation" },
+  "gfs-fassregel": { de: "die Keplersche Fassregel verstehen und für eine GFS aufbereiten", en: "understand Kepler’s barrel rule (Simpson’s rule) and turn it into a school presentation" },
   kurse: { de: "Mathe mit Videokursen lernen", en: "learn maths with video courses" },
   penpaperkurs: { de: "Mathe mit Stift und Papier üben", en: "practise maths with pen and paper" },
   elternkurs: { de: "mit dem richtigen Mindset an Mathe herangehen", en: "approach maths with the right mindset" },

@@ -20,13 +20,13 @@ test("Jedes Thema hat Stufe, Klassen, Kapitel und Kurzbeschreibung; gebaute Them
       assert.ok(t.videos > 0 || t.animationen > 0, `${t.id}: weder Video noch Animation`);
     }
   }
-  assert.equal(themenZahl(), 8);   // Pascal, Dose, Ziegenproblem, Bayes, Platonische Körper, Mischungen, Tangentenprobleme, Exponentialverteilung
+  assert.equal(themenZahl(), 9);   // Pascal, Dose, Ziegenproblem, Bayes, Platonische Körper, Mischungen, Tangentenprobleme, Exponentialverteilung, Keplersche Fassregel
 });
 
-test("Jede Stufe hat 5 bis 8 GFS-Themen", () => {
+test("Jede Stufe hat 5 bis 10 GFS-Themen", () => {
   for (const s of STUFEN) {
     const n = themenFuer(s.id).length;
-    assert.ok(n >= 5 && n <= 8, `${s.name}: ${n} Themen`);
+    assert.ok(n >= 5 && n <= 10, `${s.name}: ${n} Themen`);
   }
   assert.equal(THEMEN.length, STUFEN.reduce((a, s) => a + themenFuer(s.id).length, 0));
 });
