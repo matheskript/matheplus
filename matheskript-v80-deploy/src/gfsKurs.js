@@ -71,6 +71,8 @@ export const THEMEN = [
   T("k1", "I", "Grundlagen der Differenzialrechnung", "Die optimale Dose – Extremwertprobleme mit Nebenbedingungen", "Welche Dose braucht bei festem Inhalt am wenigsten Blech?",
     { id: "dose", kurz: "Die optimale Dose", seite: 34, frage: "Wie muss eine Dose aussehen, damit sie bei festem Inhalt am wenigsten Blech braucht?", ansicht: "gfs-dose", videos: 0, animationen: 6 }),
   T("k1", "I", "Grundlagen der Differenzialrechnung", "Stetigkeit", "Ohne Absetzen zeichnen – und warum Sprünge Ableitungen verhindern.", { id: "stetigkeit" }),
+  T("k1", "I", "Grundlagen der Differenzialrechnung", "Folgen und Grenzwerte", "Unendlich viele Summanden – und trotzdem eine endliche Summe?",
+    { id: "folgen", kurz: "Folgen und Grenzwerte", frage: "Kann man unendlich viele Zahlen addieren und trotzdem eine endliche Summe bekommen?", ansicht: "gfs-folgen", videos: 0, animationen: 5 }),
   T("k1", "II", "Exponential- und Logarithmusfunktionen", "Beschränktes Wachstum", "Wachstum mit Obergrenze: Abkühlen, Sättigen, Annähern.", { id: "beschraenkt" }),
   T("k1", "II", "Exponential- und Logarithmusfunktionen", "Ausbreitung eines Virus modellieren", "Infektionszahlen mit Wachstumsmodellen beschreiben.", { id: "virus", kurz: "Virus-Ausbreitung" }),
   T("k1", "III", "Integralrechnung", "Partielle Integration", "Die Produktregel rückwärts: Integrale von Produkten berechnen.", { id: "partiell" }),

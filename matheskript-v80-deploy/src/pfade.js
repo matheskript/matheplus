@@ -105,6 +105,7 @@ export const SEITEN = [
   { pfad: "gfs-trainer/ziegenproblem", ansicht: "gfs-ziegen", alias: ["gfs/ziegenproblem", "ziegenproblem", "monty-hall", "gfs-ziegen"] },
   { pfad: "gfs-trainer/satz-von-bayes", ansicht: "gfs-bayes", alias: ["gfs/satz-von-bayes", "satz-von-bayes", "gfs-bayes"] },
   { pfad: "gfs-trainer/platonische-koerper", ansicht: "gfs-platonisch", alias: ["gfs/platonische-koerper", "platonische-koerper", "gfs-platonisch"] },
+  { pfad: "gfs-trainer/folgen", ansicht: "gfs-folgen", alias: ["gfs/folgen", "zahlenfolgen", "geometrische-reihe", "gfs-folgen"] },
   { pfad: "unterstufe", ansicht: "unterstufe", alias: ["klasse-5-6", "kurs-unterstufe", "unterstufe-kurs", "klasse-5-und-6"] },
   { pfad: "differentialrechnung", ansicht: "diffkurs", alias: ["differenzialrechnung", "kurs-differentialrechnung", "diffkurs"] },
   { pfad: "vektoren-geraden-ebenen", ansicht: "vekkurs", alias: ["kurs-vektoren", "kurs-vektoren-geraden-ebenen", "vekkurs"] },
