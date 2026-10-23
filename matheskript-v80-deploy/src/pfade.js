@@ -108,6 +108,7 @@ export const SEITEN = [
   { pfad: "gfs-trainer/mischungen", ansicht: "gfs-mischungen", alias: ["gfs/mischungen", "mischungen", "mischungsrechnung", "mischungskreuz", "gfs-mischungen"] },
   { pfad: "gfs-trainer/tangentenprobleme", ansicht: "gfs-tangenten", alias: ["gfs/tangentenprobleme", "tangentenprobleme", "gfs-tangenten"] },
   { pfad: "gfs-trainer/exponentialverteilung", ansicht: "gfs-exponential", alias: ["gfs/exponentialverteilung", "exponentialverteilung", "wartezeiten", "gfs-exponential"] },
+  { pfad: "gfs-trainer/wachstum-differenzialgleichungen", ansicht: "gfs-wachstum", alias: ["gfs/wachstum", "differenzialgleichungen-wachstum", "beschraenktes-wachstum", "logistisches-wachstum", "gfs-wachstum"] },
   { pfad: "unterstufe", ansicht: "unterstufe", alias: ["klasse-5-6", "kurs-unterstufe", "unterstufe-kurs", "klasse-5-und-6"] },
   { pfad: "differentialrechnung", ansicht: "diffkurs", alias: ["differenzialrechnung", "kurs-differentialrechnung", "diffkurs"] },
   { pfad: "vektoren-geraden-ebenen", ansicht: "vekkurs", alias: ["kurs-vektoren", "kurs-vektoren-geraden-ebenen", "vekkurs"] },
