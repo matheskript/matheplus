@@ -109,6 +109,7 @@ export const SEITEN = [
   { pfad: "gfs-trainer/tangentenprobleme", ansicht: "gfs-tangenten", alias: ["gfs/tangentenprobleme", "tangentenprobleme", "gfs-tangenten"] },
   { pfad: "gfs-trainer/exponentialverteilung", ansicht: "gfs-exponential", alias: ["gfs/exponentialverteilung", "exponentialverteilung", "wartezeiten", "gfs-exponential"] },
   { pfad: "gfs-trainer/keplersche-fassregel", ansicht: "gfs-fassregel", alias: ["gfs/keplersche-fassregel", "keplersche-fassregel", "fassregel", "simpsonregel", "gfs-fassregel"] },
+  { pfad: "gfs-trainer/kugeln", ansicht: "gfs-kugeln", alias: ["gfs/kugeln", "kugelgleichung", "tangentialebene", "gfs-kugeln"] },
   { pfad: "unterstufe", ansicht: "unterstufe", alias: ["klasse-5-6", "kurs-unterstufe", "unterstufe-kurs", "klasse-5-und-6"] },
   { pfad: "differentialrechnung", ansicht: "diffkurs", alias: ["differenzialrechnung", "kurs-differentialrechnung", "diffkurs"] },
   { pfad: "vektoren-geraden-ebenen", ansicht: "vekkurs", alias: ["kurs-vektoren", "kurs-vektoren-geraden-ebenen", "vekkurs"] },
