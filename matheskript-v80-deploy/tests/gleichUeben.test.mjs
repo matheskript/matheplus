@@ -4,7 +4,8 @@
    verschieden, automatische Schritte („Exponenten vergleichen“) zählen nicht. */
 import test from "node:test";
 import assert from "node:assert/strict";
-import { FEHLERART, STUFEN, fehlerName, neueAufgabe, uebenFrage, uebenSchritte, uebenSchrittZu } from "../src/gleichKurs.js";
+import { FEHLERART, REITER, STUFEN, fehlerName, neueAufgabe, reiterNeu, uebenFrage, uebenSchritte, uebenSchrittZu } from "../src/gleichKurs.js";
+import { UEBEN_MODI } from "../src/uebenKern.js";
 import { aufAnhieb, sichtbareOptionen } from "../src/uebenKern.js";
 
 function seed(a) { return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
@@ -70,6 +71,15 @@ test("Stufe 7, 2^x = 32: der automatische Schritt „Exponenten vergleichen“ z
     assert.equal(uebenSchrittZu(schritte, a.zeilen.findIndex((z) => z.op && z.op.auto)), null);
   }
   assert.ok(gesehen >= 5, "keine Exponentialaufgabe erzeugt");
+});
+
+test("Reiter: Verstehen + die drei Modi; alte Ids „rechnen“ → Üben (geführte Auswahl), „training“ → Lernen", () => {
+  assert.deepEqual(REITER, ["verstehen", ...UEBEN_MODI.map((m) => m.id)]);
+  assert.equal(reiterNeu("rechnen"), "ueben");
+  assert.equal(reiterNeu("training"), "lernen");
+  for (const r of REITER) assert.equal(reiterNeu(r), r);
+  assert.equal(reiterNeu(null), null);
+  assert.equal(reiterNeu("unsinn"), null);
 });
 
 test("Fragen: Klammer und Zusammenfassen fragen „zuerst“, sonst „als Nächstes“ – in beiden Sprachen", () => {

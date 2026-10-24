@@ -136,8 +136,10 @@ export const SEITEN = [
   { pfad: "textaufgaben/mathilda", ansicht: "textaufgaben", seite: "mathilda", alias: ["mathilda/textaufgabe", "textaufgabe-uebersetzen"] },
   { pfad: "gleichungen-lernen", ansicht: "gleichkurs", alias: ["gleichungsbereich", "gleichungen-kurs"] },
   { pfad: "gleichungen-lernen/verstehen", ansicht: "gleichkurs", seite: "verstehen" },
-  { pfad: "gleichungen-lernen/rechnen", ansicht: "gleichkurs", seite: "rechnen" },
-  { pfad: "gleichungen-lernen/training", ansicht: "gleichkurs", seite: "training" },
+  /* Modi seit 22.10.: Auto · Üben · Lernen; die alten Reiter-Pfade „rechnen“ (= geführte Auswahl → Üben) und „training“ (→ Lernen) bleiben als Aliase */
+  { pfad: "gleichungen-lernen/auto", ansicht: "gleichkurs", seite: "auto" },
+  { pfad: "gleichungen-lernen/ueben", ansicht: "gleichkurs", seite: "ueben", alias: ["gleichungen-lernen/rechnen"] },
+  { pfad: "gleichungen-lernen/lernen", ansicht: "gleichkurs", seite: "lernen", alias: ["gleichungen-lernen/training"] },
   { pfad: "kopfrechnen/einmaleins", ansicht: "kopf", trainer: "multiplizieren" },
   { pfad: "kopfrechnen/quadratzahlen", ansicht: "kopf", trainer: "quadrate" },
   { pfad: "kopfrechnen/kubikzahlen", ansicht: "kopf", trainer: "kuben" },

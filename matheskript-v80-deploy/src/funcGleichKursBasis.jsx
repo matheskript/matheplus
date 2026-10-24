@@ -33,8 +33,10 @@ export const STATUS_NAME = () => ({ neu: L("neu", "new"), unsicher: L("unsicher"
 
 /* ---------------------------------------------------------------- Rechnungsblatt
    Eine Zeile pro Schritt, Gleichheitszeichen untereinander (Pen & Paper A6),
-   rechts am Rand die Umformung („| − 5“). neu = Index der zuletzt erschienenen Zeile. */
-export function Rechnung({ zeilen, neu = -1, opBis = zeilen.length - 1, gross = false, markiereLoesung = true }) {
+   rechts am Rand die Umformung („| − 5“). neu = Index der zuletzt erschienenen Zeile.
+   ziel = true: darunter eine leere nächste Zeile als Zielfeld des Modus „Üben“ (Klasse uw-ziel aus
+   funcUebenWahl.jsx, data-ueben-ziel) – in sie zieht die gewählte Umformung ein. */
+export function Rechnung({ zeilen, neu = -1, opBis = zeilen.length - 1, gross = false, markiereLoesung = true, ziel = false }) {
   const fs = gross ? "clamp(20px, 5.6vw, 26px)" : "clamp(17px, 4.6vw, 21px)";
   return (
     <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", padding: "4px 2px" }}>
@@ -55,6 +57,12 @@ export function Rechnung({ zeilen, neu = -1, opBis = zeilen.length - 1, gross = 
             </React.Fragment>
           );
         })}
+        {ziel && (
+          <span role="listitem" className="uw-ziel" data-ueben-ziel aria-label={L("Nächste Zeile – wähle unten die Umformung", "Next line – pick the step below")}
+            style={{ gridColumn: "1 / span 3", minHeight: 44, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 10, fontSize: "0.95em", padding: "4px 14px" }}>
+            <span className="uw-platz">?</span><span style={{ color: C.grau, fontWeight: 400 }}>=</span><span className="uw-platz">?</span>
+          </span>
+        )}
       </div>
     </div>
   );
@@ -130,17 +138,22 @@ export const eingeben = (alt, z) => {
 };
 
 /* ---------------------------------------------------------------- kleine Bausteine */
-export function Reiter({ wert, onWahl, optionen }) {
+/* optionen: [[id, name, nr], …]; titel(id) → Tooltip (z. B. der Satz des Modus). Ab vier Reitern wird die
+   Schrift am Handy kleiner, die Nummer verschwindet unter 420 px und die Spalten folgen dem Inhalt
+   („Understand“ bekommt mehr Platz als „Auto“), damit jede Beschriftung in einer Zeile bleibt. */
+export function Reiter({ wert, onWahl, optionen, titel = null }) {
+  const viele = optionen.length >= 4;
   return (
-    <div role="tablist" aria-label={L("Bereich wählen", "Choose section")}
-      style={{ display: "grid", gridTemplateColumns: `repeat(${optionen.length}, 1fr)`, gap: 4, padding: 4, borderRadius: 16, background: "#E9EEF6", marginBottom: 18 }}>
+    <div role="tablist" aria-label={L("Bereich wählen", "Choose section")} className={viele ? "gk-reiter gk-reiter-viele" : "gk-reiter"}
+      style={{ display: "grid", gridTemplateColumns: `repeat(${optionen.length}, ${viele ? "auto" : "minmax(0, 1fr)"})`, gap: 4, padding: 4, borderRadius: 16, background: "#E9EEF6", marginBottom: 18 }}>
+      {viele && <style>{`@media (max-width: 419px){.gk-reiter-viele .gk-reiter-nr{display:none}}`}</style>}
       {optionen.map(([id, name, nr]) => {
         const an = id === wert;
         return (
-          <button key={id} type="button" role="tab" aria-selected={an} onClick={() => onWahl(id)}
-            style={{ minHeight: 46, borderRadius: 12, border: "none", fontFamily: "inherit", cursor: "pointer", fontSize: 14.5, fontWeight: 700,
+          <button key={id} type="button" role="tab" aria-selected={an} onClick={() => onWahl(id)} title={titel ? titel(id) : undefined}
+            style={{ minHeight: 46, minWidth: 0, padding: viele ? "0 2px" : undefined, borderRadius: 12, border: "none", fontFamily: "inherit", cursor: "pointer", fontSize: viele ? "clamp(12.5px, 3.6vw, 14.5px)" : 14.5, fontWeight: 700, whiteSpace: "nowrap",
               background: an ? `linear-gradient(155deg, ${C.see} 0%, ${NACHT} 100%)` : "transparent", color: an ? C.weiss : C.see, boxShadow: an ? "0 3px 10px rgba(0,77,152,0.25)" : "none" }}>
-            <span style={{ color: an ? GOLD : C.hellgrau, marginRight: 6, fontWeight: 800 }}>{nr}</span>{name}
+            <span className="gk-reiter-nr" style={{ color: an ? GOLD : C.hellgrau, marginRight: 6, fontWeight: 800 }}>{nr}</span>{name}
           </button>
         );
       })}

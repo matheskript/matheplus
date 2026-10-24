@@ -398,6 +398,13 @@ export function neueAufgabe(stufe, { rng = Math.random } = {}) {
 }
 export const glTex = (a) => `${a.gl[0]} = ${a.gl[1]}`;
 
+/* ---------------------------------------------------------------- Reiter und Modi */
+/* Vier Reiter: Verstehen vorne, dahinter die drei Modi aus uebenKern.UEBEN_MODI. Alte Ids aus Links und
+   Übergaben: „rechnen“ war schon die geführte Auswahl (= Üben – bewusst nicht modusNeu, das würde
+   „rechnen“ zu Auto machen), „training“ = Lernen. Unbekanntes → null. */
+export const REITER = ["verstehen", "auto", "ueben", "lernen"];
+export const reiterNeu = (r) => (r === "rechnen" ? "ueben" : r === "training" || r === "trainieren" ? "lernen" : REITER.includes(r) ? r : null);
+
 /* ---------------------------------------------------------------- Modus „Üben“ */
 /* Die Frage eines Schritts im Ton des Werkzeugs: bei Klammer und Zusammenfassen „zuerst“, sonst „als Nächstes“ */
 export const uebenFrage = (op, en = false) => (op.art === "klammer" || op.art === "zusammen"

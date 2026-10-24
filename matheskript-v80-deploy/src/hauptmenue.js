@@ -132,7 +132,7 @@ const KURSE_ALLE = [
 ];
 /* Weitere Lernangebote (kleine Karten unter den Kursen) */
 export const WEITERE_ANGEBOTE = [
-  { id: "gleichkurs", name: "Gleichungen lernen", zeile: "Verstehen, rechnen, trainieren", ziel: { ansicht: "gleichkurs" } },
+  { id: "gleichkurs", name: "Gleichungen lernen", zeile: "Verstehen, üben, lernen", ziel: { ansicht: "gleichkurs" } },
   { id: "headnumbers", name: "Kopfrechnen", zeile: "Einmaleins, Quadrat- und Kubikzahlen", ziel: { ansicht: "headnumbers" } },
   { id: "efunktion", name: "Minikurs e-Funktion", zeile: "Die wichtigste Funktion der Oberstufe", ziel: { ansicht: "efunktion" } },
   { id: "mindset", name: "Mathe-Mindset-Kurs", zeile: "6 TED-Talks und 2 Bücher, die inspirieren", ziel: { ansicht: "elternkurs" } },

@@ -147,6 +147,7 @@ const ZUSATZ = {
   "Sauber aufschreiben in neun Lektionen": "Write it down cleanly in nine lessons",
   "Gleichungen lernen": "Learn equations",
   "Verstehen, rechnen, trainieren": "Understand, calculate, practice",
+  "Verstehen, üben, lernen": "Understand, practise, learn",
   "Head & Numbers": "Head & Numbers",
   "Kopfrechnen mit Lernpfad": "Mental math with a learning path",
   "Aus dem Text die Gleichung machen": "Turn the text into an equation",
