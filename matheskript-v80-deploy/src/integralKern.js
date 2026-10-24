@@ -477,7 +477,7 @@ function anfangPoly(f, F0, x0, y0, stufe) {
   if (qNull(x0)) cZeilen.push(z(`C = ${qTex(y0)}`, "Bei x = 0 fallen alle x-Glieder weg."));
   else cZeilen.push(cAufloesen(W.stuecke[0].slice(2), qTex(w), qTex(y0), qTex(C), qNull(w)));
   return baueAnfang({
-    fTex, F0Tex, FTex: pTex(Fq), x0Tex: xTex(x0), y0Tex: qTex(y0), C: qNum(C), CTex: qTex(C),
+    fTex, fText: pEingabe(f), F0Tex, FTex: pTex(Fq), x0Tex: xTex(x0), y0Tex: qTex(y0), C: qNum(C), CTex: qTex(C),
     fBaum: lies(pEingabe(f)), fn: (x) => pNum(f, x), F0n: (x) => pNum(F0, x), x0: qNum(x0), y0: qNum(y0), cZeilen, stufe, w: qNum(w), F0Text: pEingabe(F0),
   });
 }
@@ -517,7 +517,7 @@ function baueAnfang(d) {
   return {
     typ: "anfang", stufe: d.stufe,
     kopf: { kicker: "Stammfunktion durch einen Punkt", satz: `Bestimme die Stammfunktion F von f, deren Graph durch $P(${d.x0Tex} | ${d.y0Tex})$ geht.`, formel: `f(x) = ${d.fTex}`, punkt: `P(${d.x0Tex} | ${d.y0Tex})`, funktionen: [{ name: "f", tex: d.fTex }] },
-    f: { tex: d.fTex }, F: { tex: d.FTex },
+    f: { text: d.fText, tex: d.fTex }, F: { tex: d.FTex },
     schritte, regeln: ["Stammfunktion"],
     ergebnis: { tex: `F(x) = ${d.FTex}` },
     bild: { art: "anfang", fn: d.fn, Fn: d.F0n, x0: d.x0, y0: d.y0, C: d.C, fenster: fensterFuer(d.fn, [Math.min(-4, d.x0 - 1.5), Math.max(4, d.x0 + 1.5)]), fName: "f", FName: "F" },
@@ -549,7 +549,7 @@ function anfangTrans(fText, x0Text, y0, stufe) {
   const F0Tex = T(F0);
   const FTex = Math.abs(C) < 1e-12 ? F0Tex : `${F0Tex} ${CTex.startsWith("−") ? "−" : "+"} ${CTex.replace(/^−/, "")}`;
   return baueAnfang({
-    fTex: T(f), F0Tex, FTex, x0Tex, y0Tex: y0T, C, CTex, fBaum: f, fn: auswerter(f), F0n: auswerter(F0), x0: x0.v, y0, cZeilen, stufe, w,
+    fTex: T(f), fText, F0Tex, FTex, x0Tex, y0Tex: y0T, C, CTex, fBaum: f, fn: auswerter(f), F0n: auswerter(F0), x0: x0.v, y0, cZeilen, stufe, w,
   });
 }
 
@@ -810,7 +810,7 @@ export function baueFlaeche(f, nst, grenzen, stufe = 1) {
   return {
     typ: "flaeche", stufe,
     kopf: { kicker: "Fläche mit der x-Achse", satz, formel: `f(x) = ${fTex}`, funktionen: [{ name: "f", tex: fTex }] },
-    f: { tex: fTex }, F: { tex: FTex },
+    f: { text: pEingabe(f), tex: fTex }, F: { tex: FTex },
     schritte, regeln: ["Hauptsatz", "Stammfunktion"],
     ergebnis: { tex: qTex(A), wert: qNum(A), naeherung: A.n !== 1 ? naeherung(qNum(A)) : null, einheit: "FE" },
     bild: {
@@ -909,7 +909,7 @@ export function baueZwei(f, g, nst, stufe = 1) {
   return {
     typ: "zwei", stufe,
     kopf: { kicker: "Fläche zwischen zwei Graphen", satz: "Die Graphen von f und g schließen eine Fläche ein. Berechne ihren Inhalt.", funktionen: [{ name: "f", tex: fTex }, { name: "g", tex: gTex }] },
-    f: { tex: fTex }, g: { tex: gTex }, d: { tex: dTex }, F: { tex: DTex },
+    f: { text: pEingabe(f), tex: fTex }, g: { text: pEingabe(g), tex: gTex }, d: { text: pEingabe(d), tex: dTex }, F: { tex: DTex },
     schritte, regeln: ["Hauptsatz", "Stammfunktion"],
     ergebnis: { tex: qTex(A), wert: qNum(A), naeherung: A.n !== 1 ? naeherung(qNum(A)) : null, einheit: "FE" },
     bild: {
