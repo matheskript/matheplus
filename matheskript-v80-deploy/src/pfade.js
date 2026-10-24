@@ -110,6 +110,7 @@ export const SEITEN = [
   { pfad: "gfs-trainer/exponentialverteilung", ansicht: "gfs-exponential", alias: ["gfs/exponentialverteilung", "exponentialverteilung", "wartezeiten", "gfs-exponential"] },
   { pfad: "gfs-trainer/keplersche-fassregel", ansicht: "gfs-fassregel", alias: ["gfs/keplersche-fassregel", "keplersche-fassregel", "fassregel", "simpsonregel", "gfs-fassregel"] },
   { pfad: "gfs-trainer/folgen", ansicht: "gfs-folgen", alias: ["gfs/folgen", "zahlenfolgen", "geometrische-reihe", "gfs-folgen"] },
+  { pfad: "gfs-trainer/wachstum-differenzialgleichungen", ansicht: "gfs-wachstum", alias: ["gfs/wachstum", "differenzialgleichungen-wachstum", "beschraenktes-wachstum", "logistisches-wachstum", "gfs-wachstum"] },
   { pfad: "unterstufe", ansicht: "unterstufe", alias: ["klasse-5-6", "kurs-unterstufe", "unterstufe-kurs", "klasse-5-und-6"] },
   { pfad: "differentialrechnung", ansicht: "diffkurs", alias: ["differenzialrechnung", "kurs-differentialrechnung", "diffkurs"] },
   { pfad: "vektoren-geraden-ebenen", ansicht: "vekkurs", alias: ["kurs-vektoren", "kurs-vektoren-geraden-ebenen", "vekkurs"] },
