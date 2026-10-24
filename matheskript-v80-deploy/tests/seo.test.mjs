@@ -44,8 +44,9 @@ test("Alle Werkzeuge haben eine Seite, die Middleware kennt genau diese Pfade", 
 test("Statisches HTML und JSON-LD", () => {
   const t = seoText("ableitungstrainer");
   const h = seiteHtml(t, verwandteVon("ableitungstrainer"));
-  assert.ok(h.includes("<h1") && h.includes("Was kann dieses Werkzeug?") && h.includes("Häufige Fragen") && h.includes("Basti Blumenröther"));
-  assert.ok(h.includes("/analysis") && h.includes("/vision"), "Hub-Link und Autor-Seite verlinkt");
+  assert.ok(h.includes("<h1") && h.includes("Was kann dieses Werkzeug?") && h.includes("Häufige Fragen") && h.includes("<strong>Mythos Mathe</strong>"));
+  assert.ok(!/Blumenr|Basti|Preisträger/.test(h), "keine Person auf den Werkzeug-Seiten (24.10.)");
+  assert.ok(h.includes("/analysis") && h.includes("/vision"), "Hub-Link und Vision-Seite verlinkt");
   const e = entitaet(t);
   assert.ok(e.startsWith("Ableitungstrainer von Mythos Mathe ist ein kostenloses Online-Werkzeug"), e);
   assert.ok(steckbrief(t).some(([k]) => k === "Kosten") && h.includes("<dl"), "Steckbrief auf der Seite");
@@ -56,7 +57,8 @@ test("Statisches HTML und JSON-LD", () => {
   assert.equal(ld[1]["@type"], "FAQPage");
   assert.equal(ld[1].mainEntity.length, 3);
   assert.equal(ld[2]["@type"], "BreadcrumbList");
-  assert.ok(ld[0].author.award.length === 3);
+  assert.equal(ld[0].author["@type"], "Organization");
+  assert.equal(ld[0].author.name, "Mythos Mathe");
 });
 
 test("Hub-Seiten: Start, Trainingszentrum, Vision, Analysis, Vektoren, Stochastik – mit Werkzeuglisten und Texten", () => {
@@ -68,6 +70,7 @@ test("Hub-Seiten: Start, Trainingszentrum, Vision, Analysis, Vektoren, Stochasti
     assert.ok(h.text.length >= 2 && h.faq.length === 3, id);
     const alles = [h.titel, h.beschreibung, h.kurz, ...h.text, ...h.faq.flatMap((q) => [q.f, q.a])].join(" ");
     assert.ok(!/:innen|\*innen|Schüler:in/.test(alles), `${id}: Gendersprache`);
+    assert.ok(!/Blumenr|Basti|Preisträger|Mathestudent/.test(alles), `${id}: Person im Hub-Text (24.10.: nur Mythos Mathe)`);
     for (const m of alles.matchAll(/(\d+) (?:interaktive )?Werkzeuge?n?\b/g)) assert.equal(Number(m[1]), n, `${id}: Zahl der Werkzeuge veraltet (${m[1]} statt ${n})`);
   }
   const start = hubBereiche(HUBS.start);
@@ -77,7 +80,8 @@ test("Hub-Seiten: Start, Trainingszentrum, Vision, Analysis, Vektoren, Stochasti
   assert.ok(html.includes("/ableitungstrainer") && html.includes("<h1"));
   const ld = JSON.parse(hubJsonLd(HUBS.start, `${BASIS_URL}/`, []));
   assert.equal(ld[0]["@type"], "WebSite");
-  assert.equal(ld[0].publisher.founder.name, "Basti Blumenröther");
+  assert.equal(ld[0].publisher["@type"], "Organization");
+  assert.ok(!("founder" in ld[0].publisher), "kein Gründer im JSON-LD (24.10.)");
   const ld2 = JSON.parse(hubJsonLd(HUBS.analysis, `${BASIS_URL}/analysis`, hubBereiche(HUBS.analysis).flatMap((b) => b.werkzeuge)));
   assert.equal(ld2[0]["@type"], "CollectionPage");
   assert.ok(ld2[0].hasPart.length >= 9);

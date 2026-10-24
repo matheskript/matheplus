@@ -102,11 +102,11 @@ Antworte auf Deutsch, ohne Vorrede.`;
           {ANGEBOT.coaching && verlauf.filter((m) => m.rolle === "schueler").length >= 3 && (
             <div style={{ background: C.himmel, borderRadius: 12, padding: "10px 14px", marginBottom: 14 }}>
               <p style={{ fontSize: 13, lineHeight: 1.6, color: C.tinte, marginBottom: 6 }}>
-                Wenn wir hier zu zweit nicht weiterkommen, ist das kein Problem — dann schaut Basti persönlich drauf.
+                Wenn wir hier zu zweit nicht weiterkommen, ist das kein Problem — dann schauen wir persönlich drauf.
               </p>
               <button onClick={() => coachingAnfragen(`Festgefahren bei ${kompetenz.titel}`)}
                 style={{ background: "none", border: "none", color: C.gruenDunkel, fontSize: 13, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", padding: 0, textDecoration: "underline" }}>
-                Mit Basti sprechen
+                Persönlich nachfragen
               </button>
             </div>
           )}

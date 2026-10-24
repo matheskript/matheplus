@@ -382,7 +382,7 @@ const karte = { background: C.weiss, borderRadius: 18, boxShadow: "0 2px 16px rg
    Dramaturgie: Blockbuster-StorySkript (Alexander Christiani). Der Schüler ist der Held, Basti der Mentor.
      1. HELD      Identität · Wunsch · Einsatz                → Kopf (Goldlack) + Vertrauensleiste
      2. PROBLEM   äußeres · inneres · Gegenspieler (Mythos)  → „Kennst du das?“, durchgestrichenes „Mathetalent“
-     3. MENTOR    Empathie · Autorität · Haltung              → Bastis Weg 2 → 1,0, Studium, System
+     3. MENTOR    Empathie · Autorität · Haltung              → das System selbst (seit 24.10. ohne Person/Notengeschichte)
      4. LÖSUNG    3-Schritte-Plan · Versprechen · Werkzeuge   → Plan, kostenlose Werkzeuge vs. Programm,
                                                                 Monat für Monat, Intensivtag, Für wen, Vorher/Nachher
      5. REISE     Handlung · Erfolg · Scheitern               → Zwei Wege, So geht es los, Fragen, Abschluss
@@ -459,7 +459,8 @@ const VK_CSS = `
 @media (prefers-reduced-motion:reduce){.mcs-mythos::after{animation:none;clip-path:none}.mcs-knopf{transition:none}}
 /* Mentor */
 .mcs-zahl{display:flex;align-items:baseline;gap:14px;margin-top:10px}
-.mcs-zahl b{font-size:clamp(46px,9vw,84px);font-weight:900;letter-spacing:-0.05em;line-height:1}
+.mcs-zahl{flex-wrap:wrap}
+.mcs-zahl b{font-size:clamp(30px,6vw,54px);font-weight:900;letter-spacing:-0.04em;line-height:1}
 .mcs-zahl .von{color:rgba(255,255,255,0.35);text-decoration:line-through;text-decoration-thickness:4px;text-decoration-color:${VK.rot}}
 .mcs-zahl .zu{color:${VK.gold}}
 /* Plan */
@@ -566,7 +567,7 @@ export function MasterclassSeite({ gehe }) {
     if (COACHING.termin) { window.open(COACHING.termin, "_blank", "noopener"); return; }
     if (COACHING.mail) {
       const betreff = encodeURIComponent("Mathe-Abi-Masterclass: Platz vormerken");
-      const text = encodeURIComponent("Hallo Basti,\n\nich möchte mir einen Platz in der Mathe-Abi-Masterclass vormerken.\n\nKlasse / Abi-Jahr:\nKurs (LK, GK, Basisfach):\n\nViele Grüße");
+      const text = encodeURIComponent("Hallo,\n\nich möchte mir einen Platz in der Mathe-Abi-Masterclass vormerken.\n\nKlasse / Abi-Jahr:\nKurs (LK, GK, Basisfach):\n\nViele Grüße");
       window.location.href = `mailto:${COACHING.mail}?subject=${betreff}&body=${text}`;
       return;
     }
@@ -607,8 +608,8 @@ export function MasterclassSeite({ gehe }) {
       </header>
       <div className="mcs-vertrauen">
         <div className="mcs-innen"><ul>
-          <li><b>Mathestudium</b><span>Universität Konstanz</span></li>
-          <li><b>Jahre als Mathecoach</b><span>Einzeln und in Gruppen, bis zum Abitur</span></li>
+          <li><b>Eigene Schulbücher</b><span>Ableitungen, Vektoren, Kurvendiskussion</span></li>
+          <li><b>Rechenweg geprüft</b><span>Mathilda AI liest dein Blatt Zeile für Zeile</span></li>
           <li><b>Prüfungsformat 2027</b><span>Teil A und B, BE, Operatoren, Termine</span></li>
           <li><b>Werkzeuge kostenlos</b><span>Abi-Plan, Aufgaben, Mia – ohne Anmeldung testen</span></li>
         </ul></div>
@@ -636,18 +637,18 @@ export function MasterclassSeite({ gehe }) {
       <section className="mcs-sektion mcs-dunkel">
         <div className="mcs-innen mcs-raster zwei" style={{ alignItems: "center", gap: 40 }}>
           <div>
-            <span className="mcs-eyebrow">Dein Mentor</span>
-            <h2 className="mcs-h2">Ich kenne das. Ich war selbst kein Überflieger.</h2>
+            <span className="mcs-eyebrow">Was dahintersteht</span>
+            <h2 className="mcs-h2">Kein Talent, das plötzlich aufwacht – ein anderer Weg zu lernen.</h2>
             <span className="mcs-strich" />
-            <p className="mcs-text">Ich bin Basti. In meinen ersten drei Jahren am Gymnasium stand in Mathe eine 2 – solide, aber nicht mehr. Ab Klasse 8 habe ich anders gelernt: sauber aufgeschrieben, mit System geübt, Fehler ernst genommen. Ab Klasse 10 stand da eine 1,0.</p>
-            <p className="mcs-text" style={{ marginTop: 14 }}>Heute studiere ich Mathematik an der Universität Konstanz und begleite seit Jahren Schüler bis zum Abitur. Aus der Frage, an welchen Stellschrauben es wirklich hängt, ist das Trainingssystem von Mythos Mathe entstanden – und daraus die Masterclass.</p>
+            <p className="mcs-text">Wer Mathe kann, hat ein System: sauber aufschreiben, mit Plan üben, Fehler ernst nehmen. Mythos Mathe ist aus der Frage entstanden, an welchen Stellschrauben es wirklich hängt – und in welcher Reihenfolge sie wirken.</p>
+            <p className="mcs-text" style={{ marginTop: 14 }}>Daraus ist ein Trainingssystem geworden: eigene Schulbücher, eine App, die jeden Rechenweg prüft, und ein Plan, der von der Prüfung rückwärts rechnet. Die Masterclass führt dich sechs Monate lang hindurch – bis zum Abitur.</p>
           </div>
           <div className="mcs-karte">
             <span className="mcs-eyebrow">Mathe am Gymnasium</span>
-            <div className="mcs-zahl"><b className="von">2</b><b className="zu">1,0</b></div>
-            <p className="mcs-text" style={{ marginTop: 16 }}>Kein Talent, das plötzlich aufgewacht ist – ein anderer Weg zu lernen.</p>
+            <div className="mcs-zahl"><b className="von">Talent</b><b className="zu">System</b></div>
+            <p className="mcs-text" style={{ marginTop: 16 }}>Ein System kann man lernen – unabhängig davon, wo du gerade stehst.</p>
             <ul className="mcs-haken" style={{ marginTop: 18 }}>
-              <li><HakenIcon /><span>Ich nehme dir das Rechnen nicht ab. Ich zeige dir, wie es geht.</span></li>
+              <li><HakenIcon /><span>Wir nehmen dir das Rechnen nicht ab. Wir zeigen dir, wie es geht.</span></li>
               <li><HakenIcon /><span>Keine Abkürzungen, keine Notenversprechen – ein System und jemand, der dranbleibt.</span></li>
               <li><HakenIcon /><span>Die Verantwortung bleibt bei dir. Das ist die gute Nachricht.</span></li>
             </ul>

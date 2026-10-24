@@ -382,9 +382,9 @@ export function coachingText(L, anlass) {
   const w = zeitraum(L, 14);
   const luecken = AKTIVE.filter((k) => ["luecke", "arbeit"].includes(L.stand[k.id]?.status)).map((k) => k.titel).slice(0, 6);
   return [
-    `Hallo Basti,`,
+    `Hallo,`,
     ``,
-    `ich komme mit Matheskript gerade nicht weiter und würde gern mit dir sprechen.`,
+    `ich komme mit Matheskript gerade nicht weiter und würde gern persönlich nachfragen.`,
     ``,
     `Anlass: ${anlass}`,
     `Klasse: ${L.profil?.klasse || "?"} · Ziel: ${L.profil?.ziel || "?"}`,
@@ -422,7 +422,7 @@ export function EskalationsKarte({ signal, gehe, klein }) {
         <button onClick={() => { if (!coachingAnfragen(signal.titel)) setHinweis(true); }}
           style={{ height: 42, padding: "0 20px", background: C.gruenDunkel, color: C.weiss, border: "none", borderRadius: 999,
             fontSize: 14, fontWeight: 600, fontFamily: "inherit", cursor: "pointer" }}>
-          Mit Basti sprechen
+          Persönlich nachfragen
         </button>
         {signal.art === "pause" && gehe && (
           <button onClick={() => gehe({ ansicht: "plan" })}

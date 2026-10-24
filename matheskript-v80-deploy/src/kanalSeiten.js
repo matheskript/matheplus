@@ -10,7 +10,7 @@
      /thema       YouTube-Anzeige vor Lösungsvideos    → Schüler Oberstufe, du
      /insta       Instagram, Link in der Bio           → Schüler, du
      /eltern      Google-Suche „Mathe Nachhilfe …“     → Eltern, Sie
-     /abi-eltern  LinkedIn, Bastis Posts               → Unternehmer-Eltern, Sie
+     /abi-eltern  LinkedIn, Posts von Mythos Mathe     → Unternehmer-Eltern, Sie
 
    Kanal-Kennung: jede Seite trägt ihre id als `via`; ein ?via=… in der Adresse
    (z. B. ?via=poster-gym1 je Schule) überschreibt sie. Die Kennung wird in der
@@ -67,7 +67,7 @@ export const KANAL_SEITEN = [
     lead: "Mathe kann jeder verstehen. Trag deine nächste Klausur ein – du bekommst einen Plan bis dahin. Kostenlos, ohne Konto, in einer Minute.",
     knopfDirekt: "Nächste Klausur eintragen", knopfUnter: "Kostenlos · ohne Konto · Plan bleibt auf deinem Handy",
     knopfUebergang: { text: "Erst ein Werkzeug ausprobieren", ziel: { ansicht: "penpaperkurs" } },
-    vertrauen: [["Klasse 8 bis Abi", "Gymnasium, Schwerpunkt Oberstufe"], ["Uni Konstanz", "Mathestudium und seit Jahren Mathe-Coach"], ["15 Minuten am Tag", "Nach Plan, nicht am Abend vorher"], ["Kostenlos", "Planer, Trainer und Testklausur ohne Anmeldung"]],
+    vertrauen: [["Klasse 8 bis Abi", "Gymnasium, Schwerpunkt Oberstufe"], ["Rechenweg zu jeder Aufgabe", "Bei Fehlern steht der ganze Weg da"], ["15 Minuten am Tag", "Nach Plan, nicht am Abend vorher"], ["Kostenlos", "Planer, Trainer und Testklausur ohne Anmeldung"]],
     held: { identitaet: "Du hast das Plakat im Schulflur gesehen. Die nächste Mathe-Klausur ist in ein bis drei Wochen.", wunsch: "Diesmal mit einem Plan reingehen statt am Abend vorher alles auf einmal.", einsatz: "Die nächste Note – und die Diskussion zu Hause, wenn sie wieder schlecht wird." },
     problem: {
       kicker: "Kennst du das?", h2: ["Drei Wochen Stoff, ", "kein Anfang in Sicht."],
@@ -79,10 +79,10 @@ export const KANAL_SEITEN = [
       ],
     },
     mentor: {
-      kicker: "Wer dir das sagt", h2: ["Ich war der mit der ", "2."],
-      text: "Note 2 in den ersten drei Jahren am Gymnasium – nicht schlecht, aber nie sicher. Ab Klasse 8 habe ich anders gelernt. Ab Klasse 10 stand eine 1,0, und sie blieb bis zum Abi. Kein Talent, ein System.",
-      belege: [["Mathematik an der Uni Konstanz", "Ich studiere das Fach selbst und begleite seit Jahren Schüler von der Mittelstufe bis zum Abi."], ["Ein System, das man anfassen kann", "Planer, Trainer, Testklausuren und Mathilda, die deinen Rechenweg prüft – alles in der App."], ["Keine Abkürzung", "Ich verspreche dir keinen Trick. Ich verspreche dir, dass 15 Minuten am Tag nach Plan mehr bringen als vier Stunden am Abend vorher."]],
-      haltung: "Talent ist ein Mythos. Das System lernt jeder, der täglich 15 Minuten gibt. Der Plan ist meine Sache – die 15 Minuten sind deine.",
+      kicker: "Was dahintersteht", h2: ["Kein Talent. ", "Ein System."],
+      text: "Mythos Mathe ist aus einer einfachen Beobachtung entstanden: Wer an Mathe scheitert, scheitert selten am Kopf, fast immer an der Methode. Deshalb gibt es hier keinen Trick, sondern ein System – Planer, Trainer, Testklausuren und Mathilda, die deinen Rechenweg prüft.",
+      belege: [["Ein Plan statt einer Nachtschicht", "Der Planer rechnet von deiner Klausur rückwärts: erst die Lücken darunter, dann der Stoff der Klausur – jeden Tag eine Aufgabe."], ["Ein System, das man anfassen kann", "Planer, Trainer, Testklausuren und Mathilda, die deinen Rechenweg prüft – alles in der App."], ["Keine Abkürzung", "Kein Trick, kein Notenversprechen. 15 Minuten am Tag nach Plan bringen mehr als vier Stunden am Abend vorher."]],
+      haltung: "Talent ist ein Mythos. Das System lernt jeder, der täglich 15 Minuten gibt. Der Plan ist unsere Sache – die 15 Minuten sind deine.",
     },
     plan: {
       kicker: "Dein Plan", h2: ["In drei Schritten ", "sicher in die Klausur."],
@@ -125,10 +125,10 @@ export const KANAL_SEITEN = [
       ],
     },
     mentor: {
-      kicker: "Wer dir das sagt", h2: ["Ich habe genau so ", "Videos geschaut."],
-      text: "Bis ich das System hatte. Ab Klasse 8 habe ich anders gelernt, ab Klasse 10 stand eine 1,0. Heute studiere ich Mathematik an der Uni Konstanz und habe das Schulbuch zu diesem Thema selbst geschrieben.",
-      belege: [["Ein Schulbuch zu genau diesem Thema", "Band „Ableitungen“: jedes Unterkapitel wie eine Unterrichtsstunde – Herleitung, Beispiel, Aufgaben mit Lösungen."], ["Trainer zu jedem Kapitel", "Du rechnest, die App prüft und zeigt bei Fehlern den vollständigen Rechenweg."], ["Mathematik an der Uni Konstanz", "Ich studiere das Fach selbst und begleite seit Jahren Schüler bis zum Abi."]],
-      haltung: "Verstehen ist Arbeit nach System, kein Glück. Das System ist meine Sache – das Rechnen bleibt deine.",
+      kicker: "Was dahintersteht", h2: ["Nicht noch ein Video. ", "Ein Schulbuch."],
+      text: "Mythos Mathe hat zu diesem Thema ein eigenes Schulbuch geschrieben: den Band „Ableitungen“. Jedes Unterkapitel ist wie eine Unterrichtsstunde aufgebaut – Herleitung, Beispiel, Aufgaben mit Lösungen. Dazu ein Trainer zu jedem Kapitel, der bei Fehlern den ganzen Rechenweg zeigt.",
+      belege: [["Ein Schulbuch zu genau diesem Thema", "Band „Ableitungen“: jedes Unterkapitel wie eine Unterrichtsstunde – Herleitung, Beispiel, Aufgaben mit Lösungen."], ["Trainer zu jedem Kapitel", "Du rechnest, die App prüft und zeigt bei Fehlern den vollständigen Rechenweg."], ["Testklausur zum Kapitel", "Eine Klausur wie in der Schule, mit Lösungen. Was danebengeht, übst du gezielt nach."]],
+      haltung: "Verstehen ist Arbeit nach System, kein Glück. Das System ist unsere Sache – das Rechnen bleibt deine.",
     },
     plan: {
       kicker: "Dein Plan", h2: ["In drei Schritten ", "vom Video zum Verstehen."],
@@ -160,7 +160,7 @@ export const KANAL_SEITEN = [
     lead: "Keiner davon heißt Talent. Sieben Tage, ein Grund pro Tag, zehn Minuten Übung. Kostenlos, ohne Konto – der Stand bleibt auf deinem Handy.",
     knopfDirekt: "7-Tage-Serie starten", knopfUnter: "Kostenlos · ohne Konto · zehn Minuten am Tag",
     knopfUebergang: { text: "Pen-&-Paper-Kurs ansehen", ziel: { ansicht: "penpaperkurs" } },
-    vertrauen: [["Klasse 8 bis Abi", "Gymnasium, Schwerpunkt Oberstufe"], ["Uni Konstanz", "Mathestudium und seit Jahren Mathe-Coach"], ["7 Tage", "Ein Grund pro Tag, zehn Minuten Übung"], ["Kostenlos", "Serie und Pen & Paper ohne Anmeldung"]],
+    vertrauen: [["Klasse 8 bis Abi", "Gymnasium, Schwerpunkt Oberstufe"], ["Mathilda prüft dein Blatt", "Foto vom Rechenweg, Rückmeldung zur Stelle, an der er bricht"], ["7 Tage", "Ein Grund pro Tag, zehn Minuten Übung"], ["Kostenlos", "Serie und Pen & Paper ohne Anmeldung"]],
     held: { identitaet: "Du folgst Mythos Mathe auf Instagram, Klasse 8 bis 13, und hast drei Reels gesehen.", wunsch: "Zum ersten Mal denkst du: Vielleicht bin ich doch nicht zu dumm dafür. Du willst Ruhe mit dem Fach – verstehen statt auswendig lernen.", einsatz: "Versetzung oder Abi – und das Bild, das du von dir selbst hast." },
     problem: {
       kicker: "Kennst du das?", h2: ["Lücken seit Jahren. ", "Und ein Satz, der sie erklärt."],
@@ -172,10 +172,10 @@ export const KANAL_SEITEN = [
       ],
     },
     mentor: {
-      kicker: "Wer dir das sagt", h2: ["Ich war der mit der ", "2."],
-      text: "Note 2 in den ersten drei Jahren am Gymnasium. Ab Klasse 8 habe ich anders gelernt, ab Klasse 10 stand eine 1,0. Danach fünf Jahre Arbeit an der Frage, welche Stellschrauben das waren – daraus ist Mythos Mathe geworden.",
-      belege: [["Mathematik an der Uni Konstanz", "Ich studiere das Fach selbst und begleite seit Jahren Schüler von der Mittelstufe bis zum Abi."], ["Die App", "Pen & Paper, Kopfrechnen, Ebbinghaus, Mathilda – jede Stellschraube gibt es als Werkzeug, kostenlos."], ["Die Schulbücher", "Eigene Bände zu Ableitungen und Vektoren, jedes Kapitel wie eine Unterrichtsstunde."]],
-      haltung: "Kein Trick. Zehn Minuten am Tag – und die machst du. Ich zeige dir, welche.",
+      kicker: "Was dahintersteht", h2: ["Sieben Mythen. ", "Ein System dagegen."],
+      text: "Hinter den sieben Gründen steckt dieselbe Lücke: nicht Begabung, sondern eine Arbeitsweise. Mythos Mathe ist aus genau dieser Frage entstanden – welche Stellschrauben den Unterschied machen. Jede davon gibt es hier als Werkzeug.",
+      belege: [["Die App", "Pen & Paper, Kopfrechnen, Ebbinghaus, Mathilda – jede Stellschraube gibt es als Werkzeug, kostenlos."], ["Die Schulbücher", "Eigene Bände zu Ableitungen und Vektoren, jedes Kapitel wie eine Unterrichtsstunde."], ["Kein Trick", "Keine Abkürzung, kein Notenversprechen – ein System und eine Übung pro Tag."]],
+      haltung: "Kein Trick. Zehn Minuten am Tag – und die machst du. Wir zeigen dir, welche.",
     },
     plan: {
       kicker: "Dein Plan", h2: ["In drei Schritten ", "raus aus dem Mythos."],
@@ -206,7 +206,7 @@ export const KANAL_SEITEN = [
     lead: "Keinen Nachhilfelehrer, der den Stoff der nächsten Klausur erklärt – sondern eine Arbeitsweise, mit der Ihr Kind den Stoff selbst versteht und behält. Im Erstgespräch schauen wir in 20 Minuten gemeinsam, wo es hakt.",
     knopfDirekt: "Erstgespräch anfragen", knopfUnter: "Kostenlos · unverbindlich · 20 Minuten · Rückruf innerhalb eines Werktags",
     knopfUebergang: { text: "Erst die Werkzeuge mit Ihrem Kind ansehen", ziel: { ansicht: "penpaperkurs" } },
-    vertrauen: [["Basti Blumenröther", "Mathestudent an der Uni Konstanz, seit Jahren Mathe-Coach"], ["Konstanz & online", "Vor Ort am Bodensee oder per Zoom"], ["Gymnasium, Klasse 8 bis Abi", "Schwerpunkt Oberstufe und Abitur"], ["Klare Laufzeit", "8 Wochen oder 6 Monate, Preis vor dem Start"]],
+    vertrauen: [["Rechenweg statt Ergebnis", "Mathilda AI prüft das Blatt Ihres Kindes Zeile für Zeile"], ["Konstanz & online", "Vor Ort oder per Zoom"], ["Gymnasium, Klasse 8 bis Abi", "Schwerpunkt Oberstufe und Abitur"], ["Klare Laufzeit", "8 Wochen oder 6 Monate, Preis vor dem Start"]],
     held: { identitaet: "Ihr Kind geht aufs Gymnasium. Die letzte Arbeit war eine 4 oder 5, und Sie suchen gerade nach Hilfe.", wunsch: "Dass Ihr Kind wieder sicher und ruhig in Mathe wird – und am Abendbrottisch wieder über etwas anderes gesprochen wird.", einsatz: "Versetzung, Abi-Schnitt – und die Beziehung zu Ihrem Kind, die unter dem Thema leidet." },
     problem: {
       kicker: "Kommt Ihnen das bekannt vor?", h2: ["Nachhilfe hat geholfen. ", "Kurz."],
@@ -218,10 +218,10 @@ export const KANAL_SEITEN = [
       ],
     },
     mentor: {
-      kicker: "Wer dahintersteht", h2: ["Ich war der Schüler ", "mit der 2."],
-      text: "Note 2 in den ersten drei Gymnasialjahren – nie sicher. Ab Klasse 8 ein anderer Weg, ab Klasse 10 eine 1,0 bis zum Abitur. Daraus ist über Jahre ein Trainingssystem geworden, das ich heute mit Schülern durcharbeite.",
-      belege: [["Mathematik an der Universität Konstanz", "Ich studiere das Fach selbst und begleite seit vielen Jahren Schüler von der Mittelstufe bis zum Abitur."], ["Ein System, das man prüfen kann", "Pen & Paper, Wiederholung im richtigen Abstand, Mathilda AI für den Rechenweg, eigene Schulbücher – jede Methode gibt es als Werkzeug in der App."], ["Einblick für Eltern", "Über das Elternkonto sehen Sie, was Ihr Kind wann trainiert hat. Kein Notenversprechen – aber eine Messung."]],
-      haltung: "Ich verspreche keine Note. Ich verspreche ein System mit fester Laufzeit, festem Preis und einer Rückmeldung, die Sie lesen können.",
+      kicker: "Was dahintersteht", h2: ["Kein Nachhilfelehrer. ", "Ein System."],
+      text: "Mythos Mathe ist aus einer einfachen Beobachtung entstanden: Wer an Mathe scheitert, scheitert selten am Kopf, fast immer an der Methode. Daraus ist ein Trainingssystem geworden, das Ihr Kind in festen Programmen durcharbeitet – mit Werkzeugen, die Sie selbst prüfen können.",
+      belege: [["Ein System, das man prüfen kann", "Pen & Paper, Wiederholung im richtigen Abstand, Mathilda AI für den Rechenweg, eigene Schulbücher – jede Methode gibt es als Werkzeug in der App."], ["Eigene Schulbücher", "Bände zu Ableitungen, Vektoren und Kurvendiskussion, jedes Kapitel wie eine Unterrichtsstunde – mit Trainer und Testklausur."], ["Einblick für Eltern", "Über das Elternkonto sehen Sie, was Ihr Kind wann trainiert hat. Kein Notenversprechen – aber eine Messung."]],
+      haltung: "Wir versprechen keine Note. Wir versprechen ein System mit fester Laufzeit, festem Preis und einer Rückmeldung, die Sie lesen können.",
     },
     plan: {
       kicker: "So geht es weiter", h2: ["Drei Schritte ", "bis zum Plan."],
@@ -244,14 +244,14 @@ export const KANAL_SEITEN = [
   /* ═══ 5 · LinkedIn → Unternehmer-Eltern ═══ */
   {
     id: "abi-eltern", pfad: "abi-eltern", alias: ["linkedin", "masterclass-eltern", "abitur-eltern"], name: "LinkedIn → Eltern (Masterclass)",
-    kanal: "LinkedIn, Bastis Posts und Profil", zielgruppe: "eltern", du: false, einstieg: "aufnahme",
+    kanal: "LinkedIn, Posts und Profil von Mythos Mathe", zielgruppe: "eltern", du: false, einstieg: "aufnahme",
     titel: "Mathe Abi Masterclass – für Eltern, die es ernst meinen – Mythos Mathe",
     kicker: "Für Eltern von Schülern in Klasse 10 bis 12 · Abitur in ein bis zwei Jahren",
     h1: ["Ihr Kind hat das Abi vor sich. ", "Mathe entscheidet mit."],
     lead: "Sechs Monate, eine feste Gruppe von höchstens 20 Schülern, wöchentliche Rückmeldung an Sie. Die Mathe Abi Masterclass beginnt mit einem Aufnahmegespräch – für beide Seiten.",
     knopfDirekt: "Aufnahmegespräch anfragen", knopfUnter: "30 Minuten · Eltern und Schüler · Auswahl in beide Richtungen",
     knopfUebergang: { text: "Programm im Detail ansehen", ziel: { ansicht: "masterclass" } },
-    vertrauen: [["Höchstens 20 Plätze", "Feste Kohorte, feste Laufzeit"], ["6 Monate", "Wöchentlicher Zoom, Trainingssessions, 3 Intensivtage"], ["Rückmeldung an Sie", "Jede Woche, lesbar in fünf Minuten"], ["Uni Konstanz", "Mathestudium, eigene Schulbücher, eigene App"]],
+    vertrauen: [["Höchstens 20 Plätze", "Feste Kohorte, feste Laufzeit"], ["6 Monate", "Wöchentlicher Zoom, Trainingssessions, 3 Intensivtage"], ["Rückmeldung an Sie", "Jede Woche, lesbar in fünf Minuten"], ["Eigene Schulbücher, eigene App", "Ableitungen, Vektoren, Kurvendiskussion – mit Mathilda AI für den Rechenweg"]],
     held: { identitaet: "Sie führen ein Unternehmen oder ein Team. Ihr Kind ist in Klasse 10 bis 12, das Abitur kommt in ein bis zwei Jahren.", wunsch: "Dass Ihr Kind das Abi souverän macht statt in Panik – und ein Partner, der das Thema trägt, damit Sie es nicht tragen müssen.", einsatz: "Studienplatz und NC, Zeit und Nerven – und die Frage, ob Sie Ihrem Kind vorleben, wie man ein Problem systematisch löst." },
     problem: {
       kicker: "Die Ausgangslage", h2: ["Mathe schwankt zwischen 3 und 5. ", "Nachhilfe löscht Brände."],
@@ -263,9 +263,9 @@ export const KANAL_SEITEN = [
       ],
     },
     mentor: {
-      kicker: "Wer das Programm führt", h2: ["Der Schüler mit der 2, ", "der mit System auf 1,0 kam."],
-      text: "Note 2 in den ersten drei Gymnasialjahren, ab Klasse 8 ein anderer Weg, ab Klasse 10 eine 1,0 bis zum Abitur. Ich studiere Mathematik an der Universität Konstanz, habe die Schulbücher und die App hinter diesem Programm selbst gebaut und arbeite seit Jahren mit Abiturienten.",
-      belege: [["Feste Kohorte, höchstens 20", "Die Zahl ist keine Werbung, sondern die Grenze, bis zu der ich jeden Rechenweg selbst lese."], ["Eigene Schulbücher und eigene App", "Ableitungen, Vektoren, Kurvendiskussion als Bände; Mathilda AI prüft handgeschriebene Rechenwege."], ["Aufnahme in beide Richtungen", "Aufgenommen wird, wer mitarbeiten will. Das Gespräch klärt das – nicht jeder Schüler wird aufgenommen."]],
+      kicker: "Was das Programm trägt", h2: ["Kein Crashkurs. ", "Ein System über sechs Monate."],
+      text: "Hinter der Masterclass steht das Trainingssystem von Mythos Mathe: eigene Schulbücher, eine App, die jeden Rechenweg prüft, und ein Plan, der von der Abiturprüfung rückwärts rechnet. Das Programm ist für Schüler gebaut, die das Abitur nicht nur bestehen, sondern verstehen wollen, was sie rechnen.",
+      belege: [["Feste Kohorte, höchstens 20", "Die Zahl ist keine Werbung, sondern die Grenze, bis zu der jeder Rechenweg persönlich gelesen wird."], ["Eigene Schulbücher und eigene App", "Ableitungen, Vektoren, Kurvendiskussion als Bände; Mathilda AI prüft handgeschriebene Rechenwege."], ["Aufnahme in beide Richtungen", "Aufgenommen wird, wer mitarbeiten will. Das Gespräch klärt das – nicht jeder Schüler wird aufgenommen."]],
       haltung: "Die Verantwortung bleibt beim Schüler. Sie bekommen Transparenz: jede Woche eine Rückmeldung, die Sie in fünf Minuten lesen. Ein Notenversprechen bekommen Sie nicht.",
     },
     plan: {
@@ -282,7 +282,7 @@ export const KANAL_SEITEN = [
       ],
     },
     wege: { erfolg: ["Ihr Kind führt das Thema selbst – Sie bekommen Berichte statt Streit.", "Das Abi wird vorbereitet, nicht gefürchtet.", "Ihr Kind hat gelernt, ein Problem systematisch zu lösen. Das bleibt."], scheitern: ["Der letzte Abi-Winter mit Crashkurs und Panik.", "Ein Studienwunsch, der am NC scheitert.", "Noch eine Nachhilfe, die Brände löscht."] },
-    fragen: [["Warum ein Aufnahmegespräch?", "Weil das Programm nur funktioniert, wenn der Schüler es will. Das Gespräch klärt das – für Sie, für Ihr Kind und für mich."], ["Was kostet die Masterclass?", "Den Preis und die Zahlungsweise besprechen wir im Gespräch; er steht vor dem Start fest und ändert sich danach nicht."], ["Wann startet die nächste Kohorte?", "Die Termine klären wir im Gespräch. Die Gruppe startet gemeinsam und läuft sechs Monate."], ["Online oder vor Ort?", "Die Zoom-Calls und Trainingssessions online, die drei Intensivtage in Konstanz."], ["Was, wenn mein Kind nicht aufgenommen wird?", "Dann sage ich Ihnen, warum – und was stattdessen passt: Mathe checken als kürzeres Programm oder die Werkzeuge der App."]],
+    fragen: [["Warum ein Aufnahmegespräch?", "Weil das Programm nur funktioniert, wenn der Schüler es will. Das Gespräch klärt das – für Sie, für Ihr Kind und für uns."], ["Was kostet die Masterclass?", "Den Preis und die Zahlungsweise besprechen wir im Gespräch; er steht vor dem Start fest und ändert sich danach nicht."], ["Wann startet die nächste Kohorte?", "Die Termine klären wir im Gespräch. Die Gruppe startet gemeinsam und läuft sechs Monate."], ["Online oder vor Ort?", "Die Zoom-Calls und Trainingssessions online, die drei Intensivtage in Konstanz."], ["Was, wenn mein Kind nicht aufgenommen wird?", "Dann sagen wir Ihnen, warum – und was stattdessen passt: Mathe checken als kürzeres Programm oder die Werkzeuge der App."]],
     abschluss: { h2: ["30 Minuten, ", "dann wissen beide Seiten mehr."], text: "Aufnahmegespräch anfragen – Eltern und Schüler gemeinsam." },
   },
 ];

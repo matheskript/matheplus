@@ -62,9 +62,9 @@ export const VORHER_NACHHER = {
 
 /* Was mit dem Feedback passiert – ehrlich, ohne Versprechen, die nicht gehalten werden */
 export const DANACH = [
-  { titel: "Ich lese und höre alles", text: "Jede Nachricht landet bei mir – nicht bei einem Postfach, das keiner öffnet." },
+  { titel: "Wir lesen und hören alles", text: "Jede Nachricht landet bei denen, die die Seite bauen – nicht in einem Postfach, das keiner öffnet." },
   { titel: "Jede Woche wird umgebaut", text: "Was oft genannt wird, kommt zuerst dran. Die Seite verändert sich sichtbar von Woche zu Woche." },
-  { titel: "Keine Antwortpflicht", text: "Ich antworte nicht auf jede Nachricht. Aber jede fließt ein – auch die unbequemen." },
+  { titel: "Keine Antwortpflicht", text: "Nicht jede Nachricht bekommt eine Antwort. Aber jede fließt ein – auch die unbequemen." },
 ];
 
 /* Kapitel der Seite (Sprungmarken wie auf der Vision-Seite) */

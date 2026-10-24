@@ -6,12 +6,11 @@
    ====================================================================== */
 export const VISION_KAPITEL = [
   { id: "kapitel-gegner", nr: "01", titel: "Der Gegner" },
-  { id: "kapitel-weg", nr: "02", titel: "Woher die Vision kommt" },
-  { id: "kapitel-plan", nr: "03", titel: "Der Plan" },
-  { id: "kapitel-haltung", nr: "04", titel: "Die Haltung" },
-  { id: "kapitel-ort", nr: "05", titel: "Der Ort", hell: true },
-  { id: "kapitel-wege", nr: "06", titel: "Zwei Wege" },
-  { id: "kapitel-start", nr: "07", titel: "Dein erster Schritt" },
+  { id: "kapitel-plan", nr: "02", titel: "Der Plan" },
+  { id: "kapitel-haltung", nr: "03", titel: "Die Haltung" },
+  { id: "kapitel-ort", nr: "04", titel: "Der Ort", hell: true },
+  { id: "kapitel-wege", nr: "05", titel: "Zwei Wege" },
+  { id: "kapitel-start", nr: "06", titel: "Dein erster Schritt" },
 ];
 
 /* Wohin die Angebote am Ende der Seite führen (Ansicht in func10.jsx / pfade.js).

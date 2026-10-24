@@ -1,7 +1,8 @@
 """Browser-Test Story-Startseite für Besucher ohne Konto (22.10., funcStartGast.jsx).
-· Ohne Konto: Bühne mit Goldknopf „Kostenlos starten“ + „Wie das geht“, vier Fakten, Problem in drei Karten (der Gegner
-  durchgestrichen, „Die 7 Mathe-Mythen“), Mentor „Ich war die 2.“, drei Schritte, Start-Karte als Demo (id heute, Klassenwahl),
-  Mathilda-Block, Suche + Navigator unter id lernen, sechs Kurs-Karten, Zwei Wege, Abschluss-Knopf. Kein Band, keine Zone „Heute trainierst du“.
+· Ohne Konto: Bühne mit Goldknopf „Kostenlos starten“ + „Wie das geht“, vier Produkt-Fakten, Problem in drei Karten (der Gegner
+  durchgestrichen, „Die 7 Mathe-Mythen“), drei Schritte, Start-Karte als Demo (id heute, Klassenwahl), Mathilda-Block,
+  Suche + Navigator unter id lernen, sechs Kurs-Karten, Abschluss (id reise) mit Pen-&-Paper-Knopf. Kein Band, keine Zone „Heute trainierst du“.
+· Seit 24.10. keine Person auf der Seite: kein Mentor-Streifen, kein Name, keine Notengeschichte, keine „Zwei Wege“, kein Blog-Anriss.
 · „Kostenlos starten“ springt zur Start-Karte; Klasse wählen → Heute-Karte erscheint, die Seite bleibt die Geschichte.
 · Testzugang (Start-Karte „Testen“) → Dashboard (Band mit fünf Chips). Abmelden → wieder die Geschichte ohne gemerkte Klasse.
 · localStorage mm-start-app = 1 → Dashboard auch ohne Konto (für die anderen Browser-Tests).
@@ -45,7 +46,10 @@ with sync_playwright() as p:
         pruefe(pg.locator(".sg-fakt").count() == 4, f"{tag}: nicht vier Fakten")
         pruefe(pg.locator("[data-start-gast-problem] .sg-karte").count() == 3 and pg.locator("[data-start-gast-problem] .sg-karte.gegner").count() == 1, f"{tag}: Problem nicht in drei Karten")
         pruefe(pg.locator("[data-start-gast-mythen]").count() == 1, f"{tag}: Link zu den 7 Mythen fehlt")
-        pruefe(pg.locator("#mentor").count() == 1 and "Ich war die 2." in pg.locator("#mentor h2").first.inner_text(), f"{tag}: Mentor fehlt")
+        koerper = pg.evaluate("document.body.innerText")
+        pruefe(pg.locator("#mentor").count() == 0 and "Ich war die 2" not in koerper, f"{tag}: Mentor-Streifen ist zurück")
+        pruefe(not any(w in koerper for w in ["Blumenröther", "Basti", "Preisträger", "Uni Konstanz", "Universität Konstanz"]), f"{tag}: Person auf der Gast-Startseite")
+        pruefe(pg.locator("[data-start-gast-wege], [data-start-blog]").count() == 0, f"{tag}: Zwei Wege oder Blog-Anriss sind zurück")
         pruefe(pg.locator("[data-start-gast-plan] .sg-schritt").count() == 3, f"{tag}: nicht drei Schritte")
         for a in ["heute", "mathilda", "lernen", "kurse", "reise"]:
             pruefe(pg.locator(f"#{a}").count() == 1, f"{tag}: Anker {a} fehlt")
@@ -54,12 +58,11 @@ with sync_playwright() as p:
         pruefe(pg.locator("#lernen .such-buehne-feld, #lernen input").count() >= 1, f"{tag}: Suche unter den Werkzeugen fehlt")
         pruefe(pg.locator(".sbb-schul .sbb-stufe").count() == 4, f"{tag}: Navigator ohne vier Stufen")
         pruefe(pg.locator("[data-start-kurs]").count() == 6, f"{tag}: nicht sechs Kurs-Karten")
-        pruefe(pg.locator("[data-start-gast-wege] .sg-karte").count() == 2, f"{tag}: Zwei Wege fehlen")
         pruefe(pg.locator("[data-start-gast-schluss]").count() == 1, f"{tag}: Abschluss-Knopf fehlt")
         pruefe(pg.locator("text=Heute trainierst du").count() == 0, f"{tag}: Zone „Heute trainierst du“ auf der Geschichte")
         hoehe_seite = pg.evaluate("document.documentElement.scrollHeight")
         print(tag, "Höhe", hoehe_seite)
-        pruefe(hoehe_seite < (5400 if breite >= 1000 else 7400), f"{tag}: Geschichte zu lang ({hoehe_seite} px)")
+        pruefe(hoehe_seite < (4700 if breite >= 1000 else 6100), f"{tag}: Geschichte zu lang ({hoehe_seite} px)")
         pg.screenshot(path=f"{AUS}/gast-{tag}.png", full_page=True)
 
         # Goldknopf springt zur Start-Karte; Handy-Leiste erscheint erst dazwischen

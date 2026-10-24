@@ -25,9 +25,9 @@ test("Pfad /vision, Menüpunkt Vision führt dorthin und ist dort markiert", () 
   assert.ok(f10.includes('import("./funcVision.jsx")') && f10.includes('ansicht === "vision"') && f10.includes("<VisionSeite gehe={gehe} />"));
 });
 
-test("Kapitel: sieben Stück, eindeutig, nummeriert, jedes als Abschnitt auf der Seite – in der Reihenfolge des StorySkripts", () => {
-  assert.equal(VISION_KAPITEL.length, 7);
-  assert.equal(new Set(VISION_KAPITEL.map((k) => k.id)).size, 7);
+test("Kapitel: sechs Stück (seit 24.10. ohne Gründerkapitel), eindeutig, nummeriert, jedes als Abschnitt auf der Seite – in der Reihenfolge des StorySkripts", () => {
+  assert.equal(VISION_KAPITEL.length, 6);
+  assert.equal(new Set(VISION_KAPITEL.map((k) => k.id)).size, 6);
   VISION_KAPITEL.forEach((k, i) => assert.equal(k.nr, String(i + 1).padStart(2, "0")));
   const reihe = ["vision-start", ...VISION_KAPITEL.map((k) => k.id)];
   const stellen = reihe.map((id) => seite.indexOf(`id="${id}"`));
@@ -60,6 +60,11 @@ test("Sprünge nur über den Sprung-Schalter, Schlüssel vision-kapitel ist eing
   assert.ok(SPRUENGE["vision-kapitel"] && SPRUENGE["vision-kapitel"].an && SPRUENGE["vision-kapitel"].art === "anker");
   assert.ok(seite.includes('springeZuId("vision-kapitel", id)'));
   assert.ok(!/scrollTo|scrollIntoView|scrollBy/.test(seite));
+});
+
+test("Keine Person auf der Seite (24.10.): kein Name, keine Notengeschichte, keine Unterschrift – nur Mythos Mathe", () => {
+  const sichtbar = seite.replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.ok(!/Blumenr|Basti|Uni Konstanz|Universität Konstanz|Preisträger|Gründer|Ich war|(?<!\d)1,0(?!\d)|NotenKurve|kapitel-weg"/.test(sichtbar), "Gründergeschichte steht noch auf der Vision-Seite");
 });
 
 test("Marke: keine Karos, generisches Maskulinum, Mathilda AI über die Wortmarke", () => {

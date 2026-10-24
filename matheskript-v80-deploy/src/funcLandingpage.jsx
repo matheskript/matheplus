@@ -20,11 +20,12 @@ import { springe } from "./sprung.js";
    LANDINGPAGE  (Adresse: /landingpage, ältere Links #landingpage funktionieren weiter) – offen erreichbar, ohne Passwort.
 
    Dramaturgie: Blockbuster-StorySkript (Alexander Christiani). Der Schüler ist der Held,
-   Basti ist der Mentor. Fünf Schritte, jeder mit drei Unterpunkten:
+   das System Mythos Mathe ist der Mentor (seit 24.10. keine Person, kein Foto, keine Notengeschichte
+   auf der Seite – Entscheidung des Inhabers). Fünf Schritte, jeder mit drei Unterpunkten:
 
      1. HELD      Identität · Wunsch · Einsatz                → Kopf + Vertrauensleiste
      2. PROBLEM   äußeres · inneres · Gegenspieler (Mythos)  → „Kennst du das?“ in drei Ebenen
-     3. MENTOR    Empathie · Autorität · Haltung              → Geschichte 2 → 1,0, Über mich
+     3. MENTOR    Empathie · Autorität · Haltung              → „Kein Talent. Ein System.“, Belege, Über Mythos Mathe
      4. LÖSUNG    3-Schritte-Plan · Versprechen · Werkzeuge   → Plan, sechs Stellschrauben, MathildaAI,
                                                                 Angebote, Für wen, Stimmen, Vorher/Nachher
      5. REISE     Handlung · Erfolg · Scheitern               → Zwei Wege, Ablauf Erstgespräch, Fragen, Abschluss
@@ -97,8 +98,6 @@ const CSS = `
   padding: clamp(44px, 7vw, 96px) 0 clamp(56px, 7vw, 88px); overflow: hidden; }
 .lp-kopf .lp-lead { color: ${F.blauText}; max-width: 34em; margin-top: 26px; }
 .lp-kopf .lp-kicker { color: ${F.gold}; }
-.lp-autor { margin-top: 28px; font-size: 14.5px; color: ${F.blauText}; line-height: 1.6; max-width: 34em; }
-.lp-autor b { color: ${F.weiss}; font-weight: 600; }
 
 /* Vertrauensleiste */
 .lp-vertrauen { background: ${F.nachtTief}; color: ${F.blauText}; border-top: 1px solid rgba(255,255,255,0.08); }
@@ -147,23 +146,6 @@ const CSS = `
 .lp-ebene-gegner q { color: ${F.weiss}; }
 .lp-ebene-gegner .lp-text { color: ${F.blauText}; }
 .lp-fazit { margin-top: 40px; font-size: clamp(21px, 2.6vw, 27px); font-weight: 700; line-height: 1.4; letter-spacing: -0.015em; max-width: 30em; }
-
-/* Zeitleiste */
-.lp-zeit { list-style: none; padding: 0; margin-top: 56px; display: grid; grid-template-columns: 1fr; }
-.lp-zeit li { position: relative; padding: 0 0 40px 44px; }
-.lp-zeit li::before { content: ""; position: absolute; left: 9px; top: 14px; bottom: -6px; width: 2px; background: ${F.linie}; }
-.lp-zeit li:last-child::before { display: none; }
-.lp-punkt { position: absolute; left: 0; top: 4px; width: 20px; height: 20px; border-radius: 50%; background: ${F.weiss}; border: 3px solid ${F.still}; }
-.lp-zeit li.lp-ziel .lp-punkt { border-color: ${F.gold}; background: ${F.gold}; }
-.lp-note { font-size: clamp(56px, 7vw, 80px); font-weight: 800; letter-spacing: -0.05em; line-height: 1; }
-.lp-wann { font-size: 14px; font-weight: 700; color: ${F.still}; margin-bottom: 10px; }
-@media (min-width: 900px) {
-  .lp-zeit { grid-template-columns: repeat(3, 1fr); gap: 40px; }
-  .lp-zeit li { padding: 44px 0 0 0; }
-  .lp-zeit li::before { left: 24px; right: -40px; top: 9px; bottom: auto; width: auto; height: 2px; }
-  .lp-punkt { top: 0; }
-}
-.lp-anstieg { display: block; width: clamp(84px, 9vw, 112px); height: auto; margin: 2px 0 6px; }
 
 /* Mentor-Belege */
 .lp-belege { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; margin-top: 40px; }
@@ -296,11 +278,6 @@ const CSS = `
 .lp-ablauf b { display: block; font-size: 16px; font-weight: 800; letter-spacing: -0.01em; }
 .lp-ablauf span { display: block; font-size: 14.5px; line-height: 1.55; color: ${F.grau}; margin-top: 5px; }
 
-/* Über mich mit Foto */
-.lp-ueber { display: grid; gap: 40px; grid-template-columns: minmax(0, 1fr); align-items: center; }
-@media (min-width: 900px) { .lp-ueber { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 72px; } }
-.lp-foto { width: 100%; max-width: 420px; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 24px; box-shadow: 0 24px 48px rgba(14,30,74,0.18); }
-
 /* Fragen */
 .lp-frage { border-bottom: 1px solid ${F.linie}; }
 .lp-frage summary { list-style: none; cursor: pointer; padding: 22px 44px 22px 0; position: relative; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.4; }
@@ -335,8 +312,8 @@ const CSS = `
 /* ---------------------------------------------------------------- Inhalte */
 const VERTRAUEN = [
   ["Klasse 8 bis Abitur", "Gymnasium, Schwerpunkt Oberstufe"],
-  ["Uni Konstanz", "Mathestudium und seit Jahren Mathe-Coach"],
-  ["Konstanz & online", "Vor Ort am Bodensee oder im Browser"],
+  ["Rechenweg zu jeder Aufgabe", "Bei Fehlern steht der ganze Weg da"],
+  ["Konstanz & online", "Vor Ort oder im Browser"],
   ["Kostenlos testen", "Alle Werkzeuge ohne Anmeldung"],
 ];
 
@@ -359,9 +336,9 @@ const MYTHEN = [
 ];
 
 const BELEGE = [
-  ["Ich kenne den Weg von innen", "Von der 2 auf die 1,0 – nicht durch Talent, sondern durch ein anderes System. Genau das gebe ich weiter."],
-  ["Mathematik an der Uni Konstanz", "Ich studiere das Fach selbst und begleite seit vielen Jahren Schüler von der Mittelstufe bis zum Abitur."],
   ["Ein System, das man anfassen kann", "Jede Methode gibt es als Werkzeug in der App: Plotter, Trainer, Kopfrechnen, Wiederholung – und Mathilda, die deinen Rechenweg prüft."],
+  ["Eigene Schulbücher", "Bände zu Ableitungen, Vektoren und Kurvendiskussion – jedes Kapitel wie eine Unterrichtsstunde, mit Trainer und Testklausur."],
+  ["Keine Abkürzung", "Kein Trick, kein Notenversprechen. Ein Plan, 15 Minuten am Tag und eine Rückmeldung zu jedem Rechenweg."],
 ];
 
 const PLAN = [
@@ -435,14 +412,11 @@ const ABLAUF = [
   ["Mit einem Plan loslegen", "Du gehst mit den ersten konkreten Schritten raus – egal, ob wir danach zusammenarbeiten oder nicht."],
 ];
 
-/* Über mich: hier ergänzen, sobald weitere Infos vorliegen. Das Foto erscheint automatisch,
-   sobald die Datei public/landingpage/basti.jpg existiert (sonst bleibt der Bereich einspaltig). */
-const UEBER_MICH = {
-  foto: "/landingpage/basti.jpg",
-  fotoAlt: "Basti Blumenröther, Gründer von Mythos Mathe",
+/* Über Mythos Mathe: seit 24.10. ohne Person, ohne Foto – das System spricht für sich. */
+const UEBER_UNS = {
   absaetze: [
-    "Ich bin Basti. Ich studiere Mathematik an der Universität Konstanz, lebe in Dingelsdorf und begleite seit vielen Jahren Schüler durch Mathe – von der Mittelstufe bis zum Abitur.",
     "Mythos Mathe ist aus einer einfachen Beobachtung entstanden: Fast jeder, der an Mathe scheitert, scheitert nicht am Kopf, sondern an der Methode. Deshalb gibt es hier keine Abkürzungen, sondern ein System – und die Werkzeuge, um es jeden Tag anzuwenden.",
+    "Jede Methode des Systems gibt es als Werkzeug in der App: sauber aufschreiben mit Pen & Paper, sicher kopfrechnen, im richtigen Abstand wiederholen, mit Mathilda den eigenen Rechenweg prüfen. Dazu eigene Schulbücher, in denen jedes Kapitel wie eine Unterrichtsstunde aufgebaut ist.",
   ],
 };
 
@@ -458,13 +432,13 @@ const STIMMEN = [
 ];
 
 const FRAGEN = [
-  ["Für wen ist Mythos Mathe?", "Für Schüler am Gymnasium von Klasse 8 bis zum Abitur, mit Schwerpunkt auf der Oberstufe. Das Coaching findet in Konstanz und am Bodensee statt, die Werkzeuge funktionieren überall im Browser."],
+  ["Für wen ist Mythos Mathe?", "Für Schüler am Gymnasium von Klasse 8 bis zum Abitur, mit Schwerpunkt auf der Oberstufe. Das Coaching findet in Konstanz oder online statt, die Werkzeuge funktionieren überall im Browser."],
   ["Brauche ich Talent für Mathe?", "Nein. Genau das ist der Mythos, um den es hier geht. Gute Mathenoten entstehen aus Methode, Wiederholung im richtigen Abstand und einer Haltung, die Fehler als Information sieht – nicht aus einer Begabung, die man hat oder nicht hat."],
   ["Ist das Nachhilfe?", "Nicht im klassischen Sinn. Nachhilfe erklärt den Stoff der nächsten Klausur. Mythos Mathe verändert, wie du lernst – damit du den Stoff danach selbst verstehst und behältst."],
   ["Was kostet das Erstgespräch?", "Nichts. Wir sprechen etwa 30 Minuten, und du gehst mit konkreten ersten Schritten raus – unabhängig davon, ob wir danach zusammenarbeiten."],
   ["Welches Programm passt zu mir?", "Mathe checken ist der kompakte Einstieg über zwei Monate, wenn Lücken geschlossen werden müssen. Die Mathe Abi Masterclass begleitet dich sechs Monate bis zum Abi. Was passt, klären wir im Erstgespräch."],
   ["Kann ich die Werkzeuge einfach ausprobieren?", "Ja. Plotter, Trainer und Generatoren öffnen sich direkt im Browser. Für die Foto-Auswertung mit MathildaAI wirst du vor dem ersten Foto um deine Einwilligung gebeten."],
-  ["Was ist mit meinen Eltern?", "Für Eltern gibt es den Elternabend in Dingelsdorf und den Mindset-Kurs. Beides zeigt, wie Sie Ihr Kind wirksam begleiten – ohne selbst Mathe erklären zu müssen."],
+  ["Was ist mit meinen Eltern?", "Für Eltern gibt es den Elternabend und den Mindset-Kurs. Beides zeigt, wie Sie Ihr Kind wirksam begleiten – ohne selbst Mathe erklären zu müssen."],
 ];
 
 /* ---------------------------------------------------------------- Bausteine */
@@ -519,16 +493,7 @@ export { CSS as LP_CSS, F as LP_FARBEN, Haken, Kreuz };
 export function Landingpage({ gehe }) {
   const [hinweis, setHinweis] = useState(false);
   const [labOffen, setLabOffen] = useState(false);
-  const [fotoDa, setFotoDa] = useState(false);
   const [leisteAn, setLeisteAn] = useState(false);
-
-  /* Foto nur zeigen, wenn es wirklich geladen werden kann – kein Springen des Layouts */
-  useEffect(() => {
-    const bild = new Image();
-    bild.onload = () => { if (bild.naturalWidth > 0) setFotoDa(true); };
-    bild.src = UEBER_MICH.foto;
-    return () => { bild.onload = null; };
-  }, []);
 
   /* Eigener Seitentitel für Browser-Tab und geteilte Links, beim Verlassen zurück */
   useEffect(() => {
@@ -558,7 +523,7 @@ export function Landingpage({ gehe }) {
     if (COACHING.termin) { window.open(COACHING.termin, "_blank", "noopener"); return; }
     if (COACHING.mail) {
       const betreff = encodeURIComponent("Erstgespräch Mythos Mathe");
-      const text = encodeURIComponent("Hallo Basti,\n\nich würde gern ein erstes Gespräch mit dir führen.\n\nKlasse:\nWo es gerade hakt:\n\nViele Grüße");
+      const text = encodeURIComponent("Hallo,\n\nich würde gern ein erstes Gespräch führen.\n\nKlasse:\nWo es gerade hakt:\n\nViele Grüße");
       window.location.href = `mailto:${COACHING.mail}?subject=${betreff}&body=${text}`;
       return;
     }
@@ -600,7 +565,6 @@ export function Landingpage({ gehe }) {
               <button type="button" className="lp-link" style={{ color: F.blauText, textDecorationColor: "rgba(201,214,238,0.4)" }} onClick={() => scrollen("lp-werkzeuge")}>Oder erst einmal die Werkzeuge kostenlos testen</button>
             </div>
             {hinweisText}
-            <p className="lp-autor">Von <b>Basti Blumenröther</b>, Mathestudent an der Universität Konstanz und seit Jahren Mathe-Coach am Bodensee.</p>
           </div>
           <Rechenweg />
         </div>
@@ -650,39 +614,16 @@ export function Landingpage({ gehe }) {
       <section className="lp-sektion" style={{ background: F.weiss, borderTop: `1px solid ${F.linie}`, borderBottom: `1px solid ${F.linie}` }}>
         <div className="lp-innen">
           <div style={{ maxWidth: 760 }}>
-            <span className="lp-kicker">Ich war genau da, wo du jetzt bist</span>
-            <h2 className="lp-h2">Ich war selbst kein Überflieger.</h2>
+            <span className="lp-kicker">Was dahintersteht</span>
+            <h2 className="lp-h2">Kein Talent. Ein System.</h2>
             <p className="lp-text" style={{ marginTop: 24 }}>
-              In den ersten drei Jahren am Gymnasium hing ich bei der Note 2 fest. Vielleicht denkst du jetzt: „Eine 2 wäre für mich ein Traum.“
-              Genau deshalb ist die Geschichte wichtig – denn der Sprung danach hatte nichts mit Talent zu tun.
+              Wer Mathe kann, hat ein System: wie er aufschreibt, wie er übt, wie er mit Fehlern umgeht. Vielleicht denkst du jetzt:
+              „Bei mir ist das anders.“ Genau deshalb ist das wichtig – denn ein System hat nichts mit Talent zu tun, und man kann es lernen.
             </p>
           </div>
-          <ol className="lp-zeit">
-            <li>
-              <span className="lp-punkt" aria-hidden="true" />
-              <p className="lp-wann">Klasse 5 bis 7</p>
-              <p className="lp-note" style={{ color: F.still }}>2</p>
-              <p className="lp-text" style={{ marginTop: 12 }}>Festgefahren. Mehr lernen brachte nicht mehr Erfolg.</p>
-            </li>
-            <li>
-              <span className="lp-punkt" aria-hidden="true" style={{ borderColor: F.see }} />
-              <p className="lp-wann">ab Klasse 8</p>
-              <svg className="lp-anstieg" viewBox="0 0 120 64" role="img" aria-label="Kurve, die steil ansteigt">
-                <path d="M4 58 C 40 56, 62 50, 78 34 S 104 8, 116 6" fill="none" stroke={F.see} strokeWidth="5" strokeLinecap="round" />
-                <circle cx="116" cy="6" r="5" fill={F.see} />
-              </svg>
-              <p className="lp-text" style={{ marginTop: 12 }}>Ein komplett anderer Weg: andere Methoden, eine andere Haltung zu Fehlern, ein klares System.</p>
-            </li>
-            <li className="lp-ziel">
-              <span className="lp-punkt" aria-hidden="true" />
-              <p className="lp-wann">ab Klasse 10</p>
-              <p className="lp-note" style={{ color: F.goldText }}>1,0</p>
-              <p className="lp-text" style={{ marginTop: 12 }}>Und das Wichtigste: Mathe hat plötzlich Spaß gemacht.</p>
-            </li>
-          </ol>
-          <p className="lp-text" style={{ maxWidth: 760, marginTop: 8 }}>
-            In den letzten fünf Jahren habe ich genau untersucht, welche Stellschrauben diesen Weg möglich gemacht haben – und in welcher
-            Kombination und Reihenfolge sie wirken. Daraus ist das Trainingssystem von Mythos Mathe entstanden. Es wirkt unabhängig davon,
+          <p className="lp-text" style={{ maxWidth: 760, marginTop: 24 }}>
+            Mythos Mathe ist aus der Frage entstanden, welche Stellschrauben den Unterschied machen – und in welcher Kombination und
+            Reihenfolge sie wirken. Daraus ist das Trainingssystem geworden, das du hier findest. Es wirkt unabhängig davon,
             wo du gerade stehst.
           </p>
           <div className="lp-belege">
@@ -976,14 +917,13 @@ export function Landingpage({ gehe }) {
         </div>
       </section>
 
-      {/* Über mich */}
+      {/* Über Mythos Mathe */}
       <section className="lp-sektion">
-        <div className={fotoDa ? "lp-innen lp-ueber" : "lp-innen lp-schmal"}>
-          {fotoDa && <img className="lp-foto" src={UEBER_MICH.foto} alt={UEBER_MICH.fotoAlt} loading="lazy" onError={() => setFotoDa(false)} />}
+        <div className="lp-innen lp-schmal">
           <div>
-            <span className="lp-kicker">Dein Mentor</span>
-            <h2 className="lp-h2">Wer hinter Mythos Mathe steht</h2>
-            {UEBER_MICH.absaetze.map((a, i) => <p key={i} className="lp-text" style={{ marginTop: i ? 18 : 24 }}>{a}</p>)}
+            <span className="lp-kicker">Über Mythos Mathe</span>
+            <h2 className="lp-h2">Was hinter Mythos Mathe steht</h2>
+            {UEBER_UNS.absaetze.map((a, i) => <p key={i} className="lp-text" style={{ marginTop: i ? 18 : 24 }}>{a}</p>)}
             <p style={{ marginTop: 32, fontSize: 24, fontWeight: 800, letterSpacing: "-0.02em", color: F.nacht }}>System + Freude = Erfolg</p>
           </div>
         </div>

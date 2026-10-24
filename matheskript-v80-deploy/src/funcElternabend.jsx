@@ -368,16 +368,11 @@ const CSS_SEITE = `
 .eab-paket .eab-ding:last-child { grid-column: 1 / -1; }
 @media (min-width: 760px) { .eab-paket .eab-ding:last-child { grid-column: auto; } }
 
-/* Gastgeber */
-.eab-gast { display: grid; gap: 40px; grid-template-columns: minmax(0, 1fr); align-items: center; }
-@media (min-width: 900px) { .eab-gast { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 72px; } }
-.eab-portrait { position: relative; aspect-ratio: 4 / 5; max-width: 380px; width: 100%; justify-self: center; border-radius: 24px; overflow: hidden;
-  background: radial-gradient(120% 90% at 30% 10%, #1B3778 0%, ${T.nacht} 60%, ${T.nachtTief} 100%); box-shadow: 0 24px 50px rgba(14,30,74,0.25); }
-.eab-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.eab-monogramm { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 140px; font-weight: 800; letter-spacing: -0.06em; }
+/* Gastgeber (seit 24.10. ohne Bildspalte: eine Lesespalte) */
+.eab-gast { display: grid; gap: 40px; grid-template-columns: minmax(0, 1fr); align-items: center; max-width: 760px; }
 .eab-weg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 30px; }
 .eab-weg div { border-radius: 16px; padding: 16px 12px 14px; background: ${T.weiss}; border: 1px solid ${T.linie}; text-align: center; }
-.eab-weg b { display: block; font-size: clamp(26px, 4vw, 34px); font-weight: 800; letter-spacing: -0.04em; line-height: 1; color: ${T.nacht}; }
+.eab-weg b { display: block; font-size: clamp(20px, 3.2vw, 28px); font-weight: 800; letter-spacing: -0.03em; line-height: 1; color: ${T.nacht}; }
 .eab-weg span { display: block; font-size: 12.5px; line-height: 1.4; color: ${T.still}; margin-top: 8px; }
 .eab-weg div:last-child { background: ${T.nacht}; border-color: ${T.nacht}; }
 .eab-weg div:last-child b { color: ${T.gold}; } .eab-weg div:last-child span { color: ${T.blauText}; }
@@ -775,19 +770,6 @@ function Countdown() {
   );
 }
 
-function Portrait() {
-  const [da, setDa] = useState(true);
-  return (
-    <figure className="eab-portrait">
-      {da ? <img src="/landingpage/basti.jpg" alt="Basti Blumenröther" loading="lazy" onError={() => setDa(false)} /> : (
-        <span className="eab-monogramm" aria-label="Basti Blumenröther" role="img">
-          <span style={{ background: "linear-gradient(180deg,#FFE58A 0%,#EDBB00 50%,#B88B00 100%)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>B</span>
-        </span>
-      )}
-    </figure>
-  );
-}
-
 function Leiste() {
   const bonus = useBonus();
   const [an, setAn] = useState(false);
@@ -841,7 +823,7 @@ export function ElternabendSeite({ gebucht }) {
               <h1 className="eab-h1">Ihr Kind braucht kein <em>Mathe-Gen.</em></h1>
               <p className="eab-hand eab-unter">Ein Abend bei Getränken, Snack und Aha‑Momenten.</p>
               <p className="eab-lead">
-                In {E.ort} in Dingelsdorf zeige ich Ihnen, warum Mathe-Talent ein Mythos ist, wie Mathe im Kopf entsteht
+                In {E.ort} in Dingelsdorf zeigen wir Ihnen, warum Mathe-Talent ein Mythos ist, wie Mathe im Kopf entsteht
                 und was Ihr Kind mit System und Freude erreichen kann.
               </p>
               <div className="eab-knopfreihe">
@@ -925,25 +907,24 @@ export function ElternabendSeite({ gebucht }) {
         </div>
       </section>
 
-      {/* Gastgeber */}
+      {/* Gastgeber: Mythos Mathe (seit 24.10. ohne Person, ohne Foto) */}
       <section className="eab-sektion" style={{ background: "#EEF3FA" }}>
         <div className="eab-innen eab-gast">
-          <Portrait />
           <div>
             <p className="eab-kicker">Ihr Gastgeber</p>
-            <h2 className="eab-h2">Von der 2 zur 1,0.</h2>
+            <h2 className="eab-h2">Mythos Mathe.</h2>
             <p className="eab-text">
-              Ich bin Basti. Ich studiere Mathematik an der Universität Konstanz, lebe in Dingelsdorf und begleite seit vielen Jahren
-              Schüler durch Mathe – von der Mittelstufe bis zum Abitur.
+              Hinter dem Abend steht Mythos Mathe: ein Trainingssystem für Schüler am Gymnasium von der Mittelstufe bis zum Abitur –
+              mit eigenen Schulbüchern, einer App, die jeden Rechenweg prüft, und einem Plan, der von der nächsten Klausur rückwärts rechnet.
             </p>
             <p className="eab-text">
-              In den ersten drei Jahren am Gymnasium stand bei mir eine 2. Dann habe ich ab Klasse 8 einen anderen Weg eingeschlagen.
-              Was ich dabei gelernt habe, erzähle ich Ihnen an diesem Abend.
+              Es ist aus einer einfachen Beobachtung entstanden: Wer an Mathe scheitert, scheitert selten am Kopf, fast immer an der Methode.
+              Was diesen Unterschied ausmacht, zeigen wir Ihnen an diesem Abend.
             </p>
             <div className="eab-weg">
-              <div><b>2</b><span>Klasse 5 bis 7</span></div>
-              <div><b>↗</b><span>Ab Klasse 8 ein neuer Weg</span></div>
-              <div><b>1,0</b><span>Ab Klasse 10</span></div>
+              <div><b>Talent</b><span>Der Mythos</span></div>
+              <div><b>↗</b><span>Methode statt Begabung</span></div>
+              <div><b>System</b><span>Was wirklich wirkt</span></div>
             </div>
           </div>
         </div>

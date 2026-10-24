@@ -1,8 +1,9 @@
-"""Browser-Test Startseite in sieben Blöcken (21.10. abends) – Band, Bühne, Heute, Lernen, Mathilda, Kurse, Entdecken, Vision-Anriss.
+"""Browser-Test Startseite (Schülerseite, angemeldet bzw. mm-start-app) in sechs Blöcken – Band, Bühne, Heute, Lernen, Mathilda, Kurse, Entdecken.
+· Seit 24.10.: Bühne „Hallo … Was übst du heute?“ statt Marken-Schlagzeile; kein Vision-Anriss, keine Spenden, kein Name auf der Seite.
 · Band unter der Kopfleiste: fünf Chips, klebt beim Scrollen mit, „Kurse“ springt 12 px unter das Band, aktiver Chip wandert mit.
 · Neuer Besucher: Goldknopf „Pen & Paper starten“, keine Haken-Liste, kein Laufband, keine Modus-Pille, keine Schlösser,
   keine Masterclass-Kachel; Mathilda genau einmal als Block mit „Blatt scannen“ + 4 Chips; sechs Kurs-Karten + „Alle 12 Kurse“;
-  Blog-Anriss zeigt den neuesten Beitrag (7 Mathe-Mythen); „Die Vision lesen“ → /vision.
+  Blog-Anriss zeigt den neuesten Beitrag (7 Mathe-Mythen).
 · „Alle Kurse“ → /kurse mit sieben Lack-Kacheln, allen Kursen und den weiteren Lernangeboten als Karten; Zurück zur Startseite über das Logo.
 · Keine Seitenüberbreite, keine Konsolenfehler bei 360, 390 und 1280 px.
   npx vite build && npx vite preview --port 4173 &   →   python3 tests/ui/startseite-bloecke.ui.py
@@ -53,7 +54,10 @@ with sync_playwright() as p:
         pruefe(pg.locator("[data-start-kurs='penpaper']").count() == 1, f"{tag}: Pen & Paper nicht unter den ersten sechs Kursen")
         pruefe(pg.locator("[data-start-alle-kurse]").count() == 1, f"{tag}: „Alle Kurse“ fehlt")
         pruefe(pg.locator("[data-start-blog]").count() == 1 and "Mythen" in pg.locator("[data-start-blog] b").inner_text(), f"{tag}: Blog-Anriss zeigt nicht den neuesten Beitrag")
-        pruefe(pg.locator("[data-start-vision]").count() == 1 and pg.locator("[data-start-mythen]").count() == 1, f"{tag}: Vision-Anriss unvollständig")
+        pruefe(pg.locator("[data-start-anrede]").count() == 1 and "Was übst du heute?" in pg.locator("[data-start-anrede]").inner_text(), f"{tag}: Bühne ohne „Was übst du heute?“")
+        pruefe(pg.locator("#system, [data-start-vision], [data-start-mythen]").count() == 0, f"{tag}: Vision-Anriss ist zurück auf der Schülerseite")
+        koerper = pg.evaluate("document.body.innerText")
+        pruefe("Spende" not in koerper and "Blumenröther" not in koerper and "Mathe kann jeder verstehen" not in koerper, f"{tag}: Spenden, Name oder Marken-Schlagzeile auf der Schülerseite")
         hoehe_seite = pg.evaluate("document.documentElement.scrollHeight")
         pruefe(hoehe_seite < (4200 if breite >= 1000 else 5200), f"{tag}: Startseite zu lang ({hoehe_seite} px)")
         pg.screenshot(path=f"{AUS}/start-{tag}.png", full_page=True)
@@ -76,14 +80,11 @@ with sync_playwright() as p:
         pg.screenshot(path=f"{AUS}/kurse-{tag}.png", full_page=True)
         pruefe(pg.evaluate("document.documentElement.scrollWidth - innerWidth") <= 0, f"{tag}: /kurse breiter als der Bildschirm")
 
-        # ---------- Blog-Anriss → Beitrag, Vision ----------
+        # ---------- Blog-Anriss → Beitrag ----------
         pg.goto(BASE); pg.wait_for_timeout(1500)
         pg.locator("[data-start-blog]").click(); pg.wait_for_timeout(1500)
         pruefe("sieben-mathe-mythen" in pg.url, f"{tag}: Blog-Anriss öffnet nicht den Beitrag ({pg.url})")
         pruefe(pg.locator("text=Mathe ist Talent").count() >= 1, f"{tag}: Beitrag ohne die Mythen")
-        pg.goto(BASE); pg.wait_for_timeout(1500)
-        pg.locator("[data-start-vision]").click(); pg.wait_for_timeout(1500)
-        pruefe(pg.url.rstrip("/").endswith("/vision"), f"{tag}: „Die Vision lesen“ führt nicht zu /vision")
 
         # ---------- ☰: Namen wie die Blöcke ----------
         pg.goto(BASE); pg.wait_for_timeout(1500)
