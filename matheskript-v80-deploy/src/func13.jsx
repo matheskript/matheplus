@@ -4,6 +4,9 @@
    Kettenregel, Alle Regeln (RegelWerkstatt aus funcRegelwerk.jsx).
    Dazu „Eigene Funktion“: f eingeben, f′, f″, f‴ selbst ableiten;
    ist f′ geschafft, öffnet sich automatisch f″, dann f‴.
+   Drei Modi (seit 22.10.): Auto (die App rechnet vor) · Üben (je Ableitung
+   die richtige Zeile aus 2–4 goldenen Karten wählen, regelwerkUeben.js) ·
+   Lernen (selbst eintippen, früher „Trainieren“) – Namen aus uebenKern.js.
 
    Die Prüfung vergleicht die Eingabe numerisch mit der symbolisch
    gebildeten Ableitung — jede gleichwertige Schreibweise zählt.
@@ -20,7 +23,10 @@ import {
   LiveFormel, Tastenfeld, ableitung, alsTex, hatBox, kompiliere, ohnePar, parse,
 } from "./func12.jsx";
 import { IchHaengeFest, ableitRegeln, aussenTex, summanden } from "./funcHilfe.jsx";
-import { Eingabe, EingabePopup, POP_CSS, PopupWahl, REGEL_CHIPS, RegelWerkstatt } from "./funcRegelwerk.jsx";
+import { Eingabe, EingabePopup, ModusSchalter, ModusText, POP_CSS, PopupWahl, REGEL_CHIPS, RegelWerkstatt } from "./funcRegelwerk.jsx";
+import { aufAnhieb } from "./uebenKern.js";
+import { UEBEN_CSS, UebenFertig, UebenWahl } from "./funcUebenWahl.jsx";
+import { uebenWegEigen } from "./regelwerkUeben.js";
 
 import { EinstellungsPille } from "./ui3.jsx";
 import { DESKTOP, useMedien } from "./arbeitsflaeche.jsx";
@@ -120,17 +126,19 @@ function diagnose(g, soll, vorher, stufe) {
 }
 
 /* Eine Ableitungszeile: Label, Formelanzeige, Status. */
-function Zeile({ stufe, aktiv, eintrag, onKlick, pos, setPos }) {
+function Zeile({ stufe, aktiv, eintrag, onKlick, pos, setPos, tex, ziel }) {
   const farbe = eintrag.status === "richtig" ? C.smaragd : eintrag.status === "falsch" ? C.signal : aktiv ? C.see : C.linie;
   return (
-    <div onClick={onKlick}
+    <div onClick={onKlick} className={ziel ? "uw-ziel" : undefined} data-ueben-ziel={ziel || undefined} data-abl-zeile={stufe}
       style={{ border: `2px solid ${farbe}`, borderRadius: 16, padding: "10px 16px", marginBottom: 12, minHeight: 66,
         background: eintrag.status === "richtig" ? "#EEF8F2" : C.weiss,
         display: "flex", alignItems: "center", gap: 10, overflowX: "auto", cursor: onKlick ? "pointer" : "default",
         boxShadow: aktiv ? "0 4px 16px rgba(0,77,152,0.12)" : "none", transition: "box-shadow .2s, border-color .2s" }}>
       <span style={{ fontSize: 20, fontWeight: 700, color: C.tinte, whiteSpace: "nowrap" }}>f{STRICHE[stufe]}(x) =</span>
       <span style={{ flex: 1, fontSize: 22, lineHeight: 1.9, whiteSpace: "nowrap" }}>
-        {setPos ? <LiveFormel text={eintrag.text || ""} pos={pos} setPos={setPos} hinweis={<span style={{ color: C.hellgrau, fontSize: 15, fontWeight: 300 }}>hier eingeben …</span>} />
+        {tex ? <M t={tex} />
+          : ziel ? <span className="uw-platz" style={{ fontSize: 18 }}>?</span>
+          : setPos ? <LiveFormel text={eintrag.text || ""} pos={pos} setPos={setPos} hinweis={<span style={{ color: C.hellgrau, fontSize: 15, fontWeight: 300 }}>hier eingeben …</span>} />
           : eintrag.text ? <LiveFormel text={eintrag.text} />
             : <span style={{ color: C.hellgrau, fontSize: 15, fontWeight: 300 }}>{aktiv ? "hier eingeben …" : ""}</span>}
       </span>
@@ -158,8 +166,13 @@ export function Ableitungstrainer() {
   const [regel, setRegel] = useState(startRegel);   // produkt | quotient | reziprok | linkette | kette | gold | eigen
   const eigen = regel === "eigen";
   const [stufe, setStufe] = useState(1);
-  const [modus, setModus] = useState("training");   // Standard: Trainieren (selbst eintippen), Rechnen zeigt die Musterlösung
+  const [modus, setModus] = useState("lernen");   // auto | ueben | lernen; Standard Lernen (selbst eintippen), Auto zeigt die Musterlösung
   const [wurf, setWurf] = useState(0);
+  // Üben (Eigene Funktion): Runde, offener Schritt, falsch gewählte Karten je Schritt
+  const [uebenRunde, setUebenRunde] = useState(0);
+  const [uebenStand, setUebenStand] = useState(0);
+  const [uebenFalsch, setUebenFalsch] = useState({});
+  const uebenNeu = () => { setUebenRunde((r) => r + 1); setUebenStand(0); setUebenFalsch({}); };
 
   // Eigene Funktion
   const [fText, setFText] = useState(mit || "");
@@ -193,7 +206,22 @@ export function Ableitungstrainer() {
     setTimeout(zurueck, 80);
   };
 
-  const neustart = (text) => { setFText(text); setZeilen([leer()]); setAktiv(0); setPos(0); setOffen(false); };
+  const neustart = (text) => { setFText(text); setZeilen([leer()]); setAktiv(0); setPos(0); setOffen(false); uebenNeu(); };
+  const waehleModus = (m) => { setModus(m); setZeilen([leer()]); setAktiv(0); setPos(0); setOffen(false); uebenNeu(); };
+
+  /* ---------- Üben: f′, f″, f‴ je aus 2–4 Karten wählen (regelwerkUeben.js) ---------- */
+  const uebenSchritte = useMemo(() => (kette && modus === "ueben" ? uebenWegEigen(kette.map((k) => k.baum)) : []), [kette, modus, uebenRunde]);
+  const nUeben = uebenSchritte.length;
+  const uebenFertig = modus === "ueben" && nUeben > 0 && uebenStand >= nUeben;
+  const uebenAnhieb = aufAnhieb(uebenFalsch, Math.min(uebenStand, nUeben));
+  const uebenWaehle = (o) => {
+    if (!uebenSchritte[uebenStand]) return;
+    const schon = uebenFalsch[uebenStand] || [];
+    if (!o.richtig) { if (!schon.includes(o.key)) setUebenFalsch({ ...uebenFalsch, [uebenStand]: [...schon, o.key] }); return; }
+    const neu = uebenStand + 1;
+    setUebenStand(neu);
+    if (neu === nUeben) buchen({ richtig: aufAnhieb(uebenFalsch, nUeben) === nUeben, gruppe: "ableitung-ueben", stufe: nUeben, art: "eigen" });
+  };
 
   const eintrag = zeilen[aktiv];
   const setEintragText = (t) => setZeilen(zeilen.map((z, i) => (i === aktiv ? { ...z, text: t, status: null, hinweis: "" } : z)));
@@ -242,11 +270,10 @@ export function Ableitungstrainer() {
   const regelName = (regeln.find(([id]) => id === regel) || ["", ""])[1];
 
   const modusSchalter = (
-    <div className="abl-seg" role="group" aria-label="Modus">
-      {[["auto", "Rechnen"], ["training", "Trainieren"]].map(([id, name]) => (
-        <button key={id} type="button" aria-pressed={modus === id} onClick={() => festhalten(() => setModus(id))}>{name}</button>
-      ))}
-    </div>
+    <>
+      <ModusSchalter className="abl-seg" modus={modus} setModus={(m) => festhalten(() => waehleModus(m))} />
+      <ModusText modus={modus} attr="data-abl-modus-text" />
+    </>
   );
   const stufeWahl = (
     <PopupWahl className={`abl-stufe${eigen ? " aus" : ""}`} wert={stufe} label="Stufe wählen" optionen={stufen}
@@ -269,6 +296,7 @@ export function Ableitungstrainer() {
   return (
     <div className="abl-seite">
       <style>{POP_CSS}</style>
+      <style>{UEBEN_CSS}</style>
       <style>{`
         .abl-seite{background:#fff}[data-trainings-session] .abl-seite{min-height:calc(100dvh - 61px)}
         .abl-seite,.abl-seite *{overflow-anchor:none}
@@ -339,7 +367,7 @@ export function Ableitungstrainer() {
         </>)}
         </div>
         <div className="abl-spalte-r">
-        {!eigen && <RegelWerkstatt regel={regel} stufe={stufe} modus={modus} wurf={wurf} ohneKopf />}
+        {!eigen && <RegelWerkstatt regel={regel} stufe={stufe} modus={modus} onModus={setModus} wurf={wurf} ohneKopf />}
         {eigen && <>
         {eigenOffen && (
           <div className="abl-karte" style={{ marginBottom: 14 }}>
@@ -393,6 +421,28 @@ export function Ableitungstrainer() {
                   </div>
                 ))}
               </div>
+            ) : modus === "ueben" ? (
+              <div data-abl-ueben-weg>
+                {uebenSchritte.slice(0, Math.min(uebenStand + 1, nUeben)).map((s, i) => {
+                  const fertigZ = i < uebenStand;
+                  return (
+                    <div key={`${uebenRunde}-${i}`}>
+                      <Zeile stufe={s.stufe} aktiv={false} eintrag={{ text: "", status: fertigZ ? "richtig" : null }} tex={fertigZ ? s.richtig.tex : ""} ziel={!fertigZ} />
+                      {!fertigZ && (
+                        <div style={{ marginBottom: 14 }}>
+                          <UebenWahl schritt={s} nr={i + 1} gesamt={nUeben} frage={s.frage} falsch={uebenFalsch[i] || []} onWahl={uebenWaehle} inhalt={(w) => <M t={w.tex} />} />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+                {uebenFertig && (
+                  <UebenFertig anhieb={uebenAnhieb} gesamt={nUeben} onLernen={() => waehleModus("lernen")} onNeu={() => neustart(fText)} neuText="Nochmal üben"
+                    leise="Nächste Stufe: Leite dieselbe Funktion in „Lernen“ ab – jede Zeile selbst eintippen, ohne Auswahl.">
+                    <M t={`f‴(x) = ${uebenSchritte[nUeben - 1].richtig.tex}`} />
+                  </UebenFertig>
+                )}
+              </div>
             ) : zeilen.map((z, i) => (
               <div key={i}>
                 <Zeile stufe={i + 1} aktiv={i === aktiv && !fertig} eintrag={z.status === "gezeigt" ? { ...z, text: "" } : z}
@@ -421,7 +471,7 @@ export function Ableitungstrainer() {
               </div>
             ))}
 
-            {modus === "training" && fertig && (
+            {modus === "lernen" && fertig && (
               <div style={{ textAlign: "center", padding: "10px 0 4px" }}>
                 <p style={{ fontSize: 20, fontWeight: 700, color: C.smaragd, marginBottom: 4 }}>
                   {zeilen.every((z) => z.status === "richtig") ? "Alle drei Ableitungen richtig! 🎉" : "Geschafft — alle drei Ableitungen stehen."}
@@ -434,7 +484,7 @@ export function Ableitungstrainer() {
                 </button>
               </div>
             )}
-            {modus === "training" && !fertig && <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 6 }}><IchHaengeFest kontext={ableitHilfe(kette, aktiv)} /></div>}
+            {modus === "lernen" && !fertig && <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 6 }}><IchHaengeFest kontext={ableitHilfe(kette, aktiv)} /></div>}
           </div>
         )}
         </>}

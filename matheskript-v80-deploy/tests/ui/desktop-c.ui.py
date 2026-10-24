@@ -137,11 +137,12 @@ with sync_playwright() as pw:
                     pruefe(bx is not None and bx["x"] >= 20 and bx["x"] + bx["width"] <= w - 20, f"{n}: Arbeitsfläche ohne Rand ({bx})")
             # Bedienung
             if name == "ableiten" and desktop:
-                vorher = p.locator(".abl-karte").first.inner_text()
-                klick_text(p, "Neue Funktion")
-                pruefe(p.locator(".abl-karte").count() == 1, f"{n}: Aufgabe fehlt nach „Neue Funktion“")
-                p.locator(".abl-seg button", has_text="Automatik").first.click(); p.wait_for_timeout(150)
-                pruefe(p.locator(".abl-auto").count() == 1, f"{n}: Automatik zeigt keine Ableitungen")
+                # seit 22.10.: Regelwerkstatt (wk-karte) mit Auto | Üben | Lernen
+                pruefe(p.locator(".wk-karte").count() == 1, f"{n}: Werkstatt-Karte fehlt")
+                p.locator(".abl-seg button", has_text="Auto").first.click(); p.wait_for_timeout(200)
+                pruefe(p.locator(".wk-rechnung").count() >= 1, f"{n}: Auto zeigt keine Rechnung")
+                p.locator(".abl-seg button", has_text="Üben").first.click(); p.wait_for_timeout(200)
+                pruefe(p.locator("[data-ueben-wahl]").count() == 1, f"{n}: Üben zeigt keine Karten")
             if name == "geraden":
                 pruefe(p.get_by_role("button", name="m +", exact=True).count() == 1, f"{n}: Regler m fehlt")
                 p.get_by_role("button", name="m +", exact=True).click(); p.wait_for_timeout(120)

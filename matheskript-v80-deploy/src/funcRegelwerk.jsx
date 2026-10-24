@@ -4,8 +4,11 @@
      und die „15-Punkte-Kombo“ (Produkt- und Kettenregel verschachtelt)
    · Links die Bausteine u und v, rechts daneben u′ und v′, darunter die
      Rechnung mit der Regel: Einsetzen (farbig) → Ergebnis → ausgeklammert
-   · Automatikmodus: alles steht als Musterlösung da, u und v sind frei
-     editierbar. Trainingsmodus: u′, v′ und f′ selbst eintippen.
+   · Drei Modi (seit 22.10., uebenKern.js): Auto – alles steht als Musterlösung
+     da, u und v sind frei editierbar. Üben – der Schüler geht u′, (u′(v(x)),)
+     v′, f′ selbst, wählt aber je Schritt die richtige Zeile aus 2–4 goldenen
+     Karten (regelwerkUeben.js, Oberfläche funcUebenWahl.jsx). Lernen – u′, v′
+     und f′ selbst eintippen (früher „Training“).
    · Jede Regel hat eine aufklappbare Herleitung.
    Mathe-Kern: regelwerkKern.js. Keine base-Datei darf diese Datei importieren.
    ============================================================ */
@@ -24,6 +27,9 @@ import { FR } from "./funcRegistry.jsx";
 import {
   REGELN, baueF, basisTex, diagnose, einsetzen as baumEinsetzen, fakTex, fehlerbilder, gleichwertig, lies, musterloesung, neueAufgabe, regelFuer, schoen, summanden, tex,
 } from "./regelwerkKern.js";
+import { UEBEN_MODI, aufAnhieb, modusNeu } from "./uebenKern.js";
+import { UEBEN_CSS, UebenFertig, UebenWahl } from "./funcUebenWahl.jsx";
+import { uebenWegWerkstatt } from "./regelwerkUeben.js";
 
 /* ---------- gemeinsame Bausteine (auch für Stammfunktion & Integral) ---------- */
 
@@ -160,13 +166,13 @@ ${POP_CSS}
 export const FARBE = { u: C.see, v: C.gruen };
 
 /* Ein Eingabe-/Anzeigefeld: Label „u(x) =“, Formel, Status */
-export function Feld({ label, labelFarbe, text, tex: fertigTex, aktiv, status, still, platzhalter = "hier eingeben …", onClick, extra, kopf, gestapelt, pos, setPos }) {
+export function Feld({ label, labelFarbe, text, tex: fertigTex, aktiv, status, still, platzhalter = "hier eingeben …", onClick, extra, kopf, gestapelt, pos, setPos, ziel }) {
   const hinweis = <span style={{ color: C.hellgrau, fontSize: 14, fontWeight: 300 }}>{aktiv ? platzhalter : ""}</span>;
   const zeile = (
     <>
       <span className="wk-label" style={labelFarbe ? { color: labelFarbe } : undefined}>{label}</span>
       <span className="wk-inhalt">
-        {fertigTex !== undefined ? (fertigTex ? <M t={fertigTex} /> : <span style={{ color: C.hellgrau, fontSize: 14, fontWeight: 300 }}>…</span>)
+        {fertigTex !== undefined ? (fertigTex ? <M t={fertigTex} /> : ziel ? <span className="uw-platz" style={{ fontSize: 18 }}>?</span> : <span style={{ color: C.hellgrau, fontSize: 14, fontWeight: 300 }}>…</span>)
           // Aktives Feld (pos/setPos): Schreibmarke an der echten Stelle, Platzhalter markiert, Klick setzt die Marke
           : aktiv && setPos ? <LiveFormel text={text || ""} pos={pos} setPos={setPos} hinweis={hinweis} />
             : text ? <LiveFormel text={text} />
@@ -179,7 +185,7 @@ export function Feld({ label, labelFarbe, text, tex: fertigTex, aktiv, status, s
     </>
   );
   return (
-    <div className={`wk-feld${kopf ? " mit-kopf" : ""}${gestapelt ? " gestapelt" : ""}`} data-aktiv={!!aktiv} data-status={status || undefined} data-still={!!still} onClick={still ? undefined : onClick}
+    <div className={`wk-feld${kopf ? " mit-kopf" : ""}${gestapelt ? " gestapelt" : ""}${ziel ? " uw-ziel" : ""}`} data-aktiv={!!aktiv} data-status={status || undefined} data-still={!!still} data-ueben-ziel={ziel || undefined} onClick={still ? undefined : onClick}
       role={still ? undefined : "button"} tabIndex={still ? undefined : 0} aria-pressed={still ? undefined : !!aktiv}
       onKeyDown={(e) => { if (!still && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); onClick && onClick(); } }}>
       {kopf ? <><span className="wk-kopf">{kopf}</span><div className="wk-zeile1">{zeile}</div></> : zeile}
@@ -299,15 +305,20 @@ export function TermEingabe({ wert, setWert, onOk, placeholder, stand, label = "
   );
 }
 
-/* Segment-Schalter Automatik | Training */
-export function ModusSchalter({ modus, setModus }) {
+/* Segment-Schalter Auto | Üben | Lernen (Namen aus UEBEN_MODI) */
+export function ModusSchalter({ modus, setModus, className = "wk-seg" }) {
   return (
-    <div className="wk-seg" role="group" aria-label="Modus">
-      {[["auto", "Rechnen"], ["training", "Trainieren"]].map(([id, name]) => (
-        <button key={id} type="button" aria-pressed={modus === id} onClick={() => setModus(id)}>{name}</button>
+    <div className={className} role="group" aria-label="Modus">
+      {UEBEN_MODI.map((m) => (
+        <button key={m.id} type="button" aria-pressed={modus === m.id} title={m.text} onClick={() => setModus(m.id)}>{m.name}</button>
       ))}
     </div>
   );
+}
+/* Der Satz zum gewählten Modus (unter dem Schalter) */
+export function ModusText({ modus, attr = "data-modus-text", style }) {
+  const m = UEBEN_MODI.find((x) => x.id === modus) || UEBEN_MODI[0];
+  return <p {...{ [attr]: true }} style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.45, margin: "-2px 6px 2px", ...style }}>{m.text}</p>;
 }
 
 /* Aufklappbare Herleitung */
@@ -621,13 +632,19 @@ function BruchBlock({ cfg, unten, ergebnis, kompakt, eingabe }) {
   );
 }
 
-export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modusProp, wurf, ohneKopf = false }) {
+export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modusProp, onModus, wurf, ohneKopf = false }) {
   // Die Regel wählt das Menü in der Kopfleiste (Ableitenstrainer); allein genutzt, hält die Werkstatt sie selbst.
   const [regelIntern] = useState("produkt");
   const regel = regelProp || regelIntern;
   // Stufe, Modus und Würfel kann der Ableitungstrainer in seiner Kopfzeile steuern (Props); allein genutzt, hält die Werkstatt sie selbst.
   const [stufe, setStufe] = useState(stufeProp || 1);
-  const [modus, setModus] = useState(modusProp || "auto");
+  const [modus, setModus] = useState(() => modusNeu(modusProp, "auto"));   // auto | ueben | lernen (alte Werte: modusNeu)
+  const mProp = modusProp ? modusNeu(modusProp) : null;
+  // Üben: Runde (neue Aufgabe/neuer Lauf), Stand (Index des offenen Schritts), falsch gewählte Karten je Schritt
+  const [uebenRunde, setUebenRunde] = useState(0);
+  const [uebenStand, setUebenStand] = useState(0);
+  const [uebenFalsch, setUebenFalsch] = useState({});
+  const uebenNeu = () => { setUebenRunde((r) => r + 1); setUebenStand(0); setUebenFalsch({}); };
   const [auf, setAuf] = useState(() => neueAufgabe(regel, stufeProp || 1));
   const [uText, setUText] = useState(auf.uText);
   const [vText, setVText] = useState(auf.vText);
@@ -657,6 +674,7 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
     setPosUV({ u: a.uText.length, v: a.vText.length });
     setFelder(leereFelder());
     setAktiv(null);
+    uebenNeu();
   };
   const letzteRegel = useRef(regel);
   useEffect(() => {
@@ -667,6 +685,7 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
     setModus(m);
     setFelder(leereFelder());
     setAktiv(null);
+    uebenNeu();
   };
   const erstesMal = useRef(true);
   useEffect(() => {
@@ -675,8 +694,8 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
   }, [stufeProp]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (erstesMal.current) return;
-    if (modusProp && modusProp !== modus) waehleModus(modusProp);
-  }, [modusProp]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (mProp && mProp !== modus) waehleModus(mProp);
+  }, [mProp]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (erstesMal.current) return;
     if (wurf !== undefined) starte();
@@ -687,11 +706,34 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
     if (modus === "auto" && gueltig) setAuf((a) => ({ ...a, u, v, uText, vText, f: baueF(art, u, v) }));
   }, [u, v]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const training = modus === "training";
+  const training = modus === "lernen";
+  const ueben = modus === "ueben";
   const setFeld = (id, patch) => setFelder((f) => ({ ...f, [id]: { ...f[id], ...patch } }));
   const reihenfolge = ["u1", "uv", "v1", "f1"].filter((id) => (id !== "u1" || mitU) && (id !== "uv" || kette));
   const offen = reihenfolge.filter((id) => !["richtig", "gezeigt"].includes(felder[id].status));
   const fertig = training && offen.length === 0 && gueltig;
+
+  /* ---------- Üben: je Schritt die richtige Zeile aus 2–4 Karten wählen (regelwerkUeben.js, funcUebenWahl.jsx) ---------- */
+  const uebenSchritte = useMemo(() => (ueben && gueltig ? uebenWegWerkstatt({ regel: art, u, v }) : []), [ueben, gueltig, art, u, v, uebenRunde]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const nUeben = uebenSchritte.length;
+  const uebenFertig = ueben && nUeben > 0 && uebenStand >= nUeben;
+  const uebenAktiv = ueben && !uebenFertig ? uebenSchritte[uebenStand] || null : null;
+  const uebenIndex = (id) => uebenSchritte.findIndex((s) => s.art === id);
+  const uebenAnhieb = aufAnhieb(uebenFalsch, Math.min(uebenStand, nUeben));
+  const uebenWaehle = (o) => {
+    if (!uebenAktiv) return;
+    const schon = uebenFalsch[uebenStand] || [];
+    if (!o.richtig) { if (!schon.includes(o.key)) setUebenFalsch({ ...uebenFalsch, [uebenStand]: [...schon, o.key] }); return; }
+    const neu = uebenStand + 1;
+    setUebenStand(neu);
+    if (neu === nUeben) {
+      const anhieb = aufAnhieb(uebenFalsch, nUeben);
+      buchen({ richtig: anhieb === nUeben, gruppe: "werkstatt-ueben", stufe, art: regel });
+    }
+  };
+  // Nach dem Üben dieselbe Aufgabe in Lernen selbst rechnen
+  const zuLernen = () => { waehleModus("lernen"); if (onModus) onModus("lernen"); };
+  const uebenKarte = (w) => <M t={w.tex} />;
 
   const soll = (id) => (id === "u1" ? ableitung(u) : id === "v1" ? ableitung(v) : id === "uv" ? baumEinsetzen(ableitung(u), v) : ml.soll);
   // Rückmeldung für ein einzelnes Feld; liefert true/false (richtig) oder null (Term unvollständig)
@@ -768,13 +810,18 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
   };
   const ablFeld = (id, teil, kopf, label = `${teil}′(x) =`, gestapelt = false) => {
     const e = felder[id];
+    if (ueben) {
+      const i = uebenIndex(id);
+      if (i >= 0 && i < uebenStand) return <Feld kopf={kopf} gestapelt={gestapelt} label={label} labelFarbe={FARBE[teil]} tex={uebenSchritte[i].richtig.tex} status="richtig" still />;
+      return <Feld kopf={kopf} gestapelt={gestapelt} label={label} labelFarbe={FARBE[teil]} tex="" still ziel={i >= 0 && i === uebenStand} />;
+    }
     if (!training) return <Feld kopf={kopf} gestapelt={gestapelt} label={label} labelFarbe={FARBE[teil]} tex={gueltig ? ablTex(id) : ""} still />;
     if (e.status === "gezeigt") return <Feld kopf={kopf} gestapelt={gestapelt} label={label} labelFarbe={FARBE[teil]} tex={e.zeig} status="gezeigt" still />;
     return <Feld kopf={kopf} gestapelt={gestapelt} label={label} labelFarbe={FARBE[teil]} text={e.text} aktiv={aktiv === id} status={e.status} onClick={() => waehleFeld(id)}
       pos={e.pos} setPos={(q) => setFeld(id, { pos: q })} />;
   };
   const uvFeld = (teil, text, setText, kopf) => (
-    <Feld kopf={kopf} label={`${LABEL(art, teil)}(x) =`} labelFarbe={FARBE[teil]} text={text} aktiv={!training && aktiv === teil} still={training}
+    <Feld kopf={kopf} label={`${LABEL(art, teil)}(x) =`} labelFarbe={FARBE[teil]} text={text} aktiv={!training && !ueben && aktiv === teil} still={training || ueben}
       onClick={() => waehleFeld(teil)} platzhalter="u eingeben …" pos={posUV[teil]} setPos={(q) => setPosUV((o) => ({ ...o, [teil]: q }))} />
   );
 
@@ -792,7 +839,7 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
   const fTex = gueltig ? tex(schoen(auf.f)) : "";
   const nebenU = mitU && gueltig && !["grund", "konst", "summe"].includes(regelFuer(u).art);
   const nebenV = gueltig && !["grund", "konst", "summe"].includes(regelFuer(v).art);
-  const zeigeNeben = !training || fertig;
+  const zeigeNeben = modus === "auto" || fertig || uebenFertig;
 
   const eingabeInhalt = () => (training ? (
     <>
@@ -813,7 +860,7 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
     </>
   ));
   const popup = () => <div className="wk-popup" ref={popRef}>{eingabeInhalt()}</div>;
-  const gridPopup = !!aktiv && ["u", "v", "u1", "uv", "v1"].includes(aktiv) && !(training && fertig);
+  const gridPopup = !ueben && !!aktiv && ["u", "v", "u1", "uv", "v1"].includes(aktiv) && !(training && fertig);
   const f1Popup = training && !fertig && aktiv === "f1";
   // Handy: die Eingabe von f′(x) läuft als Vollbild – Bausteine und Regel oben, f′-Zeile, Tastenfeld bis zum OK, ohne Scrollen
   const handy = useHandy();
@@ -831,11 +878,22 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
     return () => { b.style.overflow = alt[0]; h.style.overflow = alt[1]; window.removeEventListener("keydown", taste); };
   }, [voll]);
 
-  const rechnungZeigen = !!(gueltig && ml && (!training || fertig));
+  const rechnungZeigen = !!(gueltig && ml && (modus === "auto" || fertig || uebenFertig));
   const eingabeZeigen = !!(gueltig && ml && training && !fertig);
   const ausricht = art === "produkt" || kette;
   const zellen = ausricht ? ausrichtZellen(art, ml) : null;
   const bruchRegel = art === "quotient" || art === "reziprok";
+  // Üben: Zielfeld f′(x) mit den Karten darunter; vorher (u′, v′ …) steht die Wahl unter den Bausteinen
+  const uebenF1 = uebenAktiv && uebenAktiv.art === "f1";
+  const uebenWahl = (s) => (
+    <UebenWahl schritt={s} nr={uebenStand + 1} gesamt={nUeben} frage={s.frage} falsch={uebenFalsch[uebenStand] || []} onWahl={uebenWaehle} inhalt={uebenKarte} />
+  );
+  const f1Ueben = uebenF1 && (
+    <div style={{ marginTop: 10 }} data-werkstatt-ueben-f1>
+      <Feld label="f′(x) =" tex="" still ziel />
+      {uebenWahl(uebenAktiv)}
+    </div>
+  );
   const f1Block = (
     <div style={{ marginTop: 10 }}>
       {felder.f1.status === "gezeigt"
@@ -931,18 +989,22 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
   return (
     <div ref={kopf}>
       <style>{WERK_CSS}</style>
-      {/* Stufe als Pop-up, daneben Automatik | Training und der Würfel für ein neues Beispiel */}
-      {!ohneKopf && <div className="wk-kopfzeile" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
-        <PopupWahl wert={stufe} label="Stufe wählen" optionen={(regel === "gold" ? [1, 2, 3, 4, 5] : [1, 2, 3]).map((st) => ({ id: st, name: `Stufe ${st}` }))}
-          kopf={(o) => (o ? o.name : "Stufe")} onWaehle={waehleStufe} />
-        <ModusSchalter modus={modus} setModus={waehleModus} />
-        <button type="button" onClick={() => starte()} className="wk-wuerfel"
-          aria-label={training ? "Neue Aufgabe würfeln" : "Neues Beispiel würfeln"} title={training ? "Neue Aufgabe" : "Neues Beispiel"}>
-          <span aria-hidden="true">🎲</span>
-        </button>
-      </div>}
+      <style>{UEBEN_CSS}</style>
+      {/* Stufe als Pop-up, daneben Auto | Üben | Lernen und der Würfel für ein neues Beispiel */}
+      {!ohneKopf && <>
+        <div className="wk-kopfzeile" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
+          <PopupWahl wert={stufe} label="Stufe wählen" optionen={(regel === "gold" ? [1, 2, 3, 4, 5] : [1, 2, 3]).map((st) => ({ id: st, name: `Stufe ${st}` }))}
+            kopf={(o) => (o ? o.name : "Stufe")} onWaehle={waehleStufe} />
+          <ModusSchalter modus={modus} setModus={waehleModus} />
+          <button type="button" onClick={() => starte()} className="wk-wuerfel"
+            aria-label={modus === "auto" ? "Neues Beispiel würfeln" : "Neue Aufgabe würfeln"} title={modus === "auto" ? "Neues Beispiel" : "Neue Aufgabe"}>
+            <span aria-hidden="true">🎲</span>
+          </button>
+        </div>
+        <ModusText modus={modus} attr="data-werkstatt-modus-text" style={{ margin: "0 4px 12px" }} />
+      </>}
 
-      <div className="wk-karte">
+      <div className="wk-karte" data-aufgabe>
         {bilanz.gesamt > 0 && (
           <p style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.35, margin: "0 2px 10px" }}>{bilanz.richtig} von {bilanz.gesamt} richtig</p>
         )}
@@ -1000,6 +1062,7 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
           <p key={id} style={{ fontSize: 13.5, color: C.signal, lineHeight: 1.6, margin: "8px 4px 0" }}>{id === "uv" ? "u′(v(x))" : `${id[0]}′`}: {felder[id].hinweis}</p>
         ))}
         {gridPopup && popup()}
+        {uebenAktiv && !uebenF1 && <div data-werkstatt-ueben-weg style={{ marginTop: 10 }}>{uebenWahl(uebenAktiv)}</div>}
 
         {/* Die Regel unter den Bausteinen, darunter die Rechnung bzw. das f′-Feld. Produkt- und Kettenregeln: Regel und Rechnung
             stehen spaltengenau untereinander (u′ unter u′, v unter v, + unter +). */}
@@ -1008,6 +1071,7 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
             <BruchBlock cfg={bruchZellen(art, rechnungZeigen ? ml : null)} unten={rechnungZeigen}
               ergebnis={rechnungZeigen ? [tex(ml.ergebnis), ml.ausgeklammert ? tex(ml.ausgeklammert) : null] : null} />
             {eingabeZeigen && f1Block}
+            {f1Ueben}
           </>
         ) : ausricht ? (
           <>
@@ -1015,6 +1079,7 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
               ergebnis={rechnungZeigen ? [tex(ml.ergebnis), ml.ausgeklammert ? tex(ml.ausgeklammert) : null] : null}
               teile={rechnungZeigen && art === "produkt" ? ergebnisTeile(ml.ergebnis) : null} />
             {eingabeZeigen && f1Block}
+            {f1Ueben}
           </>
         ) : (
           <>
@@ -1032,7 +1097,16 @@ export function RegelWerkstatt({ regel: regelProp, stufe: stufeProp, modus: modu
               </div>
             )}
             {eingabeZeigen && f1Block}
+            {f1Ueben}
           </>
+        )}
+
+        {/* Üben geschafft: Musterlösung steht oben, darunter die Bilanz */}
+        {uebenFertig && ml && (
+          <UebenFertig anhieb={uebenAnhieb} gesamt={nUeben} onLernen={zuLernen} onNeu={() => starte()}
+            leise="Nächste Stufe: Rechne dieselbe Aufgabe in „Lernen“ – u′, v′ und f′ selbst eintippen, ohne Auswahl.">
+            <M t={`f′(x) = ${tex(ml.ergebnis)}`} />
+          </UebenFertig>
         )}
 
         {/* Eingabe: öffnet als Pop-up unter dem angetippten Feld (siehe oben) */}
