@@ -1,6 +1,7 @@
 /* ======================================================================
-   gleichKurs.js – Bereich „Gleichungen“ (Verstehen · Rechnen · Training)
-   Rein, ohne React, mit Node testbar (tests/gleichKurs.test.mjs).
+   gleichKurs.js – Bereich „Gleichungen“ (Verstehen · Auto · Üben · Lernen)
+   Rein, ohne React, mit Node testbar (tests/gleichKurs.test.mjs,
+   tests/gleichUeben.test.mjs).
 
    Leitidee: Rechnen heißt, aus bekannten Zahlen eine neue zu machen
    (7 · 8 → 56). Eine Gleichung ist eine Information über eine unbekannte
@@ -16,11 +17,16 @@
      fallen     typische falsche Ergebnisse mit Fehlerart
      probe      Probe je Lösung (TeX, links und rechts ausgerechnet)
    Jede Umformung (op) bringt eigene Auswahl-Möglichkeiten mit: die richtige
-   und zwei typische Fehlgriffe mit Erklärung.
+   und zwei typische Fehlgriffe mit Erklärung. Der Modus „Üben“ zeigt sie als
+   goldene Karten (uebenSchritte → uebenKern.uebenSchritt, Oberfläche
+   funcUebenWahl.jsx); „Auto“ zeigt die ganze Rechnung; „Lernen“ (früher
+   Training) lässt nur das Ergebnis tippen.
 
    Lernstand: LERN.training.gleich = { stufen: { s1: {...} }, fehler, runden, … }
    Regel A5: keine Zeile endet unvereinfacht (kein 1x, + −, + 0, ^1 …).
    ====================================================================== */
+
+import { uebenSchritt } from "./uebenKern.js";
 
 export const TAG_MS = 86400000;
 const t = (de, en) => ({ de, en });
@@ -391,6 +397,39 @@ export function neueAufgabe(stufe, { rng = Math.random } = {}) {
   return { id: neueId(), stufe, ...roh, zeilen, loesungen, fallen: (roh.fallen || []).filter((f) => !loesungen.includes(f.wert)) };
 }
 export const glTex = (a) => `${a.gl[0]} = ${a.gl[1]}`;
+
+/* ---------------------------------------------------------------- Reiter und Modi */
+/* Vier Reiter: Verstehen vorne, dahinter die drei Modi aus uebenKern.UEBEN_MODI. Alte Ids aus Links und
+   Übergaben: „rechnen“ war schon die geführte Auswahl (= Üben – bewusst nicht modusNeu, das würde
+   „rechnen“ zu Auto machen), „training“ = Lernen. Unbekanntes → null. */
+export const REITER = ["verstehen", "auto", "ueben", "lernen"];
+export const reiterNeu = (r) => (r === "rechnen" ? "ueben" : r === "training" || r === "trainieren" ? "lernen" : REITER.includes(r) ? r : null);
+
+/* ---------------------------------------------------------------- Modus „Üben“ */
+/* Die Frage eines Schritts im Ton des Werkzeugs: bei Klammer und Zusammenfassen „zuerst“, sonst „als Nächstes“ */
+export const uebenFrage = (op, en = false) => (op.art === "klammer" || op.art === "zusammen"
+  ? (en ? "What do you do first?" : "Was machst du zuerst?")
+  : (en ? "What do you do next?" : "Was machst du als Nächstes?"));
+
+/* Üben-Schritte einer Aufgabe: je Zeile mit nicht-automatischer Umformung ein Schritt (Form aus
+   uebenKern.uebenSchritt). Die Möglichkeiten sind die kuratierten aus z.auswahl – die richtige
+   und höchstens drei falsche in der Reihenfolge der Aufgabe, jede mit Hinweis
+   „<Fehlername>. <Warum>“. Automatische Schritte („Exponenten vergleichen“) bleiben ein Knopf
+   und zählen nicht. zeile = Index der Zeile, deren Umformung gewählt wird; nr = 1 … n. */
+export function uebenSchritte(a, { zufall = Math.random, en = false } = {}) {
+  const liste = [];
+  a.zeilen.forEach((z, i) => {
+    if (!z.op || z.op.auto || !Array.isArray(z.auswahl)) return;
+    const richtig = z.auswahl.find((o) => o.richtig);
+    if (!richtig) return;
+    const falsche = z.auswahl.filter((o) => !o.richtig).slice(0, 3)
+      .map((o) => ({ wert: o, art: o.art, hinweis: `${fehlerName(o.art, en)}. ${o.warum ? o.warum[en ? "en" : "de"] : ""}`.trim() }));
+    liste.push(uebenSchritt({ richtig, falsche, schluessel: (o) => `${i}-${o.key}`, zufall, zeile: i, nr: liste.length + 1, op: z.op, frage: uebenFrage(z.op, en) }));
+  });
+  return liste;
+}
+/* Schritt zur Zeile i (oder null, wenn die Zeile keine Wahl hat) */
+export const uebenSchrittZu = (schritte, i) => schritte.find((s) => s.zeile === i) || null;
 
 /* ---------------------------------------------------------------- Wertung */
 /* Eingabe lesen: „−7“, „-7“, „7“; leere Eingabe → null */
