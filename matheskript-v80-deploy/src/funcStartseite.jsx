@@ -523,8 +523,7 @@ html[data-start-edition="ger"] .app-wurzel { background: #FFFFFF !important; }
 .sbb-training .pfeil svg { transition: transform .22s ease; }
 .sbb-training.auf .pfeil svg { transform: rotate(180deg); }
 .sbb-training .sbb-papier.offen { margin: 0; border-radius: 21px; padding: 0; overflow: hidden; }
-.sbb-training.auf .qf-kopf { padding-right: 60px; }
-.sbb-training.auf .pfeil { top: 14px; right: 14px; box-shadow: 0 4px 14px rgba(14,30,74,0.25); }
+.sbb-training .pfeil.im-kopf { position: static; flex-shrink: 0; box-shadow: 0 4px 14px rgba(14,30,74,0.25); }
 
 /* Umschalter Dunkel / Hell (unten links, wie die Sprachwahl im Arbeitsmenü) */
 .sbb-schalter { position: fixed; left: 14px; bottom: 14px; z-index: 40; display: inline-flex; align-items: center; gap: 2px; padding: 3px; border-radius: 999px; background: var(--schalter-hg); border: 1px solid var(--schalter-rand); box-shadow: 0 10px 30px rgba(0,0,0,.25); backdrop-filter: blur(8px); font-family: Montserrat, system-ui, sans-serif; }
@@ -871,7 +870,8 @@ function SchulKachel({ wahl, waehle, deine }) {
   );
 }
 
-/* Schublade der Start-Karte: Kopfzeile „Deine Klasse“ (Thema · Plan · Tools · Videos) mit Pfeil, aufgeklappt der Quickfinder auf einem weißen Blatt */
+/* Schublade der Start-Karte: Kopfzeile „Deine Klasse“ (Thema · Plan · Werkzeuge · Videos) mit Pfeil, aufgeklappt der Quickfinder auf einem weißen Blatt
+   (Titel · Klassen-Chip · Pfeil in einer Zeile, darunter das Menü über die volle Breite) */
 function TrainingKachel({ gehe, setzeStufe }) {
   const [auf, setAuf] = useState(() => { try { return sessionStorage.getItem("matheplus-training-auf") === "1"; } catch { return false; } });
   const umschalten = () => setAuf((a) => { try { sessionStorage.setItem("matheplus-training-auf", a ? "0" : "1"); } catch { /* egal */ } return !a; });
@@ -881,13 +881,17 @@ function TrainingKachel({ gehe, setzeStufe }) {
       <span aria-hidden="true" style={{ display: "block", width: 40, height: 3, borderRadius: 2, marginTop: 9, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${GOLD} 100%)` }} />
     </>
   );
+  const pfeil = (
+    <button type="button" className={auf ? "pfeil im-kopf" : "pfeil"} onClick={umschalten} aria-expanded={auf} aria-label={auf ? "Deine Klasse zuklappen" : "Deine Klasse aufklappen"}>
+      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 6 L8 10.5 L12.5 6" stroke={NACHT} strokeWidth="2.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+    </button>
+  );
+  /* Aufgeklappt sitzt der Pfeil in der Titelzeile des Quickfinders (Titel · Klassen-Chip · Pfeil in einer Zeile), zugeklappt oben rechts */
   return (
     <div className={auf ? "sbb-karte sbb-training sbb-gold sbb-insel auf" : "sbb-karte sbb-training sbb-gold sbb-insel"}>
-      <button type="button" className="pfeil" onClick={umschalten} aria-expanded={auf} aria-label={auf ? "Deine Klasse zuklappen" : "Deine Klasse aufklappen"}>
-        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 6 L8 10.5 L12.5 6" stroke={NACHT} strokeWidth="2.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
-      </button>
+      {!auf && pfeil}
       {auf ? (
-        <div className="sbb-papier offen"><Quickfinder gehe={gehe} setzeStufe={setzeStufe} links={titel} /></div>
+        <div className="sbb-papier offen"><Quickfinder gehe={gehe} setzeStufe={setzeStufe} links={titel} rechts={pfeil} /></div>
       ) : (
         <button type="button" className="kopfzeile" onClick={umschalten}>
           <span><h2>Deine Klasse</h2><p className="zeile">Thema · Plan · Werkzeuge · Videos</p></span>
