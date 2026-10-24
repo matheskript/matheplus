@@ -366,7 +366,7 @@ export function Mathilda() {
       if (erster || ausVerlauf) window.history.replaceState({}, "", soll + rest);
       else window.history.pushState({}, "", soll + rest);
     } catch (e) { /* ignorieren */ }
-  }, [ansicht, trainZiel, genZiel, fotoModus, klasseAktiv, kopfTrainer, entdeckenStart, kursStart, landWahl, wzSeite, usSeite, blogSeite, kanalSeite, kapitelSeiteZiel]);
+  }, [ansicht, trainZiel, genZiel, fotoModus, klasseAktiv, kopfTrainer, entdeckenStart, kursStart, landWahl, wzSeite, usSeite, blogSeite, kanalSeite, kapitelSeiteZiel, gkSeite]);
   // Zurück/Vor-Taste des Browsers
   useEffect(() => {
     const f = () => {
@@ -1262,7 +1262,7 @@ export function Mathilda() {
         <>
           <div className="kopfblock" style={{ background: `linear-gradient(170deg, ${C.seeTief} 0%, ${C.see} 100%)` }}>
             <div className="held mx-auto px-6 pt-10 pb-4" style={{ maxWidth: 640 }}>
-              <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.14em", color: C.flaggold, marginBottom: 8 }}>{englisch() ? "UNDERSTAND · SOLVE · TRAIN" : "VERSTEHEN · RECHNEN · TRAINING"}</p>
+              <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.14em", color: C.flaggold, marginBottom: 8 }}>{englisch() ? "UNDERSTAND · AUTO · PRACTISE · LEARN" : "VERSTEHEN · AUTO · ÜBEN · LERNEN"}</p>
               <h1 className="titel-silber" style={{ fontWeight: 800, fontSize: "clamp(28px, 8.4vw, 38px)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>{englisch() ? "Equations" : "Gleichungen"}</h1>
               <div style={{ width: 54, height: 4, background: `linear-gradient(90deg, ${C.goldWarm} 0%, ${C.flaggold} 100%)`, borderRadius: 2, marginTop: 18, marginBottom: 18 }} />
               <p style={{ color: "#C9D6EE", fontSize: 15, fontWeight: 300, lineHeight: 1.65 }}>

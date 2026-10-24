@@ -50,7 +50,7 @@ with sync_playwright() as pw:
     print(f"{len(liste)} Pfade geprüft")
 
     # 2. Inhalte stichprobenartig
-    for url, text in [("/elternabend", "Elternabend"), ("/ableitungstrainer", "Leite ab"), ("/klasse-10", "Klasse 10"),
+    for url, text in [("/elternabend", "Elternabend"), ("/ableitungstrainer", "Produktregel"), ("/klasse-10", "Klasse 10"),
                       ("/kurvendiskussion", "Kurvendiskussion"), ("/kurvendiskussion/beliebig", "Kurvendiskussion"), ("/landingpage", "Mythos"),
                       ("/gleichungen/verstehen", "Gleichungen")]:
         if url in ZU:
@@ -80,7 +80,7 @@ with sync_playwright() as pw:
     page.go_back(); page.wait_for_timeout(600)
     pruefe(pfad() == "/klasse-11" and "klasse 11" in page.inner_text("body").lower(), f"Zurück → {pfad()}")
     page.go_back(); page.wait_for_timeout(600)
-    pruefe(pfad() == "/ableitungstrainer" and "leite ab" in page.inner_text("body").lower(), f"Zurück 2 → {pfad()}")
+    pruefe(pfad() == "/ableitungstrainer" and "produktregel" in page.inner_text("body").lower(), f"Zurück 2 → {pfad()}")   # seit 22.10. Regelwerkstatt
     page.go_back(); page.wait_for_timeout(600)
     pruefe(pfad() == "/", f"Zurück zum Start → {pfad()}")
     page.go_forward(); page.wait_for_timeout(600)
