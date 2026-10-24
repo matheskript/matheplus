@@ -162,8 +162,8 @@ with sync_playwright() as pw:
                 p.get_by_role("button", name="d +1", exact=True).first.click(); p.wait_for_timeout(120)
                 pruefe(p.locator("text=d = 0").count() >= 1 or not desktop, f"{n}: Regler d wirkt nicht")
             if name == "integrale-bestimmt":
-                p.locator(".abl-seg button", has_text="Automatik").first.click(); p.wait_for_timeout(300)
-                pruefe(p.locator(".it-ergebnis").count() == 1, f"{n}: Automatik zeigt kein Ergebnis")
+                p.locator(".abl-seg button", has_text="Auto").first.click(); p.wait_for_timeout(300)
+                pruefe(p.locator(".it-ergebnis").count() == 1, f"{n}: Auto zeigt kein Ergebnis")
                 p.get_by_role("button", name="16", exact=True).click(); p.wait_for_timeout(150)
                 ueberbreite(p, n + " streifen")
             if name in ("optimierung", "wachstum", "verstehen"):
