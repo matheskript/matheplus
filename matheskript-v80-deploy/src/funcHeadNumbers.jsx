@@ -6,6 +6,9 @@ import { ALLE_ITEMS, ITEMS, ITEM_INFO, MODULE, STUFEN, baueRunde, empfehlung, fe
 import { L, karte, NAVY, FEHLER_TIPP, useKopf, modulInfo, stufeInfo, RICHTUNG_NAME, Kicker, H2, Absatz, Zurueck, Knopf, StandBalken, Legende } from "./funcHeadNumbersBasis.jsx";
 import { Aufklapp } from "./ui3.jsx";
 import { KopfEntdecken, KopfRechnen } from "./funcKopfModi.jsx";
+import { UEBEN_MODI } from "./uebenKern.js";
+/* Thema der Rechen-/Übenmaske → Trainer-Kennung (kopfrechnen/<trainer>); Themen ohne eigenen Trainer landen beim nächstliegenden */
+const TRAINER_ZU = { plusminus: "plusminus", multiplizieren: "multiplizieren", potenzen: "potenzen", primzahlen: "primzahlen", primfaktoren: "primfaktoren", division: "division", bruchrechnen: "bruchrechnen" };
 import { Runde } from "./funcHeadNumbersRunde.jsx";
 import { Memory, Zuordnung } from "./funcHeadNumbersSpiele.jsx";
 import { MusterCheck, Verstehen } from "./funcHeadNumbersVerstehen.jsx";
@@ -200,9 +203,9 @@ function StartSeite({ onWaehle, onStart, gehe, modus, setModus }) {
     <KopfrechnenKopf kicker={L("Kopfrechnen · Dein Zahlentraining", "Mental Math · Your number training")}
       titel={<>{L("Zahlen, die", "Numbers that")} <span className="gold">{L("einfach sitzen", "simply stick")}</span>.</>}
       satz={L("Einmaleins, Quadrate, Wurzeln, Brüche – erst verstehen, dann vorrechnen lassen, dann trainieren, bis es automatisch läuft.", "Times tables, squares, roots, fractions – understand first, watch it worked out, then train until it runs on its own.")}
-      modi={[["entdecken", L("Entdecken", "Explore")], ["rechnen", L("Rechnen", "Calculate")], ["training", L("Training", "Training")]]} modus={modus}
+      modi={[["entdecken", L("Entdecken", "Explore")], ...UEBEN_MODI.map((m) => [m.id, L(m.name, m.en)])]} modus={modus}
       setModus={(m) => { setModus(m); try { springe("headnumbers-modus", () => window.scrollTo(0, 0)); } catch (e) { /* egal */ } }}
-      kinder={modus === "training" ? (
+      kinder={modus === "lernen" ? (
         <section data-kopf-trainer>
           <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#C9D6EE", marginBottom: 10 }}>{L("Trainer · 10 oder 20 Aufgaben · Turbo", "Trainers · 10 or 20 tasks · Turbo")}</p>
           <KopfKacheln onWaehle={(id) => gehe && gehe({ ansicht: "kopf", trainer: id })} />
@@ -210,8 +213,11 @@ function StartSeite({ onWaehle, onStart, gehe, modus, setModus }) {
       ) : null} />
   );
 
-  if (modus === "entdecken") return <>{kopf}{wrap(<KopfEntdecken thema={thema} setThema={setThema} onRechnen={(id) => { setRechenThema(id); setModus("rechnen"); }} onTraining={(id) => gehe && gehe({ ansicht: "kopf", trainer: id })} />)}</>;
-  if (modus === "rechnen") return <>{kopf}{wrap(<KopfRechnen key={rechenThema} thema={rechenThema} setThema={setRechenThema} />)}</>;
+  const modusSatz = modus === "entdecken" ? L("Zu jedem Thema ein Video und eine Anleitung.", "A video and a guide for every topic.") : (() => { const m = UEBEN_MODI.find((x) => x.id === modus); return m ? L(m.text, m.textEn) : ""; })();
+  const satz = <p data-kopf-modus-text style={{ fontSize: 12.5, color: C.grau, lineHeight: 1.45, margin: "-6px 2px 12px" }}>{modusSatz}</p>;
+  const zumTrainer = (id) => gehe && gehe({ ansicht: "kopf", trainer: TRAINER_ZU[id] || id });
+  if (modus === "entdecken") return <>{kopf}{wrap(<>{satz}<KopfEntdecken thema={thema} setThema={setThema} onRechnen={(id) => { setRechenThema(id); setModus("auto"); }} onUeben={(id) => { setRechenThema(id); setModus("ueben"); }} onTraining={zumTrainer} /></>)}</>;
+  if (modus === "auto" || modus === "ueben") return <>{kopf}{wrap(<>{satz}<KopfRechnen key={`${rechenThema}-${modus}`} thema={rechenThema} setThema={setRechenThema} modus={modus} onLernen={zumTrainer} /></>)}</>;
 
   return (
     <>
@@ -313,7 +319,7 @@ function StartSeite({ onWaehle, onStart, gehe, modus, setModus }) {
 export function HeadNumbersSeite({ gehe, start = null, unten = null }) {
   const K = useKopf();
   const [ansicht, setAnsicht] = useState(start && modulInfo(start) ? { typ: "bereich", modul: start } : { typ: "start" });
-  const [modus, setModus] = useState("training");
+  const [modus, setModus] = useState("lernen");   // entdecken | auto | ueben | lernen (Lernen = Trainer, früher „Training“; Auto = früher „Rechnen“)
   const [zaehler, setZaehler] = useState(0);
   const [stand, setStand] = useState(null);           // Fortschritt der laufenden Runde (für den Vollbild-Kopf)
   const [einst] = useKopfEinstellungen();

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { MatheFeld } from "./matheTastatur.jsx";
 import { C } from "./base1.jsx";
 import { ModusLeiste } from "./ui3.jsx";
@@ -6,6 +6,10 @@ import { karte, Kicker, Zurueck, Knopf } from "./funcHeadNumbersBasis.jsx";
 import { KopfVideo, KOPF_VIDEO } from "./funcKopfVideo.jsx";
 import { KOPF_ERKLAERUNG, KOPF_REIHENFOLGE } from "./kopfErklaerung.js";
 import { RECHNEN_THEMEN } from "./kopfWeg.js";
+import { uebenWeg, wahlZahl } from "./kopfUeben.js";
+import { aufAnhieb } from "./uebenKern.js";
+import { UEBEN_CSS, UebenFertig, UebenWahl } from "./funcUebenWahl.jsx";
+import { buchen } from "./buchung.jsx";
 
 import { springe } from "./sprung.js";
 /* Bruchmarkup {Zähler|Nenner} → gestapelter Bruch im Fließtext */
@@ -31,7 +35,7 @@ const THEMA_ZEICHEN = { plusminus: "+ −", multiplizieren: "7·8", potenzen: "1
 const THEMA_NAME = { plusminus: "Plus und Minus", multiplizieren: "Multiplizieren", potenzen: "Quadrate und Wurzeln", primzahlen: "Primzahlen", primfaktoren: "Primfaktoren", division: "Schriftlich teilen", bruchrechnen: "Bruchrechnung" };
 
 /* ---------------------------------------------------------------- Entdecken */
-export function KopfEntdecken({ thema, setThema, onRechnen, onTraining }) {
+export function KopfEntdecken({ thema, setThema, onRechnen, onUeben, onTraining }) {
   if (!thema) {
     return (
       <div>
@@ -102,21 +106,31 @@ export function KopfEntdecken({ thema, setThema, onRechnen, onTraining }) {
 
       <div style={{ display: "grid", gap: 10 }}>
         <Knopf onClick={() => onRechnen(thema)}>Selbst eingeben und vorrechnen lassen</Knopf>
-        <Knopf haupt={false} onClick={() => onTraining(thema)}>Trainieren</Knopf>
+        {onUeben && <Knopf haupt={false} onClick={() => onUeben(thema)}>Üben: Schritt für Schritt wählen</Knopf>}
+        <Knopf haupt={false} onClick={() => onTraining(thema)}>Lernen: im Trainer rechnen</Knopf>
         {weiter && <Knopf haupt={false} onClick={() => { setThema(weiter); try { springe("kopfmodi-thema", () => window.scrollTo(0, 0)); } catch (err) { /* egal */ } }}>Weiter: {THEMA_NAME[weiter]}</Knopf>}
       </div>
     </div>
   );
 }
 
-/* ------------------------------------------------------------------ Rechnen */
-export function KopfRechnen({ thema, setThema }) {
+/* ------------------------------------------------------------------ Auto (vorrechnen) und Üben (Zwischenergebnisse wählen) */
+/* modus "auto": die App zeigt den ganzen Lösungsweg. modus "ueben": Schritt für Schritt – jeder Schritt mit
+   Zwischenergebnis wird zur Wahl aus goldenen Karten (kopfUeben.js), Erklärschritte laufen mit; am Ende Bilanz.
+   onLernen: „Jetzt selbst rechnen“ → Trainer (Modus Lernen). */
+export function KopfRechnen({ thema, setThema, modus = "auto", onLernen }) {
   const th = RECHNEN_THEMEN[thema];
   const startWerte = (id) => Object.fromEntries(RECHNEN_THEMEN[id].felder.map((f) => [f.id, String(f.start)]));
   const [werte, setWerte] = useState(() => startWerte(thema));
   const [gerechnet, setGerechnet] = useState(true);
-  const waehle = (id) => { setThema(id); setWerte(startWerte(id)); setGerechnet(true); };
-  const setze = (id, w) => { setWerte((x) => ({ ...x, [id]: w })); setGerechnet(true); };
+  // Üben: Runde (neue Zahlen), Stand (Index des offenen Schritts in der Üben-Liste), falsche Karten je Schritt
+  const [uebenRunde, setUebenRunde] = useState(0);
+  const [uebenStand, setUebenStand] = useState(0);
+  const [uebenFalsch, setUebenFalsch] = useState({});
+  const uebenNeu = () => { setUebenRunde((r) => r + 1); setUebenStand(0); setUebenFalsch({}); };
+  const waehle = (id) => { setThema(id); setWerte(startWerte(id)); setGerechnet(true); uebenNeu(); };
+  const setze = (id, w) => { setWerte((x) => ({ ...x, [id]: w })); setGerechnet(true); uebenNeu(); };
+  const ueben = modus === "ueben";
 
   const zahlen = {};
   let leer = false;
@@ -133,10 +147,30 @@ export function KopfRechnen({ thema, setThema }) {
     const z = th.zufall(zahlen);
     setWerte((x) => ({ ...x, ...Object.fromEntries(Object.entries(z).map(([k, w]) => [k, String(w)])) }));
     setGerechnet(true);
+    uebenNeu();
+  };
+
+  /* Üben-Schritte aus dem Rechenweg; „info“-Schritte laufen von selbst mit, bis der nächste Wahl-Schritt kommt */
+  const uebenSchritte = useMemo(() => (ueben && r.ok ? uebenWeg(r) : []), [ueben, r.ok, r.ergebnis, uebenRunde, thema]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const wahlen = uebenSchritte.filter((s) => s.art === "wahl");
+  const nWahl = wahlen.length;
+  const uebenFertig = ueben && nWahl > 0 && uebenStand >= nWahl;
+  const aktuelleWahl = ueben && !uebenFertig ? wahlen[uebenStand] : null;
+  // sichtbar: alles bis einschließlich des offenen Wahl-Schritts
+  const sichtbarBis = aktuelleWahl ? uebenSchritte.indexOf(aktuelleWahl) : uebenSchritte.length - 1;
+  const uebenAnhieb = aufAnhieb(uebenFalsch, Math.min(uebenStand, nWahl));
+  const uebenWaehle = (o) => {
+    if (!aktuelleWahl) return;
+    const schon = uebenFalsch[uebenStand] || [];
+    if (!o.richtig) { if (!schon.includes(o.key)) setUebenFalsch({ ...uebenFalsch, [uebenStand]: [...schon, o.key] }); return; }
+    const neu = uebenStand + 1;
+    setUebenStand(neu);
+    if (neu === nWahl) buchen({ richtig: aufAnhieb(uebenFalsch, nWahl) === nWahl, gruppe: "kopf-ueben", art: thema });
   };
 
   return (
-    <div data-kopf-rechnen={thema}>
+    <div data-kopf-rechnen={thema} data-kopf-modus={modus}>
+      {ueben && <style>{UEBEN_CSS}</style>}
       <div role="tablist" aria-label="Thema wählen" style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
         {KOPF_REIHENFOLGE.map((id) => {
           const an = id === thema;
@@ -173,6 +207,48 @@ export function KopfRechnen({ thema, setThema }) {
       <section aria-live="polite" style={{ ...karte, padding: 16, marginBottom: 14, border: `2px solid ${r.ok ? C.flaggold : C.linie}` }}>
         {!r.ok || !gerechnet ? (
           <p style={{ fontSize: 14.5, color: C.grau, lineHeight: 1.6, margin: 0 }}>{r.hinweis || "Gib eine Aufgabe ein."}</p>
+        ) : ueben ? (
+          <div data-kopf-ueben-weg>
+            <Kicker>Dein Lösungsweg</Kicker>
+            <ol style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 12 }}>
+              {uebenSchritte.slice(0, sichtbarBis + 1).map((s, k) => {
+                const offen = s === aktuelleWahl;
+                const nr = uebenSchritte.indexOf(s) + 1;
+                return (
+                  <li key={`${uebenRunde}-${k}`} style={{ display: "flex", gap: 12, alignItems: "flex-start" }} data-kopf-ueben-schritt={offen ? "offen" : "fertig"}>
+                    <span aria-hidden="true" style={{ flexShrink: 0, width: 26, height: 26, borderRadius: 999, background: offen ? C.flaggold : s.art === "wahl" ? C.smaragd : C.see, color: offen ? C.seeTief : C.weiss, fontSize: 13, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", marginTop: 1 }}>{s.art === "wahl" && !offen ? "✓" : nr}</span>
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      {offen ? (
+                        <>
+                          <span className="uw-ziel" data-ueben-ziel style={{ display: "flex", alignItems: "center", gap: 8, minHeight: 46, padding: "6px 12px", borderRadius: 12, fontSize: 15, fontWeight: 700, color: C.tinte }}>
+                            <span style={{ fontWeight: 400, color: C.grau }}>Zwischenergebnis</span><span className="uw-platz" style={{ fontSize: 18 }}>?</span>
+                          </span>
+                          <div style={{ marginTop: 10 }}>
+                            <UebenWahl schritt={s} nr={uebenStand + 1} gesamt={nWahl} frage={s.frage} falsch={uebenFalsch[uebenStand] || []} onWahl={uebenWaehle}
+                              inhalt={(w) => <span style={{ fontWeight: 700 }}><MitBruch text={w.text} /></span>} />
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <span style={{ display: "block", fontSize: 14.5, color: C.tinte, lineHeight: 1.6 }}><MitBruch text={s.text} /></span>
+                          {s.rechnung && <span style={{ display: "block", marginTop: 4, padding: "6px 10px", borderRadius: 10, background: s.art === "wahl" ? "#EEF8F2" : C.himmel, color: C.seeTief, fontSize: 15, fontWeight: 700, lineHeight: 1.7, overflowWrap: "anywhere" }}><MitBruch text={s.rechnung} /></span>}
+                        </>
+                      )}
+                    </span>
+                  </li>
+                );
+              })}
+            </ol>
+            {uebenFertig && (
+              <>
+                <p style={{ margin: "14px 0 0", padding: "10px 12px", borderRadius: 12, background: C.seeTief, color: C.weiss, fontSize: 17, fontWeight: 800, lineHeight: 1.6, overflowWrap: "anywhere" }}>
+                  Ergebnis: <MitBruch text={r.ergebnis} />{r.gemischt ? <> = <MitBruch text={r.gemischt} /></> : null}
+                </p>
+                <UebenFertig anhieb={uebenAnhieb} gesamt={nWahl} onLernen={onLernen ? () => onLernen(thema) : undefined} onNeu={zufall} neuText="Neue Aufgabe" lernenText="Jetzt selbst rechnen"
+                  leise="Nächste Stufe: Im Trainer rechnest du solche Aufgaben ganz allein – ohne Auswahl, auf Zeit." />
+              </>
+            )}
+          </div>
         ) : (
           <>
             <Kicker>Lösungsweg</Kicker>
