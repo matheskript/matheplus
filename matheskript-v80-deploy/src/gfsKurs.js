@@ -89,6 +89,8 @@ export const THEMEN = [
   /* Kursstufe 2 – Lambacher Schweizer Kursstufe BW (Graphen, Abstände und Winkel, Stochastik) */
   T("k2", "IV", "Funktionen und ihre Graphen", "Symmetrie von Graphen", "Symmetrie zu beliebigen Achsen und Punkten nachweisen.", { id: "symmetrie" }),
   T("k2", "VII", "Abstände und Winkel", "Orthogonale Projektion – Skalarprodukt", "Was das Skalarprodukt geometrisch misst: den Schatten eines Vektors.", { id: "projektion", kurz: "Orthogonale Projektion" }),
+  T("k2", "VII", "Abstände und Winkel", "Projektionen mit Matrizen", "Wie aus 3D-Punkten ein Bild wird: Schattenwurf, Schrägbild und Bildschirm.",
+    { id: "matrizen", kurz: "Projektion mit Matrizen", frage: "Wie macht man aus einem Körper im Raum ein flaches Bild – und warum genügt dafür eine Matrix?", ansicht: "gfs-projektion", videos: 0, animationen: 4 }),
   T("k2", "VII", "Abstände und Winkel", "Skalar- und Vektorprodukt in der Physik", "Arbeit, Drehmoment und Lorentzkraft mit Vektoren.", { id: "physik", kurz: "Vektoren in der Physik" }),
   T("k2", "VIII", "Grundlagen der Wahrscheinlichkeitsrechnung", "Die geometrische Verteilung", "Wie lange dauert es bis zum ersten Treffer?", { id: "geometrisch" }),
   T("k2", "VIII", "Grundlagen der Wahrscheinlichkeitsrechnung", "Der Satz von Bayes", "Positiv getestet – wie wahrscheinlich ist man wirklich krank?", { id: "bayes", kurz: "Der Satz von Bayes", frage: "Positiv getestet – wie wahrscheinlich ist man wirklich krank?", ansicht: "gfs-bayes", videos: 0, animationen: 4 }),

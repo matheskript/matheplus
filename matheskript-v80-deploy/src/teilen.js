@@ -135,6 +135,7 @@ export const SEITEN_SAETZE = {
   "gfs-kugeln": { de: "Kugeln mit Gleichungen beschreiben, Schnitte mit Geraden und Ebenen verstehen und daraus eine GFS machen", en: "describe spheres with equations, understand their intersections with lines and planes and turn it into a school presentation" },
   "gfs-fassregel": { de: "die Keplersche Fassregel verstehen und für eine GFS aufbereiten", en: "understand Kepler’s barrel rule (Simpson’s rule) and turn it into a school presentation" },
   "gfs-wachstum": { de: "Wachstum mit Differenzialgleichungen verstehen und für eine GFS aufbereiten", en: "understand growth with differential equations and turn it into a school presentation" },
+  "gfs-projektion": { de: "Projektionen mit Matrizen verstehen und für eine GFS aufbereiten", en: "understand projections with matrices and turn them into a school presentation" },
   kurse: { de: "Mathe mit Videokursen lernen", en: "learn maths with video courses" },
   penpaperkurs: { de: "Mathe mit Stift und Papier üben", en: "practise maths with pen and paper" },
   elternkurs: { de: "mit dem richtigen Mindset an Mathe herangehen", en: "approach maths with the right mindset" },
