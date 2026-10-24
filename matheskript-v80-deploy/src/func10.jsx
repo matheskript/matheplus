@@ -146,6 +146,8 @@ const GfsFolgenSeite = lazyLaden(() => import("./funcGfsFolgen.jsx").then((m) =>
 const FolgenBild = lazyLaden(() => import("./funcGfsFolgen.jsx").then((m) => ({ default: m.FolgenBild })));
 const GfsWachstumSeite = lazyLaden(() => import("./funcGfsWachstum.jsx").then((m) => ({ default: m.GfsWachstumSeite })));
 const WachstumBild = lazyLaden(() => import("./funcGfsWachstum.jsx").then((m) => ({ default: m.WachstumBild })));
+const GfsProjektionSeite = lazyLaden(() => import("./funcGfsProjektion.jsx").then((m) => ({ default: m.GfsProjektionSeite })));
+const ProjektionBild = lazyLaden(() => import("./funcGfsProjektion.jsx").then((m) => ({ default: m.ProjektionBild })));
 const PotenzregelSeite = lazyLaden(() => import("./func22.jsx").then((m) => ({ default: m.PotenzregelSeite })));
 const EFunktionSeite = lazyLaden(() => import("./funcEFunktion.jsx").then((m) => ({ default: m.EFunktionSeite })));
 const AbiZentrumSeite = lazyLaden(() => import("./funcAbiZentrum.jsx").then((m) => ({ default: m.AbiZentrumSeite })));
@@ -1417,6 +1419,12 @@ export function Mathilda() {
           <GfsThemenKopf titel={"Wachstum und Differenzial­gleichungen"} chips={["Kursstufe 1", "Kap. II", "5 Animationen"]} Bild={WachstumBild}
             onZurueck={() => gehe({ ansicht: "gfs" })} gehe={gehe} ansicht="gfs-wachstum" />
           <GfsWachstumSeite gehe={gehe} />
+        </>
+      ) : ansicht === "gfs-projektion" ? (
+        <>
+          <GfsThemenKopf titel="Projektionen mit Matrizen" chips={["Kursstufe 2", "Kap. VII", "4 Animationen"]} Bild={ProjektionBild}
+            onZurueck={() => gehe({ ansicht: "gfs" })} gehe={gehe} ansicht="gfs-projektion" />
+          <GfsProjektionSeite gehe={gehe} />
         </>
       ) : ansicht === "potenzregel" ? (
         <>
