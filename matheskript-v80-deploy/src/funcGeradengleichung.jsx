@@ -10,11 +10,20 @@
                Zahlenfeld) oder Punkte im Schaubild ziehen, Würfel für
                Zufallspunkte, Steigungsdreieck; dann m, c und die Gleichung.
    · Punkt und Steigung – Gerade durch Punkt und Steigung: c berechnen, Gleichung.
-   Zwei Modi wie im Ableitungstrainer (Rechnen | Trainieren):
-   · Rechnen (Automatik): alles steht als Musterlösung da, Punkte und
+   Drei Modi wie in allen Rechen-Werkzeugen (Auto | Üben | Lernen, Namen
+   und Sätze aus UEBEN_MODI in uebenKern.js; alte Werte „training“/„auto“
+   über modusNeu):
+   · Auto (früher Rechnen): alles steht als Musterlösung da, Punkte und
      Steigung bleiben frei änderbar, Rechenweg und Bild laufen live mit.
-   · Trainieren: jeder Schritt selbst eintippen, „Lösung zeigen“ je Schritt.
-   Mathematik in geradenLogik.js (getestet). Schaubild immer im goldenen
+   · Üben: jeder Schritt (m, c) wird selbst gegangen, aber der Wert aus
+     2–4 goldenen Karten gewählt (eine richtig, die anderen je mit einem
+     typischen Fehler + Hinweis; Logik in geradenUeben.js, Oberfläche
+     UebenWahl/UebenFertig aus funcUebenWahl.jsx). Erledigte Schritte
+     zeigen den Rechenweg, am Ende „x von n auf Anhieb“ und „Jetzt selbst
+     rechnen“ (→ Lernen mit denselben Punkten).
+   · Lernen (früher Trainieren): jeder Schritt selbst eintippen, „Lösung
+     zeigen“ je Schritt.
+   Grundlagen hat keinen Modus. Mathematik in geradenLogik.js (getestet). Schaubild immer im goldenen
    Schnitt (Breite : Höhe = φ : 1), gleiche Einheit, Ursprung sichtbar.
    Keine base-Datei darf diese Datei importieren.
    ============================================================ */
@@ -34,6 +43,9 @@ import {
   leseAntwort, linieImFenster, probeText, steigungWeg, tasteAnwenden, zahlText, zufallPQ, zufallPm,
   zuBild, zuMathe,
 } from "./geradenLogik.js";
+import { uebenWeg } from "./geradenUeben.js";
+import { UEBEN_MODI, aufAnhieb, modusNeu } from "./uebenKern.js";
+import { UEBEN_CSS, UebenFertig, UebenWahl } from "./funcUebenWahl.jsx";
 import { Arbeitsflaeche, BildKarte, FeinKarte, Kicker, Werkzeugleiste, chipStil, toenKarte, useBreite, useDesktop } from "./arbeitsflaeche.jsx";
 import { ReglerReihe, SenkrechtRegler, kompaktSpalteCss } from "./trainerDesktop.jsx";
 
@@ -257,18 +269,23 @@ function Schritt({ nr, titel, label, formel, st, aktiv, gesperrt, soll, weg, pad
   );
 }
 
-/* Rechnen | Trainieren – dieselben Wörter wie im Ableitungstrainer */
+/* Auto | Üben | Lernen – Namen und Sätze aus UEBEN_MODI (uebenKern.js), wie in allen Rechen-Werkzeugen */
 function ModusWahl({ modus, setModus }) {
   return (
     <div className="ger-seg ger-modus" role="group" aria-label={zw("Modus", "Mode")}>
-      {[["auto", zw("Rechnen", "Calculate")], ["training", zw("Trainieren", "Practise")]].map(([id, name]) => (
-        <button key={id} type="button" data-ger-modus={id} aria-pressed={modus === id} onClick={() => setModus(id)}>{name}</button>
+      {UEBEN_MODI.map((m) => (
+        <button key={m.id} type="button" data-ger-modus={m.id} aria-pressed={modus === m.id} title={zw(m.text, m.textEn)} onClick={() => setModus(m.id)}>{zw(m.name, m.en)}</button>
       ))}
     </div>
   );
 }
+/* Der Satz zum gewählten Modus, unter dem Schalter */
+function ModusSatz({ modus }) {
+  const m = UEBEN_MODI.find((x) => x.id === modus) || UEBEN_MODI[2];
+  return <p className="ger-modus-text" data-ger-modus-text>{zw(m.text, m.textEn)}</p>;
+}
 
-/* Rechnen-Modus: ein Schritt als fertige Musterlösung */
+/* Auto-Modus: ein Schritt als fertige Musterlösung */
 function AutoSchritt({ nr, titel, label, weg }) {
   return (
     <div className="ger-karte ger-auto" data-ger-schritt={label} data-ger-auto role="group" aria-label={titel} title={titel}>
@@ -278,12 +295,62 @@ function AutoSchritt({ nr, titel, label, weg }) {
   );
 }
 
-function Ergebnis({ m, c, onNeu, auto }) {
+/* Üben: ein Schritt – gesperrt → offen (goldenes Zielfeld, darunter die Karten) → erledigt (Rechenweg wie in Auto, grün wie in Lernen) */
+function UebenSchritt({ nr, gesamt, titel, label, formel, schritt, zustand, falsch, onWahl }) {
+  if (zustand === "fertig") {
+    return (
+      <div className="ger-karte fertig ger-auto" data-ger-schritt={label} data-ger-ueben-fertig role="group" aria-label={titel}>
+        <span className="ger-nr ok" aria-hidden="true">✓</span>
+        <div className="ger-weg" data-ger-weg><M t={schritt.weg} /></div>
+      </div>
+    );
+  }
+  if (zustand !== "offen") {
+    return (
+      <div className="ger-karte gesperrt" data-ger-schritt={label}>
+        <span className="ger-nr">{nr}</span><span className="ger-karte-titel">{titel}</span>
+      </div>
+    );
+  }
+  return (
+    <div className="ger-karte aktiv" data-ger-schritt={label} data-ger-ueben-offen>
+      <div className="ger-kopf"><span className="ger-nr">{nr}</span><span className="ger-karte-titel">{titel}</span></div>
+      <div className="ger-rechnung">
+        <span className="ger-label"><M t={label} /> =</span>
+        <span className="ger-hint" aria-hidden="true"><M t={formel} /></span>
+        <span className="ger-label">=</span>
+        <span className="ger-antwort uw-ziel" data-ueben-ziel={label} aria-label={zw(`Zielfeld für ${label}`, `Target box for ${label}`)}><span className="ger-platz uw-platz">?</span></span>
+      </div>
+      <UebenWahl schritt={schritt} nr={nr} gesamt={gesamt} frage={schritt.frage} falsch={falsch} onWahl={onWahl} inhalt={(w) => <M t={bruchTex(w)} />} />
+    </div>
+  );
+}
+
+/* Üben-Zustand: Runde (neue Fehlerwahl), erreichter Schritt, je Schritt die falsch gewählten Karten */
+function useUeben() {
+  const [runde, setRunde] = useState(0);
+  const [stand, setStand] = useState(0);
+  const [falsch, setFalsch] = useState({});
+  const neu = () => { setRunde((r) => r + 1); setStand(0); setFalsch({}); };
+  /* Wahl einer Karte; bei der letzten richtigen wird einmal gebucht */
+  const waehle = (o, n, art) => {
+    const schon = falsch[stand] || [];
+    if (!o.richtig) { if (!schon.includes(o.key)) setFalsch({ ...falsch, [stand]: [...schon, o.key] }); return; }
+    const naechster = stand + 1;
+    setStand(naechster);
+    if (naechster === n) buchen({ richtig: aufAnhieb(falsch, n) === n, gruppe: "gerade-ueben", art });
+  };
+  return { runde, stand, falsch, neu, waehle };
+}
+const uebenZustand = (i, stand) => (i < stand ? "fertig" : i === stand ? "offen" : "gesperrt");
+const UEBEN_FORMEL = { m: "\\frac{y_Q − y_P}{x_Q − x_P}", c: "y_P − m · x_P" };
+
+function Ergebnis({ m, c, onNeu, auto, ohneKnopf }) {
   return (
     <div className="ger-ergebnis" data-ger-ergebnis>
       <span className="ger-nr ok" aria-hidden="true">✓</span>
       <span className="ger-gleichung"><M t={gleichungTex(m, c)} /></span>
-      <button type="button" className="ger-neu" onClick={onNeu}><span aria-hidden="true">🎲</span> {auto ? zw("Neues Beispiel", "New example") : zw("Neue Aufgabe", "New task")}</button>
+      {!ohneKnopf && <button type="button" className="ger-neu" onClick={onNeu}><span aria-hidden="true">🎲</span> {auto ? zw("Neues Beispiel", "New example") : zw("Neue Aufgabe", "New task")}</button>}
     </div>
   );
 }
@@ -509,7 +576,7 @@ function MiniRegler({ name, farbe, wert, setWert, min, max, schritt, format }) {
 
 /* ---------------------------------------------------------------- P & Q */
 function PundQ({ modus, setModus }) {
-  const auto = modus === "auto";
+  const auto = modus === "auto", ueben = modus === "ueben";
   const { W, H } = useMass();
   const desktop = useDesktop();
   const [{ P, Q }, setPQ] = useState({ P: [1, 3], Q: [3, 7] });
@@ -519,11 +586,15 @@ function PundQ({ modus, setModus }) {
   const [gezogen, setGezogen] = useState(false);
   const svgRef = useRef(null);
   const pad = usePad();
+  const ub = useUeben();
   const g = useMemo(() => geradePQ(P, Q), [P, Q]);
+  // Üben: Schritte m und c mit Karten – neue Fehlerwahl je Runde (Punkte geändert, gewürfelt, Modus gewechselt)
+  const uebenSchritte = useMemo(() => uebenWeg({ P, Q, art: "pq" }), [P, Q, ub.runde]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const nUeben = uebenSchritte.length;
   const cImBild = !g.senkrecht && Math.abs(bWert(g.c)) <= 12;
   const fFrei = useMemo(() => fenster([P, Q, ...(cImBild ? [[0, bWert(g.c)]] : [])]), [P, Q, g, cImBild]);
   const f = einfrieren || fFrei;
-  const reset = () => { setSm(LEER); setSc(LEER); };
+  const reset = () => { setSm(LEER); setSc(LEER); ub.neu(); };
   const setzen = (wer, p) => setPQ((a) => {
     const alt = a[wer];
     if (alt[0] === p[0] && alt[1] === p[1]) return a;
@@ -531,7 +602,7 @@ function PundQ({ modus, setModus }) {
     return { ...a, [wer]: p };
   });
   const wuerfeln = () => { pad.schliessen(); reset(); setPQ(zufallPQ()); };
-  useEffect(() => { pad.schliessen(); setSm(LEER); setSc(LEER); }, [auto]);   // Moduswechsel: Schritte neu
+  useEffect(() => { pad.schliessen(); setSm(LEER); setSc(LEER); ub.neu(); }, [modus]);   // eslint-disable-line react-hooks/exhaustive-deps -- Moduswechsel: Schritte neu
 
   const oeffneKoord = (e, wer, ax) => {
     const p = wer === "P" ? P : Q;
@@ -575,11 +646,11 @@ function PundQ({ modus, setModus }) {
     }, st.eing, false, e.currentTarget);
   };
 
-  const mFertig = auto || sm.status === "richtig" || (sm.status === "gezeigt" && sm.weiter);
-  const cFertig = auto || sc.status === "richtig" || (sc.status === "gezeigt" && sc.weiter);
+  const mFertig = auto || (ueben ? ub.stand >= 1 : sm.status === "richtig" || (sm.status === "gezeigt" && sm.weiter));
+  const cFertig = auto || (ueben ? ub.stand >= 2 : sc.status === "richtig" || (sc.status === "gezeigt" && sc.weiter));
   const fertig = mFertig && cFertig;
   const hilfe = useMemo(() => hilfePQ(P, Q, g, false), [P, Q, g]);
-  const zeigeZahlen = !g.senkrecht && (auto || sm.status === "richtig" || sm.status === "gezeigt");
+  const zeigeZahlen = !g.senkrecht && (auto || (ueben ? ub.stand >= 1 : sm.status === "richtig" || sm.status === "gezeigt"));
   const linie = fertig && !g.senkrecht ? linieImFenster(bWert(g.m), bWert(g.c), f) : null;
   const dr = dreieck(P, Q);
   const entartet = g.senkrecht;
@@ -603,6 +674,7 @@ function PundQ({ modus, setModus }) {
         <ModusWahl modus={modus} setModus={setModus} />
         {wuerfelKnopf}
       </div>
+      <ModusSatz modus={modus} />
       {punkteZeile}
     </>
   );
@@ -614,6 +686,7 @@ function PundQ({ modus, setModus }) {
         <ModusWahl modus={modus} setModus={setModus} />
         {wuerfelKnopf}
       </div>
+      <ModusSatz modus={modus} />
       {punkteZeile}
       <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
     </>
@@ -637,7 +710,7 @@ function PundQ({ modus, setModus }) {
                 {dr.dy !== 0 && <Pille x={rb[0] + (dr.dx >= 0 ? 8 : -8)} y={(rb[1] + qb[1]) / 2} t={zeigeZahlen ? `Δy = ${mz(dr.dy)}` : "Δy"} farbe={C.see} anker={dr.dx >= 0 ? "start" : "end"} />}
               </>
             )}
-            {cImBild && (auto || (sc.status && (sc.status === "richtig" || sc.weiter))) && (() => { const [cx, cy] = zuBild([0, bWert(g.c)], f, W, H); return <circle cx={cx} cy={cy} r="5.5" fill={GOLD} stroke="#fff" strokeWidth="2" />; })()}
+            {cImBild && (auto || (ueben ? ub.stand >= 2 : sc.status && (sc.status === "richtig" || sc.weiter))) && (() => { const [cx, cy] = zuBild([0, bWert(g.c)], f, W, H); return <circle cx={cx} cy={cy} r="5.5" fill={GOLD} stroke="#fff" strokeWidth="2" />; })()}
             <Griff p={P} f={f} farbe={C.see} name="P" svgRef={svgRef} setzen={(p) => setzen("P", p)} start={start} ende={ende} label={zw("Punkt P verschieben", "Move point P")} />
             <Griff p={Q} f={f} farbe={GOLD} name="Q" svgRef={svgRef} setzen={(p) => setzen("Q", p)} start={start} ende={ende} label={zw("Punkt Q verschieben", "Move point Q")} />
             {!gezogen && <Pille x={10} y={H - 12} t={zw("Punkte ziehen", "Drag the points")} farbe={C.grau} anker="start" />}
@@ -659,7 +732,21 @@ function PundQ({ modus, setModus }) {
               <AutoSchritt nr={1} titel={zw("Steigung berechnen", "Work out the slope")} label="m" weg={steigungWeg(P, Q)} />
               <AutoSchritt nr={2} titel={zw("y-Achsenabschnitt berechnen", "Work out the y-intercept")} label="c" weg={achsenWeg(P, g.m)} />
               <Ergebnis m={g.m} c={g.c} onNeu={wuerfeln} auto />
-            </> : <>
+            </> : ueben ? (
+              <div className="ger-ueben" data-ger-ueben-weg data-ger-ueben-stand={ub.stand}>
+                {uebenSchritte.map((u, i) => (
+                  <UebenSchritt key={`${ub.runde}-${i}`} nr={i + 1} gesamt={nUeben} schritt={u} label={u.label} formel={UEBEN_FORMEL[u.art]}
+                    titel={u.art === "m" ? zw("Steigung berechnen", "Work out the slope") : zw("y-Achsenabschnitt berechnen", "Work out the y-intercept")}
+                    zustand={uebenZustand(i, ub.stand)} falsch={ub.falsch[i] || []} onWahl={(o) => ub.waehle(o, nUeben, "pq")} />
+                ))}
+                {ub.stand >= nUeben ? <>
+                  <Ergebnis m={g.m} c={g.c} ohneKnopf />
+                  <UebenFertig anhieb={aufAnhieb(ub.falsch, nUeben)} gesamt={nUeben} onLernen={() => setModus("lernen")} onNeu={wuerfeln}
+                    lernenText={zw("Jetzt selbst rechnen", "Now work it out yourself")} neuText={zw("Neue Aufgabe", "New task")}
+                    leise={zw("Nächste Stufe: Rechne dieselbe Aufgabe in „Lernen“ – m und c selbst eintippen, ohne Auswahl.", "Next level: do the same task in “Learn” – type m and c yourself, no cards.")} />
+                </> : <div className="ger-karte gesperrt" data-ger-schritt="y"><span className="ger-nr">3</span><span className="ger-karte-titel">{zw("Geradengleichung aufschreiben", "Write down the equation")}</span></div>}
+              </div>
+            ) : <>
             <Schritt nr={1} titel={zw("Steigung berechnen", "Work out the slope")} label="m" formel="\frac{y_Q − y_P}{x_Q − x_P}" st={sm} aktiv={!mFertig}
               soll={g.m} weg={steigungWeg(P, Q)} padAktiv={pad.offen?.id === "m"}
               onFeld={(e) => oeffneAntwort(e, "m")} onZeigen={() => { pad.schliessen(); setSm((s) => ({ ...s, status: "gezeigt", hinweis: "", falsch: false })); }}
@@ -710,7 +797,7 @@ const antwortAnzeige = (t) => mz(t).replace("/", " / ");
 
 /* ---------------------------------------------------------------- P & m */
 function PundM({ modus, setModus }) {
-  const auto = modus === "auto";
+  const auto = modus === "auto", ueben = modus === "ueben";
   const { W, H } = useMass();
   const desktop = useDesktop();
   const [{ P, m }, setAufg] = useState({ P: [2, 3], m: bruch(2) });
@@ -719,15 +806,18 @@ function PundM({ modus, setModus }) {
   const [gezogen, setGezogen] = useState(false);
   const svgRef = useRef(null);
   const pad = usePad();
+  const ub = useUeben();
   const c = useMemo(() => achsenabschnitt(P, m), [P, m]);
+  // Üben: ein Schritt (c) mit Karten – neue Fehlerwahl je Runde
+  const uebenSchritte = useMemo(() => uebenWeg({ P, m, art: "pm" }), [P, m, ub.runde]);   // eslint-disable-line react-hooks/exhaustive-deps
   const dr = useMemo(() => dreieckPm(P, m), [P, m]);
   const cImBild = Math.abs(bWert(c)) <= 12;
   const fFrei = useMemo(() => fenster([P, dr.Q, dr.R, ...(cImBild ? [[0, bWert(c)]] : [])]), [P, dr, c, cImBild]);
   const f = einfrieren || fFrei;
-  const reset = () => setSc(LEER);
+  const reset = () => { setSc(LEER); ub.neu(); };
   const setzeP = (p) => setAufg((a) => { if (a.P[0] === p[0] && a.P[1] === p[1]) return a; reset(); return { ...a, P: p }; });
   const wuerfeln = () => { pad.schliessen(); reset(); setAufg(zufallPm()); };
-  useEffect(() => { pad.schliessen(); setSc(LEER); }, [auto]);   // Moduswechsel: Schritt neu
+  useEffect(() => { pad.schliessen(); setSc(LEER); ub.neu(); }, [modus]);   // eslint-disable-line react-hooks/exhaustive-deps -- Moduswechsel: Schritt neu
 
   const oeffneKoord = (e, ax) => pad.oeffnen({
     id: `P${ax}`, max: 2,
@@ -764,7 +854,7 @@ function PundM({ modus, setModus }) {
     ok: (t) => pruefe(t),
   }, sc.eing, false, e.currentTarget);
 
-  const fertig = auto || sc.status === "richtig" || (sc.status === "gezeigt" && sc.weiter);
+  const fertig = auto || (ueben ? ub.stand >= 1 : sc.status === "richtig" || (sc.status === "gezeigt" && sc.weiter));
   const hilfe = useMemo(() => hilfePQ(P, null, null, true, m), [P, m]);
   const linie = fertig ? linieImFenster(bWert(m), bWert(c), f) : null;
   const anzeigeText = pad.offen ? antwortAnzeige(pad.text) : "";
@@ -794,6 +884,7 @@ function PundM({ modus, setModus }) {
         <ModusWahl modus={modus} setModus={setModus} />
         {wuerfelKnopf}
       </div>
+      <ModusSatz modus={modus} />
       {punkteZeile}
     </>
   );
@@ -805,6 +896,7 @@ function PundM({ modus, setModus }) {
         <ModusWahl modus={modus} setModus={setModus} />
         {wuerfelKnopf}
       </div>
+      <ModusSatz modus={modus} />
       {punkteZeile}
       <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><IchHaengeFest kontext={hilfe} /></div>
     </>
@@ -836,7 +928,21 @@ function PundM({ modus, setModus }) {
         {auto ? <>
           <AutoSchritt nr={1} titel={zw("y-Achsenabschnitt berechnen", "Work out the y-intercept")} label="c" weg={achsenWeg(P, m)} />
           <Ergebnis m={m} c={c} onNeu={wuerfeln} auto />
-        </> : <>
+        </> : ueben ? (
+          <div className="ger-ueben" data-ger-ueben-weg data-ger-ueben-stand={ub.stand}>
+            {uebenSchritte.map((u, i) => (
+              <UebenSchritt key={`${ub.runde}-${i}`} nr={i + 1} gesamt={uebenSchritte.length} schritt={u} label={u.label} formel={UEBEN_FORMEL[u.art]}
+                titel={zw("y-Achsenabschnitt berechnen", "Work out the y-intercept")} zustand={uebenZustand(i, ub.stand)} falsch={ub.falsch[i] || []}
+                onWahl={(o) => ub.waehle(o, uebenSchritte.length, "pm")} />
+            ))}
+            {ub.stand >= uebenSchritte.length ? <>
+              <Ergebnis m={m} c={c} ohneKnopf />
+              <UebenFertig anhieb={aufAnhieb(ub.falsch, uebenSchritte.length)} gesamt={uebenSchritte.length} onLernen={() => setModus("lernen")} onNeu={wuerfeln}
+                lernenText={zw("Jetzt selbst rechnen", "Now work it out yourself")} neuText={zw("Neue Aufgabe", "New task")}
+                leise={zw("Nächste Stufe: Rechne dieselbe Aufgabe in „Lernen“ – c selbst eintippen, ohne Auswahl.", "Next level: do the same task in “Learn” – type c yourself, no cards.")} />
+            </> : <div className="ger-karte gesperrt" data-ger-schritt="y"><span className="ger-nr">2</span><span className="ger-karte-titel">{zw("Geradengleichung aufschreiben", "Write down the equation")}</span></div>}
+          </div>
+        ) : <>
         <Schritt nr={1} titel={zw("y-Achsenabschnitt berechnen", "Work out the y-intercept")} label="c" formel="y_P − m · x_P" st={sc} aktiv={!fertig}
           soll={c} weg={achsenWeg(P, m)} padAktiv={pad.offen?.id === "c"}
           onFeld={oeffneAntwort} onZeigen={() => { pad.schliessen(); setSc((s) => ({ ...s, status: "gezeigt", hinweis: "", falsch: false })); }}
@@ -894,6 +1000,11 @@ const CSS = `
 .ger-frage{font-size:15px;font-weight:600;color:${C.tinte};white-space:nowrap}
 .ger-modus{flex:0 1 auto;min-height:40px}
 .ger-modus button{flex:0 0 auto;padding:0 14px;font-size:13.5px}
+.ger-modus-text{font-size:12px;color:${C.grau};line-height:1.3;margin:-3px 4px 2px}
+/* Üben: Schritte untereinander wie in Lernen; erledigte Schritte zeigen den Rechenweg (grün), das offene Zielfeld ist gold (uw-ziel) */
+.ger-ueben{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+.ger-ueben .uw{margin:4px 0 2px}
+.ger-ueben .ger-ergebnis{margin-top:4px}
 .ger-karte.ger-auto{padding:4px 12px;min-height:46px}
 .ger-auto .ger-weg{flex:1;min-width:0;padding:2px 0}
 .ger-wuerfel{width:42px;height:42px;flex-shrink:0;padding:0;border-radius:999px;border:none;cursor:pointer;background:${C.flaggold};font-size:21px;line-height:1;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(15,26,51,0.14)}
@@ -978,9 +1089,10 @@ const CSS = `
 @media (prefers-reduced-motion:reduce){.ger-feld.an::after{animation:none}}
 `;
 
-export function Geradengleichung({ start = "basics", startModus = "training" }) {
+export function Geradengleichung({ start = "basics", startModus = "lernen" }) {
   const [tab, setTab] = useState(start);
-  const [modus, setModus] = useState(startModus === "auto" ? "auto" : "training");   // Standard wie im Ableitungstrainer: Trainieren
+  // auto | ueben | lernen – alte Aufrufe mit "training"/"auto" über modusNeu; vorgewählt bleibt Lernen (früher Trainieren)
+  const [modus, setModus] = useState(() => modusNeu(startModus));
   const desktop = useDesktop();
   const [bildRef, bildBreite] = useBreite();
   const reiter = (
@@ -1003,6 +1115,7 @@ export function Geradengleichung({ start = "basics", startModus = "training" }) 
     return (
       <div className="ger-seite ger-desk" data-ger="breit">
         <style>{CSS}</style>
+        <style>{UEBEN_CSS}</style>
         <style>{GER_DESK_CSS}</style>
         <div className="ger-innen">
           {reiter}
@@ -1019,6 +1132,7 @@ export function Geradengleichung({ start = "basics", startModus = "training" }) 
   return (
     <div className="ger-seite">
       <style>{CSS}</style>
+      <style>{UEBEN_CSS}</style>
       <div className="ger-innen">
         {reiter}
         {inhalt}
