@@ -4,20 +4,21 @@
    Seit 22.10. sehen Besucher ohne Konto stattdessen die Story-Startseite (funcStartGast.jsx, StartseiteWahl);
    der LernNavigator (Block 3) und MathildaBlock/KursRaster/BlogAnriss sind exportiert und dort wiederverwendet.
 
-   Sieben Blöcke (seit 21.10. abends, Projekt-Dokument claude/startseite-struktur.md):
+   Sechs Blöcke (seit 24.10.; vorher sieben, Projekt-Dokument claude/startseite-struktur.md) – die Schülerseite:
+   hier geht es nur ums Lernen und darum, die eigenen Übungen zu finden. Keine Marken-Schlagzeile, kein
+   Vision-Anriss, keine Spenden (das steht auf der Gast-Startseite und auf /vision).
      0 Band unter der Kopfleiste (StartBand: Heute · Lernen · Mathilda · Kurse · Entdecken, klebt mit)
-     1 Bühne: Headline, Unterzeile, Goldknopf „Pen & Paper starten · kostenlos“ (nur ohne Klasse), Suche
+     1 Bühne: „Hallo <Vorname>. Was übst du heute?“, Goldknopf „Pen & Paper starten · kostenlos“ (nur ohne Klasse), Suche
      2 Heute: die eine Start-Karte (funcStartKarte.jsx); Masterclass-Kachel nur für die Oberstufe
      3 Lernen: nur der Navigator „Der Weg zum Abi“ (Stufe → Bereich → Werkzeug)
      4 Mathilda AI: eine Karte wie im ☰ (Blatt scannen + Chips) und der Zweischritt Pen & Paper → Mathilda
      5 Kurse: dieselbe Liste wie ☰ „Kurse“ (KURSE), sechs kompakte Karten, „Alle Kurse“ → /kurse
-     6 Mathe entdecken (aufklappbar) + der neueste Blog-Beitrag
-     7 Vision-Anriss (ein Satz, „Die Vision lesen“, „Die 7 Mathe-Mythen“ im Blog), Anleitung, Spenden
+     6 Mathe entdecken (aufklappbar) + der neueste Blog-Beitrag, dann die Anleitung
    Zwei Regeln: jeder Block hat genau einen ☰-Abschnitt mit demselben Namen; Gesperrtes steht nie auf der
    Startseite (Ebbinghaus, Videokurse, Mathe checken … nur hinter ZEIGE_GESPERRTE).
 
    Mix: die Seite ist hell, dunkel bleiben die Bühne, die Inseln (Start-Karte, Navigator, Mathe entdecken)
-   und zwei Streifen über die volle Breite (Mathilda, Vision). Technisch: jede Insel trägt die Klasse
+   und ein Streifen über die volle Breite (Mathilda). Technisch: jede Insel trägt die Klasse
    sbb-insel und bekommt dort den dunklen Satz der Variablen zurück; Streifen (sbb-streifen) malen ihre Nacht selbst.
    Modus: src/startModus.js (☰-Menü ganz unten, Arbeitsmenü, Links /start-hell, /start-dunkel, /start-mix) –
    die Pille StartModusSchalter steht nicht mehr auf der Startseite. Die Startseite vom 20.10. liegt
@@ -42,11 +43,11 @@ import { AbiZentrumKachel } from "./funcKursKachel.jsx";
 import { KURSE, WEITERE_ANGEBOTE, KI_MENUE } from "./hauptmenue.js";
 import { KURS_STIL, TRENNUNG } from "./hauptmenueTeile.jsx";
 import { diffStand, vekStand, gfsStand, kiStand, unterStand } from "./kursStand.js";
-import { BLOG, MYTHEN_SLUG, datumKurz } from "./blogDaten.js";
+import { BLOG, datumKurz } from "./blogDaten.js";
 import { englisch } from "./i18n.js";
 import { springe } from "./sprung.js";
 import { ElternabendKachel } from "./funcElternabend.jsx";
-import { SpendenBereich } from "./funcSpendenBereich.jsx";
+import { useKonto } from "./konto.js";
 import { ANGEBOT } from "./angebot.js";
 import { ENTDECKEN_MENUE, START_ANKER } from "./startMenues.js";
 import { EVENT_START_MODUS, startModus, startModusSetzen, basisModus, editionVon } from "./startModus.js";
@@ -360,8 +361,6 @@ html[data-start-edition="ger"] .app-wurzel { background: #FFFFFF !important; }
 .sbb-blog .weiter i { font-style: normal; }
 .sbb[data-modus="mix"] .sbb-blog { border: 1.5px solid ${C.see}; }
 
-/* Vision-Anriss: zwei Knöpfe */
-.sbb-vision-knoepfe { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
 
 /* ---------- Spalte ---------- */
 /* Lesespalte 783 px (Handy/Tablet). In der breiten Bühne (ab 1100 px) so breit wie Kopfleiste und Bühne (--seite):
@@ -1035,6 +1034,14 @@ export function LernNavigator({ gehe, stufe, stufeSetzen, klasse, zone = true })
   );
 }
 
+/* Anrede in der Bühne: der Vorname aus dem Profil (erstes Wort), sonst nichts. Demo-Konten ohne Namen bleiben bei „Hallo.“ */
+export function vornameVon(konto) {
+  const name = konto && konto.profil && typeof konto.profil.name === "string" ? konto.profil.name.trim() : "";
+  if (!name) return "";
+  const erstes = name.split(/\s+/)[0];
+  return erstes.length > 24 ? "" : erstes;
+}
+
 /* Breite Bühne (ab 1100 px): Start-Karte rechts in der Bühne, alles ohne Scrollen sichtbar */
 const BUEHNE_BREIT = "(min-width: 1100px)";
 function useBreiteBuehne() {
@@ -1051,7 +1058,7 @@ function useBreiteBuehne() {
 }
 
 /* ====================================================================== */
-/* Sieben Blöcke (21.10. abends): 0 Band · 1 Bühne · 2 Heute · 3 Lernen · 4 Mathilda · 5 Kurse · 6 Entdecken · 7 Vision-Anriss + Fuß.
+/* Sechs Blöcke (24.10.): 0 Band · 1 Bühne · 2 Heute · 3 Lernen · 4 Mathilda · 5 Kurse · 6 Entdecken + Anleitung.
    Zwei Regeln: Jeder Block hat genau einen ☰-Abschnitt mit demselben Namen; Gesperrtes steht nie auf der Startseite. */
 export function Startseite({ gehe }) {
   const modus = useStartModus();
@@ -1060,6 +1067,7 @@ export function Startseite({ gehe }) {
   const { stufe, setzen: stufeWaehlen, klasse } = useStartStufe();   // folgt der angegebenen Klasse (Konto, Quickfinder, Onboarding)
   const stufeSetzen = (w) => stufeWaehlen(w);
   const breit = useBreiteBuehne();
+  const vorname = vornameVon(useKonto());
   const schublade = <div className="sbb-abschnitt" style={{ marginTop: 0 }}><TrainingKachel gehe={gehe} setzeStufe={stufeSetzen} /></div>;
   /* Die ganze App-Fläche folgt dem Modus: Hintergrund und Fußknöpfe (Regeln oben in CSS) */
   useEffect(() => {
@@ -1076,14 +1084,15 @@ export function Startseite({ gehe }) {
       <style>{START_CSS}</style>
       <div className="sbb-licht" aria-hidden="true"><span className="l1" /><span className="l2" /><span className="l3" /></div>
 
-      {/* ---------- 1 Bühne: Headline, Unterzeile, EINE Handlung (Pen & Paper, kostenlos), Suche ---------- */}
-      <section className={["sbb-held", "sbb-insel", klasse && !breit ? "kompakt" : null, breit ? "breit" : null].filter(Boolean).join(" ")} aria-label="Mythos Mathe" id={breit ? "heute" : undefined}>
+      {/* ---------- 1 Bühne: Anrede, eine Frage, EINE Handlung (Pen & Paper, kostenlos – nur ohne Klasse), Suche ----------
+          Seit 24.10. ohne Marken-Schlagzeile: Wer angemeldet ist, kennt die Seite – hier geht es ums Üben. */}
+      <section className={["sbb-held", "sbb-insel", klasse && !breit ? "kompakt" : null, breit ? "breit" : null].filter(Boolean).join(" ")} aria-label="Dein Training" id={breit ? "heute" : undefined}>
         <HeldKurve breit={breit} />
         <div className={breit ? "sbb-held-raster" : undefined}>
         <div className="sbb-spalte sbb-held-text" style={{ paddingBottom: 0 }}>
-          <h1>Mathe kann<span className="gold">jeder verstehen</span></h1>
-          <p className="unter">Hier lernst du wie!</p>
-          {/* Neuer Besucher: der erste Schritt der Marke (wie auf /vision). Mit bekannter Klasse ist der Goldknopf der Heute-Karte die Handlung – kein zweiter daneben. */}
+          <h1 data-start-anrede>{vorname ? <>Hallo <span data-kein-i18n>{vorname}</span>.</> : "Hallo."}<span className="gold">Was übst du heute?</span></h1>
+          <p className="unter">Thema suchen, Plan starten, Kurs weitermachen.</p>
+          {/* Neues Konto ohne Klasse: der erste Schritt der Marke. Mit bekannter Klasse ist der Goldknopf der Heute-Karte die Handlung – kein zweiter daneben. */}
           {!klasse && (
             <button type="button" className="sbb-los gold held" onClick={() => gehe({ ansicht: "penpaperkurs" })} aria-label="Pen & Paper starten – kostenlos" data-start-los>
               Pen & Paper starten <span className="frei">· kostenlos</span>
@@ -1153,20 +1162,10 @@ export function Startseite({ gehe }) {
         <BlogAnriss gehe={gehe} />
       </div></section>
 
-      {/* ---------- 7 Vision-Anriss – im Mix der zweite dunkle Streifen (die Geschichte steht auf /vision, die 7 Mythen im Blog) ---------- */}
-      <section className="sbb-teil sbb-streifen sbb-insel sbb-mythen-streifen" id="system" style={{ scrollMarginTop: 56 }}><div className="sbb-spalte">
-        <Kopf titel="Mathetalent ist ein Mythos. Ein System kann man lernen." />
-        <p className="sbb-text">Hinter guten Mathenoten steckt kein besonderes Gehirn, sondern eine Arbeitsweise – wie du denkst, rechnest, schreibst und Gelerntes behältst.</p>
-        <div className="sbb-vision-knoepfe">
-          <button type="button" className="sbb-los gold" onClick={() => gehe({ ansicht: "vision" })} aria-label="Die Vision lesen" data-start-vision>Die Vision lesen <i aria-hidden="true">→</i></button>
-          <button type="button" className="sbb-los leise" onClick={() => gehe({ ansicht: "blog", seite: MYTHEN_SLUG })} aria-label="Die 7 Mathe-Mythen im Blog" data-start-mythen>Die 7 Mathe-Mythen</button>
-        </div>
-      </div></section>
-
-      {/* Anleitung, Spenden */}
+      {/* Anleitung. Vision-Anriss und Spenden stehen seit 24.10. nicht mehr hier (Schülerseite = Lernen);
+          die Vision bleibt im Besuchermenü und auf der Gast-Startseite, Spenden auf /vision und /spenden. */}
       <section className="sbb-teil ende"><div className="sbb-spalte">
         <div className="sbb-wieder" style={{ marginTop: 22 }}><AppAnleitung /></div>
-        <div className="sbb-wieder"><SpendenBereich gehe={gehe} /></div>
       </div></section>
     </div>
     </ModusKontext.Provider>

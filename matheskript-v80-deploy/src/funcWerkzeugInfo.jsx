@@ -8,7 +8,7 @@ import React from "react";
 import { C } from "./base1.jsx";
 import { wo } from "./werkzeuge.js";
 import { FR } from "./funcRegistry.jsx";
-import { seoText, entitaet, steckbrief, AUTOR } from "./seo/index.js";
+import { seoText, entitaet, steckbrief, HERAUSGEBER } from "./seo/index.js";
 
 const CSS = `
 .wi{max-width:940px;margin:28px auto 8px;padding:0 16px;font-family:Montserrat,system-ui,sans-serif}
@@ -67,7 +67,7 @@ export function WerkzeugInfo({ ansicht }) {
             </>
           )}
           <div className="wi-autor">
-            <b>{AUTOR.name}</b>, {AUTOR.rolle}: {AUTOR.kurz}{" "}
+            <b>{HERAUSGEBER.name}</b> – {HERAUSGEBER.kurz}{" "}
             <a href="/vision" onClick={(e) => { if (FR.gehe) { e.preventDefault(); FR.gehe({ ansicht: "vision" }); } }}>Mehr über Mythos Mathe</a>
           </div>
         </div>

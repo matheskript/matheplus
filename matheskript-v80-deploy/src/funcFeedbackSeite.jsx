@@ -299,7 +299,7 @@ function Schleife() {
   ];
   const kreis = `M ${cx + r} ${cy} A ${r} ${r} 0 1 1 ${cx - r} ${cy} A ${r} ${r} 0 1 1 ${cx + r} ${cy}`;
   return (
-    <svg className="fs-schleife" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Die Feedback-Schleife: Du probierst aus, du sagst, was hakt, ich baue um, ich stelle es online – und von vorn.">
+    <svg className="fs-schleife" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Die Feedback-Schleife: Du probierst aus, du sagst, was hakt, wir bauen um, wir stellen es online – und von vorn.">
       <path className="bahn" d={kreis} />
       <path className="lauf" d={kreis} />
       {[45, 135, 225, 315].map((g) => {
@@ -457,10 +457,10 @@ export function FeedbackSeite({ gehe }) {
           <div className="fs-held-raster">
             <div>
               <p className="fs-lead">Du gehörst zu den Ersten, die sie betreten. <b>Nichts hier ist fertig – und genau deshalb zählt jetzt, was du sagst.</b></p>
-              <p className="fs-unter">Jedes Werkzeug, jede Erklärung, jede Übung auf mythosmathe.de ist in Arbeit und verändert sich von Woche zu Woche. Was gut ist, was unklar ist, was dir zu kompliziert ist, welche Übungen dir fehlen: Sag es mir – als Text oder als Sprachnachricht, so genau du kannst.</p>
+              <p className="fs-unter">Jedes Werkzeug, jede Erklärung, jede Übung auf mythosmathe.de ist in Arbeit und verändert sich von Woche zu Woche. Was gut ist, was unklar ist, was dir zu kompliziert ist, welche Übungen dir fehlen: Sag es uns – als Text oder als Sprachnachricht, so genau du kannst.</p>
               <div className="fs-knoepfe">
                 <button type="button" className="fs-knopf gold" onClick={() => zumFormular()} data-feedback-direkt>Feedback geben <i aria-hidden="true">→</i></button>
-                <button type="button" className="fs-knopf rand" onClick={() => springZu("fb-fragen")}>Was ich wissen will <i aria-hidden="true">↓</i></button>
+                <button type="button" className="fs-knopf rand" onClick={() => springZu("fb-fragen")}>Was wir wissen wollen <i aria-hidden="true">↓</i></button>
               </div>
             </div>
             <div className="fs-karte fs-auf v1">
@@ -492,12 +492,12 @@ export function FeedbackSeite({ gehe }) {
             <div className="fs-bau-karte fs-auf v1">
               <p className="status">Wächst wöchentlich</p>
               <h3>Kurse und Schulbücher</h3>
-              <p>Unterstufe, Dreiecksgeometrie, Differentialrechnung, Vektoren, GFS, Abi-Zentrum. Kapitel kommen dazu, Reihenfolgen ändern sich, Aufgaben werden ausgetauscht. Wenn dir ein Thema aus deinem Unterricht fehlt, ist das die wichtigste Nachricht, die du mir schicken kannst.</p>
+              <p>Unterstufe, Dreiecksgeometrie, Differentialrechnung, Vektoren, GFS, Abi-Zentrum. Kapitel kommen dazu, Reihenfolgen ändern sich, Aufgaben werden ausgetauscht. Wenn dir ein Thema aus deinem Unterricht fehlt, ist das die wichtigste Nachricht, die du uns schicken kannst.</p>
             </div>
             <div className="fs-bau-karte fs-auf v2">
               <p className="status">Wird getestet</p>
               <h3>Mathilda AI</h3>
-              <p>Sie liest dein fotografiertes Blatt und prüft deinen Rechenweg. Sie ist gut – und sie irrt sich. Wenn sie etwas übersieht oder falsch bewertet, will ich das Blatt und ihre Antwort sehen.</p>
+              <p>Sie liest dein fotografiertes Blatt und prüft deinen Rechenweg. Sie ist gut – und sie irrt sich. Wenn sie etwas übersieht oder falsch bewertet, wollen wir das Blatt und ihre Antwort sehen.</p>
             </div>
           </div>
           <div className="fs-perfekt fs-auf">
@@ -512,7 +512,7 @@ export function FeedbackSeite({ gehe }) {
         <div className="fs-innen">
           <div className="fs-schmal fs-auf">
             <Kicker nr="02">Vier Fragen</Kicker>
-            <h2 className="fs-h2" id="fs-fragen">Das will ich von dir wissen.</h2>
+            <h2 className="fs-h2" id="fs-fragen">Das wollen wir von dir wissen.</h2>
             <p className="fs-text">Vier Fragen, nach jeder Sitzung. Du musst nicht alle beantworten – <b>eine genaue Antwort ist mehr wert als vier ungefähre.</b> Tipp auf eine Karte, dann steht sie unten im Formular schon drin.</p>
           </div>
           <div className="fs-fragen">
@@ -538,8 +538,8 @@ export function FeedbackSeite({ gehe }) {
           <div className="fs-zwei">
             <div className="fs-auf">
               <Kicker nr="03">Für Eltern</Kicker>
-              <h2 className="fs-h2" id="fs-eltern">Sie sehen, was Ihr Kind mir nicht sagt.</h2>
-              <p className="fs-text">Schüler schreiben „passt“, wenn etwas halb verstanden ist. Sie sehen, ob Ihr Kind allein mit einer Seite zurechtkommt, wo es abbricht und ob die Übung vor der Klassenarbeit etwas gebracht hat. <b>Genau das brauche ich – so konkret wie möglich, gern mit Klasse und Thema.</b></p>
+              <h2 className="fs-h2" id="fs-eltern">Sie sehen, was Ihr Kind uns nicht sagt.</h2>
+              <p className="fs-text">Schüler schreiben „passt“, wenn etwas halb verstanden ist. Sie sehen, ob Ihr Kind allein mit einer Seite zurechtkommt, wo es abbricht und ob die Übung vor der Klassenarbeit etwas gebracht hat. <b>Genau das brauchen wir – so konkret wie möglich, gern mit Klasse und Thema.</b></p>
               <button type="button" className="fs-link" onClick={() => zumFormular({ rolle: "eltern" })} data-fs-eltern>Als Elternteil Feedback geben <i aria-hidden="true">→</i></button>
             </div>
             <div className="fs-punkte fs-auf v1">
@@ -557,7 +557,7 @@ export function FeedbackSeite({ gehe }) {
           <div className="fs-schmal fs-auf">
             <Kicker nr="04">So genau wie möglich</Kicker>
             <h2 className="fs-h2" id="fs-genau">Je genauer, <span className="fs-gold">desto schneller gebaut.</span></h2>
-            <p className="fs-text">Ein ungefähres Feedback kostet mich Stunden Suche. Ein genaues zeigt mir die Stelle – und ich kann sie am selben Tag ändern. Drei Dinge machen den Unterschied.</p>
+            <p className="fs-text">Ein ungefähres Feedback kostet Stunden Suche. Ein genaues zeigt die Stelle – und sie lässt sich am selben Tag ändern. Drei Dinge machen den Unterschied.</p>
           </div>
           <ul className="fs-genau fs-auf">
             {GENAU.map((g) => <li key={g.punkt}><b>{g.punkt}</b><span>{g.text}</span></li>)}
@@ -571,7 +571,7 @@ export function FeedbackSeite({ gehe }) {
             <div className="fs-vn-karte nachher fs-auf v1">
               <p className="et">Nachher · genau</p>
               <p className="z">{VORHER_NACHHER.nachher}</p>
-              <p className="frage">Ort, Schritt, Erwartung – damit kann ich die Erklärung an genau dieser Stelle umbauen.</p>
+              <p className="frage">Ort, Schritt, Erwartung – damit lässt sich die Erklärung an genau dieser Stelle umbauen.</p>
             </div>
           </div>
         </div>
@@ -698,7 +698,7 @@ export function FeedbackSeite({ gehe }) {
           <div className="fs-schmal fs-auf">
             <Kicker nr="06">Was danach passiert</Kicker>
             <h2 className="fs-h2" id="fs-danach">Dein Feedback <span className="fs-gold">wird gebaut.</span></h2>
-            <p className="fs-text">Keine Umfrage, die in einer Tabelle verschwindet. Was du schreibst oder sprichst, landet direkt auf meinem Tisch – und von dort in die Seite.</p>
+            <p className="fs-text">Keine Umfrage, die in einer Tabelle verschwindet. Was du schreibst oder sprichst, landet direkt bei denen, die die Seite bauen – und von dort in die Seite.</p>
           </div>
           <div className="fs-danach">
             {DANACH.map((d, i) => (
@@ -706,8 +706,8 @@ export function FeedbackSeite({ gehe }) {
             ))}
           </div>
           <blockquote className="fs-zitat fs-auf">
-            <p>„Ich kann nicht in jedem Klassenzimmer sitzen. Aber ich kann jeden Satz lesen, den du mir schickst – und die Seite danach umbauen.“</p>
-            <footer><b>Basti Blumenröther</b> · Gründer von Mythos Mathe</footer>
+            <p>„Wir sitzen nicht in deinem Klassenzimmer. Aber wir lesen jeden Satz, den du uns schickst – und bauen die Seite danach um.“</p>
+            <footer><b>Mythos Mathe</b></footer>
           </blockquote>
           <div className="fs-knoepfe fs-auf">
             <button type="button" className="fs-knopf gold" onClick={() => zumFormular()}>Feedback geben <i aria-hidden="true">→</i></button>

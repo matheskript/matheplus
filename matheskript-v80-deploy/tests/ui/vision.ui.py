@@ -5,7 +5,7 @@
 Geprüft je Breite (360, 390, 768, 1280, 1440):
   - /vision lädt ohne Seitenfehler, keine Überbreite, Menüpunkt „Vision“ (Gast) ist markiert
   - Bühne: Schlagzeile, durchgestrichenes „Talent“ wird aufgedeckt, direkter Knopf Pen & Paper
-  - alle sieben Kapitel da; Kapitelübersicht springt zum Abschnitt
+  - alle sechs Kapitel da (seit 24.10. ohne Gründerkapitel); Kapitelübersicht springt zum Abschnitt
   - Tangente: Ziehen über den Graphen setzt x₀, angezeigte Steigung = f′(x₀); bei x₀ = ±√2 „waagrecht“
   - Handy: feste Knopfleiste erscheint nach der Bühne und verschwindet bei den Angeboten
   - ab 1360 px: Kapitel-Leiste links, aktives Kapitel markiert
@@ -55,9 +55,10 @@ with sync_playwright() as p:
         pruefe(page.locator("[data-vision-direkt]").is_visible(), f"{tag}: direkter Knopf fehlt")
         foto(page, f"held-{breite}")
         pruefe(not page.evaluate("document.documentElement.scrollWidth > window.innerWidth + 1"), f"{tag}: Überbreite oben")
-        for k in ("kapitel-gegner", "kapitel-weg", "kapitel-plan", "kapitel-haltung", "kapitel-ort", "kapitel-wege", "kapitel-start",
+        for k in ("kapitel-gegner", "kapitel-plan", "kapitel-haltung", "kapitel-ort", "kapitel-wege", "kapitel-start",
                   "schritt-verstehen", "schritt-aufschreiben", "schritt-trainieren"):
             pruefe(page.locator(f"#{k}").count() == 1, f"{tag}: Abschnitt {k} fehlt")
+        pruefe(page.locator("#kapitel-weg").count() == 0 and "Blumenröther" not in page.evaluate("document.body.innerText"), f"{tag}: Gründerkapitel ist zurück")
 
         # Kapitelübersicht springt
         page.locator(".vi-kapitel button", has_text="Die Haltung").click(); page.wait_for_timeout(1400)

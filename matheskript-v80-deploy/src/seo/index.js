@@ -19,7 +19,7 @@
    ====================================================================== */
 import { WERKZEUGE, BEREICHE, ETIKETTEN } from "../werkzeuge.js";
 import { pfadFuer } from "../pfade.js";
-import { AUTOR, autorLd } from "./autor.js";
+import { HERAUSGEBER, autorLd } from "./autor.js";
 import { HUBS } from "./hubs.js";
 import { TEXTE_ANALYSIS } from "./texteAnalysis.js";
 import { TEXTE_GRUNDLAGEN } from "./texteGrundlagen.js";
@@ -27,7 +27,7 @@ import { TEXTE_GEOMETRIE } from "./texteGeometrie.js";
 import { TEXTE_VEKTOREN_STOCHASTIK } from "./texteVektorenStochastik.js";
 import { TEXTE_UNTERSTUFE } from "./texteUnterstufe.js";
 
-export { AUTOR, HUBS };
+export { HERAUSGEBER, HUBS };
 export const BASIS_URL = "https://mythosmathe.de";
 export const MARKE = "Mythos Mathe";
 
@@ -152,13 +152,12 @@ export function jsonLd(t, url, { datum = null } = {}) {
   return JSON.stringify(daten).replace(/</g, "\\u003c");
 }
 
-/* JSON-LD einer Hub-Seite: Startseite = WebSite + Organization + Person, sonst CollectionPage; dazu FAQ */
+/* JSON-LD einer Hub-Seite: Startseite = WebSite + Organization, sonst CollectionPage; dazu FAQ */
 export function hubJsonLd(h, url, werkzeuge = [], { datum = null } = {}) {
   const daten = [];
   if (h.ansicht === "start") {
     daten.push({ "@context": "https://schema.org", "@type": "WebSite", name: MARKE, url: BASIS_URL, inLanguage: "de", description: h.beschreibung,
-      publisher: { "@type": "Organization", name: MARKE, url: BASIS_URL, founder: autorLd(BASIS_URL),
-        address: { "@type": "PostalAddress", addressLocality: "Konstanz", addressCountry: "DE" } } });
+      publisher: autorLd(BASIS_URL) });
   } else {
     daten.push({ "@context": "https://schema.org", "@type": "CollectionPage", name: h.titel, description: h.beschreibung, url, inLanguage: "de",
       isPartOf: { "@type": "WebSite", name: MARKE, url: BASIS_URL }, author: autorLd(BASIS_URL), ...(datum ? { dateModified: datum } : {}),
@@ -179,7 +178,7 @@ const beispielHtml = (t) => t.beispiel ? `<section><h2 style="${H2}">Beispiel mi
 <ol style="list-style:decimal;padding-left:22px">${t.beispiel.schritte.map((z) => `<li style="margin:0 0 6px">${esc(z)}</li>`).join("")}</ol>
 <p><strong>Ergebnis:</strong> ${esc(t.beispiel.ergebnis)}</p></section>
 ` : "";
-const autorZeile = () => `<p style="margin-top:28px;font-size:14px;color:#4B5A7A"><strong>${esc(AUTOR.name)}</strong>, ${esc(AUTOR.rolle)} – ${esc(AUTOR.kurz)} <a href="/vision">Mehr über Mythos Mathe</a></p>`;
+const autorZeile = () => `<p style="margin-top:28px;font-size:14px;color:#4B5A7A"><strong>${esc(HERAUSGEBER.name)}</strong> – ${esc(HERAUSGEBER.kurz)} <a href="/vision">Mehr über Mythos Mathe</a></p>`;
 const fuss = () => `<p style="margin-top:20px"><a href="/">mythosmathe.de</a> · Mathe-Coaching und Lern-App für Gymnasiasten · <a href="/trainingszentrum">Alle Werkzeuge</a> · <a href="/impressum">Impressum</a> · <a href="/datenschutz">Datenschutz</a></p>`;
 
 /* Statischer Inhalt für #root (vor dem Start der App) */
@@ -205,14 +204,12 @@ ${fuss()}
 /* Statischer Inhalt einer Hub-Seite */
 export function hubHtml(h, bereiche = []) {
   const liste = bereiche.map((b) => `<section><h2 style="${H2}">${esc(b.titel)}</h2><ul>${b.werkzeuge.map((v) => `<li><a href="/${esc(v.pfad)}">${esc(v.name)}</a> – ${esc(v.zeile)}</li>`).join("")}</ul></section>`).join("\n");
-  const preise = h.ansicht === "vision" ? `<section><h2 style="${H2}">Über den Autor</h2><p><strong>${esc(AUTOR.name)}</strong>, ${esc(AUTOR.rolle)}: ${esc(AUTOR.kurz)}</p><ul>${AUTOR.preise.map((p) => `<li>${esc(p)}</li>`).join("")}</ul></section>` : "";
   return `<main class="seo-seite" style="${STIL}">
 <p style="font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#8A6A00;margin:0 0 8px">${h.ansicht === "start" ? "Mythos Mathe · Konstanz" : `<a href="/" style="color:inherit;text-decoration:none">Mythos Mathe</a>`}</p>
 <h1 style="font-size:32px;line-height:1.1;margin:0 0 12px">${esc(h.h1)}</h1>
 <p style="font-size:17px;margin:0 0 20px">${esc(h.kurz)}</p>
 ${h.text.map((a) => `<p>${esc(a)}</p>`).join("\n")}
 ${liste}
-${preise}
 ${h.faq && h.faq.length ? `<section><h2 style="${H2}">Häufige Fragen</h2>
 ${h.faq.map((q) => `<h3 style="font-size:16px;margin:16px 0 4px">${esc(q.f)}</h3><p style="margin:0">${esc(q.a)}</p>`).join("\n")}</section>` : ""}
 ${h.ansicht === "vision" ? "" : autorZeile()}

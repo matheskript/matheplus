@@ -2,7 +2,7 @@
    FÜR LEHRKRÄFTE (/lehrkraefte) – offen erreichbar, ohne Passwort (middleware.js).
 
    Dramaturgie: Blockbuster-StorySkript (Alexander Christiani). Die Lehrkraft ist die Heldin bzw.
-   der Held, Basti (Mythos Mathe) ist der Mentor. Fünf Schritte, je drei Unterpunkte:
+   der Held, Mythos Mathe (das System, keine Person) ist der Mentor. Fünf Schritte, je drei Unterpunkte:
 
      1. HELD      Identität · Wunsch · Einsatz                → Kopf + Vertrauensleiste
      2. PROBLEM   äußeres · inneres · Gegenspieler (Mythos)  → „Sie kennen das“ in drei Ebenen
@@ -110,15 +110,15 @@ export function LehrkraefteSeite({ gehe }) {
       {/* 3 · MENTOR – Empathie, Autorität, Haltung */}
       <Abschnitt hell>
         <p style={KICKER}>Warum es das gibt</p>
-        <h2 style={H2}>Gebaut von jemandem, der seit Jahren mit Schülern rechnet.</h2>
+        <h2 style={H2}>Gebaut aus dem, womit Schüler jeden Tag trainieren.</h2>
         <p style={P}>
-          Ich bin Basti von Mythos Mathe. Seit Jahren gebe ich Mathe-Nachhilfe und sehe jede Woche, was ein Schüler braucht, um sicher zu werden: viele ähnliche Aufgaben, sauber gestellt, mit einer Lösung, die stimmt. Genau das wollte ich auch Ihnen in die Hand geben.
+          Der Generator kommt von Mythos Mathe, dem Trainingssystem für Schüler am Gymnasium von Klasse 5 bis zum Abitur. Dort zeigt sich jede Woche, was ein Schüler braucht, um sicher zu werden: viele ähnliche Aufgaben, sauber gestellt, mit einer Lösung, die stimmt. Genau das geben wir auch Ihnen in die Hand.
         </p>
         <p style={P}>
-          Ich studiere Mathematik an der Universität Konstanz. Hinter dem Generator stehen dieselben Aufgaben-Generatoren, mit denen in der App trainiert wird: Jede Aufgabe wird nach festen Regeln erzeugt, jede Lösung von der App berechnet und automatisch getestet – auch darauf, dass kein Ergebnis unvereinfacht stehen bleibt.
+          Hinter dem Generator stehen dieselben Aufgaben-Generatoren, mit denen in der App trainiert wird: Jede Aufgabe wird nach festen Regeln erzeugt, jede Lösung von der App berechnet und automatisch getestet – auch darauf, dass kein Ergebnis unvereinfacht stehen bleibt.
         </p>
         <p style={{ ...P, color: C.tinte, fontWeight: 600 }}>
-          Sie kennen Ihre Klasse und entscheiden, was geübt wird. Ich liefere nur das Material – so schnell, dass die Zeit wieder in den Unterricht geht.
+          Sie kennen Ihre Klasse und entscheiden, was geübt wird. Wir liefern nur das Material – so schnell, dass die Zeit wieder in den Unterricht geht.
         </p>
       </Abschnitt>
 

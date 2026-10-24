@@ -631,7 +631,7 @@ function CodeFeld({ onOk, start = "" }) {
 const GRUENDE = {
   form: "Dieser Code stimmt nicht. Prüf bitte jedes Zeichen – oder füge einfach den ganzen Link aus deiner Nachricht ein.",
   unbekannt: "Diesen Code gibt es nicht. Prüf bitte den Link aus deiner Nachricht.",
-  gesperrt: "Dieser Zugang ist gesperrt. Melde dich bitte bei Basti.",
+  gesperrt: "Dieser Zugang ist gesperrt. Melde dich bitte bei uns.",
   abgelaufen: "Dieser Zugang ist abgelaufen.",
   vergeben: "Dieser Code ist schon mit einem anderen Konto verbunden. Jeder Teilnehmer hat seinen eigenen Link.",
   netz: "Gerade keine Verbindung. Bitte versuch es gleich noch einmal.",
@@ -675,7 +675,7 @@ function Schaufenster({ gehe }) {
 
       <div style={{ marginTop: 34, textAlign: "center" }}>
         {!pwOffen ? (
-          <button type="button" onClick={() => setPwOffen(true)} style={{ background: "none", border: "none", color: K.grau, fontSize: 12.5, textDecoration: "underline", cursor: "pointer", fontFamily: "inherit" }}>Vorschau für Basti</button>
+          <button type="button" onClick={() => setPwOffen(true)} style={{ background: "none", border: "none", color: K.grau, fontSize: 12.5, textDecoration: "underline", cursor: "pointer", fontFamily: "inherit" }}>Vorschau (intern)</button>
         ) : (
           <form onSubmit={(e) => { e.preventDefault(); if (pw.trim().toLowerCase() === VORSCHAU_PASSWORT) { vorschauSetzen(true); nachOben(); } }} style={{ display: "inline-flex", gap: 8 }}>
             <input type="password" value={pw} onChange={(e) => setPw(e.target.value)} placeholder="Passwort" aria-label="Vorschau-Passwort"

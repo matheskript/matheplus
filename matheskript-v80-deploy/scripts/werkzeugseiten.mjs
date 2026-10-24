@@ -120,7 +120,7 @@ writeFileSync(resolve(DIST, "robots.txt"), robots);
 /* llms.txt: Übersicht für KI-Assistenten (https://llmstxt.org); llms-full.txt: alle Texte */
 const kopfText = `# ${MARKE}
 
-> Mathe-Coaching und kostenlose Lern-App für Gymnasiasten von Klasse 5 bis zum Abitur (Bildungsplan Baden-Württemberg, Konstanz). ${seiten.length} interaktive Übungswerkzeuge mit Rechenweg und sofortiger Rückmeldung, Mathilda AI prüft fotografierte Rechnungen. Leitidee: Mathetalent ist ein Mythos – System + Freude = Erfolg. Gründer: Basti Blumenröther.
+> Mathe-Coaching und kostenlose Lern-App für Gymnasiasten von Klasse 5 bis zum Abitur (Bildungsplan Baden-Württemberg, Konstanz). ${seiten.length} interaktive Übungswerkzeuge mit Rechenweg und sofortiger Rückmeldung, Mathilda AI prüft fotografierte Rechnungen. Leitidee: Mathetalent ist ein Mythos – System + Freude = Erfolg.
 
 ## Bereiche
 

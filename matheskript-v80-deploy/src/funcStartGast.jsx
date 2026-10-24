@@ -1,20 +1,24 @@
 /* ======================================================================
-   STORY-STARTSEITE für Besucher ohne Konto (22.10.2026)
+   STORY-STARTSEITE für Besucher ohne Konto (22.10.2026, kompakt seit 24.10.)
 
    Wer mythosmathe.de aufruft, ohne angemeldet zu sein, sieht nicht das
    Dashboard (Heute-Karte, Band, Klasse 12 mit „Noch 6 Runden“), sondern eine
    Seite, die erst das Problem fühlbar macht und dann die Lösung zeigt –
    nach dem Blockbuster-StorySkript (Alexander Christiani): der Schüler ist
-   der Held, Basti der Mentor.
+   der Held, das System von Mythos Mathe ist der Mentor. Keine Person, keine
+   Gründergeschichte, keine Unterschrift (Entscheidung 24.10.): Mythos Mathe
+   spricht für sich – ein Name steht nur im Impressum.
 
      1 HELD      Bühne: Headline, für wen, ein Goldknopf („Kostenlos starten“ → Start-Karte),
-                 Vertrauensleiste mit vier Fakten
+                 Vertrauensleiste mit vier Produkt-Fakten
      2 PROBLEM   „Kennst du das?“ – auf dem Blatt · im Kopf · der Gegner (durchgestrichen: „Mathe ist Talent“)
-     3 MENTOR    „Ich war die 2.“ – Empathie (2 → 1,0), Autorität (Studium, Wettbewerbe, Jahre mit Schülern), Haltung
-     4 LÖSUNG    Drei Schritte (Verstehen · Aufschreiben · Trainieren), drei Zusagen,
+     3 LÖSUNG    Drei Schritte (Verstehen · Aufschreiben · Trainieren), drei Zusagen,
                  dann ZEIGEN statt behaupten: die Start-Karte als Demo (id heute), Mathilda (id mathilda),
                  alle Werkzeuge mit Suche und Navigator (id lernen), Kurse (id kurse)
-     5 REISE     Zwei Wege (nichts ändern / heute anfangen), Abschluss-Knopf, Blog-Anriss, Spenden
+     4 REISE     Abschluss (id reise): ein Satz, Pen & Paper starten, Die Vision lesen
+
+   Bewusst raus (24.10.): Mentor-Streifen, Notenkurve, Belege, „Zwei Wege“, Blog-Anriss – die Seite
+   soll knapp sein, der Besucher soll sich in seinem Problem erkennen und sofort etwas tun können.
 
    Mit Konto zeigt StartseiteWahl das Dashboard aus funcStartseite.jsx. Der Testzugang
    („Testen“ in der Start-Karte, ☰) ist ein Konto – damit sieht man das Dashboard ohne Anmeldung.
@@ -26,13 +30,12 @@ import "@fontsource/caveat/700.css";   // Notiz „Mythos!“ am durchgestrichen
 import { C } from "./base1.jsx";
 import { useKonto } from "./konto.js";
 import { useStartStufe } from "./func2.jsx";
-import { Startseite, START_CSS, useStartModus, ModusKontext, HeldKurve, Kopf, LernNavigator, MathildaBlock, KursRaster, BlogAnriss } from "./funcStartseite.jsx";
+import { Startseite, START_CSS, useStartModus, ModusKontext, HeldKurve, Kopf, LernNavigator, MathildaBlock, KursRaster } from "./funcStartseite.jsx";
 import { StartKarte } from "./funcStartKarte.jsx";
 import { SuchBox } from "./funcSuche.jsx";
 import { MathildaName } from "./mathildaName.jsx";
 import { KURSE } from "./hauptmenue.js";
 import { MYTHEN_SLUG } from "./blogDaten.js";
-import { AUTOR } from "./seo/autor.js";
 import { ANGEBOT } from "./angebot.js";
 import { LANDING } from "./seitenKonstanten.js";
 import { basisModus, editionVon, STARTAPP_SCHLUESSEL } from "./startModus.js";
@@ -51,7 +54,6 @@ export function StartseiteWahl({ gehe }) {
 
 const NACHT = "#050B1F";
 const GOLD = C.flaggold;
-const GOLD_HELL = "#FFE58A";
 const DESKTOP = "(min-width: 840px)";
 
 const CSS = `
@@ -63,7 +65,7 @@ const CSS = `
 .sbb[data-modus="hell"] .sg-knoepfe .sbb-los.leise { border-color: ${C.see}; color: ${C.seeTief}; }
 @media ${DESKTOP} { .sg-held h1 { font-size: clamp(58px, 6.2vw, 76px); } .sg-fuer { font-size: 17.5px; max-width: 560px; } }
 
-/* Vertrauensleiste: vier Fakten, am Handy zweispaltig */
+/* Vertrauensleiste: vier Fakten zum Produkt, am Handy zweispaltig */
 .sg-fakten { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: -22px auto 0; width: 100%; max-width: 783px; padding: 0 20px; position: relative; z-index: 2; }
 @media ${DESKTOP} { .sg-fakten { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; } }
 @media (min-width: 1100px) { .sg-fakten { max-width: calc(var(--seite, 940px) + 40px); } }
@@ -82,7 +84,7 @@ const CSS = `
 
 /* Karten (weiß mit blauem Rand auf dem Blatt, Glas in den dunklen Streifen) */
 .sg-raster { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin-top: 18px; }
-@media ${DESKTOP} { .sg-raster { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; } .sg-raster.zwei { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media ${DESKTOP} { .sg-raster { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; } }
 .sg-karte { position: relative; padding: 16px 16px 15px; border-radius: 20px; border: 1px solid var(--linie); background: var(--karte); box-shadow: var(--karte-schatten); color: var(--text); }
 .sbb[data-modus="mix"] .sbb-teil:not(.sbb-streifen) .sg-karte, .sbb[data-modus="hell"] .sg-karte { border: 1.5px solid ${C.see}; box-shadow: 0 6px 22px rgba(0,47,110,0.10); }
 .sg-karte .wo { display: block; font-size: 11.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--nebel); }
@@ -102,19 +104,6 @@ const CSS = `
 .sg-link i { font-style: normal; }
 .sbb[data-modus="hell"] .sg-link, .sbb[data-modus="mix"] .sbb-teil:not(.sbb-streifen) .sg-link { color: ${C.gruenDunkel}; }
 
-/* Mentor: Text links, Notenkurve rechts (ab 840 px) */
-.sg-mentor { display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; margin-top: 18px; }
-@media ${DESKTOP} { .sg-mentor { grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 36px; align-items: start; } }
-.sg-noten { width: 100%; max-width: 360px; height: auto; display: block; margin: 0 auto; }
-.sg-belege { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 10px; }
-.sg-belege li { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; line-height: 1.5; color: var(--nebel); }
-.sg-belege li b { color: var(--titel); font-weight: 800; }
-.sg-belege .haken { flex: none; width: 22px; height: 22px; margin-top: 1px; border-radius: 999px; background: ${GOLD}; display: grid; place-items: center; }
-.sg-haltung { margin: 22px 0 0; padding: 16px 18px; border-left: 3px solid ${GOLD}; font-size: 16px; line-height: 1.55; font-weight: 600; color: var(--titel); background: rgba(237,187,0,0.06); border-radius: 0 14px 14px 0; }
-.sg-unterschrift { margin: 16px 0 0; display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--nebel); }
-.sg-unterschrift .mono { flex: none; width: 40px; height: 40px; border-radius: 999px; display: grid; place-items: center; font-weight: 900; font-size: 17px; color: ${NACHT}; background: linear-gradient(180deg, ${GOLD_HELL}, ${GOLD}); }
-.sg-unterschrift b { display: block; font-size: 14px; color: var(--titel); font-weight: 800; }
-
 /* Plan: drei Schritte mit Ziffer – am Handy Ziffer links, Text rechts (kurz); ab 840 px drei Karten nebeneinander */
 .sg-schritt { display: grid; grid-template-columns: 34px minmax(0, 1fr); column-gap: 14px; align-items: start; padding: 14px 16px; }
 .sg-schritt .nr { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 999px; background: ${GOLD}; color: ${NACHT}; font-weight: 900; font-size: 16px; grid-row: 1 / span 2; }
@@ -132,16 +121,11 @@ const CSS = `
   .sg-heute .sg-demo { margin-top: 0; } .sg-heute .sbb-kopf { margin-top: 0; } .sg-heute { margin-top: 56px; } }
 .sg-suche { margin: 16px 0 14px; max-width: 560px; }
 
-/* Zwei Wege */
-.sg-weg-karte .titel { display: block; font-size: 19px; font-weight: 800; letter-spacing: -0.025em; color: var(--titel); }
-.sg-weg-karte ul { margin: 10px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; }
-.sg-weg-karte li { display: flex; gap: 10px; font-size: 14px; line-height: 1.5; color: var(--nebel); }
-.sg-weg-karte li::before { content: "–"; flex: none; color: var(--nebel); }
-.sg-weg-karte.gut { border-color: ${GOLD}; box-shadow: 0 0 0 1px rgba(237,187,0,0.45); }
-.sg-weg-karte.gut li::before { content: "✓"; color: ${GOLD}; font-weight: 900; }
-.sg-schluss { margin-top: 26px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+/* Abschluss: ein Satz, zwei Knöpfe */
+.sg-schluss { margin-top: 22px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
 .sg-schluss .sbb-los.leise { border-color: rgba(255,255,255,0.35); color: #FFFFFF; }
 .sbb[data-modus="hell"] .sg-schluss .sbb-los.leise { border-color: ${C.see}; color: ${C.seeTief}; }
+.sg-ende .sbb-spalte { padding-bottom: 70px; }
 
 /* Feste Handy-Leiste: ein Knopf, solange die Start-Karte noch nicht erreicht ist */
 .sg-leiste { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); display: flex; justify-content: center;
@@ -154,11 +138,11 @@ const CSS = `
 @media (prefers-reduced-motion: reduce) { .sg-weg svg, .sg-weg .notiz, .sg-leiste { transition: none !important; } }
 `;
 
-/* ---------------------------------------------------------------- Inhalte (nur belegte Fakten) */
+/* ---------------------------------------------------------------- Inhalte (nur, was die App wirklich kann) */
 const FAKTEN = [
-  ["Gymnasium", "Klasse 5 bis Abitur"],
-  ["Uni Konstanz", "Mathestudium, langjährige Arbeit mit Schülern"],
-  ["Preisträger", "Bundes- und Landeswettbewerb Mathematik"],
+  ["Klasse 5 bis Abi", "Gymnasium, jedes Thema"],
+  ["Rechenweg", "Zu jeder Aufgabe, Schritt für Schritt"],
+  ["Mathilda", "Prüft dein Blatt – vom Foto"],
   ["Kostenlos", "Alle Werkzeuge ohne Anmeldung"],
 ];
 
@@ -171,12 +155,6 @@ const EBENEN = [
     text: "Dieser Satz sagt dir, dass es an dir liegt. Dabei hat dir nur nie jemand gezeigt, wie man Mathe lernt. Und genau das ist lernbar." },
 ];
 
-const BELEGE = [
-  ["Mathematik an der Universität Konstanz", " – ich studiere das Fach selbst."],
-  ["Preisträger im Bundes- und Landeswettbewerb Mathematik", " und Sieger des Einzelwettbewerbs am Tag der Mathematik der Uni Konstanz."],
-  ["Langjährige Arbeit mit Schülern", " – von der Mittelstufe bis zum Abitur."],
-];
-
 const SCHRITTE = [
   ["Verstehen", "Sehen, was eine Formel bedeutet – mit Werkzeugen, die live rechnen und zeichnen, statt auswendig zu lernen."],
   ["Aufschreiben", "Ein Schritt pro Zeile, Gleichheitszeichen untereinander. Pen & Paper ist der erste Kurs – und kostenlos."],
@@ -185,16 +163,7 @@ const SCHRITTE = [
 
 const ZUSAGEN = ["Kostenlos und ohne Anmeldung", "Bleibt auf deinem Gerät, bis du ein Konto willst", "Keine Abkürzung – aber ein Weg, der funktioniert"];
 
-const WEG_NICHTS = ["Die Lücke wächst mit jedem neuen Kapitel.", "Die Klausur bleibt Glückssache.", "Der Satz bleibt: „Ich bin halt kein Mathe-Typ.“"];
-const WEG_HEUTE = ["Ein Thema, ein Blatt, zehn Minuten.", "Fehler selbst finden – und beim nächsten Mal vermeiden.", "Vor der Klausur: ein Plan statt Panik."];
-
 /* ---------------------------------------------------------------- Bausteine */
-const Haken = () => (
-  <span className="haken" aria-hidden="true">
-    <svg width="12" height="12" viewBox="0 0 12 12"><path d="M2.5 6.3l2.4 2.4L9.6 3.8" stroke={NACHT} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
-  </span>
-);
-
 /* Durchgestrichenes Wort mit handschriftlicher Notiz; „da“ sobald im Bild */
 function Weg({ children, notiz }) {
   const ref = useRef(null);
@@ -212,28 +181,6 @@ function Weg({ children, notiz }) {
       <svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path d="M1 6.5 C 25 3.5, 60 8, 99 4" /></svg>
       {notiz && <span className="notiz" aria-hidden="true">{notiz}</span>}
     </span>
-  );
-}
-
-/* Notenverlauf 2 → 1,0 (Klasse 5 bis 10) */
-function NotenKurve() {
-  const x = (k) => 34 + (k - 5) * 60;
-  const y = (n) => 34 + (n - 1) * 100;
-  const weg = `M ${x(5)} ${y(2)} L ${x(7)} ${y(2)} C ${x(7.9)} ${y(2)}, ${x(8.4)} ${y(1.85)}, ${x(8.9)} ${y(1.45)} C ${x(9.35)} ${y(1.1)}, ${x(9.6)} ${y(1)}, ${x(10)} ${y(1)} L ${x(10.5)} ${y(1)}`;
-  return (
-    <svg className="sg-noten" viewBox="0 0 360 172" role="img" aria-label="Notenverlauf: Klasse 5 bis 7 Note 2, ab Klasse 8 ein anderer Weg, ab Klasse 10 die 1,0.">
-      <line x1="26" y1={y(1)} x2="352" y2={y(1)} stroke="currentColor" strokeOpacity=".12" />
-      <line x1="26" y1={y(2)} x2="352" y2={y(2)} stroke="currentColor" strokeOpacity=".12" />
-      <text x="18" y={y(1) + 4} textAnchor="end" fontSize="12.5" fontWeight="800" fill={GOLD}>1,0</text>
-      <text x="18" y={y(2) + 4} textAnchor="end" fontSize="12.5" fontWeight="800" fill="currentColor" opacity=".7">2</text>
-      <line x1={x(8)} y1="12" x2={x(8)} y2="148" stroke={GOLD} strokeOpacity=".5" strokeDasharray="4 5" />
-      <text x={x(8) + 6} y="16" fontSize="11.5" fontWeight="800" fill={GOLD} letterSpacing=".04em">ANDERER WEG</text>
-      <path d={weg} fill="none" stroke={GOLD} strokeWidth="3.5" strokeLinecap="round" />
-      {[5, 6, 7].map((k) => <circle key={k} cx={x(k)} cy={y(2)} r="4.5" fill="currentColor" opacity=".7" />)}
-      <circle cx={x(10)} cy={y(1)} r="7" fill={GOLD_HELL} />
-      <circle cx={x(10)} cy={y(1)} r="13" fill="none" stroke={GOLD} strokeOpacity=".6" />
-      {[5, 6, 7, 8, 9, 10].map((k) => <text key={k} x={x(k)} y="168" textAnchor="middle" fontSize="12.5" fontWeight="700" fill="currentColor" opacity=".7">{k}</text>)}
-    </svg>
   );
 }
 
@@ -327,27 +274,7 @@ export function StartseiteGast({ gehe }) {
         </div>
       </div></section>
 
-      {/* ---------- 3 MENTOR: dunkler Streifen ---------- */}
-      <section className="sbb-teil sbb-streifen sbb-insel sg-teil" id="mentor"><div className="sbb-spalte">
-        <p className="sg-kicker" style={{ marginTop: 36 }}>Wer das hier schreibt</p>
-        <Kopf titel="Ich war die 2." />
-        <div className="sg-mentor">
-          <div>
-            <p className="sbb-text stark">In den ersten drei Jahren am Gymnasium hing ich bei der Note 2 fest. Ab Klasse 8 habe ich angefangen, anders zu lernen – ab Klasse 10 stand eine <b>1,0</b> im Zeugnis. Nicht durch Talent. Durch ein anderes System.</p>
-            <ul className="sg-belege" aria-label="Belege">
-              {BELEGE.map(([b, t]) => <li key={b}><Haken /><span><b>{b}</b>{t}</span></li>)}
-            </ul>
-            <p className="sg-haltung">Ich verspreche dir keine Abkürzung. Ich zeige dir ein System, das du jeden Tag anwenden kannst – und gebe dir die Werkzeuge dafür.</p>
-            <p className="sg-unterschrift"><span className="mono" aria-hidden="true">B</span><span><b>{AUTOR.name}</b>{AUTOR.rolle}</span></p>
-          </div>
-          <div className="sg-karte" aria-hidden="true" style={{ color: "var(--text)" }}>
-            <span className="wo">Mein Notenverlauf</span>
-            <NotenKurve />
-          </div>
-        </div>
-      </div></section>
-
-      {/* ---------- 4 LÖSUNG: Plan, Zusagen – dann zeigen ---------- */}
+      {/* ---------- 3 LÖSUNG: Plan, Zusagen – dann zeigen ---------- */}
       <section className="sbb-teil sg-teil" id="loesung" style={{ scrollMarginTop: 72 }}><div className="sbb-spalte">
         <Kopf titel="So lernst du Mathe. In drei Schritten." />
         <p className="sbb-text">Gute Noten sind kein Talent, sondern eine Arbeitsweise. Sie hat drei Teile, und jeden davon kannst du hier sofort üben.</p>
@@ -395,25 +322,17 @@ export function StartseiteGast({ gehe }) {
         </div>
       </div></section>
 
-      {/* ---------- 5 REISE: zwei Wege, Abschluss ---------- */}
-      <section className="sbb-teil sbb-streifen sbb-insel sg-teil" id="reise"><div className="sbb-spalte">
-        <p className="sg-kicker" style={{ marginTop: 36 }}>Deine Entscheidung</p>
-        <Kopf titel="Zwei Wege." />
-        <div className="sg-raster zwei" data-start-gast-wege>
-          <div className="sg-karte sg-weg-karte"><span className="titel">Nichts ändern</span><ul>{WEG_NICHTS.map((t) => <li key={t}>{t}</li>)}</ul></div>
-          <div className="sg-karte sg-weg-karte gut"><span className="titel">Heute anfangen</span><ul>{WEG_HEUTE.map((t) => <li key={t}>{t}</li>)}</ul></div>
-        </div>
+      {/* ---------- 4 REISE: Abschluss ---------- */}
+      <section className="sbb-teil sbb-streifen sbb-insel sg-teil sg-ende" id="reise"><div className="sbb-spalte">
+        <p className="sg-kicker" style={{ marginTop: 36 }}>Dein erster Schritt</p>
+        <Kopf titel="Fang heute an." />
+        <p className="sbb-text stark">Ein Thema, ein Blatt, zehn Minuten. Fehler selbst finden, beim nächsten Mal vermeiden – und vor der Klausur einen Plan statt Panik. Pen & Paper ist der erste Kurs, und er ist kostenlos.</p>
         <div className="sg-schluss">
           <button type="button" className="sbb-los gold" onClick={() => gehe({ ansicht: "penpaperkurs" })} data-start-gast-schluss>Pen & Paper starten <span className="frei">· kostenlos</span></button>
           {ANGEBOT.coaching
             ? <button type="button" className="sbb-los leise" onClick={() => gehe({ ansicht: LANDING })}>Erstgespräch anfragen</button>
             : <button type="button" className="sbb-los leise" onClick={() => gehe({ ansicht: "vision" })} data-start-vision>Die Vision lesen <i aria-hidden="true">→</i></button>}
         </div>
-      </div></section>
-
-      {/* Blog-Anriss zum Schluss; Spenden stehen auf dem Dashboard und auf /vision, nicht vor dem ersten Training */}
-      <section className="sbb-teil ende"><div className="sbb-spalte">
-        <BlogAnriss gehe={gehe} />
       </div></section>
 
       <HandyLeiste onClick={zurDemo} knopf={startKnopf} />

@@ -339,7 +339,7 @@ export function BlogSeite({ gehe, seite, setSeite }) {
         <div className="bl-kopf-text">
           <p className="bl-kicker">Blog</p>
           <h1>Mathe-Blog</h1>
-          <p className="bl-unter">Notizen von Basti – über Mathe, übers Lernen und über das, was zwischen Aufgabe und Lösung passiert.</p>
+          <p className="bl-unter">Notizen über Mathe, übers Lernen und über das, was zwischen Aufgabe und Lösung passiert.</p>
         </div>
         <span className="bl-logo"><BlogLogo /></span>
       </div>

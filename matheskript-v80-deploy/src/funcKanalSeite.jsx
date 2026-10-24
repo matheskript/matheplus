@@ -350,7 +350,6 @@ export function KanalSeite({ seite: id, gehe }) {
               <li><Haken /><span><b>Was {S.du ? "du willst" : "Sie wollen"}:</b> {S.held.wunsch}</span></li>
               <li><Haken /><span><b>Worum es geht:</b> {S.held.einsatz}</span></li>
             </ul>
-            <p className="lp-autor">Von <b>Basti Blumenröther</b>, Mathestudent an der Universität Konstanz und seit Jahren Mathe-Coach am Bodensee.</p>
           </div>
         </div>
       </header>
@@ -445,7 +444,7 @@ export function KanalSeite({ seite: id, gehe }) {
           {(S.angebote.hinweis || preisHinweis) && <p className="lp-klein" style={{ marginTop: 20 }}>{[preisHinweis, S.angebote.hinweis].filter(Boolean).join(" ")}</p>}
           {S.zielgruppe === "eltern" && ANGEBOT.elternabend && (
             <p className="lp-text" style={{ marginTop: 18 }}>
-              Erst kennenlernen? Beim <button type="button" className="lp-link" onClick={() => { zaehlen("knopf", "elternabend"); gehe({ ansicht: "elternabend" }); }}>Elternabend am {ELTERNABEND.datumKurz}</button> in Dingelsdorf.
+              Erst kennenlernen? Beim <button type="button" className="lp-link" onClick={() => { zaehlen("knopf", "elternabend"); gehe({ ansicht: "elternabend" }); }}>Elternabend am {ELTERNABEND.datumKurz}</button> in {ELTERNABEND.ort}.
             </p>
           )}
         </div>

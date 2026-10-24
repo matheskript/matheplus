@@ -87,7 +87,7 @@ export async function einloesen(roh) {
 
 export const FEHLER = {
   mc_unbekannt: "Diesen Code gibt es nicht. Prüf bitte den Link aus deiner Nachricht.",
-  mc_gesperrt: "Dieser Zugang ist gesperrt. Melde dich bitte bei Basti.",
+  mc_gesperrt: "Dieser Zugang ist gesperrt. Melde dich bitte bei uns.",
   mc_abgelaufen: "Dieser Zugang ist abgelaufen.",
   mc_vergeben: "Dieser Code ist schon mit einem anderen Konto verbunden. Jeder Teilnehmer hat seinen eigenen Link.",
   mc_nicht_angemeldet: "Bitte melde dich zuerst an.",

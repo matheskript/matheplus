@@ -3,15 +3,17 @@
    der Kopfleiste). Eigener Chunk (lazy in func10.jsx).
 
    Dramaturgie: Blockbuster-StorySkript (Alexander Christiani). Der Schüler ist
-   der Held, Basti der Mentor, die Vision ist die Welt, in die der Held
-   aufbricht. Die Angebote kommen erst am Ende – aus der Vision heraus.
+   der Held, das System von Mythos Mathe der Mentor, die Vision ist die Welt, in
+   die der Held aufbricht. Die Angebote kommen erst am Ende – aus der Vision heraus.
+   Seit 24.10. ohne Gründerkapitel (2 → 1,0, Studium, Unterschrift): keine Person
+   auf der Seite, Mythos Mathe spricht für sich – ein Name steht nur im Impressum.
 
      1. HELD      Identität · Wunsch · Einsatz      → Bühne „Eine Generation, die Mathe versteht“ + Einsatz in 01
      2. PROBLEM   außen · innen · Gegenspieler      → 01 Der Gegner (drei Ebenen, der durchgestrichene Mythos)
-     3. MENTOR    Empathie · Autorität · Haltung    → 02 Woher die Vision kommt (2 → 1,0, Studium, Versprechen)
-     4. LÖSUNG    Plan · Versprechen · Werkzeuge    → 03 Der Plan (Verstehen · Aufschreiben · Trainieren),
-                                                     04 Die Haltung, 05 Der Ort, 07 Angebote (Pen & Paper zuerst)
-     5. REISE     Handlung · Erfolg · Scheitern     → 06 Zwei Wege, 07 Dein erster Schritt, Abschluss
+     3. MENTOR    Empathie · Autorität · Haltung    → 02 Der Plan (das System als Mentor), 03 Die Haltung
+     4. LÖSUNG    Plan · Versprechen · Werkzeuge    → 02 Der Plan (Verstehen · Aufschreiben · Trainieren),
+                                                     04 Der Ort, 06 Angebote (Pen & Paper zuerst)
+     5. REISE     Handlung · Erfolg · Scheitern     → 05 Zwei Wege, 06 Dein erster Schritt, Abschluss
 
    Direkter Knopf: „Pen & Paper starten“ (kostenlos) – in der Bühne, bei den Angeboten, am Schluss und auf dem
    Handy als feste Leiste. Übergangs-Knopf: „Die Vision lesen“ bzw. „Alle Werkzeuge ansehen“.
@@ -205,31 +207,13 @@ html[data-vision-seite] .fuss-paar :is(button, .fb-seite) { color: ${TEXT} !impo
 .vi-einsatz { margin: clamp(36px, 5vw, 52px) auto 0; max-width: 56ch; font-size: clamp(16px, 2.1vw, 18px); font-weight: 300; line-height: 1.7; color: ${NEBEL}; text-align: center; text-wrap: pretty; }
 .vi-einsatz b { color: #FFFFFF; font-weight: 700; }
 
-/* ---------- 02 Woher die Vision kommt ---------- */
+/* ---------- Zweispalter und Karte (Plan, Haltung) ---------- */
 .vi-zwei { display: grid; grid-template-columns: minmax(0, 1fr); gap: 44px; align-items: center; }
 @media (min-width: 980px) { .vi-zwei { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; } .vi-zwei.umgekehrt > :first-child { order: 2; } }
 .vi-karte { border-radius: 26px; border: 1px solid rgba(255,255,255,0.12); background: linear-gradient(160deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.025) 100%);
   box-shadow: 0 40px 80px -50px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,0.08); padding: clamp(18px, 4vw, 28px); }
 .vi-karte-titel { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 11.5px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: ${NEBEL}; }
 .vi-karte-titel span:last-child { letter-spacing: .04em; text-transform: none; font-weight: 600; }
-.vi-noten { display: block; width: 100%; height: auto; margin-top: 14px; overflow: visible; }
-.vi-noten .kurve { fill: none; stroke: ${GOLD}; stroke-width: 3.4; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1) .2s; }
-.vi-noten .leuchten { fill: none; stroke: ${GOLD}; stroke-width: 14; opacity: .2; filter: blur(5px); stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1) .2s; }
-.da .vi-noten .kurve, .da .vi-noten .leuchten { stroke-dashoffset: 0; }
-.vi-stationen { margin-top: 16px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.vi-station { border-radius: 14px; padding: 10px 10px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); }
-.vi-station .k { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: ${NEBEL}; }
-.vi-station .n { margin-top: 4px; font-size: clamp(20px, 5vw, 28px); font-weight: 900; letter-spacing: -0.03em; color: #FFFFFF; line-height: 1; }
-.vi-station .t { margin-top: 6px; font-size: 12px; line-height: 1.4; color: ${NEBEL}; }
-.vi-station.ziel { border-color: rgba(237,187,0,0.6); background: rgba(237,187,0,0.08); }
-.vi-station.ziel .n { color: ${GOLD}; }
-.vi-zitat { margin-top: 34px; padding: 4px 0 4px 22px; border-left: 3px solid ${GOLD}; }
-.vi-zitat p { font-size: clamp(20px, 3.6vw, 26px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.32; color: #FFFFFF; text-wrap: pretty; }
-.vi-zitat footer { margin-top: 14px; font-size: 13.5px; color: ${NEBEL}; }
-.vi-zitat footer b { color: #FFFFFF; font-weight: 700; }
-.vi-fakten { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 8px; }
-.vi-fakten span { display: inline-flex; align-items: center; gap: 8px; padding: 8px 13px; border-radius: 999px; font-size: 13px; font-weight: 700; color: ${TEXT}; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); }
-.vi-fakten span::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: ${GOLD}; }
 
 /* ---------- 03 Der Plan ---------- */
 .vi-schritte { position: relative; margin-top: clamp(40px, 6vw, 64px); display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; counter-reset: schritt; }
@@ -520,30 +504,6 @@ function HeldGleichung() {
   );
 }
 
-/* Notenkurve: Klasse 5–7 Note 2, ab Klasse 8 ein anderer Weg, ab Klasse 10 die 1,0.
-   Bewusst nur die belegten Punkte als Werte; der Abschnitt dazwischen ist als Weg gezeichnet, nicht als Notenreihe. */
-function NotenKurve() {
-  const x = (k) => 34 + (k - 5) * 60;          // Klasse 5 … 10 → 34 … 334
-  const y = (n) => 34 + (n - 1) * 100;         // Note 1 oben, Note 2 unten
-  const weg = `M ${x(5)} ${y(2)} L ${x(7)} ${y(2)} C ${x(7.9)} ${y(2)}, ${x(8.4)} ${y(1.85)}, ${x(8.9)} ${y(1.45)} C ${x(9.35)} ${y(1.1)}, ${x(9.6)} ${y(1)}, ${x(10)} ${y(1)} L ${x(10.5)} ${y(1)}`;
-  return (
-    <svg className="vi-noten" viewBox="0 0 360 172" role="img" aria-label="Notenverlauf: Klasse 5 bis 7 Note 2, ab Klasse 8 ein anderer Weg, ab Klasse 10 die 1,0.">
-      <line x1="26" y1={y(1)} x2="352" y2={y(1)} stroke="rgba(255,255,255,0.08)" />
-      <line x1="26" y1={y(2)} x2="352" y2={y(2)} stroke="rgba(255,255,255,0.08)" />
-      <text x="18" y={y(1) + 4} textAnchor="end" fontSize="12.5" fontWeight="800" fill={GOLD}>1,0</text>
-      <text x="18" y={y(2) + 4} textAnchor="end" fontSize="12.5" fontWeight="800" fill={NEBEL}>2</text>
-      <line x1={x(8)} y1="12" x2={x(8)} y2="148" stroke={GOLD} strokeOpacity=".5" strokeDasharray="4 5" />
-      <text x={x(8) + 6} y="16" fontSize="11.5" fontWeight="800" fill={GOLD} letterSpacing=".04em">ANDERER WEG</text>
-      <path className="leuchten" pathLength="1" d={weg} />
-      <path className="kurve" pathLength="1" d={weg} />
-      {[5, 6, 7].map((k) => <circle key={k} cx={x(k)} cy={y(2)} r="4.5" fill={NEBEL} />)}
-      <circle cx={x(10)} cy={y(1)} r="7" fill={GOLD_HELL} />
-      <circle cx={x(10)} cy={y(1)} r="13" fill="none" stroke={GOLD} strokeOpacity=".6" />
-      {[5, 6, 7, 8, 9, 10].map((k) => <text key={k} x={x(k)} y="168" textAnchor="middle" fontSize="12.5" fontWeight="700" fill={NEBEL}>{k}</text>)}
-    </svg>
-  );
-}
-
 /* ---------------------------------------------------------------- Tangente live (Schritt 1) */
 /* Funktion, Ableitung und Bildausschnitt: TANGENTE in vision.js */
 
@@ -821,43 +781,11 @@ export function VisionSeite({ gehe }) {
         </div>
       </section>
 
-      {/* ================= 02 Woher die Vision kommt (Mentor) ================= */}
-      <section className="vi-teil vi-tief" id="kapitel-weg" aria-labelledby="vi-weg">
-        <div className="vi-innen">
-          <div className="vi-zwei">
-            <div className="vi-auf">
-              <Kicker nr="02">Woher die Vision kommt</Kicker>
-              <h2 className="vi-h2" id="vi-weg">Ich war genau da, wo du jetzt bist.</h2>
-              <p className="vi-text">In den ersten drei Jahren am Gymnasium hing ich bei der Note 2 fest. Ab Klasse 8 habe ich angefangen, anders zu lernen – ab Klasse 10 stand eine <b>1,0</b> im Zeugnis. Nicht durch Talent. Durch ein anderes System.</p>
-              <p className="vi-text">Heute studiere ich Mathematik an der Universität Konstanz und begleite seit Jahren Schüler bis zum Abitur. Fünf Jahre lang habe ich untersucht, welche Stellschrauben diesen Weg möglich machen. Daraus ist ein System entstanden – und diese Seite, auf der du es jeden Tag anwenden kannst.</p>
-              <div className="vi-fakten">
-                <span>Mathestudium Uni Konstanz</span><span>Seit Jahren Mathe-Coach</span><span>Am Bodensee und online</span>
-              </div>
-            </div>
-            <div className="vi-auf v1">
-              <div className="vi-karte">
-                <div className="vi-karte-titel"><span>Mein Weg in Mathe</span><span>Klasse 5–10</span></div>
-                <NotenKurve />
-                <div className="vi-stationen">
-                  <div className="vi-station"><p className="k">Kl. 5–7</p><p className="n">2</p><p className="t">Festgefahren</p></div>
-                  <div className="vi-station"><p className="k">Kl. 8</p><p className="n">→</p><p className="t">Anders lernen</p></div>
-                  <div className="vi-station ziel"><p className="k">ab Kl. 10</p><p className="n">1,0</p><p className="t">Neues System</p></div>
-                </div>
-              </div>
-              <blockquote className="vi-zitat">
-                <p>„Ich verspreche dir keine Abkürzung. Ich zeige dir den Weg. Gehen musst du ihn selbst – aber nicht allein.“</p>
-                <footer><b>Basti Blumenröther</b> · Gründer von Mythos Mathe</footer>
-              </blockquote>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ================= 03 Der Plan ================= */}
+      {/* ================= 02 Der Plan ================= */}
       <section className="vi-teil vi-dunkel" id="kapitel-plan" aria-labelledby="vi-plan">
         <div className="vi-innen">
           <div className="vi-schmal vi-auf">
-            <Kicker nr="03">Der Plan</Kicker>
+            <Kicker nr="02">Der Plan</Kicker>
             <h2 className="vi-h2" id="vi-plan">Drei Schritte. <span className="vi-gold">Ein System.</span></h2>
             <p className="vi-text">Gute Mathenoten entstehen nicht aus einem besonderen Gehirn, sondern aus einer Arbeitsweise. Sie hat drei Schritte – und für jeden gibt es hier ein Werkzeug.</p>
           </div>
@@ -985,11 +913,11 @@ export function VisionSeite({ gehe }) {
         </div>
       </section>
 
-      {/* ================= 04 Die Haltung ================= */}
+      {/* ================= 03 Die Haltung ================= */}
       <section className="vi-teil vi-tief" id="kapitel-haltung" aria-labelledby="vi-haltung">
         <div className="vi-innen">
           <div className="vi-schmal vi-auf">
-            <Kicker nr="04">Die Haltung</Kicker>
+            <Kicker nr="03">Die Haltung</Kicker>
             <h2 className="vi-h2" id="vi-haltung">Das Manifest.</h2>
             <p className="vi-text">Das System funktioniert nur mit der richtigen Haltung. Sie passt in vier Sätze.</p>
           </div>
@@ -1004,11 +932,11 @@ export function VisionSeite({ gehe }) {
         </div>
       </section>
 
-      {/* ================= 05 Der Ort ================= */}
+      {/* ================= 04 Der Ort ================= */}
       <section className="vi-teil vi-sand vi-blattkante" id="kapitel-ort" aria-labelledby="vi-ort">
         <div className="vi-innen">
           <div className="vi-schmal vi-auf">
-            <Kicker nr="05">Der Ort</Kicker>
+            <Kicker nr="04">Der Ort</Kicker>
             <h2 className="vi-h2" id="vi-ort">Ein Ort, an dem alle am selben Ziel arbeiten.</h2>
             <p className="vi-text">Mathe lernt man nicht allein. Schüler, Eltern und Lehrer sehen hier dasselbe System – jeder aus seinem Blickwinkel.</p>
           </div>
@@ -1052,11 +980,11 @@ export function VisionSeite({ gehe }) {
         </div>
       </section>
 
-      {/* ================= 06 Zwei Wege (Scheitern · Erfolg) ================= */}
+      {/* ================= 05 Zwei Wege (Scheitern · Erfolg) ================= */}
       <section className="vi-teil vi-dunkel vi-blattkante" id="kapitel-wege" aria-labelledby="vi-wege">
         <div className="vi-innen">
           <div className="vi-schmal vi-auf">
-            <Kicker nr="06">Zwei Wege</Kicker>
+            <Kicker nr="05">Zwei Wege</Kicker>
             <h2 className="vi-h2" id="vi-wege">Ab hier gibt es zwei Wege.</h2>
           </div>
           <div className="vi-wege">
@@ -1079,11 +1007,11 @@ export function VisionSeite({ gehe }) {
         </div>
       </section>
 
-      {/* ================= 07 Dein erster Schritt (Angebote) ================= */}
+      {/* ================= 06 Dein erster Schritt (Angebote) ================= */}
       <section className="vi-teil vi-tief" id="kapitel-start" aria-labelledby="vi-start">
         <div className="vi-innen">
           <div className="vi-schmal vi-auf">
-            <Kicker nr="07">Dein erster Schritt</Kicker>
+            <Kicker nr="06">Dein erster Schritt</Kicker>
             <h2 className="vi-h2" id="vi-start">Die Vision beginnt <span className="vi-gold">auf deinem Blatt.</span></h2>
             <p className="vi-text">Darum fängt alles mit Pen & Paper an – dem Kurs, der dir zeigt, wie man Mathe aufschreibt. Er ist der Einstieg ins System und komplett kostenlos.</p>
           </div>

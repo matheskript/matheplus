@@ -492,7 +492,7 @@ export function EntwurfStart({ gehe }) {
           <Ic n="schild" s={56} farbe={GOLD} w={1.6} />
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 800, fontSize: "clamp(19px,2.8vw,23px)", lineHeight: 1.2 }}>Für Eltern:<br />Orientierung statt zusätzlichem Druck.</div>
-            <p style={{ fontSize: 14.5, lineHeight: 1.55, color: "#DCE5F5", margin: "8px 0 0" }}>Lernen Sie die Lernidee von Bastian kennen, erfahren Sie, wie die KI unterstützt, wo ihre Grenzen liegen und welche Angebote sinnvoll sein können.</p>
+            <p style={{ fontSize: 14.5, lineHeight: 1.55, color: "#DCE5F5", margin: "8px 0 0" }}>Lernen Sie die Lernidee von Mythos Mathe kennen, erfahren Sie, wie die KI unterstützt, wo ihre Grenzen liegen und welche Angebote sinnvoll sein können.</p>
           </div>
           <div style={{ display: "grid", gap: 8, minWidth: 230 }}>
             <Knopf klein onClick={() => gehe({ ansicht: "elternabend" })}>Zum Elternabend</Knopf>
@@ -641,7 +641,7 @@ export function EntwurfChecken({ gehe }) {
             <Ic n="gruppe" s={40} farbe={GOLD} w={2} /></span>
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 800, fontSize: "clamp(20px,3vw,25px)", lineHeight: 1.2 }}>Ein klarer Rahmen.<br />Ein gemeinsames Ziel.</div>
-            <p style={{ fontSize: 14.5, lineHeight: 1.55, color: "#DCE5F5", margin: "8px 0 0" }}>Beim Elternabend lernen Sie Bastian, die Lernidee und die geplante Begleitung kennen.</p>
+            <p style={{ fontSize: 14.5, lineHeight: 1.55, color: "#DCE5F5", margin: "8px 0 0" }}>Beim Elternabend lernen Sie die Lernidee von Mythos Mathe und die geplante Begleitung kennen.</p>
           </div>
           <Knopf klein onClick={() => gehe({ ansicht: "elternabend" })} style={{ minWidth: 220 }}><MitPfeil t="Zum Elternabend" /></Knopf>
         </div>

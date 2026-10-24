@@ -35,13 +35,13 @@ test("Ohne Browser-Speicher gilt der Mix-Modus", () => {
   assert.equal(startModus(), "mix");
 });
 
-test("Die Startseite führt zu allen Angeboten – über sieben Blöcke und das Band", () => {
+test("Die Startseite führt zu allen Angeboten – über sechs Blöcke und das Band", () => {
   const q = quelle("funcStartseite.jsx");
-  /* Direkt im Code: Abi, Pen & Paper, Mathilda, Vision, Blog, /kurse, Elternabend (nach Passwort); die Kurse kommen aus KURSE (hauptmenue.js) */
-  for (const z of ["penpaperkurs", "abi", "elternabend", "vision", "blog", "kursliste"]) assert.ok(q.includes(`ansicht: "${z}"`), `Startseite kennt das Ziel „${z}“ nicht`);
+  /* Direkt im Code: Abi, Pen & Paper, Mathilda, Blog, /kurse, Elternabend (nach Passwort); die Kurse kommen aus KURSE (hauptmenue.js). Die Vision steht seit 24.10. nicht mehr auf der Schülerseite (Gast-Startseite, Besuchermenü). */
+  for (const z of ["penpaperkurs", "abi", "elternabend", "blog", "kursliste"]) assert.ok(q.includes(`ansicht: "${z}"`), `Startseite kennt das Ziel „${z}“ nicht`);
   for (const z of ["penpaperkurs", "unterstufe", "geokurs", "diffkurs", "vekkurs", "gfs", "kiwahl"]) assert.ok(KURSE.some((k) => k.ziel.ansicht === z), `KURSE ohne „${z}“`);
   for (const z of ["gleichkurs", "headnumbers", "efunktion", "elternkurs"]) assert.ok(WEITERE_ANGEBOTE.some((k) => k.ziel.ansicht === z), `WEITERE_ANGEBOTE ohne „${z}“`);
-  for (const b of ["<Quickfinder", "<SuchBox", "<StartKarte", "<UnterMenue", "<SchulKachel", "<EtikettKnoepfe", "ENTDECKEN_MENUE", "<AppAnleitung", "<SpendenBereich", "<StartBand", "<MathildaBlock", "<KursRaster", "<BlogAnriss", "KI_MENUE"]) {
+  for (const b of ["<Quickfinder", "<SuchBox", "<StartKarte", "<UnterMenue", "<SchulKachel", "<EtikettKnoepfe", "ENTDECKEN_MENUE", "<AppAnleitung", "<StartBand", "<MathildaBlock", "<KursRaster", "<BlogAnriss", "KI_MENUE"]) {
     assert.ok(q.includes(b), `Startseite ohne ${b}`);
   }
   /* Band: fünf Anker, jeder ein Abschnitt der Seite; Besuchermenü „Mathe lernen“ zielt auf „lernen“ */
@@ -90,7 +90,9 @@ test("Alle drei Modi sind im Stil definiert, die Wahl hängt am Wurzelelement un
   assert.ok(q.includes('html[data-start-modus="dunkel"]') && q.includes('html[data-start-modus="hell"]') && q.includes('html[data-start-modus="mix"]'));
   /* Mix: Inseln und Streifen tragen ihre Klassen */
   assert.ok(q.includes('.sbb[data-modus="mix"] .sbb-insel'), "Inseln ohne dunklen Variablensatz");
-  assert.ok((q.match(/sbb-streifen sbb-insel/g) || []).length >= 2, "weniger als zwei dunkle Streifen");
+  assert.ok((q.match(/sbb-streifen sbb-insel/g) || []).length >= 1, "kein dunkler Streifen (Mathilda)");
+  /* 24.10.: die Schülerseite hat keinen Vision-Anriss und keine Spenden mehr – das steht auf der Gast-Startseite und /vision */
+  assert.ok(!q.includes("<SpendenBereich") && !q.includes("data-start-vision"), "Vision-Anriss oder Spenden sind zurück auf der Schülerseite");
   assert.ok(q.includes('["sbb-held", "sbb-insel",'), "Bühne ist keine Insel");
   assert.ok(q.includes('data-modus={basisModus(modus)} data-edition={editionVon(modus)}'));
   const r = quelle("func10.jsx");
