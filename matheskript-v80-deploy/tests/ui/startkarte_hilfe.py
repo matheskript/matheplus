@@ -14,7 +14,7 @@ def schublade_auf(page, schulart="g9", klasse="9", auswahl=True):
         knopf.first.click()
         page.wait_for_timeout(400)
     if auswahl:
-        chip = page.locator(".qf-leiste button[aria-label$='– ändern']")
+        chip = page.locator(".qf-kopf button[aria-label$='– ändern']")
         if chip.count():
             chip.first.click()
             page.wait_for_timeout(200)

@@ -88,7 +88,7 @@ function KlassenWahl({ schulart, wert, setze }) {
   );
 }
 
-/* Nach der Wahl von Schulsystem und Klasse schrumpft die Auswahl auf einen kleinen Chip rechts neben dem Menü:
+/* Nach der Wahl von Schulsystem und Klasse schrumpft die Auswahl auf einen kleinen Chip in der Titelzeile (zwischen Titel und Pfeil):
    eine blaue Box, darin „Kl. 13“ in Gold (wie die goldene Klassenbox) und dahinter „(GS9)“ in Weiß (wie der
    Schulsystem-Balken). Antippen öffnet die Auswahl wieder. */
 function AuswahlChip({ schulart, klasse, oeffnen }) {
@@ -105,7 +105,7 @@ function AuswahlChip({ schulart, klasse, oeffnen }) {
   );
 }
 
-/* Das Menü neben dem Chip: vier Bereiche, bewusst kurz benannt, damit alles in eine Zeile passt (auch bei 360 px) */
+/* Das Menü unter der Titelzeile, über die volle Breite: vier Bereiche, Spaltenbreite nach Inhalt (auch bei 360 px in einer Zeile) */
 const BEREICHE = [
   { id: "thema", name: "Thema" },
   { id: "plan", name: "Plan" },
@@ -119,13 +119,13 @@ function tabSchreiben(t) { try { sessionStorage.setItem(TAB_SCHLUESSEL, t); } ca
 function TrainingsMenue({ tab, setTab }) {
   return (
     <div role="tablist" aria-label="Bereich wählen"
-      style={{ flex: 1, minWidth: 0, display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 2, padding: 3, height: 40, boxSizing: "border-box", borderRadius: 12,
+      style={{ width: "100%", minWidth: 0, display: "grid", gridTemplateColumns: "repeat(4, auto)", justifyContent: "stretch", gap: 2, padding: 3, height: 40, boxSizing: "border-box", borderRadius: 12,
         background: C.seeTief, boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.06), 0 3px 10px rgba(14,30,74,0.22)" }}>
       {BEREICHE.map((b) => {
         const an = b.id === tab;
         return (
           <button key={b.id} type="button" role="tab" aria-selected={an} onClick={() => setTab(b.id)} className="qf-tab" data-tab={b.id}
-            style={{ ...knopfBasis, height: "100%", padding: "0 2px", borderRadius: 9, border: "none", minWidth: 0, fontSize: 12.5, fontWeight: 800,
+            style={{ ...knopfBasis, height: "100%", padding: "0 8px", borderRadius: 9, border: "none", minWidth: 0, fontSize: 12.5, fontWeight: 800,
               color: an ? C.seeTief : "#C9D6EE", background: an ? `linear-gradient(180deg, ${C.flaggold}, #D9A800)` : "transparent",
               boxShadow: an ? "0 2px 6px rgba(237,187,0,0.35)" : "none", whiteSpace: "nowrap", transition: "background .15s ease, color .15s ease" }}>
             {b.name}
@@ -651,7 +651,7 @@ function PlanKarte({ q, auswahl, gehe, MT }) {
    Darunter einspaltig: Überschrift, Text, Schulsystem, Klassen.
    Nach der Klassenwahl öffnet sich das Kapitel-Menü. „Trainingsplan zu diesem Kapitel“ wechselt in den
    Plan-Modus (Themen zum Anhaken, das Kapitel ist schon angehakt) – „‹ Zurück zu den Kapiteln“ führt zurück. */
-export function Quickfinder({ gehe, setzeStufe, links }) {
+export function Quickfinder({ gehe, setzeStufe, links, rechts = null }) {
   const [q, setQ] = useState(() => lesen() || { schulart: null, klasse: null, kapitel: null, teil: null, modus: modusLesen(), auswahl: auswahlOhneSchulart() });
   // waehlen: Auswahl von Schulsystem und Klasse ist offen. Ist beides gewählt, schrumpft sie auf den Chip mit dem Menü daneben.
   const [waehlen, setWaehlen] = useState(false);
@@ -757,13 +757,20 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
         .qf-kopf.qf-fertig{grid-template-areas:"kopf";padding-bottom:10px}
         .qf-kopf.qf-fertig>.qf-a-kopf{margin-bottom:0}
         @media (min-width:600px){.qf-kopf.qf-fertig{grid-template-columns:minmax(0,1fr);grid-template-rows:auto;grid-template-areas:"kopf"}}
-        .qf-leiste{display:flex;align-items:center;gap:8px;padding:0 16px 12px}
-        @media (min-width:840px){.qf-leiste{padding:0 18px 12px 20px;max-width:600px}}
+        .qf-zeile{display:flex;align-items:center;gap:12px}
+        .qf-zeile>.qf-titel{flex:1;min-width:0}
+        .qf-leiste{padding:0 16px 12px}
+        @media (min-width:840px){.qf-leiste{padding:0 18px 12px 20px}}
         .qf-zwei{display:grid;gap:0}
         @media (min-width:840px){.qf-zwei{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:24px;align-items:start}}`}</style>
       <div className={fertig ? "qf-kopf qf-fertig" : "qf-kopf"}>
         <div className="qf-a-kopf" style={{ minWidth: 0 }}>
-          {links}
+          {/* Eine Zeile: Titel links, dann der Klassen-Chip (sobald gewählt), ganz rechts der Pfeil der Schublade (rechts) */}
+          <div className="qf-zeile">
+            <div className="qf-titel">{links}</div>
+            {fertig && <AuswahlChip schulart={q.schulart} klasse={q.klasse} oeffnen={() => setWaehlen(true)} />}
+            {rechts}
+          </div>
           {!fertig && <p style={{ margin: "10px 0 0", fontSize: 13.5, fontWeight: 300, lineHeight: 1.55, color: C.grau }}>
             {plan
               ? "Hake an, was in deinen Plan soll – ganze Kapitel, einzelne Unterthemen, auch mehrere Kapitel. Ich ergänze Warm-up, Basis-Check und Wiederholungen nach Ebbinghaus."
@@ -780,7 +787,6 @@ export function Quickfinder({ gehe, setzeStufe, links }) {
       {fertig && (
         <div className="qf-leiste">
           <TrainingsMenue tab={tab} setTab={setTab} />
-          <AuswahlChip schulart={q.schulart} klasse={q.klasse} oeffnen={() => setWaehlen(true)} />
         </div>
       )}
       {gewaehlt || eigeneThemen(MT).length || haupt ? (
