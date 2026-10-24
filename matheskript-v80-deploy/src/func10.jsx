@@ -134,6 +134,8 @@ const GfsBayesSeite = lazyLaden(() => import("./funcGfsBayes.jsx").then((m) => (
 const BayesBild = lazyLaden(() => import("./funcGfsBayes.jsx").then((m) => ({ default: m.BayesBild })));
 const GfsFassregelSeite = lazyLaden(() => import("./funcGfsFassregel.jsx").then((m) => ({ default: m.GfsFassregelSeite })));
 const FassBild = lazyLaden(() => import("./funcGfsFassregel.jsx").then((m) => ({ default: m.FassBild })));
+const GfsKugelnSeite = lazyLaden(() => import("./funcGfsKugeln.jsx").then((m) => ({ default: m.GfsKugelnSeite })));
+const KugelnBild = lazyLaden(() => import("./funcGfsKugeln.jsx").then((m) => ({ default: m.KugelnBild })));
 const GfsPlatonischSeite = lazyLaden(() => import("./funcGfsPlatonisch.jsx").then((m) => ({ default: m.GfsPlatonischSeite })));
 const PlatonischBild = lazyLaden(() => import("./funcGfsPlatonisch.jsx").then((m) => ({ default: m.PlatonischBild })));
 const GfsMischungenSeite = lazyLaden(() => import("./funcGfsMischungen.jsx").then((m) => ({ default: m.GfsMischungenSeite })));
@@ -1417,6 +1419,12 @@ export function Mathilda() {
           <GfsThemenKopf titel={"Wachstum und Differenzial­gleichungen"} chips={["Kursstufe 1", "Kap. II", "5 Animationen"]} Bild={WachstumBild}
             onZurueck={() => gehe({ ansicht: "gfs" })} gehe={gehe} ansicht="gfs-wachstum" />
           <GfsWachstumSeite gehe={gehe} />
+        </>
+      ) : ansicht === "gfs-kugeln" ? (
+        <>
+          <GfsThemenKopf titel="Kugeln" chips={["Kursstufe 1", "Kap. VI", "4 Animationen"]} Bild={KugelnBild}
+            onZurueck={() => gehe({ ansicht: "gfs" })} gehe={gehe} ansicht="gfs-kugeln" />
+          <GfsKugelnSeite gehe={gehe} />
         </>
       ) : ansicht === "potenzregel" ? (
         <>

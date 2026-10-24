@@ -83,7 +83,8 @@ export const THEMEN = [
     { id: "fassregel", kurz: "Keplersche Fassregel", frage: "Wie schätzt man ein Integral mit nur drei Funktionswerten – und warum ist das oft exakt?", ansicht: "gfs-fassregel", videos: 0, animationen: 5 }),
   T("k1", "III", "Integralrechnung", "Partielle Integration", "Die Produktregel rückwärts: Integrale von Produkten berechnen.", { id: "partiell" }),
   T("k1", "V", "Lineare Gleichungssysteme", "Kubische Splines", "Kurven aus Polynomstücken glatt zusammensetzen.", { id: "splines" }),
-  T("k1", "VI", "Geraden und Ebenen", "Kugeln", "Kugelgleichung, Tangentialebenen und Schnitte mit Geraden.", { id: "kugeln" }),
+  T("k1", "VI", "Geraden und Ebenen", "Kugeln", "Kugelgleichung, Tangentialebenen und Schnitte mit Geraden.",
+    { id: "kugeln", kurz: "Kugeln", frage: "Wie beschreibt man eine Kugel mit einer Gleichung – und was passiert, wenn eine Gerade oder Ebene sie trifft?", ansicht: "gfs-kugeln", videos: 0, animationen: 4 }),
 
   /* Kursstufe 2 – Lambacher Schweizer Kursstufe BW (Graphen, Abstände und Winkel, Stochastik) */
   T("k2", "IV", "Funktionen und ihre Graphen", "Symmetrie von Graphen", "Symmetrie zu beliebigen Achsen und Punkten nachweisen.", { id: "symmetrie" }),
