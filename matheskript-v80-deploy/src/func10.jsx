@@ -134,6 +134,8 @@ const GfsBayesSeite = lazyLaden(() => import("./funcGfsBayes.jsx").then((m) => (
 const BayesBild = lazyLaden(() => import("./funcGfsBayes.jsx").then((m) => ({ default: m.BayesBild })));
 const GfsFassregelSeite = lazyLaden(() => import("./funcGfsFassregel.jsx").then((m) => ({ default: m.GfsFassregelSeite })));
 const FassBild = lazyLaden(() => import("./funcGfsFassregel.jsx").then((m) => ({ default: m.FassBild })));
+const GfsKugelnSeite = lazyLaden(() => import("./funcGfsKugeln.jsx").then((m) => ({ default: m.GfsKugelnSeite })));
+const KugelnBild = lazyLaden(() => import("./funcGfsKugeln.jsx").then((m) => ({ default: m.KugelnBild })));
 const GfsPlatonischSeite = lazyLaden(() => import("./funcGfsPlatonisch.jsx").then((m) => ({ default: m.GfsPlatonischSeite })));
 const PlatonischBild = lazyLaden(() => import("./funcGfsPlatonisch.jsx").then((m) => ({ default: m.PlatonischBild })));
 const GfsMischungenSeite = lazyLaden(() => import("./funcGfsMischungen.jsx").then((m) => ({ default: m.GfsMischungenSeite })));
@@ -142,6 +144,12 @@ const GfsTangentenSeite = lazyLaden(() => import("./funcGfsTangenten.jsx").then(
 const TangentenBild = lazyLaden(() => import("./funcGfsTangenten.jsx").then((m) => ({ default: m.TangentenBild })));
 const GfsExponentialSeite = lazyLaden(() => import("./funcGfsExponential.jsx").then((m) => ({ default: m.GfsExponentialSeite })));
 const ExponentialBild = lazyLaden(() => import("./funcGfsExponential.jsx").then((m) => ({ default: m.ExponentialBild })));
+const GfsFolgenSeite = lazyLaden(() => import("./funcGfsFolgen.jsx").then((m) => ({ default: m.GfsFolgenSeite })));
+const FolgenBild = lazyLaden(() => import("./funcGfsFolgen.jsx").then((m) => ({ default: m.FolgenBild })));
+const GfsWachstumSeite = lazyLaden(() => import("./funcGfsWachstum.jsx").then((m) => ({ default: m.GfsWachstumSeite })));
+const WachstumBild = lazyLaden(() => import("./funcGfsWachstum.jsx").then((m) => ({ default: m.WachstumBild })));
+const GfsProjektionSeite = lazyLaden(() => import("./funcGfsProjektion.jsx").then((m) => ({ default: m.GfsProjektionSeite })));
+const ProjektionBild = lazyLaden(() => import("./funcGfsProjektion.jsx").then((m) => ({ default: m.ProjektionBild })));
 const PotenzregelSeite = lazyLaden(() => import("./func22.jsx").then((m) => ({ default: m.PotenzregelSeite })));
 const EFunktionSeite = lazyLaden(() => import("./funcEFunktion.jsx").then((m) => ({ default: m.EFunktionSeite })));
 const AbiZentrumSeite = lazyLaden(() => import("./funcAbiZentrum.jsx").then((m) => ({ default: m.AbiZentrumSeite })));
@@ -1401,6 +1409,30 @@ export function Mathilda() {
           <GfsThemenKopf titel="Die Keplersche Fassregel" chips={["Kursstufe 1", "Kap. III", "5 Animationen"]} Bild={FassBild}
             onZurueck={() => gehe({ ansicht: "gfs" })} gehe={gehe} ansicht="gfs-fassregel" />
           <GfsFassregelSeite gehe={gehe} />
+        </>
+      ) : ansicht === "gfs-folgen" ? (
+        <>
+          <GfsThemenKopf titel="Folgen und Grenzwerte" chips={["Kursstufe 1", "Kap. I", "5 Animationen"]} Bild={FolgenBild}
+            onZurueck={() => gehe({ ansicht: "gfs" })} gehe={gehe} ansicht="gfs-folgen" />
+          <GfsFolgenSeite gehe={gehe} />
+        </>
+      ) : ansicht === "gfs-wachstum" ? (
+        <>
+          <GfsThemenKopf titel={"Wachstum und Differenzial­gleichungen"} chips={["Kursstufe 1", "Kap. II", "5 Animationen"]} Bild={WachstumBild}
+            onZurueck={() => gehe({ ansicht: "gfs" })} gehe={gehe} ansicht="gfs-wachstum" />
+          <GfsWachstumSeite gehe={gehe} />
+        </>
+      ) : ansicht === "gfs-kugeln" ? (
+        <>
+          <GfsThemenKopf titel="Kugeln" chips={["Kursstufe 1", "Kap. VI", "4 Animationen"]} Bild={KugelnBild}
+            onZurueck={() => gehe({ ansicht: "gfs" })} gehe={gehe} ansicht="gfs-kugeln" />
+          <GfsKugelnSeite gehe={gehe} />
+        </>
+      ) : ansicht === "gfs-projektion" ? (
+        <>
+          <GfsThemenKopf titel="Projektionen mit Matrizen" chips={["Kursstufe 2", "Kap. VII", "4 Animationen"]} Bild={ProjektionBild}
+            onZurueck={() => gehe({ ansicht: "gfs" })} gehe={gehe} ansicht="gfs-projektion" />
+          <GfsProjektionSeite gehe={gehe} />
         </>
       ) : ansicht === "potenzregel" ? (
         <>
