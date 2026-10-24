@@ -129,6 +129,7 @@ export const SEITEN_SAETZE = {
   "gfs-platonisch": { de: "herausfinden, warum es genau fünf platonische Körper gibt, und daraus eine GFS machen", en: "find out why there are exactly five Platonic solids and turn it into a school presentation" },
   "gfs-mischungen": { de: "Mischungsaufgaben und das Mischungskreuz verstehen und daraus eine GFS machen", en: "understand mixture problems and the alligation method and turn them into a school presentation" },
   "gfs-exponential": { de: "die Exponentialverteilung verstehen und für eine GFS aufbereiten", en: "understand the exponential distribution and turn it into a school presentation" },
+  "gfs-folgen": { de: "Folgen und Grenzwerte verstehen und für eine GFS aufbereiten", en: "understand sequences and limits and turn them into a school presentation" },
   "gfs-dose": { de: "die optimale Dose berechnen und für eine GFS aufbereiten", en: "calculate the optimal can and turn it into a school presentation" },
   "gfs-tangenten": { de: "Tangentenprobleme verstehen und für eine GFS aufbereiten", en: "understand tangent problems and turn them into a school presentation" },
   "gfs-fassregel": { de: "die Keplersche Fassregel verstehen und für eine GFS aufbereiten", en: "understand Kepler’s barrel rule (Simpson’s rule) and turn it into a school presentation" },

@@ -74,6 +74,8 @@ export const THEMEN = [
   T("k1", "I", "Grundlagen der Differenzialrechnung", "Tangentenprobleme", "Tangenten von außen, Normalen und gemeinsame Tangenten zweier Kurven.",
     { id: "tangenten", kurz: "Tangentenprobleme", frage: "Wie viele Tangenten gehen von einem Punkt an eine Kurve – und wo berühren sie?", ansicht: "gfs-tangenten", videos: 0, animationen: 5 }),
   T("k1", "I", "Grundlagen der Differenzialrechnung", "Stetigkeit", "Ohne Absetzen zeichnen – und warum Sprünge Ableitungen verhindern.", { id: "stetigkeit" }),
+  T("k1", "I", "Grundlagen der Differenzialrechnung", "Folgen und Grenzwerte", "Unendlich viele Summanden – und trotzdem eine endliche Summe?",
+    { id: "folgen", kurz: "Folgen und Grenzwerte", frage: "Kann man unendlich viele Zahlen addieren und trotzdem eine endliche Summe bekommen?", ansicht: "gfs-folgen", videos: 0, animationen: 5 }),
   T("k1", "II", "Exponential- und Logarithmusfunktionen", "Beschränktes Wachstum", "Wachstum mit Obergrenze: Abkühlen, Sättigen, Annähern.", { id: "beschraenkt" }),
   T("k1", "II", "Exponential- und Logarithmusfunktionen", "Ausbreitung eines Virus modellieren", "Infektionszahlen mit Wachstumsmodellen beschreiben.", { id: "virus", kurz: "Virus-Ausbreitung" }),
   T("k1", "III", "Integralrechnung", "Die Keplersche Fassregel", "Mit drei Messwerten Flächen und Fassvolumen schätzen – oft sogar exakt.",

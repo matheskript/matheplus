@@ -142,6 +142,8 @@ const GfsTangentenSeite = lazyLaden(() => import("./funcGfsTangenten.jsx").then(
 const TangentenBild = lazyLaden(() => import("./funcGfsTangenten.jsx").then((m) => ({ default: m.TangentenBild })));
 const GfsExponentialSeite = lazyLaden(() => import("./funcGfsExponential.jsx").then((m) => ({ default: m.GfsExponentialSeite })));
 const ExponentialBild = lazyLaden(() => import("./funcGfsExponential.jsx").then((m) => ({ default: m.ExponentialBild })));
+const GfsFolgenSeite = lazyLaden(() => import("./funcGfsFolgen.jsx").then((m) => ({ default: m.GfsFolgenSeite })));
+const FolgenBild = lazyLaden(() => import("./funcGfsFolgen.jsx").then((m) => ({ default: m.FolgenBild })));
 const PotenzregelSeite = lazyLaden(() => import("./func22.jsx").then((m) => ({ default: m.PotenzregelSeite })));
 const EFunktionSeite = lazyLaden(() => import("./funcEFunktion.jsx").then((m) => ({ default: m.EFunktionSeite })));
 const AbiZentrumSeite = lazyLaden(() => import("./funcAbiZentrum.jsx").then((m) => ({ default: m.AbiZentrumSeite })));
@@ -1401,6 +1403,12 @@ export function Mathilda() {
           <GfsThemenKopf titel="Die Keplersche Fassregel" chips={["Kursstufe 1", "Kap. III", "5 Animationen"]} Bild={FassBild}
             onZurueck={() => gehe({ ansicht: "gfs" })} gehe={gehe} ansicht="gfs-fassregel" />
           <GfsFassregelSeite gehe={gehe} />
+        </>
+      ) : ansicht === "gfs-folgen" ? (
+        <>
+          <GfsThemenKopf titel="Folgen und Grenzwerte" chips={["Kursstufe 1", "Kap. I", "5 Animationen"]} Bild={FolgenBild}
+            onZurueck={() => gehe({ ansicht: "gfs" })} gehe={gehe} ansicht="gfs-folgen" />
+          <GfsFolgenSeite gehe={gehe} />
         </>
       ) : ansicht === "potenzregel" ? (
         <>

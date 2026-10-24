@@ -20,7 +20,7 @@ test("Jedes Thema hat Stufe, Klassen, Kapitel und Kurzbeschreibung; gebaute Them
       assert.ok(t.videos > 0 || t.animationen > 0, `${t.id}: weder Video noch Animation`);
     }
   }
-  assert.equal(themenZahl(), 9);   // Pascal, Dose, Ziegenproblem, Bayes, Platonische Körper, Mischungen, Tangentenprobleme, Exponentialverteilung, Keplersche Fassregel
+  assert.equal(themenZahl(), 10);   // Pascal, Dose, Ziegenproblem, Bayes, Platonische Körper, Mischungen, Tangentenprobleme, Exponentialverteilung, Keplersche Fassregel, Folgen und Grenzwerte
 });
 
 test("Jede Stufe hat 5 bis 10 GFS-Themen", () => {
