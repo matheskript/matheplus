@@ -3,9 +3,16 @@
    Reine Logik ohne React, testbar mit Node (tests/kopfWeg.test.mjs).
 
    Jede Funktion liefert entweder
-     { ok: true, ergebnis, schritte: [{ text, rechnung? }], … }
+     { ok: true, ergebnis, schritte: [{ text, rechnung?, ueben? }], … }
    oder
      { ok: false, hinweis }.
+
+   ueben (seit 24.10., Modus „Üben“): Schritte mit einem Zwischenergebnis
+   tragen { frage, wert, falsch: [{ wert, hinweis }] } – der Schüler wählt
+   das Zwischenergebnis aus Karten (kopfUeben.js baut daraus die Schritte).
+   Werte sind Texte (Brüche als {Zähler|Nenner}); falsche Werte sind typische
+   Fehler genau dieses Schritts, nie Zufallszahlen. Schritte ohne ueben
+   (reine Erklärung, Probe) erscheinen im Üben von selbst.
 
    Regel A5: Das Ergebnis steht immer vollständig vereinfacht da
    (gekürzte Brüche, Potenzschreibweise nur bei gleichen Faktoren,
@@ -38,6 +45,18 @@ export function potenzForm(faktoren) {
 
 /* Bruch als Text: ganze Zahl, wenn der Nenner 1 ist */
 const bruchText = (z, n) => (n === 1 ? String(z) : `{${z}|${n}}`);
+/* Üben-Eintrag eines Schritts: Frage, richtiger Wert, typische falsche Werte mit Hinweis (Dubletten und der richtige Wert fallen weg) */
+const ue = (frage, wert, falsch) => {
+  const w = String(wert), gesehen = new Set([w]);
+  const f = [];
+  for (const k of falsch) {
+    if (!k || k.wert == null) continue;
+    const t = String(k.wert);
+    if (gesehen.has(t)) continue;
+    gesehen.add(t); f.push({ wert: t, hinweis: k.hinweis });
+  }
+  return { frage, wert: w, falsch: f };
+};
 const gemischt = (z, n) => (n > 1 && z > n && z % n !== 0 ? `${Math.floor(z / n)} {${z % n}|${n}}` : null);
 
 /* ---------------------------------------------------------------- Plus und Minus */
@@ -60,22 +79,48 @@ export function wegPlusMinus(a, b, op) {
       const neu = s >= 10 ? 1 : 0;
       schritte.push({
         text: `${name}: ${u ? `${x} + ${y} + ${u}` : `${x} + ${y}`} = ${s}. Schreibe ${s % 10}${neu ? " und merke dir 1 als Übertrag" : ""}.`,
+        ueben: ue(`${name}: ${u ? `${x} + ${y} + ${u}` : `${x} + ${y}`} = ?`, s, [
+          u ? { wert: s - u, hinweis: `Der Übertrag 1 aus der Spalte davor kommt dazu: ${x} + ${y} + 1 = ${s}.` } : null,
+          !u && x + y >= 10 ? { wert: s + 1, hinweis: `Hier gibt es keinen Übertrag von rechts: ${x} + ${y} = ${s}.` } : null,
+          { wert: s + 1, hinweis: `${u ? `${x} + ${y} + ${u}` : `${x} + ${y}`} ist ${s}, nicht ${s + 1}.` },
+          { wert: s - 1, hinweis: `${u ? `${x} + ${y} + ${u}` : `${x} + ${y}`} ist ${s}, nicht ${s - 1}.` },
+        ]),
       });
       u = neu;
     } else {
-      const sub = y + u;
+      const uAlt = u, sub = y + u;
       if (sub > x) {
         aus[i] = x + 10 - sub; u = 1;
-        schritte.push({ text: `${name}: ${sub} plus wie viel gibt ${x}? Das geht nicht, also ergänzt du bis ${x + 10}: ${sub} + ${aus[i]} = ${x + 10}. Schreibe ${aus[i]} und merke dir 1 als Übertrag.` });
+        schritte.push({ text: `${name}: ${sub} plus wie viel gibt ${x}? Das geht nicht, also ergänzt du bis ${x + 10}: ${sub} + ${aus[i]} = ${x + 10}. Schreibe ${aus[i]} und merke dir 1 als Übertrag.`,
+          ueben: ue(`${name}: ${sub} plus wie viel gibt ${x}? Geht nicht – also bis ${x + 10}. Welche Ziffer schreibst du?`, aus[i], [
+            { wert: sub - x, hinweis: `Nicht ${x} von ${sub} abziehen: Du ergänzt ${sub} bis ${x + 10}, das sind ${aus[i]}.` },
+            { wert: aus[i] + 1, hinweis: `${sub} + ${aus[i]} = ${x + 10} – nicht ${aus[i] + 1}.` },
+            aus[i] > 0 ? { wert: aus[i] - 1, hinweis: `${sub} + ${aus[i]} = ${x + 10} – nicht ${aus[i] - 1}.` } : null,
+            uAlt ? { wert: (x + 10 - y) % 10, hinweis: `Der Übertrag 1 aus der Spalte davor gehört dazu: ${y} + 1 = ${sub}.` } : null,
+          ]) });
       } else {
         aus[i] = x - sub; u = 0;
-        schritte.push({ text: `${name}: ${sub} plus wie viel gibt ${x}? ${sub} + ${aus[i]} = ${x}. Schreibe ${aus[i]}.` });
+        schritte.push({ text: `${name}: ${sub} plus wie viel gibt ${x}? ${sub} + ${aus[i]} = ${x}. Schreibe ${aus[i]}.`,
+          ueben: ue(`${name}: ${sub} plus wie viel gibt ${x}?`, aus[i], [
+            { wert: aus[i] + 1, hinweis: `${sub} + ${aus[i]} = ${x} – nicht ${aus[i] + 1}.` },
+            aus[i] > 0 ? { wert: aus[i] - 1, hinweis: `${sub} + ${aus[i]} = ${x} – nicht ${aus[i] - 1}.` } : null,
+            { wert: x + 10 - sub, hinweis: `${sub} passt in ${x} hinein – du musst nicht bis ${x + 10} ergänzen.` },
+            sub > 0 ? { wert: x + sub, hinweis: `Beim Minus ergänzt du, du addierst nicht: ${sub} + ? = ${x}.` } : null,
+            uAlt ? { wert: x - y, hinweis: `Der Übertrag 1 aus der Spalte davor gehört dazu: ${y} + 1 = ${sub}.` } : null,
+          ]) });
       }
     }
   }
   if (op === "+" && u) schritte.push({ text: `Übrig bleibt der Übertrag 1: Schreibe ihn ganz vorn hin.` });
   const ergebnis = op === "+" ? a + b : a - b;
-  schritte.push({ text: `Probe mit der Umkehrung: ${op === "+" ? `${ergebnis} − ${b} = ${a}` : `${ergebnis} + ${b} = ${a}`}.`, rechnung: `${a} ${op} ${b} = ${ergebnis}` });
+  const ohneUebertrag = op === "+" ? Number(A.map((x, i) => (x + B[i]) % 10).join("")) : null;
+  schritte.push({ text: `Probe mit der Umkehrung: ${op === "+" ? `${ergebnis} − ${b} = ${a}` : `${ergebnis} + ${b} = ${a}`}.`, rechnung: `${a} ${op} ${b} = ${ergebnis}`,
+    ueben: ue(`Lies das Ergebnis ab: ${a} ${op} ${b} = ?`, ergebnis, [
+      ohneUebertrag !== null && ohneUebertrag !== ergebnis ? { wert: ohneUebertrag, hinweis: "Die Überträge fehlen – jede 1, die du dir gemerkt hast, kommt in die nächste Spalte." } : null,
+      { wert: ergebnis + 10, hinweis: `Probe: ${op === "+" ? `${ergebnis + 10} − ${b} = ${ergebnis + 10 - b}` : `${ergebnis + 10} + ${b} = ${ergebnis + 10 + b}`}, nicht ${a}.` },
+      ergebnis >= 10 ? { wert: ergebnis - 10, hinweis: `Probe: ${op === "+" ? `${ergebnis - 10} − ${b} = ${ergebnis - 10 - b}` : `${ergebnis - 10} + ${b} = ${ergebnis - 10 + b}`}, nicht ${a}.` } : null,
+      { wert: ergebnis + 1, hinweis: "Eine Spalte stimmt nicht – rechne die Einer noch einmal." },
+    ]) });
   return ok(String(ergebnis), schritte, { wert: ergebnis, rechnung: `${a} ${op} ${b} = ${ergebnis}` });
 }
 
@@ -111,11 +156,16 @@ export function wegMultiplizieren(a, b) {
   if (a > 9999 || b > 9999) return nein("Bis vierstellig – darüber rechnest du besser schriftlich.");
   const w = a * b;
   const rechnung = `${a} ${MAL} ${b} = ${w}`;
-  if (a === 0 || b === 0) return ok("0", [{ text: "Mal 0 ergibt immer 0.", rechnung }], { wert: 0, rechnung });
+  if (a === 0 || b === 0) return ok("0", [{ text: "Mal 0 ergibt immer 0.", rechnung, ueben: ue(`${a} ${MAL} ${b} = ?`, 0, [{ wert: a + b, hinweis: "Mal 0 ergibt 0 – nicht die andere Zahl." }, { wert: Math.max(a, b), hinweis: "Mal 0 ergibt 0 – egal, wie groß die andere Zahl ist." }]) }], { wert: 0, rechnung });
   const p = Math.min(a, b), q = Math.max(a, b);
   if (q <= 10) {
     const s = kleinesEinmaleins(p, q);
-    return ok(String(w), [...s, { text: `Ergebnis: ${rechnung}.` }], { wert: w, rechnung });
+    return ok(String(w), [...s, { text: `Ergebnis: ${rechnung}.`, ueben: ue(`${rechnung.split(" = ")[0]} = ?`, w, [
+      { wert: p * (q - 1), hinweis: `Das ist ${p} ${MAL} ${q - 1}. Einmal ${p} fehlt noch.` },
+      { wert: p * (q + 1), hinweis: `Das ist ${p} ${MAL} ${q + 1} – einmal ${p} zu viel.` },
+      { wert: p + q, hinweis: `${p} + ${q} = ${p + q} ist die Summe, gesucht ist das Produkt.` },
+      { wert: w + 1, hinweis: `${p} ${MAL} ${q} = ${w}.` },
+    ]) }], { wert: w, rechnung });
   }
   /* mehrstellig: die kleinere Zahl nach Stellen zerlegen */
   const kleiner = p, grosser = q;
@@ -126,9 +176,19 @@ export function wegMultiplizieren(a, b) {
     const t = teile[0];
     const nullen = String(t.stelle).length - 1;
     schritte.push({ text: `${kleiner} ist ${t.z} mit ${nullen} ${nullen === 1 ? "Null" : "Nullen"}. Rechne erst ${grosser} ${MAL} ${t.z}, dann hänge die ${nullen === 1 ? "Null" : "Nullen"} an.`,
-      rechnung: `${grosser} ${MAL} ${t.z} = ${grosser * t.z}  →  ${rechnung}` });
+      rechnung: `${grosser} ${MAL} ${t.z} = ${grosser * t.z}  →  ${rechnung}`,
+      ueben: ue(`Erst ohne die ${nullen === 1 ? "Null" : "Nullen"}: ${grosser} ${MAL} ${t.z} = ?`, grosser * t.z, [
+        { wert: grosser * (t.z - 1), hinweis: `Das ist ${grosser} ${MAL} ${t.z - 1} – einmal ${grosser} fehlt.` },
+        { wert: grosser * (t.z + 1), hinweis: `Das ist ${grosser} ${MAL} ${t.z + 1} – einmal ${grosser} zu viel.` },
+        { wert: grosser + t.z, hinweis: "Das ist die Summe, gesucht ist das Produkt." },
+      ]) });
     const m = malEinstellig(grosser, t.z);
     if (m.teile && m.teile.length > 1) schritte.splice(1, 0, { text: `${grosser} ${MAL} ${t.z} nach den Stellen von ${grosser}: ${m.teile.map((x) => `${x.stelle} ${MAL} ${t.z} = ${x.wert}`).join(", ")}. Zusammen ${m.teile.map((x) => x.wert).join(" + ")} = ${m.wert}.` });
+    schritte.push({ text: `Jetzt die ${nullen === 1 ? "Null" : "Nullen"} anhängen: ${rechnung}.`, ueben: ue(`${nullen === 1 ? "Eine Null" : `${nullen} Nullen`} anhängen: ${grosser} ${MAL} ${kleiner} = ?`, w, [
+      { wert: grosser * t.z, hinweis: `Die ${nullen === 1 ? "Null" : "Nullen"} von ${kleiner} fehlen noch.` },
+      { wert: w * 10, hinweis: `${kleiner} hat ${nullen} ${nullen === 1 ? "Null" : "Nullen"}, nicht ${nullen + 1}.` },
+      nullen > 1 ? { wert: w / 10, hinweis: `${kleiner} hat ${nullen} Nullen – beide werden angehängt.` } : null,
+    ]) });
     return ok(String(w), schritte, { wert: w, rechnung });
   }
   schritte.push({ text: `Zerlege ${kleiner} nach Stellen: ${kleiner} = ${teile.map((t) => t.stelle).join(" + ")}.` });
@@ -139,12 +199,24 @@ export function wegMultiplizieren(a, b) {
     teilErg.push(prod);
     const m = malEinstellig(grosser, t.z);
     const wie = nullen > 0 ? `erst ${grosser} ${MAL} ${t.z} = ${grosser * t.z}, dann ${nullen} ${nullen === 1 ? "Null" : "Nullen"} anhängen` : (m.teile && m.teile.length > 1 ? `${m.teile.map((x) => `${x.stelle} ${MAL} ${t.z} = ${x.wert}`).join(", ")} → ${m.teile.map((x) => x.wert).join(" + ")} = ${m.wert}` : "direkt");
-    schritte.push({ text: `Teilprodukt: ${grosser} ${MAL} ${t.stelle} (${wie}).`, rechnung: `${grosser} ${MAL} ${t.stelle} = ${prod}` });
+    schritte.push({ text: `Teilprodukt: ${grosser} ${MAL} ${t.stelle} (${wie}).`, rechnung: `${grosser} ${MAL} ${t.stelle} = ${prod}`,
+      ueben: ue(`Teilprodukt: ${grosser} ${MAL} ${t.stelle} = ?`, prod, [
+        nullen > 0 ? { wert: grosser * t.z, hinweis: `Das ist nur ${grosser} ${MAL} ${t.z} – die ${nullen === 1 ? "Null" : "Nullen"} von ${t.stelle} fehlen.` } : null,
+        nullen > 0 ? { wert: prod * 10, hinweis: `${t.stelle} hat ${nullen} ${nullen === 1 ? "Null" : "Nullen"} – eine zu viel angehängt.` } : null,
+        { wert: grosser * (t.stelle + 10 ** nullen), hinweis: `Das wäre ${grosser} ${MAL} ${t.stelle + 10 ** nullen}.` },
+        { wert: grosser * (t.stelle - 10 ** nullen), hinweis: `Das wäre ${grosser} ${MAL} ${t.stelle - 10 ** nullen}.` },
+      ]) });
   });
   let laufend = teilErg[0];
   for (let i = 1; i < teilErg.length; i++) {
     const neu = laufend + teilErg[i];
-    schritte.push({ text: i === 1 ? `Addiere die Teilprodukte: ${laufend} + ${teilErg[i]} = ${neu}.` : `Weiter: ${laufend} + ${teilErg[i]} = ${neu}.` });
+    schritte.push({ text: i === 1 ? `Addiere die Teilprodukte: ${laufend} + ${teilErg[i]} = ${neu}.` : `Weiter: ${laufend} + ${teilErg[i]} = ${neu}.`,
+      ueben: ue(`${i === 1 ? "Addiere die Teilprodukte" : "Weiter"}: ${laufend} + ${teilErg[i]} = ?`, neu, [
+        { wert: neu + 100, hinweis: `${laufend} + ${teilErg[i]} = ${neu} – ein Übertrag zu viel.` },
+        { wert: neu - 100, hinweis: `${laufend} + ${teilErg[i]} = ${neu} – ein Übertrag fehlt.` },
+        { wert: laufend * teilErg[i], hinweis: "Teilprodukte werden addiert, nicht multipliziert." },
+        { wert: neu + 10, hinweis: `${laufend} + ${teilErg[i]} = ${neu}.` },
+      ]) });
     laufend = neu;
   }
   schritte.push({ text: `Größe prüfen: ${grosser} ${MAL} ${kleiner} liegt etwa bei ${runden1(grosser)} ${MAL} ${runden1(kleiner)} = ${runden1(grosser) * runden1(kleiner)}.` });
@@ -168,20 +240,35 @@ export function wegPrimzahl(n) {
     schritte.push({ text: `Es gibt keine Primzahl zwischen 2 und √${n} zu testen. ${n} ist durch nichts außer 1 und sich selbst teilbar: eine Primzahl.` });
     return ok(`${n} ist eine Primzahl`, schritte, { prim: true });
   }
-  schritte.push({ text: `Du musst nur Primzahlen bis ${g} testen: ${g} ${MAL} ${g} = ${g * g}${g * g === n ? "" : `, aber ${g + 1} ${MAL} ${g + 1} = ${(g + 1) * (g + 1)} ist schon größer als ${n}`}. Ein Teiler über ${g} hätte einen Partner darunter, den du schon gefunden hättest.` });
+  schritte.push({ text: `Du musst nur Primzahlen bis ${g} testen: ${g} ${MAL} ${g} = ${g * g}${g * g === n ? "" : `, aber ${g + 1} ${MAL} ${g + 1} = ${(g + 1) * (g + 1)} ist schon größer als ${n}`}. Ein Teiler über ${g} hätte einen Partner darunter, den du schon gefunden hättest.`,
+    ueben: ue(`Bis zu welcher Zahl musst du Primzahlen testen, um ${n} zu prüfen?`, g, [
+      { wert: g + 1, hinweis: `${g + 1} ${MAL} ${g + 1} = ${(g + 1) * (g + 1)} ist schon größer als ${n} – bis ${g} reicht.` },
+      g > 2 ? { wert: g - 1, hinweis: `${g} ${MAL} ${g} = ${g * g} ist noch höchstens ${n} – ${g} musst du mittesten.` } : null,
+      { wert: Math.floor(n / 2), hinweis: `Bis zur Hälfte wäre viel zu viel: Ein Teiler über √${n} ≈ ${g} hat immer einen Partner darunter.` },
+      { wert: n - 1, hinweis: "Alle Zahlen zu testen ist unnötig – die Wurzel reicht als Grenze." },
+    ]) });
   for (const p of primzahlenBis(g)) {
     let teilt, text;
     if (p === 2) { teilt = n % 2 === 0; text = `Test 2: ${n} endet auf ${n % 10}, ${teilt ? "also gerade → durch 2 teilbar" : "also ungerade → nicht durch 2 teilbar"}.`; }
     else if (p === 3) { const s = ziffern(n).reduce((x, y) => x + y, 0); teilt = n % 3 === 0; text = `Test 3: Quersumme ${ziffern(n).join(" + ")} = ${s}, ${teilt ? "durch 3 teilbar" : "nicht durch 3 teilbar"}.`; }
     else if (p === 5) { teilt = n % 5 === 0; text = `Test 5: ${n} endet auf ${n % 10}, ${teilt ? "also durch 5 teilbar" : "also nicht durch 5 teilbar"}.`; }
     else { teilt = n % p === 0; text = `Test ${p}: ${n} : ${p} = ${Math.floor(n / p)}${teilt ? "" : ` Rest ${n % p}`}${teilt ? " – geht auf." : " – geht nicht auf."}`; }
-    schritte.push({ text });
+    const rest = n % p;
+    schritte.push({ text, ueben: ue(`Test ${p}: Ist ${n} durch ${p} teilbar?`, teilt ? "Ja, geht auf" : `Nein, Rest ${rest}`, [
+      teilt ? { wert: `Nein, Rest ${p - 1}`, hinweis: p === 2 ? `${n} endet auf ${n % 10}, also gerade – durch 2 teilbar.` : p === 3 ? `Die Quersumme ist durch 3 teilbar, also auch ${n}.` : p === 5 ? `${n} endet auf ${n % 10} – durch 5 teilbar.` : `${n} = ${p} ${MAL} ${n / p} – geht auf.` } : null,
+      !teilt ? { wert: "Ja, geht auf", hinweis: p === 2 ? `${n} endet auf ${n % 10}, also ungerade – nicht durch 2 teilbar.` : p === 3 ? `Quersumme ${ziffern(n).reduce((x, y) => x + y, 0)} ist nicht durch 3 teilbar, also auch ${n} nicht.` : p === 5 ? `Nur Zahlen auf 0 oder 5 sind durch 5 teilbar – ${n} endet auf ${n % 10}.` : `${n} : ${p} = ${Math.floor(n / p)} Rest ${rest} – geht nicht auf.` } : null,
+      !teilt && rest !== (rest + 1) % p ? { wert: `Nein, Rest ${(rest + 1) % p}`, hinweis: `${n} : ${p} = ${Math.floor(n / p)} Rest ${rest}: ${p} ${MAL} ${Math.floor(n / p)} = ${p * Math.floor(n / p)}, und ${n} − ${p * Math.floor(n / p)} = ${rest}.` } : null,
+    ]) });
     if (teilt) {
       schritte.push({ text: `${p} ist ein Teiler: ${n} = ${p} ${MAL} ${n / p}. Damit ist ${n} keine Primzahl.`, rechnung: `${n} = ${p} ${MAL} ${n / p}` });
       return ok(`${n} ist keine Primzahl`, schritte, { prim: false, teiler: p });
     }
   }
-  schritte.push({ text: `Keine Primzahl bis ${g} teilt ${n}. Also ist ${n} eine Primzahl.` });
+  schritte.push({ text: `Keine Primzahl bis ${g} teilt ${n}. Also ist ${n} eine Primzahl.`,
+    ueben: ue(`Keine Primzahl bis ${g} teilt ${n}. Was folgt daraus?`, `${n} ist eine Primzahl`, [
+      { wert: `${n} ist keine Primzahl`, hinweis: `Es gab keinen Teiler bis ${g} – und größere Teiler hätten einen Partner darunter. Also ist ${n} prim.` },
+      { wert: `Teste weiter bis ${Math.floor(n / 2)}`, hinweis: `Nicht nötig: Ein Teiler über √${n} ≈ ${g} hätte einen Partner unter ${g}, den du schon gefunden hättest.` },
+    ]) });
   return ok(`${n} ist eine Primzahl`, schritte, { prim: true });
 }
 
@@ -199,22 +286,45 @@ export function wegPrimfaktoren(n) {
     if (q * q > rest) {
       /* der Rest ist selbst prim */
       if (faktoren.length === 0) {
-        schritte.push({ text: `Keine Primzahl bis √${n} teilt ${n}. ${n} ist selbst eine Primzahl und lässt sich nicht weiter zerlegen.` });
+        const letzte = uebersprungen.slice(-2);
+        schritte.push({ text: `Keine Primzahl bis √${n} teilt ${n}. ${n} ist selbst eine Primzahl und lässt sich nicht weiter zerlegen.`,
+          ueben: ue(`Welcher Primfaktor lässt sich als Erstes von ${n} abspalten?`, `Keiner – ${n} ist prim`, [
+            ...letzte.map((t) => ({ wert: String(t), hinweis: `${n} : ${t} = ${Math.floor(n / t)} Rest ${n % t} – geht nicht auf.` })),
+            { wert: "1", hinweis: "Die 1 ist kein Primfaktor – sie zerlegt nichts." },
+          ]) });
         return ok(`${n} ist eine Primzahl`, schritte, { faktoren: [n], prim: true });
       }
       faktoren.push(rest);
-      schritte.push({ text: `${rest} ist prim – das ist der letzte Faktor.`, rechnung: `${rest} : ${rest} = 1` });
+      schritte.push({ text: `${rest} ist prim – das ist der letzte Faktor.`, rechnung: `${rest} : ${rest} = 1`,
+        ueben: ue(`Kleinster Teiler von ${rest}?`, rest, [
+          { wert: q, hinweis: `${q} teilt ${rest} nicht: ${rest} : ${q} geht nicht auf.` },
+          uebersprungen.length ? { wert: uebersprungen[uebersprungen.length - 1], hinweis: `${uebersprungen[uebersprungen.length - 1]} geht nicht auf – ${rest} ist selbst eine Primzahl.` } : null,
+          { wert: 1, hinweis: "Die 1 ist kein Primfaktor – sie zerlegt nichts." },
+        ]) });
       rest = 1;
     } else {
       faktoren.push(q);
-      schritte.push({ text: `${uebersprungen.length ? `${uebersprungen.join(", ")} ${uebersprungen.length === 1 ? "geht" : "gehen"} nicht auf – ` : ""}kleinster Teiler von ${rest}: ${q}.`, rechnung: `${rest} : ${q} = ${rest / q}` });
+      const naechstePrim = (m) => { let t = m + 1; while (!istPrim(t)) t++; return t; };
+      const kleinsterNichtPrim = [4, 6, 8, 9, 10].find((t) => t < q * q && rest % t === 0 && t > q) || null;
+      schritte.push({ text: `${uebersprungen.length ? `${uebersprungen.join(", ")} ${uebersprungen.length === 1 ? "geht" : "gehen"} nicht auf – ` : ""}kleinster Teiler von ${rest}: ${q}.`, rechnung: `${rest} : ${q} = ${rest / q}`,
+        ueben: ue(`Kleinster Primteiler von ${rest}?`, q, [
+          uebersprungen.length ? { wert: uebersprungen[uebersprungen.length - 1], hinweis: `${uebersprungen[uebersprungen.length - 1]} geht nicht auf: ${rest} : ${uebersprungen[uebersprungen.length - 1]} lässt einen Rest.` } : null,
+          { wert: naechstePrim(q), hinweis: `${q} geht schon auf: ${rest} : ${q} = ${rest / q}. Immer mit dem kleinsten Teiler anfangen.` },
+          kleinsterNichtPrim ? { wert: kleinsterNichtPrim, hinweis: `${kleinsterNichtPrim} ist keine Primzahl – spalte erst ${q} ab.` } : null,
+          { wert: 1, hinweis: "Die 1 ist kein Primfaktor – sie zerlegt nichts." },
+        ]) });
       rest /= q;
     }
   }
   const produkt = faktoren.join(` ${MAL} `);
   const pot = potenzForm(faktoren);
   const ergebnis = pot === produkt ? `${n} = ${produkt}` : `${n} = ${produkt} = ${pot}`;
-  schritte.push({ text: `Probe: Multipliziere alle Faktoren: ${produkt} = ${n}.` });
+  schritte.push({ text: `Probe: Multipliziere alle Faktoren: ${produkt} = ${n}.`,
+    ueben: pot === produkt ? null : ue(`Schreib die Zerlegung mit Potenzen: ${produkt} = ?`, pot, [
+      { wert: potenzForm(faktoren.slice(0, -1)), hinweis: `Der Faktor ${faktoren[faktoren.length - 1]} fehlt.` },
+      { wert: faktoren.map((f) => `${f}${hochZahl(faktoren.filter((x) => x === f).length)}`).filter((t, i, l) => l.indexOf(t) === i).join(` ${MAL} `), hinweis: "Ein Faktor, der nur einmal vorkommt, bekommt keinen Exponenten." },
+      { wert: produkt.replace(` ${MAL} `, " + "), hinweis: "Primfaktoren werden multipliziert, nicht addiert." },
+    ]) });
   return ok(ergebnis, schritte, { faktoren, prim: false });
 }
 
@@ -225,26 +335,41 @@ export function wegQuadrat(n) {
   const w = n * n;
   const rechnung = `${n}² = ${w}`;
   const schritte = [];
+  const endFalsch = (ohne) => [
+    ohne ? { wert: ohne.wert, hinweis: ohne.hinweis } : null,
+    { wert: w + 10, hinweis: `${n}² = ${w}.` },
+    { wert: w - 10, hinweis: `${n}² = ${w}.` },
+    { wert: 2 * n, hinweis: `${n}² heißt ${n} ${MAL} ${n}, nicht ${n} + ${n}.` },
+  ];
+  let ohne = null;
   if (n <= 10) {
     schritte.push({ text: `Das gehört zum Einmaleins: ${n} ${MAL} ${n} = ${w}.`, rechnung });
   } else if (n % 10 === 0) {
     const a = n / 10;
-    schritte.push({ text: `${n} = ${a} ${MAL} 10. Rechne ${a}² = ${a * a} und hänge zwei Nullen an.`, rechnung: `${a}² = ${a * a}  →  ${rechnung}` });
+    schritte.push({ text: `${n} = ${a} ${MAL} 10. Rechne ${a}² = ${a * a} und hänge zwei Nullen an.`, rechnung: `${a}² = ${a * a}  →  ${rechnung}`,
+      ueben: ue(`${n} = ${a} ${MAL} 10. Erst ${a}² = ?`, a * a, [{ wert: 2 * a, hinweis: `${a}² = ${a} ${MAL} ${a}, nicht ${a} + ${a}.` }, { wert: a * a + a, hinweis: `${a} ${MAL} ${a} = ${a * a}.` }, { wert: a * 10, hinweis: `Erst nur ${a}² ohne die Nullen.` }]) });
+    ohne = { wert: a * a * 10, hinweis: `${n} = ${a} ${MAL} 10, also ${n}² = ${a}² ${MAL} 100 – zwei Nullen anhängen.` };
   } else if (n % 10 === 5) {
     const k = (n - 5) / 10;
-    schritte.push({ text: `${n} endet auf 5. Rechne ${k} ${MAL} ${k + 1} = ${k * (k + 1)} und hänge 25 an.`, rechnung: `${k} ${MAL} ${k + 1} = ${k * (k + 1)}  →  ${rechnung}` });
+    schritte.push({ text: `${n} endet auf 5. Rechne ${k} ${MAL} ${k + 1} = ${k * (k + 1)} und hänge 25 an.`, rechnung: `${k} ${MAL} ${k + 1} = ${k * (k + 1)}  →  ${rechnung}`,
+      ueben: ue(`${n} endet auf 5. Erst ${k} ${MAL} ${k + 1} = ?`, k * (k + 1), [{ wert: k * k, hinweis: `Nicht ${k} ${MAL} ${k}: Bei der 5er-Regel nimmst du ${k} mal die nächste Zahl ${k + 1}.` }, { wert: (k + 1) * (k + 1), hinweis: `${k} ${MAL} ${k + 1}, nicht ${k + 1} ${MAL} ${k + 1}.` }, { wert: k * (k + 1) + 1, hinweis: `${k} ${MAL} ${k + 1} = ${k * (k + 1)}.` }]) });
+    ohne = { wert: k * (k + 1) * 100 + 5, hinweis: "Angehängt wird 25, nicht 5." };
   } else {
     const a = Math.floor(n / 10) * 10, b = n - a;
     if (b <= 5) {
       schritte.push({ text: `Zerlege ${n} = ${a} + ${b} und nutze (a + b)² = a² + 2ab + b².` });
-      schritte.push({ text: `${a}² = ${a * a}, 2 ${MAL} ${a} ${MAL} ${b} = ${2 * a * b}, ${b}² = ${b * b}.`, rechnung: `${n}² = ${a * a} + ${2 * a * b} + ${b * b} = ${w}` });
+      schritte.push({ text: `${a}² = ${a * a}, 2 ${MAL} ${a} ${MAL} ${b} = ${2 * a * b}, ${b}² = ${b * b}.`, rechnung: `${n}² = ${a * a} + ${2 * a * b} + ${b * b} = ${w}`,
+        ueben: ue(`Das mittlere Glied: 2 ${MAL} ${a} ${MAL} ${b} = ?`, 2 * a * b, [{ wert: a * b, hinweis: `Der Faktor 2 fehlt: 2ab = 2 ${MAL} ${a} ${MAL} ${b}.` }, { wert: 2 * (a + b), hinweis: `2ab ist ein Produkt: 2 ${MAL} ${a} ${MAL} ${b}, nicht 2 ${MAL} (${a} + ${b}).` }, { wert: 2 * a * b * 10, hinweis: `2 ${MAL} ${a} ${MAL} ${b} = ${2 * a * b}.` }]) });
+      ohne = { wert: a * a + b * b, hinweis: `Das gemischte Glied 2ab = ${2 * a * b} fehlt – (a + b)² ist nicht a² + b².` };
     } else {
       const c = 10 - b, a2 = a + 10;
       schritte.push({ text: `${n} ist nah an ${a2}: ${n} = ${a2} − ${c}. Nutze (a − b)² = a² − 2ab + b².` });
-      schritte.push({ text: `${a2}² = ${a2 * a2}, 2 ${MAL} ${a2} ${MAL} ${c} = ${2 * a2 * c}, ${c}² = ${c * c}.`, rechnung: `${n}² = ${a2 * a2} − ${2 * a2 * c} + ${c * c} = ${w}` });
+      schritte.push({ text: `${a2}² = ${a2 * a2}, 2 ${MAL} ${a2} ${MAL} ${c} = ${2 * a2 * c}, ${c}² = ${c * c}.`, rechnung: `${n}² = ${a2 * a2} − ${2 * a2 * c} + ${c * c} = ${w}`,
+        ueben: ue(`Das mittlere Glied: 2 ${MAL} ${a2} ${MAL} ${c} = ?`, 2 * a2 * c, [{ wert: a2 * c, hinweis: `Der Faktor 2 fehlt: 2ab = 2 ${MAL} ${a2} ${MAL} ${c}.` }, { wert: 2 * (a2 + c), hinweis: `2ab ist ein Produkt: 2 ${MAL} ${a2} ${MAL} ${c}.` }, { wert: 2 * a2 * c * 10, hinweis: `2 ${MAL} ${a2} ${MAL} ${c} = ${2 * a2 * c}.` }]) });
+      ohne = { wert: a2 * a2 - 2 * a2 * c - c * c, hinweis: `Das letzte Glied b² = ${c * c} wird addiert: (a − b)² = a² − 2ab + b².` };
     }
   }
-  schritte.push({ text: `Ergebnis: ${rechnung}.` });
+  schritte.push({ text: `Ergebnis: ${rechnung}.`, ueben: ue(`${n}² = ?`, w, endFalsch(ohne)) });
   return ok(String(w), schritte, { wert: w, rechnung });
 }
 
@@ -254,9 +379,10 @@ export function wegKubik(n) {
   const q = n * n, w = n * n * n;
   const rechnung = `${n}³ = ${w}`;
   if (n === 1) return ok("1", [{ text: "1 mal 1 mal 1 bleibt 1.", rechnung }], { wert: 1, rechnung });
-  const schritte = [{ text: `Erst das Quadrat: ${n}² = ${q}.` }];
+  const schritte = [{ text: `Erst das Quadrat: ${n}² = ${q}.`, ueben: ue(`Erst das Quadrat: ${n}² = ?`, q, [{ wert: 2 * n, hinweis: `${n}² = ${n} ${MAL} ${n}, nicht ${n} + ${n}.` }, { wert: q + n, hinweis: `${n} ${MAL} ${n} = ${q}.` }, { wert: 3 * n, hinweis: `${n}³ heißt ${n} ${MAL} ${n} ${MAL} ${n} – erst das Quadrat ${n} ${MAL} ${n}.` }]) }];
   const m = wegMultiplizieren(q, n);
-  schritte.push({ text: `Dann noch einmal mal ${n}: ${q} ${MAL} ${n} = ${w}.`, rechnung: `${n}³ = ${q} ${MAL} ${n} = ${w}` });
+  schritte.push({ text: `Dann noch einmal mal ${n}: ${q} ${MAL} ${n} = ${w}.`, rechnung: `${n}³ = ${q} ${MAL} ${n} = ${w}`,
+    ueben: ue(`Dann noch einmal mal ${n}: ${q} ${MAL} ${n} = ?`, w, [{ wert: q * 2, hinweis: `${q} ${MAL} ${n}, nicht ${q} ${MAL} 2.` }, { wert: q + n, hinweis: "Mal, nicht plus." }, { wert: w + q, hinweis: `${q} ${MAL} ${n} = ${w} – das wäre ${q} ${MAL} ${n + 1}.` }, { wert: w - q, hinweis: `${q} ${MAL} ${n} = ${w} – das wäre ${q} ${MAL} ${n - 1}.` }]) });
   if (m.ok && m.schritte.length > 2 && q > 10) schritte.push({ text: `So rechnest du ${q} ${MAL} ${n}: ${m.schritte.slice(0, -1).map((s) => s.text).join(" ")}` });
   return ok(String(w), schritte, { wert: w, rechnung });
 }
@@ -271,30 +397,54 @@ export function wegWurzel(N) {
     const u = Math.floor(Math.sqrt(N));
     const ca = Math.round(Math.sqrt(N) * 10) / 10;
     return ok(`√${N} ≈ ${String(ca).replace(".", ",")}`, [
-      { text: `${N} ist keine Quadratzahl: ${u}² = ${u * u} ist kleiner und ${u + 1}² = ${(u + 1) * (u + 1)} ist größer.` },
-      { text: `Die Wurzel liegt also zwischen ${u} und ${u + 1}, ungefähr bei ${String(ca).replace(".", ",")}.` },
+      { text: `${N} ist keine Quadratzahl: ${u}² = ${u * u} ist kleiner und ${u + 1}² = ${(u + 1) * (u + 1)} ist größer.`,
+        ueben: ue(`Zwischen welchen Quadratzahlen liegt ${N}?`, `${u * u} und ${(u + 1) * (u + 1)}`, [
+          { wert: `${(u - 1) * (u - 1)} und ${u * u}`, hinweis: `${u}² = ${u * u} ist kleiner als ${N} – die nächste Quadratzahl ${(u + 1)}² = ${(u + 1) * (u + 1)} ist die obere Grenze.` },
+          { wert: `${(u + 1) * (u + 1)} und ${(u + 2) * (u + 2)}`, hinweis: `${(u + 1)}² = ${(u + 1) * (u + 1)} ist schon größer als ${N}.` },
+        ]) },
+      { text: `Die Wurzel liegt also zwischen ${u} und ${u + 1}, ungefähr bei ${String(ca).replace(".", ",")}.`,
+        ueben: ue(`Zwischen welchen ganzen Zahlen liegt √${N}?`, `${u} und ${u + 1}`, [
+          { wert: `${u - 1} und ${u}`, hinweis: `${u}² = ${u * u} ist kleiner als ${N}, also ist √${N} größer als ${u}.` },
+          { wert: `${u + 1} und ${u + 2}`, hinweis: `${u + 1}² = ${(u + 1) * (u + 1)} ist größer als ${N}, also ist √${N} kleiner als ${u + 1}.` },
+          { wert: `${u * u} und ${(u + 1) * (u + 1)}`, hinweis: "Das sind die Quadratzahlen – gesucht sind ihre Wurzeln." },
+        ]) },
     ], { quadrat: false, wert: ca });
   }
   const schritte = [];
   if (N <= 100) {
-    schritte.push({ text: `Frage: Welche Zahl mit sich selbst malgenommen ergibt ${N}? Das kennst du aus den Quadratzahlen: ${r} ${MAL} ${r} = ${N}.`, rechnung: `√${N} = ${r}` });
+    schritte.push({ text: `Frage: Welche Zahl mit sich selbst malgenommen ergibt ${N}? Das kennst du aus den Quadratzahlen: ${r} ${MAL} ${r} = ${N}.`, rechnung: `√${N} = ${r}`,
+      ueben: ue(`Welche Zahl mal sich selbst ergibt ${N}? √${N} = ?`, r, [{ wert: r + 1, hinweis: `${r + 1}² = ${(r + 1) * (r + 1)}, nicht ${N}.` }, r > 1 ? { wert: r - 1, hinweis: `${r - 1}² = ${(r - 1) * (r - 1)}, nicht ${N}.` } : null, { wert: N / 2, hinweis: "Die Wurzel ist nicht die Hälfte: Gesucht ist die Zahl, die mal sich selbst die Zahl ergibt." }]) });
     return ok(String(r), schritte, { quadrat: true, wert: r });
   }
   const ende = N % 10, kand = KANDIDAT[ende];
   const vorne = Math.floor(N / 100);
   const z = Math.floor(Math.sqrt(vorne));
+  const paare = Object.values(KANDIDAT).map((k) => k.join(" oder "));
+  const kandText = kand.join(" oder ");
+  const endFalsch = paare.filter((t) => t !== kandText).map((t) => ({ wert: t, hinweis: `Die Wurzel endet auf ${kandText}: Nur ${kand.map((k) => `${k}² = ${k * k}`).join(" und ")} ${kand.length === 1 ? "endet" : "enden"} auf ${ende}.` }));
   if (kand.length === 1) {
-    schritte.push({ text: `Endziffer ${ende}: Die Wurzel endet auf ${kand[0]} (${kand[0]}² = ${kand[0] * kand[0]}).` });
+    schritte.push({ text: `Endziffer ${ende}: Die Wurzel endet auf ${kand[0]} (${kand[0]}² = ${kand[0] * kand[0]}).`, ueben: ue(`${N} endet auf ${ende}. Auf welche Ziffer endet die Wurzel?`, kandText, endFalsch) });
   } else {
-    schritte.push({ text: `Endziffer ${ende}: Die Wurzel endet auf ${kand[0]} oder ${kand[1]} (${kand[0]}² = ${kand[0] * kand[0]}, ${kand[1]}² = ${kand[1] * kand[1]}).` });
+    schritte.push({ text: `Endziffer ${ende}: Die Wurzel endet auf ${kand[0]} oder ${kand[1]} (${kand[0]}² = ${kand[0] * kand[0]}, ${kand[1]}² = ${kand[1] * kand[1]}).`, ueben: ue(`${N} endet auf ${ende}. Auf welche Ziffer endet die Wurzel?`, kandText, endFalsch) });
   }
-  schritte.push({ text: `Streiche die letzten zwei Ziffern: Es bleibt ${vorne}. Das liegt zwischen ${z * z} = ${z}² und ${(z + 1) * (z + 1)} = ${z + 1}². Die Wurzel beginnt also mit ${z}.` });
+  schritte.push({ text: `Streiche die letzten zwei Ziffern: Es bleibt ${vorne}. Das liegt zwischen ${z * z} = ${z}² und ${(z + 1) * (z + 1)} = ${z + 1}². Die Wurzel beginnt also mit ${z}.`,
+    ueben: ue(`Streiche die letzten zwei Ziffern: Es bleibt ${vorne}. Mit welcher Zehnerziffer beginnt die Wurzel?`, z, [
+      { wert: z + 1, hinweis: `${z + 1}² = ${(z + 1) * (z + 1)} ist schon größer als ${vorne}.` },
+      z > 1 ? { wert: z - 1, hinweis: `${z}² = ${z * z} passt noch in ${vorne} – also ${z}.` } : null,
+      { wert: vorne, hinweis: `Nicht ${vorne} selbst: Gesucht ist die Zahl, deren Quadrat gerade noch in ${vorne} passt.` },
+    ]) });
   if (kand.length === 2) {
     const mitte = 10 * z + 5;
     const kleiner = N < mitte * mitte;
-    schritte.push({ text: `Zwei Kandidaten: ${10 * z + kand[0]} und ${10 * z + kand[1]}. Teste die Mitte ${mitte}: ${z} ${MAL} ${z + 1} = ${z * (z + 1)}, dann 25 anhängen, also ${mitte}² = ${mitte * mitte}. ${N} ist ${kleiner ? "kleiner" : "größer"}, also gilt der ${kleiner ? "kleinere" : "größere"} Kandidat.` });
+    const andere = 10 * z + (kleiner ? kand[1] : kand[0]);
+    schritte.push({ text: `Zwei Kandidaten: ${10 * z + kand[0]} und ${10 * z + kand[1]}. Teste die Mitte ${mitte}: ${z} ${MAL} ${z + 1} = ${z * (z + 1)}, dann 25 anhängen, also ${mitte}² = ${mitte * mitte}. ${N} ist ${kleiner ? "kleiner" : "größer"}, also gilt der ${kleiner ? "kleinere" : "größere"} Kandidat.`,
+      ueben: ue(`Zwei Kandidaten: ${10 * z + kand[0]} und ${10 * z + kand[1]}. Die Mitte ${mitte}² = ${mitte * mitte}. Welcher Kandidat ist √${N}?`, r, [
+        { wert: andere, hinweis: `${N} ist ${kleiner ? "kleiner" : "größer"} als ${mitte}² = ${mitte * mitte}, also gilt der ${kleiner ? "kleinere" : "größere"} Kandidat ${r}.` },
+        { wert: mitte, hinweis: `${mitte}² = ${mitte * mitte} ist nicht ${N} – die Mitte ist nur der Test.` },
+      ]) });
   } else {
-    schritte.push({ text: `Es bleibt nur ein Kandidat: ${r}. Ein Mitte-Test ist nicht nötig.` });
+    schritte.push({ text: `Es bleibt nur ein Kandidat: ${r}. Ein Mitte-Test ist nicht nötig.`,
+      ueben: ue(`Zehner ${z}, Endziffer ${kand[0]}: √${N} = ?`, r, [{ wert: 10 * (z + 1) + kand[0], hinweis: `Die Wurzel beginnt mit ${z}, nicht ${z + 1}.` }, z > 1 ? { wert: 10 * (z - 1) + kand[0], hinweis: `Die Wurzel beginnt mit ${z}, nicht ${z - 1}.` } : null, { wert: 10 * kand[0] + z, hinweis: `Zehner ${z} vorn, Endziffer ${kand[0]} hinten: ${r}.` }]) });
   }
   schritte.push({ text: `Probe: ${r}² = ${N}.`, rechnung: `√${N} = ${r}` });
   return ok(String(r), schritte, { quadrat: true, wert: r });
@@ -322,16 +472,32 @@ export function wegDivision(a, b) {
       schritte.push({ text: `Hole die nächste Ziffer herunter: ${D[idx]}. Du hast jetzt ${cur}.` });
     }
     const qd = Math.floor(cur / b), prod = qd * b, neu = cur - prod;
+    const passt = (k) => ({ wert: k, hinweis: k > qd ? `${k} ${MAL} ${b} = ${k * b} ist größer als ${cur} – passt nicht mehr.` : `${k} ${MAL} ${b} = ${k * b}, aber ${b} passt noch einmal: ${(k + 1) * b} ≤ ${cur}.` });
     if (qd === 0) {
-      schritte.push({ text: `${b} passt in ${cur} kein Mal: schreibe 0 ins Ergebnis. Der Rest bleibt ${cur}.` });
+      schritte.push({ text: `${b} passt in ${cur} kein Mal: schreibe 0 ins Ergebnis. Der Rest bleibt ${cur}.`,
+        ueben: ue(`Wie oft passt ${b} in ${cur}?`, 0, [passt(1), { wert: cur, hinweis: `${cur} ist kleiner als ${b} – ${b} passt kein Mal, die 0 kommt ins Ergebnis.` }]) });
     } else {
-      schritte.push({ text: `Wie oft passt ${b} in ${cur}? ${qd}-mal. Schreibe ${qd} ins Ergebnis, rechne ${qd} ${MAL} ${b} = ${prod} und ziehe ab.`, rechnung: `${cur} − ${prod} = ${neu}` });
+      schritte.push({ text: `Wie oft passt ${b} in ${cur}? ${qd}-mal. Schreibe ${qd} ins Ergebnis, rechne ${qd} ${MAL} ${b} = ${prod} und ziehe ab.`, rechnung: `${cur} − ${prod} = ${neu}`,
+        ueben: ue(`Wie oft passt ${b} in ${cur}?`, qd, [passt(qd + 1), qd > 1 ? passt(qd - 1) : null, qd > 2 ? passt(qd - 2) : passt(qd + 2)]) });
+      schritte.push({ text: `Rest: ${cur} − ${prod} = ${neu}.`, ueben: ue(`${qd} ${MAL} ${b} = ${prod}. Was bleibt von ${cur} übrig?`, neu, [
+        { wert: neu + b, hinweis: `${cur} − ${prod} = ${neu}. Ein Rest von ${neu + b} wäre größer als der Teiler – dann passt ${b} noch einmal.` },
+        neu >= 1 ? { wert: neu - 1, hinweis: `${cur} − ${prod} = ${neu}.` } : null,
+        { wert: neu + 1, hinweis: `${cur} − ${prod} = ${neu}.` },
+        { wert: cur - qd, hinweis: `Abgezogen wird ${qd} ${MAL} ${b} = ${prod}, nicht nur ${qd}.` },
+      ]) });
     }
     cur = neu;
     idx++;
   }
   schritte.push({ text: r ? `Die Ziffern sind aufgebraucht. Es bleibt Rest ${r}.` : `Die Ziffern sind aufgebraucht und es bleibt kein Rest: Die Aufgabe geht auf.` });
-  schritte.push({ text: `Probe: ${q} ${MAL} ${b}${r ? ` + ${r}` : ""} = ${a}.`, rechnung: ergebnis });
+  const ergText = (qq, rr) => (rr ? `${qq} Rest ${rr}` : String(qq));
+  schritte.push({ text: `Probe: ${q} ${MAL} ${b}${r ? ` + ${r}` : ""} = ${a}.`, rechnung: ergebnis,
+    ueben: ue(`Lies das Ergebnis ab: ${a} : ${b} = ?`, ergText(q, r), [
+      { wert: ergText(q + 1, r), hinweis: `Probe: ${q + 1} ${MAL} ${b}${r ? ` + ${r}` : ""} = ${(q + 1) * b + r}, nicht ${a}.` },
+      q > 0 ? { wert: ergText(q - 1, r), hinweis: `Probe: ${q - 1} ${MAL} ${b}${r ? ` + ${r}` : ""} = ${(q - 1) * b + r}, nicht ${a}.` } : null,
+      r ? { wert: String(q), hinweis: `Der Rest ${r} gehört dazu: ${q} ${MAL} ${b} = ${q * b}, bis ${a} fehlen ${r}.` } : { wert: `${q} Rest ${b - 1}`, hinweis: `Die Aufgabe geht auf: ${q} ${MAL} ${b} = ${a}, kein Rest.` },
+      q >= 10 ? { wert: ergText(Number(String(q).slice(0, -1) + "0") === q ? q + 10 : Number(String(q).replace(/0(?=\d*$)/, "") || q), r), hinweis: "Eine Null im Ergebnis fehlt oder ist zu viel – jede heruntergeholte Ziffer ergibt eine Ergebnisziffer." } : null,
+    ]) });
   return ok(ergebnis, schritte, { quotient: q, rest: r, rechnung: ergebnis });
 }
 
@@ -347,7 +513,14 @@ export function wegBruch(art, z1, n1, z2 = 1, n2 = 1) {
   const abschluss = (z, n, schon = false) => {
     const g = ggT(z, n) || 1;
     if (g > 1 && z > 0) {
-      schritte.push({ text: `Kürze vollständig: ggT von ${z} und ${n} ist ${g}. Teile Zähler und Nenner durch ${g}.`, rechnung: `${bruchText(z, n)} = ${bruchText(z / g, n / g)}` });
+      const teiler = [2, 3, 5, 7].find((t) => g % t === 0 && t < g) || null;
+      schritte.push({ text: `Kürze vollständig: ggT von ${z} und ${n} ist ${g}. Teile Zähler und Nenner durch ${g}.`, rechnung: `${bruchText(z, n)} = ${bruchText(z / g, n / g)}`,
+        ueben: ue(`Kürze ${bruchText(z, n)} vollständig.`, bruchText(z / g, n / g), [
+          teiler ? { wert: bruchText(z / teiler, n / teiler), hinweis: `Nur durch ${teiler} gekürzt – ${z / teiler} und ${n / teiler} haben noch den gemeinsamen Teiler ${g / teiler}.` } : null,
+          { wert: bruchText(z, n), hinweis: `Zähler und Nenner haben den gemeinsamen Teiler ${g} – da geht noch etwas.` },
+          { wert: bruchText(z / g, n), hinweis: "Kürzen heißt: Zähler UND Nenner durch dieselbe Zahl teilen." },
+          { wert: bruchText(z, n / g), hinweis: "Kürzen heißt: Zähler UND Nenner durch dieselbe Zahl teilen." },
+        ]) });
       z /= g; n /= g;
     } else if (!schon && z > 0) {
       schritte.push({ text: `Prüfe das Kürzen: Zähler und Nenner haben keinen gemeinsamen Teiler außer 1. Das Ergebnis ist vollständig gekürzt.` });
@@ -374,13 +547,30 @@ export function wegBruch(art, z1, n1, z2 = 1, n2 = 1) {
     } else {
       H = kgV(n1, n2);
       const f1 = H / n1, f2 = H / n2;
-      schritte.push({ text: `Die Nenner sind verschieden. Der Hauptnenner ist das kleinste gemeinsame Vielfache von ${n1} und ${n2}: ${H}.` });
+      schritte.push({ text: `Die Nenner sind verschieden. Der Hauptnenner ist das kleinste gemeinsame Vielfache von ${n1} und ${n2}: ${H}.`,
+        ueben: ue(`Hauptnenner von ${n1} und ${n2}?`, H, [
+          n1 * n2 !== H ? { wert: n1 * n2, hinweis: `${n1} ${MAL} ${n2} = ${n1 * n2} geht auch, ist aber nicht das kleinste gemeinsame Vielfache – das ist ${H}.` } : null,
+          { wert: n1 + n2, hinweis: "Nenner werden nicht addiert – gesucht ist ein gemeinsames Vielfaches." },
+          { wert: Math.max(n1, n2), hinweis: `${Math.max(n1, n2)} ist kein Vielfaches von ${Math.min(n1, n2)}.` },
+          { wert: H * 2, hinweis: `${H} ist schon ein gemeinsames Vielfaches – das kleinste zählt.` },
+        ]) });
       a = z1 * f1; b = z2 * f2;
-      schritte.push({ text: `Erweitere: ${n1} ${MAL} ${f1} = ${H} und ${n2} ${MAL} ${f2} = ${H}. Den Zähler multiplizierst du mit demselben Faktor.`, rechnung: `${bruchText(z1, n1)} ${op} ${bruchText(z2, n2)} = ${bruchText(a, H)} ${op} ${bruchText(b, H)}` });
+      schritte.push({ text: `Erweitere: ${n1} ${MAL} ${f1} = ${H} und ${n2} ${MAL} ${f2} = ${H}. Den Zähler multiplizierst du mit demselben Faktor.`, rechnung: `${bruchText(z1, n1)} ${op} ${bruchText(z2, n2)} = ${bruchText(a, H)} ${op} ${bruchText(b, H)}`,
+        ueben: ue(`Erweitere beide Brüche auf den Nenner ${H}.`, `${bruchText(a, H)} ${op} ${bruchText(b, H)}`, [
+          { wert: `${bruchText(z1, H)} ${op} ${bruchText(z2, H)}`, hinweis: "Beim Erweitern wird auch der Zähler mit dem Faktor multipliziert – sonst ändert sich der Wert des Bruchs." },
+          { wert: `${bruchText(z1 * f2, H)} ${op} ${bruchText(z2 * f1, H)}`, hinweis: `Die Faktoren sind vertauscht: ${bruchText(z1, n1)} wird mit ${f1} erweitert, ${bruchText(z2, n2)} mit ${f2}.` },
+          { wert: `${bruchText(z1 + f1, H)} ${op} ${bruchText(z2 + f2, H)}`, hinweis: "Erweitern heißt multiplizieren, nicht addieren." },
+        ]) });
     }
     if (art === "minus" && b > a) return nein("Das Ergebnis wäre negativ – tausche die beiden Brüche.");
     const z = art === "plus" ? a + b : a - b;
-    schritte.push({ text: `${art === "plus" ? "Addiere" : "Subtrahiere"} die Zähler, der Nenner bleibt ${H}: ${a} ${op} ${b} = ${z}.`, rechnung: `${bruchText(a, H)} ${op} ${bruchText(b, H)} = ${bruchText(z, H)}` });
+    schritte.push({ text: `${art === "plus" ? "Addiere" : "Subtrahiere"} die Zähler, der Nenner bleibt ${H}: ${a} ${op} ${b} = ${z}.`, rechnung: `${bruchText(a, H)} ${op} ${bruchText(b, H)} = ${bruchText(z, H)}`,
+      ueben: ue(`${bruchText(a, H)} ${op} ${bruchText(b, H)} = ?`, bruchText(z, H), [
+        { wert: bruchText(z, 2 * H), hinweis: "Der Nenner bleibt – nur die Zähler werden verrechnet." },
+        n1 !== n2 ? { wert: bruchText(art === "plus" ? z1 + z2 : z1 - z2, n1 + n2), hinweis: "Zähler und Nenner getrennt zu verrechnen ist falsch – erst auf einen Nenner bringen." } : null,
+        { wert: bruchText(z + 1, H), hinweis: `${a} ${op} ${b} = ${z}.` },
+        z > 1 ? { wert: bruchText(z - 1, H), hinweis: `${a} ${op} ${b} = ${z}.` } : null,
+      ]) });
     const r = abschluss(z, H);
     return ok(r.text, schritte, { z: r.z, n: r.n, gemischt: r.gemischt });
   }
@@ -390,7 +580,12 @@ export function wegBruch(art, z1, n1, z2 = 1, n2 = 1) {
     if (art === "geteilt") {
       if (z2 === 0) return nein("Durch 0 kannst du nicht teilen.");
       if (z1 === 0) return ok("0", [{ text: `Null geteilt durch eine Zahl, die nicht 0 ist, ergibt 0.`, rechnung: `0 : ${bruchText(z2, n2)} = 0` }], { z: 0, n: 1 });
-      schritte.push({ text: `Teilen durch einen Bruch heißt: mal den Kehrwert. Vertausche Zähler und Nenner des zweiten Bruchs.`, rechnung: `${bruchText(z1, n1)} : ${bruchText(z2, n2)} = ${bruchText(z1, n1)} ${MAL} ${bruchText(n2, z2)}` });
+      schritte.push({ text: `Teilen durch einen Bruch heißt: mal den Kehrwert. Vertausche Zähler und Nenner des zweiten Bruchs.`, rechnung: `${bruchText(z1, n1)} : ${bruchText(z2, n2)} = ${bruchText(z1, n1)} ${MAL} ${bruchText(n2, z2)}`,
+        ueben: ue(`Teilen durch einen Bruch: Wie schreibst du ${bruchText(z1, n1)} : ${bruchText(z2, n2)} als Malaufgabe?`, `${bruchText(z1, n1)} ${MAL} ${bruchText(n2, z2)}`, [
+          { wert: `${bruchText(n1, z1)} ${MAL} ${bruchText(z2, n2)}`, hinweis: "Gestürzt wird der zweite Bruch (der Teiler), nicht der erste." },
+          { wert: `${bruchText(z1, n1)} ${MAL} ${bruchText(z2, n2)}`, hinweis: "Beim Teilen wird der zweite Bruch gestürzt: mal den Kehrwert." },
+          { wert: `${bruchText(n1, z1)} ${MAL} ${bruchText(n2, z2)}`, hinweis: "Nur der zweite Bruch wird gestürzt." },
+        ]) });
       zz2 = n2; nn2 = z2;
     }
     if (z1 === 0) return ok("0", [...schritte, { text: `Null mal etwas ist 0.` }], { z: 0, n: 1 });
@@ -400,12 +595,23 @@ export function wegBruch(art, z1, n1, z2 = 1, n2 = 1) {
       const teile = [];
       if (g1 > 1) { teile.push(`${a} und ${d} durch ${g1}`); a /= g1; d /= g1; }
       if (g2 > 1) { teile.push(`${b} und ${c} durch ${g2}`); b /= g2; c /= g2; }
-      schritte.push({ text: `Kürze vor dem Multiplizieren über Kreuz: ${teile.join(" und ")}. Das macht die Zahlen klein.`, rechnung: `${bruchText(a, c)} ${MAL} ${bruchText(b, d)}` });
+      schritte.push({ text: `Kürze vor dem Multiplizieren über Kreuz: ${teile.join(" und ")}. Das macht die Zahlen klein.`, rechnung: `${bruchText(a, c)} ${MAL} ${bruchText(b, d)}`,
+        ueben: ue(`Kürze über Kreuz: ${bruchText(z1, n1)} ${MAL} ${bruchText(zz2, nn2)} = ?`, `${bruchText(a, c)} ${MAL} ${bruchText(b, d)}`, [
+          g1 > 1 && g2 > 1 ? { wert: `${bruchText(a, n1)} ${MAL} ${bruchText(zz2, d)}`, hinweis: `Nur ${z1} und ${nn2} gekürzt – auch ${zz2} und ${n1} haben den gemeinsamen Teiler ${g2}.` } : null,
+          g1 > 1 ? { wert: `${bruchText(a, n1 / g1)} ${MAL} ${bruchText(zz2, nn2)}`, hinweis: `Über Kreuz heißt: Zähler des einen mit dem Nenner des anderen – ${z1} mit ${nn2}, nicht mit ${n1}.` } : null,
+          g2 > 1 ? { wert: `${bruchText(z1, n1)} ${MAL} ${bruchText(b, nn2 / g2)}`, hinweis: `Über Kreuz heißt: ${zz2} mit ${n1} kürzen, nicht mit ${nn2}.` } : null,
+        ]) });
     } else {
       schritte.push({ text: `Prüfe zuerst, ob du über Kreuz kürzen kannst: Hier geht es nicht.` });
     }
     const z = a * b, n = c * d;
-    schritte.push({ text: `Multipliziere Zähler mit Zähler und Nenner mit Nenner: ${a} ${MAL} ${b} = ${z} und ${c} ${MAL} ${d} = ${n}.`, rechnung: `${bruchText(a, c)} ${MAL} ${bruchText(b, d)} = ${bruchText(z, n)}` });
+    schritte.push({ text: `Multipliziere Zähler mit Zähler und Nenner mit Nenner: ${a} ${MAL} ${b} = ${z} und ${c} ${MAL} ${d} = ${n}.`, rechnung: `${bruchText(a, c)} ${MAL} ${bruchText(b, d)} = ${bruchText(z, n)}`,
+      ueben: ue(`${bruchText(a, c)} ${MAL} ${bruchText(b, d)} = ?`, bruchText(z, n), [
+        { wert: bruchText(a * d + b * c, c * d), hinweis: "Das wäre die Addition. Beim Multiplizieren: Zähler mal Zähler, Nenner mal Nenner." },
+        c === d ? { wert: bruchText(z, c), hinweis: `Auch die Nenner werden multipliziert: ${c} ${MAL} ${d} = ${n}.` } : null,
+        { wert: bruchText(a * b, c + d), hinweis: "Nenner mal Nenner, nicht plus." },
+        { wert: bruchText(a + b, c * d), hinweis: "Zähler mal Zähler, nicht plus." },
+      ]) });
     const r = abschluss(z, n, true);
     return ok(r.text, schritte, { z: r.z, n: r.n, gemischt: r.gemischt });
   }
