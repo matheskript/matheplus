@@ -3,10 +3,11 @@
    Kombination aus Ableitungstrainer und Polynomplotter:
    · Menü oben: Aufgabentyp (Stammfunktion, durch einen Punkt, bestimmtes
      Integral, Fläche mit der x-Achse, zwischen zwei Graphen, Bestand und
-     Änderungsrate), Automatik | Training, Stufe, Würfel
-   · Links der Rechenweg als Zeitleiste – im Training Schritt für Schritt
+     Änderungsrate), Modus Auto | Üben | Lernen (UEBEN_MODI), Stufe, Würfel
+   · Links der Rechenweg als Zeitleiste – in Lernen Schritt für Schritt
      selbst rechnen (Tastenfeld, Prüfung, gezielte Hinweise, Lösung zeigen),
-     in der Automatik steht alles da
+     in Üben je Schritt die richtige Antwort aus 2–4 goldenen Karten wählen
+     (integralUeben.js, funcUebenWahl.jsx), in Auto steht alles da
    · Rechts das Schaubild: Jeder gelöste Schritt erscheint dort – F unten,
      F(a) und F(b) als Punkte, am Ende wächst die Fläche (funcIntegralBild.jsx)
    Handy: Menü, Aufgabe, Rechenweg direkt darunter. Das Bild zeigt sich beim
@@ -31,6 +32,10 @@ import { BestandAenderungsrate } from "./funcIntegraleNeu.jsx";
 import { springe } from "./sprung.js";
 import { IntegralBild } from "./funcIntegralBild.jsx";
 import { TYPEN, eigeneAufgabe, hilfeKontext, neueAufgabe, typVon } from "./integralKern.js";
+import { uebenWeg } from "./integralUeben.js";
+import { UEBEN_MODI as MODI, aufAnhieb, modusNeu } from "./uebenKern.js";
+import { UEBEN_CSS, UebenFertig, UebenWahl } from "./funcUebenWahl.jsx";
+import { MitWurzeln } from "./wurzelZeichen.jsx";
 
 const SPEICHER = "matheplus-integraltrainer";
 const blau = `linear-gradient(155deg, ${C.see} 0%, ${C.seeTief} 100%)`;
@@ -96,18 +101,41 @@ function ZahlEingabe({ label, ueber, wert, setWert, onOk, status, anzahl, werte,
   );
 }
 
+/* Frage eines Üben-Schritts im Fließtext (Formeln zwischen $ … $), ohne eigenen Absatz */
+function FrageInline({ s }) {
+  return <span className="it-frage-inline">{String(s || "").split("$").map((t, i) => (i % 2 ? <M key={i} t={t} /> : <MitWurzeln key={i} text={t} />))}</span>;
+}
+
+/* Üben: das goldene Zielfeld des offenen Schritts („F(x) = ?“) und darunter die Karten */
+function UebenSchritt({ s, labelTex, ueben }) {
+  const label = s.art === "zahlen" ? `${Array.from({ length: s.anzahl || 1 }, (_, i) => `x_{${i + 1}}`).join(",\\; ")} =` : labelTex;
+  return (
+    <div className="it-ueben" data-integral-ueben-schritt={s.id}>
+      <div className="it-ziel uw-ziel" data-ueben-ziel>
+        <span className="it-ziel-label"><M t={label} /></span>
+        <span className="uw-platz" aria-label="hier kommt deine Wahl hin">?</span>
+        {s.plusC && <span className="it-ziel-c">+ C</span>}
+      </div>
+      <UebenWahl schritt={ueben.schritt} nr={ueben.nr} gesamt={ueben.gesamt} frage={<FrageInline s={ueben.schritt.frage} />} falsch={ueben.falsch} onWahl={ueben.onWahl}
+        inhalt={(w) => <M t={w.tex} />} />
+    </div>
+  );
+}
+
 /* ---------- Ein Schritt in der Zeitleiste ---------- */
 /* Handy: Schaubild nach oben holen (nur auf Knopfdruck, Sprung-Schalter „integral-bild“) */
 const bildOben = () => { const el = document.querySelector(".it-bild"); return el ? Math.max(0, el.getBoundingClientRect().top + window.scrollY - 52) : null; };
 const zumBild = () => { const y = bildOben(); if (y !== null) springe("integral-bild", () => window.scrollTo({ top: y, behavior: "smooth" })); };
 
-function Schritt({ nr, s, zustand, st, training, offen, setOffen, aendern, pruefen, zeigen, fokusSetzen, letzter, imBild }) {
+/* training = der Schüler arbeitet selbst (Lernen oder Üben); ueben = Karten statt Eingabefeld für den offenen Schritt */
+function Schritt({ nr, s, zustand, st, training, ueben, offen, setOffen, aendern, pruefen, zeigen, fokusSetzen, letzter, imBild }) {
   const [infoAuf, setInfoAuf] = useState(false);
   const fertig = zustand === "fertig";
   const aktiv = zustand === "aktiv";
   const zeigeRechnung = !training || fertig || s.art === "info";
   const status = st ? st.status : null;
   const labelTex = (s.label || "").replace(/_(\d)/, "_{$1}");
+  const eingabe = training && aktiv && !ueben;
   return (
     <li className="it-schritt" data-zustand={zustand} onMouseEnter={() => fokusSetzen(s.fokus)} onMouseLeave={() => fokusSetzen(null)}
       onFocus={() => fokusSetzen(s.fokus)}>
@@ -129,7 +157,8 @@ function Schritt({ nr, s, zustand, st, training, offen, setOffen, aendern, pruef
         )}
         {zustand === "gesperrt" && <p className="it-gesperrt">kommt nach dem vorigen Schritt</p>}
 
-        {training && aktiv && s.art === "term" && (
+        {ueben && aktiv && <UebenSchritt s={s} labelTex={labelTex} ueben={ueben} />}
+        {eingabe && s.art === "term" && (
           <div style={{ marginTop: 10 }}>
             <Feld label={s.label} labelFarbe={C.see} text={st.text} aktiv={offen} status={status} onClick={() => { if (!offen) aendern({ pos: st.text.length }); setOffen(!offen); }}
               pos={st.pos} setPos={(p) => aendern({ pos: p })} platzhalter={s.platzhalter || "hier eingeben …"}
@@ -143,7 +172,7 @@ function Schritt({ nr, s, zustand, st, training, offen, setOffen, aendern, pruef
             )}
           </div>
         )}
-        {training && aktiv && (s.art === "zahl" || s.art === "zahlen") && (
+        {eingabe && (s.art === "zahl" || s.art === "zahlen") && (
           <div style={{ marginTop: 10 }}>
             <ZahlEingabe label={labelTex} ueber={s.ueber} wert={st.text} setWert={(t) => aendern({ text: t, status: null, hinweis: "" })} onOk={pruefen} status={status}
               anzahl={s.art === "zahlen" ? s.anzahl : 0} werte={st.werte} setWerte={(w) => aendern({ werte: w, status: null, hinweis: "" })} />
@@ -225,7 +254,8 @@ export function IntegralTrainer() {
   const startTyp = start && start.aufgabe ? "bestimmt" : wunsch && MENUE.some((m) => m.id === wunsch.art) ? wunsch.art : MENUE.some((m) => m.id === gemerkt.typ) ? gemerkt.typ : "bestimmt";
   const [typ, setTyp] = useState(startTyp);
   const [stufen, setStufen] = useState(() => gemerkt.stufen || {});
-  const [modus, setModus] = useState(() => (wunsch && (wunsch.modus === "auto" || wunsch.modus === "training") ? wunsch.modus : gemerkt.modus === "auto" ? "auto" : "training"));
+  // auto | ueben | lernen – alte Werte (training, rechnen) aus Übergaben und Speicher über modusNeu; vorgewählt Lernen
+  const [modus, setModus] = useState(() => (wunsch && wunsch.modus ? modusNeu(wunsch.modus, modusNeu(gemerkt.modus)) : modusNeu(gemerkt.modus)));
   const [eigen, setEigen] = useState(() => (start && start.aufgabe ? { f: start.f, a: start.a, b: start.b } : null));
   const [eigenOffen, setEigenOffen] = useState(false);
   const stufe = stufen[typ] || 1;
@@ -235,6 +265,10 @@ export function IntegralTrainer() {
   const [offen, setOffen] = useState(false);
   const [hover, setHover] = useState(null);
   const [bilanz, setBilanz] = useState({ richtig: 0, gesamt: 0 });
+  // Üben: Runde (neue Fehlerwahl), erreichter Schritt, je Schritt die falsch gewählten Karten
+  const [uebenRunde, setUebenRunde] = useState(0);
+  const [uebenStand, setUebenStand] = useState(0);
+  const [uebenFalsch, setUebenFalsch] = useState({});
   /* Handy: Bild einklappbar; beim ersten Öffnen kurz zeigen, dann zu */
   const [bildAuf, setBildAuf] = useState(true);
   const bildUhr = useRef(null);
@@ -251,7 +285,9 @@ export function IntegralTrainer() {
 
   useEffect(() => { schreiben({ typ, stufen, modus }); }, [typ, stufen, modus]);
 
-  const training = modus === "training";
+  const training = modus === "lernen";       // der Schüler tippt jede Antwort selbst
+  const ueben = modus === "ueben";           // der Schüler wählt je Schritt die richtige Antwort
+  const selbst = training || ueben;          // Zeitleiste öffnet sich Schritt für Schritt, Bild zeigt nur Gelöstes
 
   /* Seitenposition festhalten, wenn sich oben etwas ändert (kein Springen) */
   const festhalten = (fn) => {
@@ -261,39 +297,65 @@ export function IntegralTrainer() {
     requestAnimationFrame(() => { zurueck(); requestAnimationFrame(zurueck); });
     setTimeout(zurueck, 80);
   };
-  const setze = (a) => { setAufgabe(a); setStand({}); setOffen(false); setHover(null); setNr((n) => n + 1); };
+  const uebenNeu = () => { setUebenRunde((r) => r + 1); setUebenStand(0); setUebenFalsch({}); };
+  const setze = (a) => { setAufgabe(a); setStand({}); setOffen(false); setHover(null); setNr((n) => n + 1); uebenNeu(); };
   const neu = (t = typ, st = stufe) => { if (t === "bestand") { setAufgabe(null); return; } setEigen(null); setMeldung(""); setze(neueAufgabe(t, st)); };
   const waehleTyp = (id) => festhalten(() => { setTyp(id); setEigenOffen(false); neu(id, stufen[id] || 1); });
   const waehleStufe = (st) => festhalten(() => {
     if (st === "eigen") { setEigenOffen(true); return; }
     setStufen((s) => ({ ...s, [typ]: st })); setEigenOffen(false); neu(typ, st);
   });
-  const waehleModus = (m) => festhalten(() => { setModus(m); setStand({}); setOffen(false); });
+  const waehleModus = (m) => festhalten(() => { setModus(m); setStand({}); setOffen(false); uebenNeu(); });
 
   const schritte = aufgabe && !aufgabe.fehler ? aufgabe.schritte : [];
-  const erledigt = (s) => s.art === "info" || fertigStatus(stand[s.id] && stand[s.id].status);
-  const aktivIndex = training ? schritte.findIndex((s) => !erledigt(s)) : -1;
-  const alleFertig = training ? aktivIndex === -1 : true;
+  /* Üben: je Wahl-Schritt die richtige Antwort und bis zu drei falsche (integralUeben.js); neu je Aufgabe und Runde */
+  const uebenSchritte = useMemo(() => uebenWeg(aufgabe), [aufgabe, uebenRunde]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const nUeben = uebenSchritte.length;
+  const uebenGeloest = useMemo(() => new Set(uebenSchritte.slice(0, uebenStand).map((u) => u.id)), [uebenSchritte, uebenStand]);
+  const erledigt = (s) => s.art === "info" || (ueben ? uebenGeloest.has(s.id) : fertigStatus(stand[s.id] && stand[s.id].status));
+  const aktivIndex = selbst ? schritte.findIndex((s) => !erledigt(s)) : -1;
+  const alleFertig = selbst ? aktivIndex === -1 : true;
   const aktivSchritt = aktivIndex >= 0 ? schritte[aktivIndex] : null;
   const zustandVon = (i) => {
-    if (!training) return "fertig";
+    if (!selbst) return "fertig";
     if (aktivIndex === -1 || i < aktivIndex) return "fertig";
     if (i === aktivIndex) return "aktiv";
     // Info-Schritte direkt nach dem aktiven bleiben zu
     return "gesperrt";
   };
 
-  /* Was das Bild schon zeigen darf */
+  /* Was das Bild schon zeigen darf – in Üben wie in Lernen nur Gelöstes */
   const sicht = useMemo(() => {
     if (!aufgabe || aufgabe.fehler) return {};
-    const da = (id) => !training || (() => { const i = schritte.findIndex((s) => s.id === id); return i >= 0 && (aktivIndex === -1 || i < aktivIndex); })();
+    const da = (id) => !selbst || (() => { const i = schritte.findIndex((s) => s.id === id); return i >= 0 && (aktivIndex === -1 || i < aktivIndex); })();
     const teile = (aufgabe.bild.teile || []).map((_, i) => da(`I${i + 1}`));
     return {
       F: da("F"), Fb: da("Fb"), Fa: da("Fa"), I: da("I"), null: da("null"), teile, A: da("A"), d: da("d"),
       schar: da("F"), punkt: true, kurve: da("C"),
     };
-  }, [aufgabe, stand, training]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [aufgabe, stand, selbst, ueben, uebenGeloest]); // eslint-disable-line react-hooks/exhaustive-deps
   const fokus = hover || (aktivSchritt ? aktivSchritt.fokus : null);
+
+  /* Üben: Karte gewählt – falsch → merken (Karte wird rot, Hinweis), richtig → nächster Schritt; am Ende einmal buchen */
+  const uebenFertig = ueben && nUeben > 0 && uebenStand >= nUeben;
+  const uebenAnhieb = aufAnhieb(uebenFalsch, Math.min(uebenStand, nUeben));
+  const uebenWaehle = (o) => {
+    const sch = uebenSchritte[uebenStand];
+    if (!sch) return;
+    const schon = uebenFalsch[uebenStand] || [];
+    if (!o.richtig) { if (!schon.includes(o.key)) setUebenFalsch({ ...uebenFalsch, [uebenStand]: [...schon, o.key] }); return; }
+    const neuStand = uebenStand + 1;
+    setUebenStand(neuStand);
+    if (neuStand === nUeben) {
+      const anhieb = aufAnhieb(uebenFalsch, nUeben);
+      buchen({ richtig: anhieb === nUeben, gruppe: "integral-ueben", stufe: aufgabe.stufe || null, art: aufgabe.typ });
+    }
+  };
+  // Nach dem Üben dieselbe Aufgabe in Lernen selbst rechnen
+  const zuLernen = () => festhalten(() => { setStand({}); setOffen(false); setModus("lernen"); });
+  const uebenFuer = (s, i) => (ueben && i === aktivIndex && uebenSchritte[uebenStand] && uebenSchritte[uebenStand].id === s.id
+    ? { schritt: uebenSchritte[uebenStand], nr: uebenStand + 1, gesamt: nUeben, falsch: uebenFalsch[uebenStand] || [], onWahl: uebenWaehle } : null);
+  const stUeben = (s) => ({ ...leer(), status: uebenGeloest.has(s.id) ? "richtig" : null });
 
   /* Eingaben */
   const st = (id) => stand[id] || leer();
@@ -332,10 +394,11 @@ export function IntegralTrainer() {
     <div className="it-kopf">
       <div className="it-links">
         <div className="abl-seg" role="group" aria-label="Modus">
-          {[["auto", "Rechnen"], ["training", "Trainieren"]].map(([id, name]) => (
-            <button key={id} type="button" aria-pressed={modus === id} disabled={typ === "bestand"} onClick={() => waehleModus(id)}>{name}</button>
+          {MODI.map((m) => (
+            <button key={m.id} type="button" aria-pressed={modus === m.id} title={m.text} disabled={typ === "bestand"} onClick={() => waehleModus(m.id)}>{m.name}</button>
           ))}
         </div>
+        <p className="it-modus-text" data-integral-modus-text>{MODI.find((m) => m.id === modus).text}</p>
         <div className="abl-reihe">
           <PopupWahl className={`abl-stufe${typ === "bestand" ? " aus" : ""}`} wert={eigen && aufgabe && aufgabe.eigen ? "eigen" : stufe} label="Stufe wählen" optionen={stufenOptionen}
             kopf={() => stufeKopf} onWaehle={waehleStufe} />
@@ -404,25 +467,37 @@ export function IntegralTrainer() {
     </div>
   );
 
+  const ergebnisWert = aufgabe && !aufgabe.fehler && (
+    <div className="it-ergebnis-wert">
+      {aufgabe.typ === "bestimmt" && kopf.int
+        ? <M t={`\\int_{${kopf.int.a}}^{${kopf.int.b}} ${kopf.int.inner}\\,dx ${/^≈/.test(aufgabe.ergebnis.tex) ? "" : "= "}${aufgabe.ergebnis.tex}`} />
+        : aufgabe.typ === "flaeche" || aufgabe.typ === "zwei" ? <M t={`A = ${aufgabe.ergebnis.tex}`} /> : <M t={aufgabe.ergebnis.tex} />}
+      {aufgabe.ergebnis.naeherung && <span className="it-naeh"><M t={`≈ ${aufgabe.ergebnis.naeherung}`} /></span>}
+      {aufgabe.ergebnis.einheit && <span className="it-naeh">FE</span>}
+    </div>
+  );
+
   const rechenweg = aufgabe && !aufgabe.fehler && (
-    <div className="it-weg">
+    <div className="it-weg" data-integral-ueben-weg={ueben ? "ja" : undefined}>
       <ol className="it-liste">
         {schritte.map((s, i) => (
-          <Schritt key={`${nr}-${s.id}`} nr={i + 1} s={s} zustand={zustandVon(i)} st={st(s.id)} training={training}
+          <Schritt key={`${nr}-${s.id}`} nr={i + 1} s={s} zustand={zustandVon(i)} st={ueben ? stUeben(s) : st(s.id)} training={selbst} ueben={uebenFuer(s, i)}
             offen={offen && aktivIndex === i} setOffen={setOffen} aendern={aendern(s.id)} pruefen={pruefen(s)} zeigen={zeigen(s)}
-            fokusSetzen={(f) => { if (!training) setHover(f); }} letzter={i === schritte.length - 1} imBild={imBild} />
+            fokusSetzen={(f) => { if (!selbst) setHover(f); }} letzter={i === schritte.length - 1} imBild={imBild} />
         ))}
       </ol>
-      {alleFertig && (
+      {uebenFertig && (
+        <div className="it-ergebnis">
+          <UebenFertig anhieb={uebenAnhieb} gesamt={nUeben} onLernen={zuLernen} onNeu={() => festhalten(() => (aufgabe.eigen ? setEigenOffen(true) : neu()))}
+            neuText={aufgabe.eigen ? "Andere Funktion" : "Neue Aufgabe"}>
+            {ergebnisWert}
+          </UebenFertig>
+        </div>
+      )}
+      {alleFertig && !ueben && (
         <div className="it-ergebnis">
           <p className="it-kicker" style={{ color: C.gruenDunkel }}>Ergebnis</p>
-          <div className="it-ergebnis-wert">
-            {aufgabe.typ === "bestimmt" && kopf.int
-              ? <M t={`\\int_{${kopf.int.a}}^{${kopf.int.b}} ${kopf.int.inner}\\,dx ${/^≈/.test(aufgabe.ergebnis.tex) ? "" : "= "}${aufgabe.ergebnis.tex}`} />
-              : aufgabe.typ === "flaeche" || aufgabe.typ === "zwei" ? <M t={`A = ${aufgabe.ergebnis.tex}`} /> : <M t={aufgabe.ergebnis.tex} />}
-            {aufgabe.ergebnis.naeherung && <span className="it-naeh"><M t={`≈ ${aufgabe.ergebnis.naeherung}`} /></span>}
-            {aufgabe.ergebnis.einheit && <span className="it-naeh">FE</span>}
-          </div>
+          {ergebnisWert}
           {training && (
             <>
               <p style={{ fontSize: 16, fontWeight: 700, color: C.smaragd, margin: "10px 0 0" }}>
@@ -453,6 +528,7 @@ export function IntegralTrainer() {
     <div className="abl-seite it-seite">
       <style>{POP_CSS}</style>
       <style>{WERK_CSS}</style>
+      <style>{UEBEN_CSS}</style>
       <style>{IT_CSS}</style>
       <div className="abl-innen">
         {menue}
@@ -487,6 +563,7 @@ const IT_CSS = `
 .abl-seg button{flex:1;min-width:0;border-radius:999px;border:none;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;background:transparent;color:${C.grau};white-space:nowrap;padding:0 6px}
 .abl-seg button[aria-pressed="true"]{background:#fff;color:${C.see};box-shadow:0 1px 6px rgba(15,26,51,0.12)}
 .abl-seg button:disabled{opacity:.45;cursor:default}
+.it-modus-text{font-size:12.5px;color:${C.grau};line-height:1.45;margin:-2px 6px 0}
 .abl-stufe{flex:1;min-width:0;display:flex}
 .abl-stufe .wk-pop-knopf{flex:1;min-width:0;height:auto;min-height:42px;justify-content:space-between;padding:0 12px 0 14px;font-size:14.5px}
 .abl-stufe.aus{opacity:.4;pointer-events:none}
@@ -562,6 +639,18 @@ const IT_CSS = `
 .it-zahllabel{font-size:17px;font-weight:700;color:${C.tinte};white-space:nowrap}
 .it-zahlen{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap}
 .it-zahlfeld{display:flex;flex-direction:column;gap:2px;flex:1 1 72px;max-width:110px;font-size:14px;font-weight:700;color:${C.tinte}}
+/* Üben: goldenes Zielfeld des offenen Schritts, darunter die Karten (uw-*, funcUebenWahl.jsx) */
+.it-ueben{margin-top:10px}
+/* Die Frage enthält Formeln (M): die Kicker-Regel „.uw-frage span“ des gemeinsamen CSS darf sie nicht umformen */
+.it-ueben .uw-frage .it-frage-inline,.it-ueben .uw-frage .it-frage-inline span{display:inline;font-size:inherit;font-weight:inherit;letter-spacing:normal;text-transform:none;color:inherit;margin:0}
+.it-ueben .uw-frage .it-frage-inline>span{display:inline-flex;vertical-align:middle}
+.it-ziel{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;min-height:48px;margin-bottom:12px;padding:6px 14px;border-radius:12px;font-size:17px;font-weight:700;color:${C.tinte};box-sizing:border-box}
+.it-ziel-label{white-space:nowrap;display:inline-flex;align-items:center}
+.it-ziel .uw-platz{font-size:19px;line-height:1}
+.it-ziel-c{font-size:15px;font-weight:600;color:${C.grau};white-space:nowrap}
+.it-ergebnis .uw-fertig{padding-top:4px}
+.it-ergebnis .uw-fertig .uw-erg{display:flex;justify-content:center}
+.it-ergebnis .uw-fertig .it-ergebnis-wert{justify-content:center}
 .it-zumbild{margin-top:8px;height:32px;padding:0 12px;border-radius:999px;border:1px solid ${C.linie};background:#fff;color:${C.see};font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
 .it-ok{height:48px;padding:0 20px;border-radius:12px;border:none;cursor:pointer;font-family:inherit;font-size:16px;font-weight:800;color:#fff;background:${C.smaragd};box-shadow:0 4px 14px rgba(47,143,91,0.3)}
 .it-ergebnis{border:1.5px solid #CFE8DA;background:#F3FAF6;border-radius:16px;padding:14px 16px;margin:4px 0 0 40px}
@@ -576,11 +665,13 @@ const IT_CSS = `
 @media (min-width:840px){
   .abl-innen{max-width:none;width:var(--tr-breite);padding:22px 0 56px}
   .it-wahl .abl-regelknopf{font-size:13.5px}
-  .it-kopf{grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;background:#fff;border:1px solid ${C.linie};border-radius:16px;padding:8px}
+  .it-kopf{position:relative;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;background:#fff;border:1px solid ${C.linie};border-radius:16px;padding:8px 8px 28px}
   .it-kurzname{display:none}
   .it-langname{display:inline}
   .it-kopf .it-links{order:2;flex-direction:row;align-items:center;justify-content:flex-end}
-  .it-kopf .abl-seg{flex:0 0 196px}
+  /* Der Modus-Satz liegt unten rechts in der Karte – als Flex-Kind würde seine Breite die rechte Spalte aufblähen */
+  .it-kopf .it-modus-text{position:absolute;right:14px;bottom:7px;margin:0;white-space:nowrap}
+  .it-kopf .abl-seg{flex:0 0 206px}
   .it-kopf .abl-reihe{flex:0 0 auto}
   .it-kopf .abl-stufe{width:132px;flex:0 0 132px}
   .it-kopf .abl-stufe .wk-pop-liste{right:0;left:auto}

@@ -1,6 +1,10 @@
 """Browser-Test Integraltrainer (/integrale, src/funcIntegralTrainer.jsx):
-- Menü: alle sechs Aufgabentypen wählbar, Automatik zeigt den ganzen Rechenweg und das Ergebnis.
-- Training: Schritt für Schritt – falsche Eingabe → Hinweis → „Lösung zeigen“ → nächster Schritt; am Ende „Neue Aufgabe“.
+- Menü: alle sechs Aufgabentypen wählbar, Modus-Schalter Auto | Üben | Lernen (Lernen vorgewählt, Satz darunter),
+  Auto zeigt den ganzen Rechenweg und das Ergebnis.
+- Üben (bestimmtes Integral, Stufe 1): je Schritt goldenes Zielfeld + 2–4 goldene Karten; falsche Karte → rot + Hinweis,
+  richtige → Rechnung erscheint, nächster Schritt; Bild zeigt die Fläche erst nach dem Integral-Schritt;
+  Abschluss „3 von 4 Schritten auf Anhieb“, „Jetzt selbst rechnen“ → Lernen mit derselben Aufgabe.
+- Lernen: Schritt für Schritt – falsche Eingabe → Hinweis → „Lösung zeigen“ → nächster Schritt; am Ende „Neue Aufgabe“.
 - Bild: Fläche erscheint erst, wenn der Integral-Schritt gelöst ist; „Fläche wachsen lassen“, Streifen, Regler.
 - Desktop: Rechenweg links, Bild rechts. Keine Überbreite, keine Fehler in der Konsole.
   npx vite build && npx vite preview --port 4173 &   →   python3 tests/ui/integraltrainer.ui.py
@@ -72,7 +76,61 @@ with sync_playwright() as p:
         else:
             pruefe(page.locator(".it-graphknopf").is_hidden(), f"{breite}: Graph-Knopf am Desktop sichtbar")
 
-        # Training komplett durchgehen
+        # Modus-Schalter: drei Modi, Lernen vorgewählt, Satz darunter
+        seg = page.locator(".abl-seg").first
+        for name in ("Auto", "Üben", "Lernen"):
+            pruefe(seg.get_by_role("button", name=name, exact=True).count() == 1, f"{breite}: Modus {name} fehlt")
+        pruefe(seg.get_by_role("button", name="Lernen", exact=True).get_attribute("aria-pressed") == "true", f"{breite}: Lernen nicht vorgewählt")
+        pruefe("selbst" in page.locator("[data-integral-modus-text]").inner_text(), f"{breite}: Modus-Satz fehlt")
+        pruefe(page.locator("[data-integral-modus-text]").is_visible(), f"{breite}: Modus-Satz unsichtbar")
+        pruefe(breit() <= breite, f"{breite}: Überbreite mit drei Modi {breit()}")
+
+        # Üben: bestimmtes Integral, Stufe 1 – vier Wahl-Schritte (F, F(b), F(a), Integral), im ersten ein Fehlklick
+        aufgabe_vorher = page.locator(".it-formel").inner_text()
+        seg.get_by_role("button", name="Üben", exact=True).click(); page.wait_for_timeout(400)
+        pruefe("richtige Zeile" in page.locator("[data-integral-modus-text]").inner_text(), f"{breite}: Modus-Satz Üben fehlt")
+        pruefe(page.locator(".it-formel").inner_text() == aufgabe_vorher, f"{breite}: Üben wechselt die Aufgabe")
+        pruefe(page.locator("[data-integral-ueben-weg]").count() == 1, f"{breite}: Üben-Weg fehlt")
+        n_opt = page.locator("[data-ueben-wahl] .uw-option").count()
+        pruefe(2 <= n_opt <= 4, f"{breite}: Üben mit {n_opt} Karten")
+        pruefe(page.locator("[data-ueben-wahl] [data-ueben-option='richtig']").count() == 1, f"{breite}: nicht genau eine richtige Karte")
+        pruefe(page.locator("[data-ueben-ziel]").count() == 1, f"{breite}: goldenes Zielfeld fehlt")
+        ziel_rand = page.locator("[data-ueben-ziel]").evaluate("e => getComputedStyle(e).borderTopColor")
+        pruefe(ziel_rand.replace(" ", "") == "rgb(237,187,0)", f"{breite}: Zielfeld nicht gold ({ziel_rand})")
+        rand = page.locator("[data-ueben-wahl] .uw-option").first.evaluate("e => getComputedStyle(e).borderTopColor")
+        pruefe(rand.replace(" ", "") == "rgb(237,187,0)", f"{breite}: Karte ohne goldenen Rand ({rand})")
+        pruefe("schritt 1 von 4" in page.locator(".uw-frage").inner_text().lower(), f"{breite}: Schrittzähler fehlt ({page.locator('.uw-frage').inner_text()!r})")
+        pruefe(page.locator('.it-schritt[data-zustand="aktiv"]').count() == 1 and page.locator('.it-schritt[data-zustand="fertig"]').count() == 0, f"{breite}: Üben beginnt nicht bei Schritt 1")
+        pruefe(page.locator(".it-schritt input").count() == 0 and page.locator(".it-schritt .wk-feld").count() == 0, f"{breite}: Eingabefeld im Üben sichtbar")
+        page.locator('[data-ueben-option="falsch"]').first.click(); page.wait_for_timeout(300)
+        pruefe(page.locator("[data-ueben-hinweis]").count() == 1, f"{breite}: kein Hinweis nach falscher Karte")
+        pruefe(page.locator('.uw-option[data-status="falsch"]').count() == 1, f"{breite}: falsche Karte nicht rot markiert")
+        pruefe(page.locator('.it-schritt[data-zustand="fertig"]').count() == 0, f"{breite}: falsche Karte wurde eingesetzt")
+        page.screenshot(path=f"{AUS}/ueben-falsch-{breite}.png", full_page=True)
+        for schritt in range(4):
+            if schritt == 2:
+                page.screenshot(path=f"{AUS}/ueben-mitte-{breite}.png", full_page=True)
+                pruefe(page.locator(".it-rechnung").count() >= 2, f"{breite}: erledigte Üben-Schritte zeigen ihre Rechnung nicht")
+                pruefe(page.get_by_role("button", name="Fläche wachsen lassen").count() == 0, f"{breite}: Fläche im Bild vor dem Integral-Schritt")
+            pruefe(page.locator('[data-ueben-option="richtig"]').count() == 1, f"{breite}: Schritt {schritt + 1} ohne richtige Karte")
+            page.locator('[data-ueben-option="richtig"]').click(); page.wait_for_timeout(300)
+        pruefe(page.locator("[data-ueben-fertig]").count() == 1, f"{breite}: Üben ohne Abschluss")
+        fertig_text = page.locator("[data-ueben-fertig]").inner_text()
+        pruefe("3 von 4" in fertig_text, f"{breite}: Bilanz falsch ({fertig_text[:80]!r})")
+        pruefe(page.locator(".it-ergebnis .it-ergebnis-wert").count() == 1, f"{breite}: Ergebnis im Üben-Abschluss fehlt")
+        pruefe(page.locator('.it-schritt[data-zustand="fertig"]').count() == 4, f"{breite}: nicht alle Üben-Schritte erledigt")
+        pruefe(page.locator("button", has_text="Fläche wachsen lassen").count() == 1, f"{breite}: Fläche nach dem Üben nicht im Bild")
+        page.wait_for_timeout(600)
+        page.screenshot(path=f"{AUS}/ueben-fertig-{breite}.png", full_page=True)
+        pruefe(breit() <= breite, f"{breite}: Überbreite im Üben {breit()}")
+        page.get_by_role("button", name="Jetzt selbst rechnen").click(); page.wait_for_timeout(400)
+        pruefe(seg.get_by_role("button", name="Lernen", exact=True).get_attribute("aria-pressed") == "true", f"{breite}: nach Üben nicht in Lernen")
+        pruefe(page.locator(".it-formel").inner_text() == aufgabe_vorher, f"{breite}: „Jetzt selbst rechnen“ wechselt die Aufgabe")
+        pruefe(page.locator('.it-schritt[data-zustand="aktiv"]').count() == 1 and page.locator('.it-schritt[data-zustand="fertig"]').count() == 0, f"{breite}: Lernen beginnt nach Üben nicht bei Schritt 1")
+        pruefe(page.locator("[data-ueben-wahl]").count() == 0, f"{breite}: Karten im Lernen sichtbar")
+        pruefe(page.get_by_role("button", name="Fläche wachsen lassen").count() == 0, f"{breite}: Bild zeigt im Lernen schon die Fläche")
+
+        # Lernen (dieselbe Aufgabe) komplett durchgehen
         for _ in range(8):
             aktiv = page.locator('.it-schritt[data-zustand="aktiv"]')
             if not aktiv.count(): break
@@ -87,8 +145,9 @@ with sync_playwright() as p:
         page.get_by_role("button", name="Neue Aufgabe", exact=True).last.click(); page.wait_for_timeout(500)
         pruefe(page.locator('.it-schritt[data-zustand="aktiv"]').count() == 1, f"{breite}: neue Aufgabe beginnt nicht bei Schritt 1")
 
-        # Automatik: alle Typen
-        page.get_by_role("button", name="Rechnen", exact=True).click(); page.wait_for_timeout(300)
+        # Auto: alle Typen
+        page.get_by_role("button", name="Auto", exact=True).click(); page.wait_for_timeout(300)
+        pruefe("rechnet dir" in page.locator("[data-integral-modus-text]").inner_text(), f"{breite}: Modus-Satz Auto fehlt")
         if breite < 840:
             page.locator(".it-graphknopf").click(); page.wait_for_timeout(600)
         for typ in NAMEN:
